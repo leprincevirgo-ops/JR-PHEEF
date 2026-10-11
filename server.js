@@ -137,6 +137,37 @@ function contactBlocked(text) {
   ].some(r => r.test(s));
 }
 
+const PUBLIC_MEMBER_FIELDS = [
+  "id",
+  "dgbo_id",
+  "full_name",
+  "email",
+  "location",
+  "bio",
+  "theme",
+  "reward_points",
+  "profile_visibility",
+  "show_email",
+  "show_birth_year",
+  "show_location",
+  "verified",
+  "status",
+  "plan",
+  "created_at"
+];
+
+function publicMember(member) {
+  if (!member || typeof member !== "object") return null;
+
+  const safe = {};
+  for (const field of PUBLIC_MEMBER_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(member, field)) {
+      safe[field] = member[field];
+    }
+  }
+  return safe;
+}
+
 async function logActivity(memberId, action, details = {}) {
   await db.from("activity_log").insert({
     member_id: String(memberId),
@@ -540,7 +571,7 @@ app.post("/api/login", async (req, res) => {
     res.json({
       ok: true,
       message: "Login successful.",
-      member
+      member: publicMember(member)
     });
 
   } catch (e) {
@@ -658,7 +689,7 @@ app.get("/api/me", async (req, res) => {
   res.json({
     ok: true,
     logged_in: true,
-    member
+    member: publicMember(member)
   });
 });
 
@@ -1042,7 +1073,7 @@ app.put("/api/profile", async (req, res) => {
 
   res.json({
     ok: true,
-    member: data
+    member: publicMember(data)
   });
 });
 
@@ -1326,11 +1357,11 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
     else if (upper === "HELP") {
       response =
         "JR PHEEF\n\n" +
-        "🔎 FIND\n" +
-        "➕ CREATE\n" +
-        "🤝 CONNECT\n" +
-        "⭐ POINTS\n" +
-        "🔓 ACCESS\n" +
+        "🔎 FIND" +
+        "➕ CREATE" +
+        "🤝 CONNECT" +
+        "⭐ POINTS" +
+        "🔓 ACCESS" +
         "💙 FLEX / OKOA\n\n" +
         "You can also speak normally.";
     }
@@ -1393,3 +1424,4 @@ app.listen(PORT, () => {
   console.log("PHEEF FLEX: PREPARED / INACTIVE");
   console.log("Daraja: NOT CONNECTED");
 });
+
