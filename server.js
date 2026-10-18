@@ -177,16 +177,20 @@ app.post("/api/register", async (req, res) => {
 
     if (email) {
       const { data, error } = await db.from("members").select("id")
-        .eq("email", email).limit(1);
+        .ilike("email", email).limit(1);
       if (error) throw error;
-      if (data?.length) return res.status(409).json({ ok: false, error: "Account already exists. Please log in." });
+      if (data?.length) return res.status(409).json({ ok: false, error: "An account with this email already exists. Log in with that email, or use account recovery." });
     }
 
-    const { data: nextId, error: idError } = await db.rpc("next_dgbo_id");
-    if (idError) throw idError;
+    // The optional ID generator may be missing in older databases. Registration
+    // must not fail solely because that helper RPC has not been installed.
+    let nextId = null;
+    const idResult = await db.rpc("next_dgbo_id");
+    if (!idResult.error) nextId = idResult.data;
+    const memberCode = nextId || `DGBO-${Date.now().toString().slice(-6)}`;
 
     const { data: member, error } = await db.from("members").insert({
-      dgbo_id: nextId || `DGBO-${Date.now().toString().slice(-6)}`,
+      dgbo_id: memberCode,
       full_name, phone, email: email || null, birth_year,
       password_hash: await bcrypt.hash(password, 12),
       verified: false, status: "active", plan: "FREE",
@@ -214,15 +218,17 @@ app.post("/api/login", async (req, res) => {
     let member = null;
     if (identifier.includes("@")) {
       const { data, error } = await db.from("members").select("*")
-        .eq("email", emailOf(identifier)).maybeSingle();
+        .ilike("email", emailOf(identifier)).limit(2);
       if (error) throw error;
-      member = data;
+      if (data?.length > 1) return res.status(409).json({ ok: false, error: "More than one account uses this email. Contact JR PHEEF support to safely resolve the duplicate." });
+      member = data?.[0] || null;
     } else {
       for (const p of phoneVariants(identifier)) {
         const { data, error } = await db.from("members").select("*")
-          .eq("phone", p).maybeSingle();
+          .eq("phone", p).limit(2);
         if (error) throw error;
-        if (data) { member = data; break; }
+        if (data?.length > 1) return res.status(409).json({ ok: false, error: "More than one account matches this phone number. Contact JR PHEEF support to safely resolve the duplicate." });
+        if (data?.[0]) { member = data[0]; break; }
       }
     }
 
@@ -247,7 +253,7 @@ app.post("/api/login", async (req, res) => {
     res.json({ ok: true, message: "Login successful.", member: safeMember(member) });
   } catch (e) {
     console.error("Login:", e.message);
-    res.status(500).json({ ok: false, error: "Login failed." });
+    res.status(500).json({ ok: false, error: "We could not complete sign-in because of a server or database problem. Your account has not been deleted. Please try again shortly." });
   }
 });
 
