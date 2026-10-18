@@ -454,6 +454,8 @@ app.get("/api/listings", async (req, res) => {
     let q = db.from("jr_listings").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(50);
     const term = clean(req.query.q);
     if (term) q = q.ilike("item_name", `%${term.replace(/[%_,()]/g, "")}%`);
+    const category = clean(req.query.category);
+    if (category) q = q.eq("category", category);
     const { data, error } = await q;
     if (error) throw error;
     res.json({ ok: true, listings: data || [] });
