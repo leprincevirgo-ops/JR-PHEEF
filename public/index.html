@@ -459,64 +459,77 @@ async function api(url,options={}){
 }
 
 async function login(){
-
-  const data=await api("/api/login",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      identifier:$("loginIdentifier").value,
-      password:$("loginPassword").value
-    })
-  });
-
-  if(!data.ok){
-    $("loginMsg").textContent=data.error;
-    return;
+  const button=document.querySelector('#loginBox button.primary');
+  button.disabled=true;
+  $("loginMsg").textContent="Signing in…";
+  try{
+    const data=await api("/api/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        identifier:$("loginIdentifier").value.trim(),
+        password:$("loginPassword").value
+      })
+    });
+    if(!data.ok){
+      $("loginMsg").textContent=data.error||"Could not sign in. Please check your details and try again.";
+      return;
+    }
+    me=data.member;
+    $("loginMsg").textContent="";
+    await openApp();
+  }catch(e){
+    $("loginMsg").textContent="JR PHEEF could not reach the server. Check your connection and try again.";
+  }finally{
+    button.disabled=false;
   }
-
-  me=data.member;
-  openApp();
 }
 
 async function register(){
-
-  const data=await api("/api/register",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      full_name:$("regName").value,
-      phone:$("regPhone").value,
-      email:$("regEmail").value,
-      birth_year:$("regBirth").value,
-      password:$("regPassword").value
-    })
-  });
-
-  $("regMsg").textContent=data.ok
-    ? "Account created. Please login."
-    : data.error;
-
-  if(data.ok) showLogin();
+  const button=document.querySelector('#registerBox button.primary');
+  button.disabled=true;
+  $("regMsg").textContent="Creating your JR PHEEF account…";
+  try{
+    const data=await api("/api/register",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        full_name:$("regName").value.trim(),
+        phone:$("regPhone").value.trim(),
+        email:$("regEmail").value.trim(),
+        birth_year:$("regBirth").value,
+        password:$("regPassword").value
+      })
+    });
+    $("regMsg").textContent=data.ok
+      ? "Account created. Please sign in with the phone number or email and password you just registered."
+      : (data.error||"Account creation failed. Please try again.");
+    if(data.ok){
+      showLogin();
+      $("loginIdentifier").value=$("regEmail").value.trim()||$("regPhone").value.trim();
+      $("loginPassword").value="";
+      $("loginMsg").textContent="Account created. Sign in to open your dashboard.";
+    }
+  }catch(e){
+    $("regMsg").textContent="JR PHEEF could not reach the server. Your account may not have been created; check before trying again.";
+  }finally{
+    button.disabled=false;
+  }
 }
 
 async function openApp(){
-
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
-
-  $("welcome").textContent=
-    "Hello, "+(me.full_name||"Member");
-
-  $("dgbo").textContent=
-    me.dgbo_id||"JR PHEEF MEMBER";
-
+  $("welcome").textContent="Hello, "+(me.full_name||"Member");
+  $("dgbo").textContent=me.dgbo_id||"JR PHEEF MEMBER";
   fillProfile();
-
-  await refresh();
+  show("home");
+  try{
+    await refresh();
+  }catch(e){
+    console.error("Dashboard refresh failed",e);
+    $("accessText").textContent="Your session is active, but some dashboard data could not load. Refresh to try again.";
+  }
 }
 
 function fillProfile(){
@@ -532,7 +545,11 @@ async function refresh(){
 
   const data=await api("/api/me");
 
-  if(!data.logged_in) return;
+  if(!data.logged_in){
+    $("auth").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    return;
+  }
 
   me=data.member;
 
