@@ -63,6 +63,10 @@ button{
 button.primary{background:#00a9dc}
 button.dark{background:#063653}
 button.danger{background:#813b52}
+.category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.category-tile{margin:0;text-align:left;min-height:48px;background:linear-gradient(135deg,#063653,#075b7a);border:1px solid #17648c}
+.category-tile:hover,.category-tile:focus{outline:2px solid #00d9ff;background:#075b7a}
+@media(min-width:620px){.category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -169,6 +173,46 @@ placeholder="Password">
 </div>
 
 <div id="home" class="page">
+<div class="card" id="coordination">
+<h2>What would you like to do?</h2>
+<p class="muted">One JR PHEEF ecosystem. Explore a category, find an opportunity, and connect with the people or services that can help. Availability depends on providers and active integrations.</p>
+<input id="categorySearch" type="search" placeholder="Search the 33 JR PHEEF categories" oninput="filterCategories(this.value)" aria-label="Search categories">
+<div id="categoryGrid" class="category-grid">
+<button class="category-tile" type="button" data-category="Entertainment" onclick="openCategory('Entertainment')">Entertainment</button>
+<button class="category-tile" type="button" data-category="Tools" onclick="openCategory('Tools')">Tools</button>
+<button class="category-tile" type="button" data-category="Photography" onclick="openCategory('Photography')">Photography</button>
+<button class="category-tile" type="button" data-category="Business" onclick="openCategory('Business')">Business</button>
+<button class="category-tile" type="button" data-category="Shopping" onclick="openCategory('Shopping')">Shopping</button>
+<button class="category-tile" type="button" data-category="Education" onclick="openCategory('Education')">Education</button>
+<button class="category-tile" type="button" data-category="Religion" onclick="openCategory('Religion')">Religion</button>
+<button class="category-tile" type="button" data-category="Finance" onclick="openCategory('Finance')">Finance</button>
+<button class="category-tile" type="button" data-category="Fashion" onclick="openCategory('Fashion')">Fashion</button>
+<button class="category-tile" type="button" data-category="Travel" onclick="openCategory('Travel')">Travel</button>
+<button class="category-tile" type="button" data-category="Food" onclick="openCategory('Food')">Food</button>
+<button class="category-tile" type="button" data-category="Books" onclick="openCategory('Books')">Books</button>
+<button class="category-tile" type="button" data-category="Health" onclick="openCategory('Health')">Health</button>
+<button class="category-tile" type="button" data-category="Parenting" onclick="openCategory('Parenting')">Parenting</button>
+<button class="category-tile" type="button" data-category="Reference" onclick="openCategory('Reference')">Reference</button>
+<button class="category-tile" type="button" data-category="Communication" onclick="openCategory('Communication')">Communication</button>
+<button class="category-tile" type="button" data-category="Productivity" onclick="openCategory('Productivity')">Productivity</button>
+<button class="category-tile" type="button" data-category="Scientific Research" onclick="openCategory('Scientific Research')">Scientific Research</button>
+<button class="category-tile" type="button" data-category="Security" onclick="openCategory('Security')">Security</button>
+<button class="category-tile" type="button" data-category="Data & Analytics" onclick="openCategory('Data & Analytics')">Data & Analytics</button>
+<button class="category-tile" type="button" data-category="Popular" onclick="openCategory('Popular')">Popular</button>
+<button class="category-tile" type="button" data-category="Creativity" onclick="openCategory('Creativity')">Creativity</button>
+<button class="category-tile" type="button" data-category="Development Tools" onclick="openCategory('Development Tools')">Development Tools</button>
+<button class="category-tile" type="button" data-category="New & Noteworthy" onclick="openCategory('New & Noteworthy')">New & Noteworthy</button>
+<button class="category-tile" type="button" data-category="Small Business" onclick="openCategory('Small Business')">Small Business</button>
+<button class="category-tile" type="button" data-category="Business & Operations" onclick="openCategory('Business & Operations')">Business & Operations</button>
+<button class="category-tile" type="button" data-category="Social" onclick="openCategory('Social')">Social</button>
+<button class="category-tile" type="button" data-category="Download" onclick="openCategory('Download')">Download</button>
+<button class="category-tile" type="button" data-category="Sports" onclick="openCategory('Sports')">Sports</button>
+<button class="category-tile" type="button" data-category="Job" onclick="openCategory('Job')">Job</button>
+<button class="category-tile" type="button" data-category="News" onclick="openCategory('News')">News</button>
+<button class="category-tile" type="button" data-category="Music/Video" onclick="openCategory('Music/Video')">Music/Video</button>
+<button class="category-tile" type="button" data-category="Other" onclick="openCategory('Other')">Other</button>
+</div>
+</div>
 
 <div class="card">
 <h1 id="welcome"></h1>
@@ -537,11 +581,26 @@ async function redeemPoints(){
   }
 }
 
-async function searchListings(){
+function filterCategories(term){
+  const q=String(term||"").trim().toLowerCase();
+  document.querySelectorAll(".category-tile").forEach(button=>{
+    button.classList.toggle("hidden",!button.dataset.category.toLowerCase().includes(q));
+  });
+}
 
+function openCategory(category){
+  $("searchQ").value="";
+  $("create").classList.add("hidden");
+  show("find");
+  $("results").innerHTML="<p class='muted'>Showing opportunities in: "+escapeHtml(category)+".</p>";
+  searchListings(category);
+}
+
+async function searchListings(category=""){
   const q=encodeURIComponent($("searchQ").value);
+  const cat=encodeURIComponent(category);
 
-  const data=await api("/api/listings?q="+q);
+  const data=await api("/api/listings?q="+q+(category?"&category="+cat:""));
 
   if(!data.ok){
 
