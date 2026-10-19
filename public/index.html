@@ -254,7 +254,8 @@ placeholder="Password">
 <div class="grid"><div class="card"><h3>DGBO</h3><b>Parent company</b><p class="muted">Strategy, governance, approved investment and long-term continuity.</p></div><div class="card"><h3>JR PHEEF</h3><b>Opportunity engine</b><p class="muted">Discover opportunities, publish offers, connect participants and coordinate next steps.</p></div><div class="card"><h3>FAMILY</h3><b>Financial access</b><p class="muted">Separate financial-services layer. Wallet, lending and payments are not presented as active unless integrated and verified.</p></div></div></div>
 <div class="card"><h2>Coordinate a goal</h2><p class="muted">Describe what you want to achieve. JR PHEEF creates a practical checklist and links to existing platform actions. It does not itself fund, purchase, hire or contact providers.</p><textarea id="ecosystemGoal" maxlength="1200" placeholder="Example: I want to open a small supermarket in Nairobi."></textarea>
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
-<div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
+<div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: controlled by owner permissions.</li><li>FAMILY services: catalogue is shown with its real planned/pilot/active status.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p><button class="primary" onclick="loadEcosystemServices()">REFRESH CONNECTED SERVICES</button><div id="ecosystemServices"></div></div>
+<div class="card"><h2>DGBO Owner Console</h2><p class="muted">Private company oversight: venture status, recorded finance entries, pending approvals and recent activity. This console is restricted to accounts authorised as owners.</p><button class="primary" onclick="loadOwnerEcosystem()">OPEN OWNER OVERVIEW</button><div id="ownerEcosystem"></div></div></div>
 <div id="find" class="page hidden">
 
 <div class="card">
@@ -605,6 +606,56 @@ async function redeemPoints(){
   }
 }
 
+
+async function loadEcosystemServices(){
+  const out=$("ecosystemServices");
+  out.innerHTML="<p class='muted'>Loading connected services…</p>";
+  try{
+    const data=await api("/api/ecosystem/services");
+    if(!data.ok){out.innerHTML="<p class='muted'>"+escapeHtml(data.error||"Services unavailable.")+"</p>";return;}
+    const ventures=(data.ventures||[]).map(v=>"<div class='listing'><b>"+escapeHtml(v.name)+"</b> <span class='badge'>"+escapeHtml(v.status)+"</span><p class='muted'>"+escapeHtml(v.purpose)+"</p><small>"+escapeHtml(v.legal_entity.replace("_"," "))+"</small></div>").join("");
+    const family=(data.family_services||[]).map(v=>"<div class='listing'><b>"+escapeHtml(v.name)+"</b> <span class='badge'>"+escapeHtml(v.status)+"</span><p class='muted'>"+escapeHtml(v.description)+"</p><small>"+(v.requires_authorised_partner?"Authorised partner required":"Educational information")+"</small></div>").join("");
+    out.innerHTML="<h3>Group ventures</h3>"+(ventures||"<p>No ventures configured.</p>")+"<h3>FAMILY service catalogue</h3>"+(family||"<p>No FAMILY services configured.</p>")+"<p class='muted'>A planned service is not a live wallet, bank account, credit product or investment account.</p>";
+  }catch(e){out.innerHTML="<p class='muted'>Could not load services. Check your connection.</p>";}
+}
+async function loadOwnerEcosystem(){
+  const out=$("ownerEcosystem");
+  out.innerHTML="<p class='muted'>Checking owner access and loading reports…</p>";
+  try{
+    const data=await api("/api/owner/ecosystem/overview");
+    if(!data.ok){out.innerHTML="<p class='muted'>"+escapeHtml(data.error||"Owner overview unavailable.")+"</p>";return;}
+    const ventures=data.ventures||[], totals=data.finance_totals||{};
+    const cards=ventures.map(v=>{
+      const t=totals[v.code]||{revenue:0,expense:0,reserve:0,investment:0,dividend:0,intercompany:0,refund:0,other:0,currency:"KES"};
+      return "<div class='listing'><b>"+escapeHtml(v.name)+"</b> <span class='badge'>"+escapeHtml(v.status)+"</span><p>Recorded revenue: "+escapeHtml(t.currency)+" "+Number(t.revenue||0).toLocaleString()+"</p><p>Recorded expenses: "+escapeHtml(t.currency)+" "+Number(t.expense||0).toLocaleString()+"</p><small>Management records only; reconcile with source statements.</small></div>";
+    }).join("");
+    const approvals=(data.pending_approvals||[]).map(a=>"<div class='listing'><b>"+escapeHtml(a.title)+"</b><p>"+escapeHtml(a.venture_code)+" · "+escapeHtml(a.risk_level)+" risk</p><p>"+escapeHtml(a.details)+"</p>"+(a.amount==null?"":"<p>Amount requested: "+escapeHtml(a.currency)+" "+Number(a.amount).toLocaleString()+"</p>")+"<button onclick=\"decideEcosystemApproval('"+escapeHtml(a.id)+"','approved')\">APPROVE REQUEST</button><button class='danger' onclick=\"decideEcosystemApproval('"+escapeHtml(a.id)+"','rejected')\">REJECT REQUEST</button></div>").join("");
+    const activity=(data.recent_activity||[]).slice(0,10).map(a=>"<li>"+escapeHtml(a.action)+" · "+escapeHtml(a.created_at)+"</li>").join("");
+    const options=ventures.map(v=>"<option value='"+escapeHtml(v.code)+"'>"+escapeHtml(v.name)+"</option>").join("");
+    out.innerHTML="<h3>Venture overview</h3>"+(cards||"<p>No ventures found.</p>")+"<h3>Record a finance entry</h3><p class='muted'>Record an actual documented item only. This is not a bank feed or proof of cash availability.</p><form onsubmit='recordEcosystemFinance(event)'><select id='ecoFinanceVenture' required>"+options+"</select><select id='ecoFinanceType' required><option value='revenue'>Revenue</option><option value='expense'>Expense</option><option value='reserve'>Reserve</option><option value='investment'>Investment</option><option value='dividend'>Dividend</option><option value='intercompany'>Intercompany</option><option value='refund'>Refund</option><option value='other'>Other</option></select><input id='ecoFinanceAmount' type='number' min='0' step='0.01' required placeholder='Amount (KES)'><input id='ecoFinanceDate' type='date'><input id='ecoFinanceDescription' maxlength='500' required placeholder='Description / source reference'><button class='primary' type='submit'>RECORD ENTRY</button></form><p id='ecoFinanceMsg' aria-live='polite'></p><h3>Pending approvals</h3>"+(approvals||"<p class='muted'>No pending approvals.</p>")+"<h3>Recent activity</h3><ul>"+(activity||"<li>No recent activity returned.</li>")+"</ul><p class='muted'>Totals are grouped by currency and reflect recorded entries only, not audited financial statements.</p>";
+  }catch(e){out.innerHTML="<p class='muted'>Could not load owner overview. Check your connection.</p>";}
+}
+async function recordEcosystemFinance(event){
+  event.preventDefault();
+  const msg=$("ecoFinanceMsg");msg.textContent="Saving entry…";
+  try{
+    const data=await api("/api/owner/ecosystem/finance",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      venture_code:$("ecoFinanceVenture").value,entry_type:$("ecoFinanceType").value,
+      amount:$("ecoFinanceAmount").value,currency:"KES",entry_date:$("ecoFinanceDate").value,
+      description:$("ecoFinanceDescription").value.trim()
+    })});
+    msg.textContent=data.message||data.error||"No response.";
+    if(data.ok) await loadOwnerEcosystem();
+  }catch(e){msg.textContent="Could not save the entry. Try again.";}
+}
+async function decideEcosystemApproval(id,decision){
+  if(!confirm("Confirm you want to "+decision+" this request? This records a governance decision; it does not move money."))return;
+  try{
+    const data=await api("/api/owner/ecosystem/approvals/"+encodeURIComponent(id)+"/decision",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision})});
+    if(!data.ok){alert(data.error||"Decision could not be saved.");return;}
+    await loadOwnerEcosystem();
+  }catch(e){alert("Could not save the decision. Please retry.");}
+}
 function coordinateGoal(){
 const goal=$("ecosystemGoal").value.trim(),type=$("ecosystemType").value,out=$("ecosystemPlan");
 if(!goal){out.innerHTML="<p>Please describe the goal first.</p>";return;}
