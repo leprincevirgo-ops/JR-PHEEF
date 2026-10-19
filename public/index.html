@@ -165,6 +165,7 @@ placeholder="Password">
 
 <div class="nav">
 <button onclick="show('home')">HOME</button>
+<button onclick="show('ecosystem')">ECOSYSTEM</button>
 <button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
 <button onclick="show('points')">POINTS</button>
@@ -248,6 +249,12 @@ placeholder="Password">
 
 </div>
 
+<div id="ecosystem" class="page hidden">
+<div class="card"><h2>ONE JR PHEEF ECOSYSTEM</h2><p class="muted">One connected experience for opportunities, business coordination and eligible partner services. Each organisation retains its own responsibilities and permissions.</p>
+<div class="grid"><div class="card"><h3>DGBO</h3><b>Parent company</b><p class="muted">Strategy, governance, approved investment and long-term continuity.</p></div><div class="card"><h3>JR PHEEF</h3><b>Opportunity engine</b><p class="muted">Discover opportunities, publish offers, connect participants and coordinate next steps.</p></div><div class="card"><h3>FAMILY</h3><b>Financial access</b><p class="muted">Separate financial-services layer. Wallet, lending and payments are not presented as active unless integrated and verified.</p></div></div></div>
+<div class="card"><h2>Coordinate a goal</h2><p class="muted">Describe what you want to achieve. JR PHEEF creates a practical checklist and links to existing platform actions. It does not itself fund, purchase, hire or contact providers.</p><textarea id="ecosystemGoal" maxlength="1200" placeholder="Example: I want to open a small supermarket in Nairobi."></textarea>
+<select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
+<div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 <div id="find" class="page hidden">
 
 <div class="card">
@@ -598,6 +605,18 @@ async function redeemPoints(){
   }
 }
 
+function coordinateGoal(){
+const goal=$("ecosystemGoal").value.trim(),type=$("ecosystemType").value,out=$("ecosystemPlan");
+if(!goal){out.innerHTML="<p>Please describe the goal first.</p>";return;}
+const plans={
+business:[["Define the business","Clarify customers, location, offer, budget and success target."],["Research the market","Search relevant products, suppliers and services; verify details directly."],["Map resources","List premises, equipment, stock, staff, licences and estimated costs."],["Build the network","Use CREATE to publish genuine needs or offers and connect with participants."],["Validate funding","Prepare a budget and assess lawful funding options. FAMILY services are not assumed available or approved."],["Execute and track","Complete legal and operational requirements, then review costs, sales, stock and milestones."]],
+find:[["Specify the need","Define item or service, location, budget and timing."],["Search JR PHEEF","Open FIND and search listings; check offer details."],["Compare and verify","Compare price, quality, availability and terms."],["Arrange the transaction","Confirm payment and collection/delivery; do not assume integrated checkout."]],
+work:[["Define the role or service","List skills, location, schedule, compensation and requirements."],["Find opportunities","Search JR PHEEF listings and relevant categories."],["Publish an offer","Use CREATE for a truthful listing, subject to access and platform rules."],["Verify and agree","Check identity, qualifications, terms and safety."]],
+learn:[["Define the outcome","Specify the skill or research question, deadline and resources."],["Find resources","Search relevant JR PHEEF categories and opportunities."],["Create milestones","Break the goal into tasks and measurable results."],["Review progress","Record results, gaps and next actions."]],
+general:[["Define success","State the outcome, deadline and constraints."],["Discover options","Search JR PHEEF categories and opportunities."],["Identify resources","List services, tools, skills, costs and permissions needed."],["Act and review","Complete the first step, verify results and update the plan."]]};
+const items=plans[type]||plans.general;
+out.innerHTML="<h3>Your action plan</h3><p><b>Goal:</b> "+escapeHtml(goal)+"</p><ol>"+items.map(s=>"<li><b>"+escapeHtml(s[0])+"</b><br>"+escapeHtml(s[1])+"</li>").join("")+"</ol><p class='muted'>This is a planning checklist, not a promise that third-party services, financing or transactions are available.</p><button class='dark' onclick=\"show('find')\">OPEN FIND</button><button class='dark' onclick=\"show('create')\">CREATE OPPORTUNITY</button>";
+}
 function filterCategories(term){
   const q=String(term||"").trim().toLowerCase();
   document.querySelectorAll(".category-tile").forEach(button=>{
