@@ -1,0 +1,40 @@
+name: Validate JR PHEEF ecosystem build
+
+on:
+  push:
+    branches:
+      - main
+      - build/dgbo-family-ecosystem
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check server JavaScript syntax
+        run: node --check server.js
+      - name: Check embedded browser JavaScript syntax
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('public/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+          if (!scripts.length) throw new Error('No inline script found in public/index.html');
+          for (let i = 0; i < scripts.length; i++) {
+            new vm.Script(scripts[i][1], { filename: `public/index.html:inline-script-${i + 1}.js` });
+          }
+          console.log(`Validated ${scripts.length} inline script block(s).`);
+          NODE
+      - name: Check ecosystem migration and docs exist
+        run: |
+          test -s supabase/migrations/20261019_dgbo_family_ecosystem.sql
+          test -s docs/DGBO_FAMILY_ECOSYSTEM.md
