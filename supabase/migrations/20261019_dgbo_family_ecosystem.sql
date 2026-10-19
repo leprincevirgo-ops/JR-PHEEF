@@ -1,7 +1,9 @@
 -- DGBO / JR PHEEF / FAMILY ecosystem foundation
 -- Apply in Supabase SQL Editor after reviewing against the live project.
--- These are separate group-management tables; they do not replace existing JR PHEEF tables.
+-- Adds a dedicated authorization role to existing JR PHEEF members, then creates separate group-management tables.
 begin;
+
+alter table public.members add column if not exists role text;
 
 create table if not exists public.dgbo_ventures (
   id uuid primary key default gen_random_uuid(),
