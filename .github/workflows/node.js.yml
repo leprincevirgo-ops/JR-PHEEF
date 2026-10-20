@@ -1,31 +1,52 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
 name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "build/dgbo-family-ecosystem"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
-
+  validate:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check server JavaScript syntax
+        run: node --check server.js
+      - name: Run automated tests
+        run: npm test
+      - name: Check browser JavaScript and official categories
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('public/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+          if (!scripts.length) throw new Error('No inline script found in public/index.html');
+          for (let i = 0; i < scripts.length; i++) {
+            new vm.Script(scripts[i][1], { filename: 'public/index.html:inline-script-' + (i + 1) + '.js' });
+          }
+          const expected = [
+            "Entertainment", "Tools", "Photography", "Business", "Shopping", "Education",
+            "Religion", "Finance", "Fashion", "Travel", "Food", "Books", "Health",
+            "Parenting", "Reference", "Communication", "Productivity", "Scientific Research",
+            "Security", "Data&Analytics", "Popular", "Creativity", "Development Tools",
+            "New&Noteworthy", "Small Business", "Business & Operations", "Social", "Download",
+            "Sports", "Job", "News", "Music/Video", "Other"
+          ];
+          const actual = [...html.matchAll(/data-category="([^"]+)"/g)].map(match => match[1]);
+          if (actual.length !== expected.length || expected.some((name, i) => actual[i] !== name)) {
+            throw new Error('The 33 official JR PHEEF categories are missing, duplicated, or out of order.');
+          }
+          console.log('Validated ' + scripts.length + ' inline script block(s) and all ' + expected.length + ' official categories.');
+          NODE
+      - name: Check ecosystem migration and documentation
+        run: |
+          test -s supabase/migrations/20261019_dgbo_family_ecosystem.sql
+          test -s docs/DGBO_FAMILY_ECOSYSTEM.md

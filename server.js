@@ -6,6 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
+const { normalizeCategory } = require("./lib/categories");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -24,6 +25,7 @@ if (!URL || !KEY) {
 const db = createClient(URL, KEY);
 const ACCESS_PRICE = 30;
 const ACCESS_HOURS = 5;
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 6 * 1024 * 1024, files: 20 }
@@ -53,7 +55,7 @@ function phoneVariants(v) {
 const MEMBER_FIELDS = [
   "id", "dgbo_id", "full_name", "email", "location", "bio", "theme",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
-  "show_location", "verified", "status", "plan", "created_at"
+  "show_location", "verified", "status", "plan", "created_at", "account_type", "role"
 ];
 
 function safeMember(m) {
@@ -138,7 +140,7 @@ async function accessStatus(id) {
 }
 
 app.get("/health", (req, res) => res.json({
-  ok: true, app: "JR PHEEF", version: "5.0.0",
+  ok: true, app: "JR PHEEF", version: "5.1.0",
   access: "KSh 30 / 5 hours", free_window: "02:00-06:00 EAT",
   flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
 }));
@@ -460,8 +462,14 @@ app.get("/api/listings", async (req, res) => {
     let q = db.from("jr_listings").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(50);
     const term = clean(req.query.q);
     if (term) q = q.ilike("item_name", `%${term.replace(/[%_,()]/g, "")}%`);
-    const category = clean(req.query.category);
-    if (category) q = q.eq("category", category);
+    const requestedCategory = clean(req.query.category);
+    const category = requestedCategory ? normalizeCategory(requestedCategory) : "";
+    if (requestedCategory && !category) {
+      return res.status(400).json({ ok: false, error: "Choose one of the 33 official JR PHEEF categories." });
+    }
+    if (category === "Data&Analytics") q = q.in("category", ["Data&Analytics", "Data & Analytics"]);
+    else if (category === "New&Noteworthy") q = q.in("category", ["New&Noteworthy", "New & Noteworthy"]);
+    else if (category) q = q.eq("category", category);
     const { data, error } = await q;
     if (error) throw error;
     res.json({ ok: true, listings: data || [] });
@@ -480,7 +488,10 @@ app.post("/api/listings", upload.array("photos", 20), async (req, res) => {
 
     const item_name = clean(req.body.item_name);
     const description = clean(req.body.description);
+    const category = normalizeCategory(req.body.category);
     const price = Number(req.body.price || 0);
+    if (!category)
+      return res.status(400).json({ ok: false, error: "Choose one of the 33 official JR PHEEF categories." });
     if (!item_name || item_name.length > 120)
       return res.status(400).json({ ok: false, error: "Enter a valid listing title." });
     if (!Number.isFinite(price) || price < 0)
@@ -501,7 +512,7 @@ app.post("/api/listings", upload.array("photos", 20), async (req, res) => {
 
     const { data, error } = await db.from("jr_listings").insert({
       member_id: String(m.id), item_name, description,
-      category: clean(req.body.category), price,
+      category, price,
       location: clean(req.body.location), photos, status: "active"
     }).select().single();
     if (error) throw error;
@@ -560,6 +571,141 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
   } catch (e) {
     console.error("WhatsApp:", e.message);
     res.type("text/xml").send("<Response><Message>JR PHEEF is temporarily unavailable.</Message></Response>");
+  }
+});
+
+
+/* DGBO / JR PHEEF / FAMILY ECOSYSTEM */
+function isOwnerMember(member) {
+  return [member?.account_type, member?.role].some(
+    value => String(value || "").toLowerCase() === "owner"
+  );
+}
+async function auditEcosystem(member, action, ventureCode = null, details = {}) {
+  const { error } = await db.from("dgbo_audit_events").insert({
+    actor_member_id: String(member.id), venture_code: ventureCode, action, details
+  });
+  if (error) console.error("Ecosystem audit failed:", error.message);
+}
+app.get("/api/ecosystem/services", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const [v, f] = await Promise.all([
+      db.from("dgbo_ventures").select("code,name,purpose,status,legal_entity").order("name"),
+      db.from("family_service_catalog").select("code,name,description,status,provider_name,requires_authorised_partner").order("name")
+    ]);
+    if (v.error || f.error) throw (v.error || f.error);
+    res.json({ ok: true, ventures: v.data || [], family_services: f.data || [],
+      note: "Only services marked active and independently verified should be presented as available financial products." });
+  } catch (e) {
+    console.error("Ecosystem services:", e.message);
+    if (!res.headersSent) res.status(503).json({ ok: false, error: "Ecosystem catalogue is not ready. Apply the DGBO/FAMILY database migration first." });
+  }
+});
+app.get("/api/owner/ecosystem/overview", async (req, res) => {
+  try {
+    const owner = await requireMember(req, res);
+    if (!owner) return;
+    if (!isOwnerMember(owner)) return res.status(403).json({ ok: false, error: "Owner access required." });
+    const [v, f, a, activity] = await Promise.all([
+      db.from("dgbo_ventures").select("code,name,purpose,status,legal_entity").order("name"),
+      db.from("dgbo_finance_entries").select("venture_code,entry_type,amount,currency,status,entry_date,description,created_at").neq("status", "void").order("created_at", { ascending: false }).limit(500),
+      db.from("dgbo_approval_requests").select("id,venture_code,requested_by,title,details,amount,currency,risk_level,status,created_at").order("created_at", { ascending: false }).limit(100),
+      db.from("activity_log").select("member_id,action,details,created_at").order("created_at", { ascending: false }).limit(50)
+    ]);
+    const failed = [v, f, a, activity].find(x => x.error);
+    if (failed) throw failed.error;
+    const totals = {};
+    for (const e of (f.data || [])) {
+      if (e.status === "draft") continue;
+      const key = e.venture_code;
+      if (!totals[key]) totals[key] = { revenue:0, expense:0, reserve:0, investment:0, dividend:0, intercompany:0, refund:0, other:0, currency:e.currency || "KES" };
+      if (totals[key].currency !== (e.currency || "KES")) continue;
+      if (Object.hasOwn(totals[key], e.entry_type)) totals[key][e.entry_type] += Number(e.amount || 0);
+    }
+    res.json({ ok:true, ventures:v.data || [], finance_totals:totals,
+      recent_finance_entries:(f.data || []).slice(0,30),
+      pending_approvals:(a.data || []).filter(x=>x.status==="pending"),
+      recent_activity:activity.data || [] });
+  } catch (e) {
+    console.error("Owner ecosystem overview:", e.message);
+    if (!res.headersSent) res.status(503).json({ ok:false, error:"Owner overview is not ready. Apply the ecosystem migration and verify the owner account." });
+  }
+});
+app.post("/api/ecosystem/approvals", async (req, res) => {
+  try {
+    const m = await requireMember(req, res);
+    if (!m) return;
+    const venture_code = clean(req.body.venture_code).toUpperCase();
+    const title = clean(req.body.title), details = clean(req.body.details);
+    const amount = req.body.amount === "" || req.body.amount == null ? null : Number(req.body.amount);
+    const risk_level = clean(req.body.risk_level || "normal");
+    if (!venture_code || !title || title.length > 160 || !details || details.length > 3000)
+      return res.status(400).json({ ok:false, error:"Choose a venture and enter a short title and details." });
+    if (amount !== null && (!Number.isFinite(amount) || amount < 0))
+      return res.status(400).json({ ok:false, error:"Enter a valid non-negative amount." });
+    if (!["low","normal","high","critical"].includes(risk_level))
+      return res.status(400).json({ ok:false, error:"Invalid risk level." });
+    const { data, error } = await db.from("dgbo_approval_requests").insert({
+      venture_code, requested_by:String(m.id), title, details, amount, risk_level, status:"pending"
+    }).select("id,venture_code,title,status,created_at").single();
+    if (error) throw error;
+    await auditEcosystem(m, "APPROVAL_REQUEST_CREATED", venture_code, { request_id:data.id });
+    res.status(201).json({ ok:true, request:data, message:"Request submitted for review. No money has been moved or spent." });
+  } catch (e) {
+    console.error("Approval request:", e.message);
+    if (!res.headersSent) res.status(503).json({ ok:false, error:"Could not submit the request. Check that the ecosystem migration is applied." });
+  }
+});
+app.post("/api/owner/ecosystem/finance", async (req, res) => {
+  try {
+    const owner = await requireMember(req, res);
+    if (!owner) return;
+    if (!isOwnerMember(owner)) return res.status(403).json({ ok:false, error:"Owner access required." });
+    const venture_code = clean(req.body.venture_code).toUpperCase();
+    const entry_type = clean(req.body.entry_type);
+    const amount = Number(req.body.amount);
+    const currency = clean(req.body.currency || "KES").toUpperCase();
+    const description = clean(req.body.description);
+    const entry_date = clean(req.body.entry_date) || new Date().toISOString().slice(0,10);
+    if (!venture_code || !["revenue","expense","reserve","investment","dividend","intercompany","refund","other"].includes(entry_type))
+      return res.status(400).json({ ok:false, error:"Choose a venture and valid entry type." });
+    if (!Number.isFinite(amount) || amount < 0 || amount > 999999999999)
+      return res.status(400).json({ ok:false, error:"Enter a valid non-negative amount." });
+    if (!/^[A-Z]{3}$/.test(currency) || !description || description.length > 500)
+      return res.status(400).json({ ok:false, error:"Enter a currency code and a description." });
+    const { data, error } = await db.from("dgbo_finance_entries").insert({
+      venture_code, entry_type, amount, currency, description, entry_date,
+      status:"recorded", created_by:String(owner.id)
+    }).select("id,venture_code,entry_type,amount,currency,description,entry_date,status,created_at").single();
+    if (error) throw error;
+    await auditEcosystem(owner, "FINANCE_ENTRY_CREATED", venture_code, { entry_id:data.id, entry_type, amount, currency });
+    res.status(201).json({ ok:true, entry:data, message:"Entry recorded. Reconcile it against source documents and bank/provider records." });
+  } catch (e) {
+    console.error("Owner finance entry:", e.message);
+    if (!res.headersSent) res.status(503).json({ ok:false, error:"Could not record the entry. Check migration and venture code." });
+  }
+});
+app.post("/api/owner/ecosystem/approvals/:id/decision", async (req, res) => {
+  try {
+    const owner = await requireMember(req, res);
+    if (!owner) return;
+    if (!isOwnerMember(owner)) return res.status(403).json({ ok:false, error:"Owner access required." });
+    const decision = clean(req.body.decision), note = clean(req.body.note);
+    if (!["approved","rejected"].includes(decision))
+      return res.status(400).json({ ok:false, error:"Decision must be approved or rejected." });
+    const { data, error } = await db.from("dgbo_approval_requests").update({
+      status:decision, decision_by:String(owner.id), decision_note:note || null, decided_at:new Date().toISOString()
+    }).eq("id",req.params.id).eq("status","pending")
+      .select("id,venture_code,title,status,decision_by,decision_note,decided_at").maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(409).json({ ok:false, error:"Request was not found or has already been decided." });
+    await auditEcosystem(owner, "APPROVAL_DECISION", data.venture_code, { request_id:data.id, decision });
+    res.json({ ok:true, request:data });
+  } catch (e) {
+    console.error("Approval decision:", e.message);
+    if (!res.headersSent) res.status(503).json({ ok:false, error:"Could not save the decision." });
   }
 });
 
