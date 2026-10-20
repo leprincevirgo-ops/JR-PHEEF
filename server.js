@@ -24,6 +24,27 @@ if (!URL || !KEY) {
 const db = createClient(URL, KEY);
 const ACCESS_PRICE = 30;
 const ACCESS_HOURS = 5;
+
+const JR_PHEEF_CATEGORIES = Object.freeze([
+  "Entertainment", "Tools", "Photography", "Business", "Shopping", "Education",
+  "Religion", "Finance", "Fashion", "Travel", "Food", "Books", "Health",
+  "Parenting", "Reference", "Communication", "Productivity", "Scientific Research",
+  "Security", "Data&Analytics", "Popular", "Creativity", "Development Tools",
+  "New&Noteworthy", "Small Business", "Business & Operations", "Social", "Download",
+  "Sports", "Job", "News", "Music/Video", "Other"
+]);
+
+function normalizeCategory(value) {
+  const label = clean(value).toLocaleLowerCase();
+  const aliases = {
+    "data & analytics": "Data&Analytics",
+    "new & noteworthy": "New&Noteworthy"
+  };
+  const normalized = aliases[label] || label;
+  return JR_PHEEF_CATEGORIES.find(
+    category => category.toLocaleLowerCase() === normalized
+  ) || null;
+}
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 6 * 1024 * 1024, files: 20 }
@@ -138,7 +159,7 @@ async function accessStatus(id) {
 }
 
 app.get("/health", (req, res) => res.json({
-  ok: true, app: "JR PHEEF", version: "5.0.0",
+  ok: true, app: "JR PHEEF", version: "5.1.0",
   access: "KSh 30 / 5 hours", free_window: "02:00-06:00 EAT",
   flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
 }));
@@ -460,8 +481,14 @@ app.get("/api/listings", async (req, res) => {
     let q = db.from("jr_listings").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(50);
     const term = clean(req.query.q);
     if (term) q = q.ilike("item_name", `%${term.replace(/[%_,()]/g, "")}%`);
-    const category = clean(req.query.category);
-    if (category) q = q.eq("category", category);
+    const requestedCategory = clean(req.query.category);
+    const category = requestedCategory ? normalizeCategory(requestedCategory) : "";
+    if (requestedCategory && !category) {
+      return res.status(400).json({ ok: false, error: "Choose one of the 33 official JR PHEEF categories." });
+    }
+    if (category === "Data&Analytics") q = q.in("category", ["Data&Analytics", "Data & Analytics"]);
+    else if (category === "New&Noteworthy") q = q.in("category", ["New&Noteworthy", "New & Noteworthy"]);
+    else if (category) q = q.eq("category", category);
     const { data, error } = await q;
     if (error) throw error;
     res.json({ ok: true, listings: data || [] });
@@ -480,7 +507,10 @@ app.post("/api/listings", upload.array("photos", 20), async (req, res) => {
 
     const item_name = clean(req.body.item_name);
     const description = clean(req.body.description);
+    const category = normalizeCategory(req.body.category);
     const price = Number(req.body.price || 0);
+    if (!category)
+      return res.status(400).json({ ok: false, error: "Choose one of the 33 official JR PHEEF categories." });
     if (!item_name || item_name.length > 120)
       return res.status(400).json({ ok: false, error: "Enter a valid listing title." });
     if (!Number.isFinite(price) || price < 0)
@@ -501,7 +531,7 @@ app.post("/api/listings", upload.array("photos", 20), async (req, res) => {
 
     const { data, error } = await db.from("jr_listings").insert({
       member_id: String(m.id), item_name, description,
-      category: clean(req.body.category), price,
+      category, price,
       location: clean(req.body.location), photos, status: "active"
     }).select().single();
     if (error) throw error;
