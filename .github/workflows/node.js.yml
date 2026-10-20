@@ -19,6 +19,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Check server JavaScript syntax
         run: node --check server.js
+      - name: Run automated tests
+        run: npm test
       - name: Check browser JavaScript and official categories
         run: |
           node <<'NODE'
