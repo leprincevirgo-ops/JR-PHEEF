@@ -19,7 +19,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Check server JavaScript syntax
         run: node --check server.js
-      - name: Check browser JavaScript syntax
+      - name: Check browser JavaScript and official categories
         run: |
           node <<'NODE'
           const fs = require('node:fs');
@@ -30,7 +30,19 @@ jobs:
           for (let i = 0; i < scripts.length; i++) {
             new vm.Script(scripts[i][1], { filename: `public/index.html:inline-script-${i + 1}.js` });
           }
-          console.log(`Validated ${scripts.length} inline script block(s).`);
+          const expected = [
+            "Entertainment", "Tools", "Photography", "Business", "Shopping", "Education",
+            "Religion", "Finance", "Fashion", "Travel", "Food", "Books", "Health",
+            "Parenting", "Reference", "Communication", "Productivity", "Scientific Research",
+            "Security", "Data&Analytics", "Popular", "Creativity", "Development Tools",
+            "New&Noteworthy", "Small Business", "Business & Operations", "Social", "Download",
+            "Sports", "Job", "News", "Music/Video", "Other"
+          ];
+          const actual = [...html.matchAll(/data-category="([^"]+)"/g)].map(match => match[1]);
+          if (actual.length !== expected.length || expected.some((name, i) => actual[i] !== name)) {
+            throw new Error('The 33 official JR PHEEF categories are missing, duplicated, or out of order.');
+          }
+          console.log(`Validated ${scripts.length} inline script block(s) and all ${expected.length} official categories.`);
           NODE
       - name: Check ecosystem migration and documentation
         run: |
