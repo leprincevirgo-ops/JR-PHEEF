@@ -4,7 +4,8 @@
   "description": "JR PHEEF — Find. Match. Trade. A multi-category opportunity and coordination platform.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"
