@@ -25,10 +25,10 @@ jobs:
           const fs = require('node:fs');
           const vm = require('node:vm');
           const html = fs.readFileSync('public/index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+          const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
           if (!scripts.length) throw new Error('No inline script found in public/index.html');
           for (let i = 0; i < scripts.length; i++) {
-            new vm.Script(scripts[i][1], { filename: `public/index.html:inline-script-${i + 1}.js` });
+            new vm.Script(scripts[i][1], { filename: 'public/index.html:inline-script-' + (i + 1) + '.js' });
           }
           const expected = [
             "Entertainment", "Tools", "Photography", "Business", "Shopping", "Education",
@@ -42,7 +42,7 @@ jobs:
           if (actual.length !== expected.length || expected.some((name, i) => actual[i] !== name)) {
             throw new Error('The 33 official JR PHEEF categories are missing, duplicated, or out of order.');
           }
-          console.log(`Validated ${scripts.length} inline script block(s) and all ${expected.length} official categories.`);
+          console.log('Validated ' + scripts.length + ' inline script block(s) and all ' + expected.length + ' official categories.');
           NODE
       - name: Check ecosystem migration and documentation
         run: |
