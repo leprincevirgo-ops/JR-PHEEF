@@ -6,6 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
+const { normalizeCategory } = require("./lib/categories");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -25,26 +26,6 @@ const db = createClient(URL, KEY);
 const ACCESS_PRICE = 30;
 const ACCESS_HOURS = 5;
 
-const JR_PHEEF_CATEGORIES = Object.freeze([
-  "Entertainment", "Tools", "Photography", "Business", "Shopping", "Education",
-  "Religion", "Finance", "Fashion", "Travel", "Food", "Books", "Health",
-  "Parenting", "Reference", "Communication", "Productivity", "Scientific Research",
-  "Security", "Data&Analytics", "Popular", "Creativity", "Development Tools",
-  "New&Noteworthy", "Small Business", "Business & Operations", "Social", "Download",
-  "Sports", "Job", "News", "Music/Video", "Other"
-]);
-
-function normalizeCategory(value) {
-  const label = clean(value).toLocaleLowerCase();
-  const aliases = {
-    "data & analytics": "Data&Analytics",
-    "new & noteworthy": "New&Noteworthy"
-  };
-  const normalized = aliases[label] || label;
-  return JR_PHEEF_CATEGORIES.find(
-    category => category.toLocaleLowerCase() === normalized
-  ) || null;
-}
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 6 * 1024 * 1024, files: 20 }
