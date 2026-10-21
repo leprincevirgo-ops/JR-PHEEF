@@ -493,7 +493,8 @@ app.patch("/api/lab/experiments/:id", async (req, res) => {
   }
 });
 
-\n/* PROFILE */
+
+/* PROFILE */
 app.put("/api/profile", async (req, res) => {
   try {
     const m = await requireMember(req, res);
