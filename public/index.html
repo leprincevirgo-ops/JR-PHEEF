@@ -573,6 +573,8 @@ function show(id){
 
   if(id==="points") refresh();
   if(id==="home") refresh();
+  if(id==="library") loadLibrary($("librarySearch").value);
+  if(id==="lab") loadMyExperiments();
 }
 
 async function api(url,options={}){
