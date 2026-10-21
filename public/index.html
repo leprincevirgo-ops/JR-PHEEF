@@ -166,6 +166,7 @@ placeholder="Password">
 <div class="nav">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
+<button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
 <button onclick="show('points')">POINTS</button>
@@ -255,6 +256,69 @@ placeholder="Password">
 <div class="card"><h2>Coordinate a goal</h2><p class="muted">Describe what you want to achieve. JR PHEEF creates a practical checklist and links to existing platform actions. It does not itself fund, purchase, hire or contact providers.</p><textarea id="ecosystemGoal" maxlength="1200" placeholder="Example: I want to open a small supermarket in Nairobi."></textarea>
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
+
+<div id="universe" class="page hidden">
+  <div class="card">
+    <h2>JR PHEEF UNIVERSE</h2>
+    <p class="muted"><b>JR PHEEF → HUMAN → JR PHEEF.</b> Bring a question or goal. Combine knowledge, understand choices, take action, and learn from outcomes.</p>
+    <p>This first Knowledge Explorer is a structured guide and transparent planning toolkit. It does not claim that every knowledge service or AI reasoning engine is already connected.</p>
+  </div>
+  <div class="card">
+    <h2>Six intelligence worlds</h2>
+    <div class="grid">
+      <div class="listing"><b>Cosmic &amp; Quantum Science</b><p class="muted">Astronomy, cosmology, physics, scientific literacy; distinguish established evidence from hypotheses.</p></div>
+      <div class="listing"><b>Mathematics &amp; Patterns</b><p class="muted">Probability, statistics, logic, optimization, and patterns in data.</p></div>
+      <div class="listing"><b>Time &amp; Celestial Movements</b><p class="muted">Timelines, calendars, cycles, time zones, and time-aware planning.</p></div>
+      <div class="listing"><b>Astrology &amp; Reflection</b><p class="muted">Optional birth-chart and reflection tools, clearly separated from scientific evidence and guaranteed prediction.</p></div>
+      <div class="listing"><b>Human Connection &amp; Opportunity</b><p class="muted">People, skills, jobs, goods, services, housing, transport, business, and collaboration.</p></div>
+      <div class="listing"><b>AI Universe Assistant</b><p class="muted">The intended reasoning layer: connect relevant knowledge, explain uncertainty, and turn insight into responsible action.</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Knowledge layers being added</h2>
+    <div class="badge">Actuarial &amp; Risk Intelligence</div><div class="badge">Future Simulation</div>
+    <div class="badge">History &amp; Causal Reasoning</div><div class="badge">Economics &amp; Operations</div>
+    <div class="badge">Human Behaviour</div><div class="badge">Data Science</div>
+    <div class="badge">Science &amp; Technology</div><div class="badge">Learning &amp; Skills</div>
+    <div class="badge">Ethics &amp; Safety</div><div class="badge">Source Reliability</div>
+    <p class="muted">The aim is to combine the right fields for a task—not make users jump between disconnected topic apps.</p>
+  </div>
+  <div class="card">
+    <h2>Future Simulator · Business scenario lab</h2>
+    <p class="muted">Explore how assumptions change a monthly business result. This is a simple illustrative model, not a forecast, financial advice, or a promise of earnings.</p>
+    <label for="simCustomers">Expected customers / sales per month</label>
+    <input id="simCustomers" type="number" min="0" step="1" value="100">
+    <label for="simRevenue">Revenue per customer / sale (KSh)</label>
+    <input id="simRevenue" type="number" min="0" step="0.01" value="500">
+    <label for="simVariable">Variable cost per customer / sale (KSh)</label>
+    <input id="simVariable" type="number" min="0" step="0.01" value="250">
+    <label for="simFixed">Fixed monthly costs (KSh)</label>
+    <input id="simFixed" type="number" min="0" step="0.01" value="15000">
+    <label for="simDownProb">Downside scenario probability (%)</label>
+    <input id="simDownProb" type="number" min="0" max="100" step="1" value="25">
+    <label for="simDownDrop">Customer/sales decrease in downside (%)</label>
+    <input id="simDownDrop" type="number" min="0" max="100" step="1" value="30">
+    <label for="simUpProb">Upside scenario probability (%)</label>
+    <input id="simUpProb" type="number" min="0" max="100" step="1" value="20">
+    <label for="simUpGrowth">Customer/sales increase in upside (%)</label>
+    <input id="simUpGrowth" type="number" min="0" max="500" step="1" value="20">
+    <button class="primary" onclick="runFutureSimulator()">COMPARE SCENARIOS</button>
+    <div id="simResult" aria-live="polite"></div>
+  </div>
+  <div class="card">
+    <h2>How JR PHEEF should reason</h2>
+    <ol>
+      <li><b>Past:</b> examine relevant history and previous outcomes.</li>
+      <li><b>Present:</b> identify current facts, constraints, and missing information.</li>
+      <li><b>Possible futures:</b> compare scenarios under visible assumptions.</li>
+      <li><b>Choices:</b> show trade-offs, risks, and alternatives.</li>
+      <li><b>Action:</b> choose a safe, measurable next step.</li>
+      <li><b>Learning:</b> compare actual outcomes with assumptions and improve the next decision.</li>
+    </ol>
+    <p class="muted">Important claims should eventually show sources, dates, assumptions, and uncertainty. Private personal history must remain under user control.</p>
+  </div>
+</div>
+
 <div id="find" class="page hidden">
 
 <div class="card">
@@ -603,6 +667,34 @@ async function redeemPoints(){
     $("pointsMsg").textContent=
       data.error;
   }
+}
+
+
+function runFutureSimulator(){
+  const read=(id)=>Number($(id).value);
+  const customers=read("simCustomers"), revenue=read("simRevenue"), variable=read("simVariable"), fixed=read("simFixed");
+  const downP=read("simDownProb"), downDrop=read("simDownDrop"), upP=read("simUpProb"), upGrowth=read("simUpGrowth");
+  const out=$("simResult");
+  const values=[customers,revenue,variable,fixed,downP,downDrop,upP,upGrowth];
+  if(values.some(v=>!Number.isFinite(v)||v<0)||downP>100||downDrop>100||upP>100||downP+upP>100){
+    out.innerHTML="<p>Please enter non-negative values. Scenario probabilities must each be at most 100% and total no more than 100%.</p>";
+    return;
+  }
+  const calc=(factor)=>{
+    const volume=customers*factor;
+    const gross=volume*revenue;
+    const variableCosts=volume*variable;
+    return {volume,gross,variableCosts,net:gross-variableCosts-fixed};
+  };
+  const down=calc(1-downDrop/100), base=calc(1), up=calc(1+upGrowth/100);
+  const baseP=100-downP-upP;
+  const expected=(down.net*downP+base.net*baseP+up.net*upP)/100;
+  const money=n=>"KSh "+n.toLocaleString("en-KE",{maximumFractionDigits:2,minimumFractionDigits:2});
+  out.innerHTML="<h3>Scenario comparison</h3><p class='muted'>Illustrative monthly surplus/deficit after the costs entered. Tax, debt, depreciation, seasonality, and other costs are excluded unless included in your inputs.</p>"+
+    "<div class='listing'><b>Downside · "+downP+"%</b><br>Volume: "+down.volume.toLocaleString("en-KE",{maximumFractionDigits:1})+"<br>Net: "+money(down.net)+"</div>"+
+    "<div class='listing'><b>Base case · "+baseP+"%</b><br>Volume: "+base.volume.toLocaleString("en-KE",{maximumFractionDigits:1})+"<br>Net: "+money(base.net)+"</div>"+
+    "<div class='listing'><b>Upside · "+upP+"%</b><br>Volume: "+up.volume.toLocaleString("en-KE",{maximumFractionDigits:1})+"<br>Net: "+money(up.net)+"</div>"+
+    "<div class='listing'><b>Probability-weighted scenario value</b><br><span class='big'>"+money(expected)+"</span><p class='muted'>This weighted value depends entirely on the probabilities and assumptions you supplied. It is not a guaranteed or objectively established forecast.</p></div>";
 }
 
 function coordinateGoal(){
