@@ -241,7 +241,10 @@ app.post("/api/login", async (req, res) => {
     const token = crypto.randomBytes(48).toString("hex");
     const { error } = await db.from("sessions").insert({
       member_id: String(member.id), token_hash: hash(token),
-      expires_at: new Date(Date.now() + 7 * 86400000).toISOString()
+      expires_at: new Date(Date.now() + 7 * 86400000).toISOString(),
+      device_label: clean(req.body.device_label).slice(0,80) || "New device",
+      user_agent: clean(req.get("user-agent")).slice(0,300),
+      last_seen_at: new Date().toISOString()
     });
     if (error) throw error;
 
@@ -733,6 +736,19 @@ app.post("/api/devices/label",async(req,res)=>{
 });
 
 /* SOCIAL SIDE: member posts; private by default */
+app.get("/api/social/feed",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res);if(!m)return;
+    const {data:rels,error:relError}=await db.from("connections").select("requester_id,receiver_id").eq("status","accepted").or("requester_id.eq."+m.id+",receiver_id.eq."+m.id);
+    if(relError)throw relError;
+    const ids=[String(m.id),...(rels||[]).map(x=>String(x.requester_id)===String(m.id)?String(x.receiver_id):String(x.requester_id))];
+    const {data,error}=await db.from("social_posts").select("id,member_id,body,visibility,created_at").in("member_id",ids).in("visibility",["public","connections"]).order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const memberIds=[...new Set((data||[]).map(p=>String(p.member_id)))];
+    let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,jp_number,verified").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
+    res.json({ok:true,posts:(data||[]).filter(p=>p.visibility==="public"||String(p.member_id)===String(m.id)||ids.includes(String(p.member_id))).map(p=>({...p,author:people[String(p.member_id)]||{full_name:"JR PHEEF Member"}}))});
+  }catch(e){console.error("Social feed:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load the community feed."});}
+});
 app.get("/api/social/posts",async(req,res)=>{
   try{const m=await requireMember(req,res);if(!m)return;
     const {data,error}=await db.from("social_posts").select("id,member_id,body,visibility,created_at").eq("member_id",m.id).order("created_at",{ascending:false}).limit(50);
