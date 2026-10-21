@@ -51,7 +51,7 @@ function phoneVariants(v) {
 }
 
 const MEMBER_FIELDS = [
-  "id", "dgbo_id", "full_name", "email", "location", "bio", "theme",
+  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
   "show_location", "verified", "status", "plan", "created_at"
 ];
@@ -617,6 +617,144 @@ app.post("/api/connections", async (req, res) => {
   if (error) return res.status(400).json({ ok: false, error: "Connection request failed." });
   res.json({ ok: true, connection: data });
 });
+
+
+/* JP NUMBER DIRECTORY AND SOCIAL CONNECTIONS */
+app.get("/api/connections", async (req,res) => {
+  try {
+    const m=await requireMember(req,res); if(!m) return;
+    const {data,error}=await db.from("connections").select("*")
+      .or("requester_id.eq."+String(m.id)+",receiver_id.eq."+String(m.id))
+      .order("created_at",{ascending:false}).limit(100);
+    if(error) throw error;
+    const ids=[...new Set((data||[]).flatMap(x=>[x.requester_id,x.receiver_id]).filter(x=>x!==String(m.id)))];
+    let people={};
+    if(ids.length){
+      const p=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,profile_visibility").in("id",ids);
+      if(!p.error) people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));
+    }
+    res.json({ok:true,connections:(data||[]).map(x=>({...x,other_member:people[x.requester_id===String(m.id)?x.receiver_id:x.requester_id]||null}))});
+  } catch(e){ console.error("Connections list:",e.message); if(!res.headersSent) res.status(500).json({ok:false,error:"Could not load connections."});}
+});
+app.post("/api/connections/by-jp-number", async(req,res)=>{
+  try{
+    const m=await requireMember(req,res); if(!m) return;
+    const jp=clean(req.body.jp_number).toUpperCase().replace(/\s+/g,"");
+    if(!/^JP-[A-Z0-9]{6,16}$/.test(jp)) return res.status(400).json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."});
+    const {data:target,error}=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,status,profile_visibility").eq("jp_number",jp).maybeSingle();
+    if(error) throw error;
+    if(!target || ["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase())) return res.status(404).json({ok:false,error:"No active JR PHEEF member found for that JP number."});
+    if(String(target.id)===String(m.id)) return res.status(400).json({ok:false,error:"That is your own JP number."});
+    const {data:existing}=await db.from("connections").select("id,status,requester_id,receiver_id").or("and(requester_id.eq."+m.id+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+m.id+")").limit(1).maybeSingle();
+    if(existing) return res.json({ok:true,already_exists:true,connection:existing,member:{jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:target.profile_visibility==="private"?"JR PHEEF Member":target.full_name,verified:target.verified}});
+    const {data:connection,error:insertError}=await db.from("connections").insert({requester_id:String(m.id),receiver_id:String(target.id),status:"pending"}).select().single();
+    if(insertError) throw insertError;
+    await logActivity(m.id,"JP_CONNECTION_REQUEST",{receiver_id:target.id});
+    res.status(201).json({ok:true,connection,member:{jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:target.profile_visibility==="private"?"JR PHEEF Member":target.full_name,verified:target.verified},message:"Connection request sent. Their contact details stay private until they choose to share them."});
+  }catch(e){console.error("JP connection:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not send connection request."});}
+});
+app.patch("/api/connections/:id",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res); if(!m)return;
+    const status=clean(req.body.status);
+    if(!["accepted","declined","cancelled"].includes(status))return res.status(400).json({ok:false,error:"Invalid connection action."});
+    let q=db.from("connections").select("*").eq("id",req.params.id).maybeSingle();
+    const {data:current,error}=await q;if(error)throw error;
+    if(!current || (String(current.requester_id)!==String(m.id)&&String(current.receiver_id)!==String(m.id)))return res.status(404).json({ok:false,error:"Connection request not found."});
+    if(status==="accepted" && String(current.receiver_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the recipient can accept this request."});
+    if(status==="cancelled" && String(current.requester_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the sender can cancel this request."});
+    const {data,error:updateError}=await db.from("connections").update({status,updated_at:new Date().toISOString()}).eq("id",req.params.id).select().single();
+    if(updateError)throw updateError;
+    res.json({ok:true,connection:data});
+  }catch(e){console.error("Connection update:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update connection."});}
+});
+
+/* PRIVATE FILE VAULT — file contents are never stored in public buckets */
+const vaultUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:25*1024*1024,files:1}});
+const VAULT_BUCKET="jr-pheef-private-files";
+const VAULT_TYPES=new Set(["application/pdf","text/plain","text/csv","application/json","image/jpeg","image/png","image/webp","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]);
+app.get("/api/vault/files",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const {data,error}=await db.from("file_vault").select("id,file_name,mime_type,size_bytes,category,created_at").eq("member_id",m.id).order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;res.json({ok:true,files:data||[]});
+  }catch(e){console.error("Vault list:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load your files."});}
+});
+app.post("/api/vault/files",vaultUpload.single("file"),async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const f=req.file;if(!f)return res.status(400).json({ok:false,error:"Choose a file first."});
+    if(!VAULT_TYPES.has(f.mimetype))return res.status(415).json({ok:false,error:"This file type is not supported yet."});
+    const fileName=path.basename(f.originalname).replace(/[\r\n]/g,"").slice(0,180)||"file";
+    const objectPath=String(m.id)+"/"+crypto.randomUUID();
+    const {error:uploadError}=await db.storage.from(VAULT_BUCKET).upload(objectPath,f.buffer,{contentType:f.mimetype,upsert:false});
+    if(uploadError)throw uploadError;
+    const {data,error}=await db.from("file_vault").insert({member_id:m.id,object_path:objectPath,file_name:fileName,mime_type:f.mimetype,size_bytes:f.size,category:clean(req.body.category).slice(0,30)||"personal"}).select("id,file_name,mime_type,size_bytes,category,created_at").single();
+    if(error){await db.storage.from(VAULT_BUCKET).remove([objectPath]);throw error;}
+    await logActivity(m.id,"VAULT_UPLOAD",{file_id:data.id});
+    res.status(201).json({ok:true,file:data});
+  }catch(e){console.error("Vault upload:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Upload failed. Check storage setup and try again."});}
+});
+app.get("/api/vault/files/:id/download",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const {data:file,error}=await db.from("file_vault").select("*").eq("id",req.params.id).eq("member_id",m.id).maybeSingle();
+    if(error)throw error;if(!file)return res.status(404).json({ok:false,error:"File not found."});
+    const {data,error:signError}=await db.storage.from(VAULT_BUCKET).createSignedUrl(file.object_path,60,{download:file.file_name});
+    if(signError)throw signError;res.json({ok:true,url:data.signedUrl,expires_in:60});
+  }catch(e){console.error("Vault download:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not create a secure download link."});}
+});
+app.delete("/api/vault/files/:id",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const {data:file,error}=await db.from("file_vault").select("id,object_path").eq("id",req.params.id).eq("member_id",m.id).maybeSingle();
+    if(error)throw error;if(!file)return res.status(404).json({ok:false,error:"File not found."});
+    const {error:removeError}=await db.storage.from(VAULT_BUCKET).remove([file.object_path]);if(removeError)throw removeError;
+    const {error:deleteError}=await db.from("file_vault").delete().eq("id",file.id).eq("member_id",m.id);if(deleteError)throw deleteError;
+    res.json({ok:true});
+  }catch(e){console.error("Vault delete:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not delete file."});}
+});
+
+/* CROSS-DEVICE SESSION MANAGEMENT */
+app.get("/api/devices",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const match=(req.headers.cookie||"").match(/(?:^|;\s*)jr_session=([^;]+)/);
+    const tokenHash=match?hash(decodeURIComponent(match[1])):"";
+    const {data,error}=await db.from("sessions").select("id,device_label,user_agent,created_at,last_seen_at,expires_at,token_hash").eq("member_id",String(m.id)).gt("expires_at",new Date().toISOString()).order("last_seen_at",{ascending:false}).limit(20);
+    if(error)throw error;
+    res.json({ok:true,devices:(data||[]).map(d=>({id:d.id,label:d.device_label||"Device",user_agent:d.user_agent||"",created_at:d.created_at,last_seen_at:d.last_seen_at,current:d.token_hash===tokenHash}))});
+  }catch(e){console.error("Devices:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load devices."});}
+});
+app.post("/api/devices/label",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const match=(req.headers.cookie||"").match(/(?:^|;\s*)jr_session=([^;]+)/);if(!match)return res.status(401).json({ok:false,error:"Login required."});
+    const tokenHash=hash(decodeURIComponent(match[1]));
+    const label=clean(req.body.label).slice(0,80)||"My device";
+    const {data,error}=await db.from("sessions").update({device_label:label,user_agent:clean(req.get("user-agent")).slice(0,300),last_seen_at:new Date().toISOString()}).eq("token_hash",tokenHash).eq("member_id",String(m.id)).select("id,device_label").maybeSingle();
+    if(error)throw error;if(!data)return res.status(404).json({ok:false,error:"Current device session not found."});
+    res.json({ok:true,device:data});
+  }catch(e){console.error("Device label:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not save device label."});}
+});
+
+/* SOCIAL SIDE: member posts; private by default */
+app.get("/api/social/posts",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const {data,error}=await db.from("social_posts").select("id,member_id,body,visibility,created_at").eq("member_id",m.id).order("created_at",{ascending:false}).limit(50);
+    if(error)throw error;res.json({ok:true,posts:data||[]});
+  }catch(e){console.error("Social posts:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load your posts."});}
+});
+app.post("/api/social/posts",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const body=clean(req.body.body),visibility=clean(req.body.visibility)||"connections";
+    if(!body||body.length>2000)return res.status(400).json({ok:false,error:"Write a post of 1–2000 characters."});
+    if(!["private","connections","public"].includes(visibility))return res.status(400).json({ok:false,error:"Invalid post visibility."});
+    const {data,error}=await db.from("social_posts").insert({member_id:m.id,body,visibility}).select("id,body,visibility,created_at").single();
+    if(error)throw error;res.status(201).json({ok:true,post:data});
+  }catch(e){console.error("Social post create:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not publish post."});}
+});
+app.delete("/api/social/posts/:id",async(req,res)=>{
+  try{const m=await requireMember(req,res);if(!m)return;
+    const {error,count}=await db.from("social_posts").delete({count:"exact"}).eq("id",req.params.id).eq("member_id",m.id);
+    if(error)throw error;res.json({ok:true});
+  }catch(e){console.error("Social post delete:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not delete post."});}
+});
+
 
 /* TWILIO WHATSAPP WEBHOOK */
 app.post("/api/webhook/whatsapp", async (req, res) => {
