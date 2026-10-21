@@ -242,3 +242,26 @@ The platform may discuss films, characters and stories as cultural works, and ma
 
 For real-world tasks, a dramatic fictional approach must never override evidence, law, consent, safety, or professional standards. Speculative abilities—such as perfect prediction, unrestricted surveillance, mind-reading, or limitless invention—must be clearly labelled fictional unless a real capability is independently implemented and verified.
 
+
+
+## 11. Satellite and space-systems intelligence
+
+JR PHEEF should include satellite awareness and, where lawful access and reliable integrations are available, connect to satellite-related data and services. This is an intended capability area to build in stages—not a claim that JR PHEEF already operates satellites or has live satellite feeds.
+
+Potential capabilities:
+- **Earth observation:** use suitable public or licensed satellite imagery and datasets for land cover, vegetation, water, floods, fires, drought, urban growth, and environmental change.
+- **Weather and climate context:** integrate reputable satellite-derived weather, cloud, rainfall, and climate datasets where licensing, coverage, latency, and accuracy are suitable.
+- **Location and navigation:** use approved GNSS/GPS-enabled device location with explicit user permission, and mapping/navigation services for discovery, delivery, and nearby opportunities. Satellites provide signals; the app generally receives location through a device and its location services.
+- **Connectivity awareness:** explain satellite internet and communications options, coverage, and service limitations using provider-published information; do not imply JR PHEEF can independently provide satellite internet.
+- **Satellite tracking and astronomy:** show public orbital information, satellite passes, and sky events from reputable sources where useful, with clear timestamps and location requirements.
+- **Business and public-interest insights:** help users explore agriculture, logistics, transport, property, disaster preparedness, infrastructure, and environmental use cases using appropriately licensed data.
+- **Source and data controls:** record provider, acquisition time, spatial resolution, update frequency, licensing, uncertainty, and known limitations. Distinguish observations from predictions and modelled interpretations.
+- **Privacy and safety:** never imply that JR PHEEF can track a person from satellites. Do not enable covert surveillance, identify private individuals from imagery, or expose sensitive locations. Use consent and lawful data access, and apply extra safeguards for sensitive sites and vulnerable people.
+
+Implementation sequence:
+1. Start with reputable open/public APIs and datasets, verifying terms and uptime before integration.
+2. Build a Satellite & Earth Intelligence page with source, timestamp, map layer, and limitation labels.
+3. Connect relevant insights to JR PHEEF Delivery, Rooms Near Me, agriculture/business opportunities, environment, and the Future Simulator.
+4. Consider licensed commercial providers or direct satellite/ground-station partnerships only after a clear use case, budget, legal review, and technical feasibility assessment.
+
+The guiding principle is **connect to satellite data and services responsibly; do not claim direct satellite control, universal coverage, real-time imagery, or precision that the data source cannot support.**
