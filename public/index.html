@@ -351,6 +351,11 @@ placeholder="Password">
     <div id="labOutput" aria-live="polite"></div>
   </div>
   <div class="card">
+    <h2>My saved experiments</h2>
+    <p class="muted">Saved plans belong to your account. Update progress and record what you learn.</p>
+    <div id="myLabExperiments"><p class="muted">Loading your Lab…</p></div>
+  </div>
+  <div class="card">
     <h2>Lab principles</h2>
     <div class="listing"><b>1 · Ask</b><p class="muted">Define the real question and what a useful result would look like.</p></div>
     <div class="listing"><b>2 · Model</b><p class="muted">Identify evidence, assumptions, risks, resources and alternative explanations.</p></div>
@@ -364,33 +369,8 @@ placeholder="Password">
     <h2>JR PHEEF LIBRARY</h2>
     <p class="muted">A knowledge home for concepts, methods, experiments, source notes, lessons, and reusable decision tools—connected to the Universe and Lab.</p>
     <input id="librarySearch" type="search" placeholder="Search the knowledge library..." oninput="filterLibrary(this.value)">
-    <div id="libraryItems">
-      <div class="listing library-item" data-search="actuarial risk probability uncertainty impact sensitivity">
-        <b>Actuarial &amp; Risk Intelligence</b><p class="muted">Estimate likelihood and impact, test assumptions, compare downside cases, and plan risk reduction.</p><span class="badge">Risk</span><span class="badge">Mathematics</span>
-      </div>
-      <div class="listing library-item" data-search="future simulator scenarios past present future assumptions forecast">
-        <b>Past–Present–Future Simulator</b><p class="muted">Compare possible outcomes under explicit assumptions. Scenarios are not guarantees or prophecies.</p><span class="badge">Simulation</span><span class="badge">Planning</span>
-      </div>
-      <div class="listing library-item" data-search="character intelligence detective strategist inventor scientist negotiator explorer archetype movie">
-        <b>Character Intelligence Methods</b><p class="muted">Transferable methods from detective work, strategy, invention, science, negotiation, protection and exploration.</p><span class="badge">Reasoning</span><span class="badge">Creativity</span>
-      </div>
-      <div class="listing library-item" data-search="human connection opportunity marketplace jobs housing services business transport delivery">
-        <b>Human Connection &amp; Opportunity</b><p class="muted">Find people, skills, goods, services, jobs, housing, transport, business and collaboration opportunities.</p><span class="badge">Opportunity</span>
-      </div>
-      <div class="listing library-item" data-search="science source reliability evidence citations dates uncertainty facts hypotheses">
-        <b>Evidence &amp; Source Reliability</b><p class="muted">Separate sourced facts, calculations, user-provided information, hypotheses and speculation.</p><span class="badge">Evidence</span><span class="badge">Trust</span>
-      </div>
-      <div class="listing library-item" data-search="human behaviour communication conflict resolution collaboration negotiation language">
-        <b>Human Behaviour &amp; Collaboration</b><p class="muted">Understand perspectives, communicate clearly, negotiate fairly, and reduce avoidable conflict.</p><span class="badge">People</span><span class="badge">Communication</span>
-      </div>
-      <div class="listing library-item" data-search="economics business operations cash flow pricing demand supply inventory">
-        <b>Economics &amp; Operations</b><p class="muted">Explore pricing, demand, costs, cash flow, inventory, logistics and sustainable operations.</p><span class="badge">Business</span><span class="badge">Systems</span>
-      </div>
-      <div class="listing library-item" data-search="ethics safety privacy consent governance security">
-        <b>Ethics, Privacy &amp; Safety</b><p class="muted">Consent, privacy, fairness, security, accountability, and human review for consequential decisions.</p><span class="badge">Safety</span><span class="badge">Governance</span>
-      </div>
-    </div>
-    <p class="muted">This is the initial built-in catalogue. A searchable, source-cited database with member contributions, access controls, version history and review workflows is a later backend step.</p>
+    <div id="libraryItems" aria-live="polite"><p class="muted">Loading your knowledge library…</p></div>
+    <p class="muted">Knowledge notes are stored in JR PHEEF's database. Starter articles are internally reviewed guidance, not externally source-verified research. New sources can be added and reviewed as the Library grows.</p>
   </div>
 </div>
 
@@ -765,14 +745,50 @@ function runCharacterLab(){
   if(!challenge){$("labOutput").innerHTML="<p>Please describe the challenge first.</p>";return;}
   const titles={detective:"Evidence Investigation",strategist:"Strategy Room",inventor:"Invention Bench",scientist:"Scientific Test Plan",actuary:"Risk &amp; Resilience Lab",negotiator:"Negotiation Studio",protector:"Safety Review",explorer:"Exploration Plan",storyteller:"Communication Studio",futureai:"Systems &amp; Future Lab"};
   const steps=plans[approach]||plans.scientist;
-  $("labOutput").innerHTML="<h3>"+titles[approach]+"</h3><p><b>Challenge:</b> "+escapeHtml(challenge)+"</p>"+(constraints?"<p><b>Constraints:</b> "+escapeHtml(constraints)+"</p>":"")+"<ol>"+steps.map(s=>"<li>"+escapeHtml(s)+"</li>").join("")+"</ol><p class='muted'>This is a structured planning worksheet, not a claim that a movie character or a connected advanced AI has performed the analysis. Validate important decisions with evidence and qualified people where needed.</p>";
+  const title=titles[approach].replace(/&amp;/g,"&")+" — "+challenge.slice(0,70);
+  $("labOutput").innerHTML="<h3>"+titles[approach]+"</h3><p><b>Challenge:</b> "+escapeHtml(challenge)+"</p>"+(constraints?"<p><b>Constraints:</b> "+escapeHtml(constraints)+"</p>":"")+"<ol>"+steps.map(s=>"<li>"+escapeHtml(s)+"</li>").join("")+"</ol><p class='muted'>This is a structured planning worksheet, not a claim that a movie character or a connected advanced AI has performed the analysis. Validate important decisions with evidence and qualified people where needed.</p><button class='primary' id='saveLabPlan' onclick='saveLabPlan()'>SAVE EXPERIMENT TO MY LAB</button><p id='labSaveMsg' aria-live='polite'></p>";
+  window.currentLabPlan={title,challenge,constraints,approach,method:steps.join("\\n")};
 }
-function filterLibrary(term){
-  const q=String(term||"").trim().toLowerCase();
-  document.querySelectorAll(".library-item").forEach(item=>{
-    item.classList.toggle("hidden",!item.dataset.search.toLowerCase().includes(q)||!item.textContent.toLowerCase().includes(q)&&!item.dataset.search.toLowerCase().includes(q));
-  });
+async function saveLabPlan(){
+  const p=window.currentLabPlan; const msg=$("labSaveMsg");
+  if(!p){msg.textContent="Build an experiment plan first.";return;}
+  const button=$("saveLabPlan");button.disabled=true;msg.textContent="Saving to your private Lab…";
+  try{
+    const data=await api("/api/lab/experiments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:p.title,challenge:p.challenge,thinking_approach:p.approach,constraints_text:p.constraints,method:p.method,hypothesis:"",success_measure:"Define a measurable result before running the experiment."})});
+    msg.textContent=data.ok?"Experiment saved to your private Lab.":"Could not save: "+(data.error||"try again");
+    if(data.ok) loadMyExperiments();
+  }catch(e){msg.textContent="Connection error. Please retry.";}
+  finally{button.disabled=false;}
 }
+async function loadMyExperiments(){
+  const host=$("myLabExperiments"); if(!host) return;
+  try{
+    const data=await api("/api/lab/experiments");
+    if(!data.ok){host.innerHTML="<p class='muted'>Sign in to load your saved experiments.</p>";return;}
+    host.innerHTML=(data.experiments||[]).map(e=>"<div class='listing'><b>"+escapeHtml(e.title)+"</b><p>"+escapeHtml(e.challenge)+"</p><p class='muted'>"+escapeHtml(e.thinking_approach)+" · "+escapeHtml(e.status)+" · "+escapeHtml(new Date(e.created_at).toLocaleDateString())+"</p>"+(e.method?"<details><summary>Plan</summary><p>"+escapeHtml(e.method)+"</p></details>":"")+"<label>Update status</label><select id='labstatus-"+escapeHtml(e.id)+"'><option value='planned' "+(e.status==="planned"?"selected":"")+">Planned</option><option value='running' "+(e.status==="running"?"selected":"")+">Running</option><option value='completed' "+(e.status==="completed"?"selected":"")+">Completed</option><option value='cancelled' "+(e.status==="cancelled"?"selected":"")+">Cancelled</option></select><textarea id='lablesson-"+escapeHtml(e.id)+"' rows='2' placeholder='Outcome or lesson learned'>"+escapeHtml(e.lessons_learned||"")+"</textarea><button class='dark' onclick=\"updateLabExperiment('"+escapeHtml(e.id)+"')\">SAVE PROGRESS</button><p id='labupdate-"+escapeHtml(e.id)+"' class='muted'></p></div>").join("")||"<p class='muted'>Your saved experiments will appear here.</p>";
+  }catch(e){host.innerHTML="<p class='muted'>Could not load saved experiments.</p>";}
+}
+async function updateLabExperiment(id){
+  const msg=$("labupdate-"+id);
+  try{
+    const data=await api("/api/lab/experiments/"+encodeURIComponent(id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:$("labstatus-"+id).value,lessons_learned:$("lablesson-"+id).value})});
+    msg.textContent=data.ok?"Progress saved.":(data.error||"Could not update.");
+  }catch(e){msg.textContent="Connection error. Try again.";}
+}
+let libraryRequest=0;
+async function filterLibrary(term){ return loadLibrary(term); }
+async function loadLibrary(term=""){
+  const host=$("libraryItems"); if(!host) return;
+  const request=++libraryRequest;
+  host.innerHTML="<p class='muted'>Searching the knowledge database…</p>";
+  try{
+    const data=await api("/api/knowledge?q="+encodeURIComponent(String(term||"").trim()));
+    if(request!==libraryRequest) return;
+    if(!data.ok) throw new Error(data.error||"Library unavailable");
+    host.innerHTML=(data.articles||[]).map(a=>"<article class='listing library-item'><b>"+escapeHtml(a.title)+"</b><p class='muted'>"+escapeHtml(a.domain)+" · "+escapeHtml(a.evidence_status.replaceAll("_"," "))+"</p><p>"+escapeHtml(a.summary)+"</p><details><summary>Read knowledge note</summary><p>"+escapeHtml(a.content)+"</p>"+(a.source_url?"<p>Source: <a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(a.source_url)+"'>"+escapeHtml(a.source_name||a.source_url)+"</a></p>":"<p class='muted'>No external source attached yet.</p>")+"</details><p>"+(a.tags||[]).map(t=>"<span class='badge'>"+escapeHtml(t)+"</span>").join(" ")+"</p></article>").join("")||"<p>No matching knowledge notes found.</p>";
+  }catch(e){ if(request===libraryRequest) host.innerHTML="<p>"+escapeHtml(e.message)+" Sign in again or retry shortly.</p>"; }
+}
+
 
 function runFutureSimulator(){
   const read=(id)=>Number($(id).value);
