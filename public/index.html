@@ -167,6 +167,8 @@ placeholder="Password">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
 <button onclick="show('universe')">UNIVERSE</button>
+<button onclick="show('lab')">LAB</button>
+<button onclick="show('library')">LIBRARY</button>
 <button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
 <button onclick="show('points')">POINTS</button>
@@ -316,6 +318,79 @@ placeholder="Password">
       <li><b>Learning:</b> compare actual outcomes with assumptions and improve the next decision.</li>
     </ol>
     <p class="muted">Important claims should eventually show sources, dates, assumptions, and uncertainty. Private personal history must remain under user control.</p>
+  </div>
+</div>
+
+
+<div id="lab" class="page hidden">
+  <div class="card">
+    <h2>JR PHEEF LAB</h2>
+    <p class="muted"><b>Observe. Experiment. Test. Improve.</b> The Lab is where JR PHEEF turns knowledge into experiments, simulations, prototypes, and practical solutions.</p>
+    <p>Character intelligence means learning transferable methods—not copying a film character's identity, dialogue, likeness, or protected story. Choose the thinking approach that best fits your challenge.</p>
+  </div>
+  <div class="card">
+    <h2>Character Intelligence Studio</h2>
+    <label for="labArchetype">Thinking approach</label>
+    <select id="labArchetype">
+      <option value="detective">Detective — clues, evidence, competing explanations</option>
+      <option value="strategist">Strategist — objectives, leverage, moves and countermoves</option>
+      <option value="inventor">Inventor — prototypes, constraints, iteration</option>
+      <option value="scientist">Scientist — hypotheses, tests, reproducible evidence</option>
+      <option value="actuary">Actuary — probability, impact, uncertainty and resilience</option>
+      <option value="negotiator">Negotiator — interests, trust, trade-offs and agreement</option>
+      <option value="protector">Protector — safety, prevention and harm reduction</option>
+      <option value="explorer">Explorer — discovery, navigation and adaptation</option>
+      <option value="storyteller">Storyteller — perspective, meaning and clear communication</option>
+      <option value="futureai">Future AI — systems, scenarios, feedback and optimization</option>
+    </select>
+    <label for="labChallenge">What problem should the Lab examine?</label>
+    <textarea id="labChallenge" rows="4" placeholder="Describe a real problem, invention, decision, or opportunity..."></textarea>
+    <label for="labConstraints">Constraints or resources (optional)</label>
+    <input id="labConstraints" placeholder="e.g. KSh 5,000, 30 days, Nairobi">
+    <button class="primary" onclick="runCharacterLab()">BUILD EXPERIMENT PLAN</button>
+    <div id="labOutput" aria-live="polite"></div>
+  </div>
+  <div class="card">
+    <h2>Lab principles</h2>
+    <div class="listing"><b>1 · Ask</b><p class="muted">Define the real question and what a useful result would look like.</p></div>
+    <div class="listing"><b>2 · Model</b><p class="muted">Identify evidence, assumptions, risks, resources and alternative explanations.</p></div>
+    <div class="listing"><b>3 · Test safely</b><p class="muted">Use the smallest ethical, legal and affordable experiment that can teach something useful.</p></div>
+    <div class="listing"><b>4 · Learn</b><p class="muted">Compare results with expectations, record limitations and improve the next test.</p></div>
+  </div>
+</div>
+
+<div id="library" class="page hidden">
+  <div class="card">
+    <h2>JR PHEEF LIBRARY</h2>
+    <p class="muted">A knowledge home for concepts, methods, experiments, source notes, lessons, and reusable decision tools—connected to the Universe and Lab.</p>
+    <input id="librarySearch" type="search" placeholder="Search the knowledge library..." oninput="filterLibrary(this.value)">
+    <div id="libraryItems">
+      <div class="listing library-item" data-search="actuarial risk probability uncertainty impact sensitivity">
+        <b>Actuarial &amp; Risk Intelligence</b><p class="muted">Estimate likelihood and impact, test assumptions, compare downside cases, and plan risk reduction.</p><span class="badge">Risk</span><span class="badge">Mathematics</span>
+      </div>
+      <div class="listing library-item" data-search="future simulator scenarios past present future assumptions forecast">
+        <b>Past–Present–Future Simulator</b><p class="muted">Compare possible outcomes under explicit assumptions. Scenarios are not guarantees or prophecies.</p><span class="badge">Simulation</span><span class="badge">Planning</span>
+      </div>
+      <div class="listing library-item" data-search="character intelligence detective strategist inventor scientist negotiator explorer archetype movie">
+        <b>Character Intelligence Methods</b><p class="muted">Transferable methods from detective work, strategy, invention, science, negotiation, protection and exploration.</p><span class="badge">Reasoning</span><span class="badge">Creativity</span>
+      </div>
+      <div class="listing library-item" data-search="human connection opportunity marketplace jobs housing services business transport delivery">
+        <b>Human Connection &amp; Opportunity</b><p class="muted">Find people, skills, goods, services, jobs, housing, transport, business and collaboration opportunities.</p><span class="badge">Opportunity</span>
+      </div>
+      <div class="listing library-item" data-search="science source reliability evidence citations dates uncertainty facts hypotheses">
+        <b>Evidence &amp; Source Reliability</b><p class="muted">Separate sourced facts, calculations, user-provided information, hypotheses and speculation.</p><span class="badge">Evidence</span><span class="badge">Trust</span>
+      </div>
+      <div class="listing library-item" data-search="human behaviour communication conflict resolution collaboration negotiation language">
+        <b>Human Behaviour &amp; Collaboration</b><p class="muted">Understand perspectives, communicate clearly, negotiate fairly, and reduce avoidable conflict.</p><span class="badge">People</span><span class="badge">Communication</span>
+      </div>
+      <div class="listing library-item" data-search="economics business operations cash flow pricing demand supply inventory">
+        <b>Economics &amp; Operations</b><p class="muted">Explore pricing, demand, costs, cash flow, inventory, logistics and sustainable operations.</p><span class="badge">Business</span><span class="badge">Systems</span>
+      </div>
+      <div class="listing library-item" data-search="ethics safety privacy consent governance security">
+        <b>Ethics, Privacy &amp; Safety</b><p class="muted">Consent, privacy, fairness, security, accountability, and human review for consequential decisions.</p><span class="badge">Safety</span><span class="badge">Governance</span>
+      </div>
+    </div>
+    <p class="muted">This is the initial built-in catalogue. A searchable, source-cited database with member contributions, access controls, version history and review workflows is a later backend step.</p>
   </div>
 </div>
 
@@ -669,6 +744,35 @@ async function redeemPoints(){
   }
 }
 
+
+
+function runCharacterLab(){
+  const challenge=$("labChallenge").value.trim();
+  const constraints=$("labConstraints").value.trim();
+  const approach=$("labArchetype").value;
+  const plans={
+    detective:["List observable facts separately from assumptions.","Generate at least three explanations that could fit the evidence.","Identify the cheapest reliable check that can rule explanations in or out."],
+    strategist:["Define the objective, deadline, stakeholders and what must not be sacrificed.","Map available resources, dependencies, incentives and likely responses.","Compare at least two strategies and prepare a fallback."],
+    inventor:["Describe the user need and the simplest useful outcome.","Sketch three possible solutions and identify the hardest constraint.","Build the smallest safe prototype; define a pass/fail test before trying it."],
+    scientist:["Write a testable hypothesis and the evidence that would change your mind.","Choose measurable variables and a fair test; note likely sources of bias.","Record results, limitations and whether the evidence supports the hypothesis."],
+    actuary:["List important risks by likelihood, impact and how quickly they could occur.","Model base, downside and severe-but-plausible cases using explicit assumptions.","Choose practical mitigations and define indicators that trigger a change of plan."],
+    negotiator:["Separate each party's stated position from the interests behind it.","Identify shared interests, non-negotiables and fair options for trade-offs.","Propose a clear agreement, confirmation method and safe exit if terms fail."],
+    protector:["Identify who could be harmed, how, and what must be protected first.","Remove avoidable hazards before relying on warnings or monitoring.","Set stop conditions, escalation steps and a way to report problems."],
+    explorer:["Map what is known, unknown and safe to investigate.","Choose a low-cost way to learn from the environment or potential users.","Update the route when evidence changes; keep a backup option."],
+    storyteller:["Identify the audience, their needs and the central message.","Build an explanation that distinguishes evidence, interpretation and emotion.","Check understanding with a real reader and revise confusing parts."],
+    futureai:["Define the system, objective, constraints and feedback signals.","Compare past evidence, current state and multiple future scenarios.","Run a small reversible test, measure outcomes and update the model."]
+  };
+  if(!challenge){$("labOutput").innerHTML="<p>Please describe the challenge first.</p>";return;}
+  const titles={detective:"Evidence Investigation",strategist:"Strategy Room",inventor:"Invention Bench",scientist:"Scientific Test Plan",actuary:"Risk &amp; Resilience Lab",negotiator:"Negotiation Studio",protector:"Safety Review",explorer:"Exploration Plan",storyteller:"Communication Studio",futureai:"Systems &amp; Future Lab"};
+  const steps=plans[approach]||plans.scientist;
+  $("labOutput").innerHTML="<h3>"+titles[approach]+"</h3><p><b>Challenge:</b> "+escapeHtml(challenge)+"</p>"+(constraints?"<p><b>Constraints:</b> "+escapeHtml(constraints)+"</p>":"")+"<ol>"+steps.map(s=>"<li>"+escapeHtml(s)+"</li>").join("")+"</ol><p class='muted'>This is a structured planning worksheet, not a claim that a movie character or a connected advanced AI has performed the analysis. Validate important decisions with evidence and qualified people where needed.</p>";
+}
+function filterLibrary(term){
+  const q=String(term||"").trim().toLowerCase();
+  document.querySelectorAll(".library-item").forEach(item=>{
+    item.classList.toggle("hidden",!item.dataset.search.toLowerCase().includes(q)||!item.textContent.toLowerCase().includes(q)&&!item.dataset.search.toLowerCase().includes(q));
+  });
+}
 
 function runFutureSimulator(){
   const read=(id)=>Number($(id).value);
