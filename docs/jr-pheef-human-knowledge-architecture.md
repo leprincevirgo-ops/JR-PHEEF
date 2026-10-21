@@ -184,3 +184,61 @@ This document records the intended product direction. It does not assert that th
 The long-term identity remains: **JR PHEEF — Find. Match. Trade.**  
 **JR PHEEF → HUMAN → JR PHEEF.**  
 **Powered by DIME GLOBAL BUSINESS OPERATORS.**
+
+## 11. JR PHEEF Character Intelligence System
+
+JR PHEEF may learn from broad problem-solving methods associated with memorable protagonists across cinema and storytelling, from historical films to speculative futures. The goal is transferable capability, not copying a protected character's identity, likeness, exact dialogue, or story.
+
+Initial capability archetypes:
+- **Detective:** evidence gathering, clue evaluation, competing hypotheses.
+- **Strategist:** objectives, dependencies, incentives, scenarios and contingencies.
+- **Inventor:** creative prototypes, constraint solving and iteration.
+- **Scientist:** hypotheses, experiments, reproducibility and evidence quality.
+- **Actuarial thinker:** probability, impact, uncertainty, sensitivity and resilience.
+- **Negotiator:** interests, fair trade-offs, communication and agreement.
+- **Protector:** prevention, safety, threat modelling and harm reduction.
+- **Explorer:** discovery, navigation, adaptation and learning under uncertainty.
+- **Storyteller:** perspective, explanation, empathy and communication.
+- **Future-systems thinker:** feedback loops, optimization, simulations and long-range scenarios.
+
+A user should be able to choose an approach for a challenge. The system can also combine approaches when useful—for example, detective + scientist + actuary for an uncertain problem. These are reasoning patterns, not separate personalities or claims of human-like consciousness. Any real AI implementation must disclose what tools and data it actually uses.
+
+## 12. JR PHEEF LAB
+
+The Lab is the experimentation and invention environment:
+- Turn questions and needs into testable problems.
+- Design prototypes, experiments, simulations, and practical plans.
+- Test assumptions, compare alternatives, measure outcomes, and record lessons.
+- Apply legal, ethical, privacy, and safety checks before experiments.
+- Keep a distinction between a proposed experiment, a simulated result, and a real-world tested result.
+
+The first web interface provides a Character Intelligence Studio that generates structured planning worksheets. It is a starter interface; it is not yet a connected autonomous lab or a scientific validation engine.
+
+## 13. JR PHEEF LIBRARY
+
+The Library is the organized knowledge home:
+- Curated concepts, explanations, methods, source notes, learning guides, experiments, case studies, and reusable decision tools.
+- Search and discovery across the six intelligence worlds and additional knowledge domains.
+- Source provenance, author/reviewer, date, version, jurisdiction where relevant, confidence and known limitations for important entries.
+- Clear separation of verified reference material, member-submitted content, calculations, hypotheses, and speculative fiction.
+- Member contribution and private notebooks only with appropriate permissions, moderation, privacy controls, and user deletion/export options.
+
+The first web interface provides a starter catalogue and search. Persistent storage, source ingestion, review workflow, permissions, and citation-backed retrieval remain future backend work.
+
+## 14. How the Universe, Lab, Library, and marketplace connect
+
+1. **Universe Assistant** interprets the user's goal and selects relevant knowledge.
+2. **Library** supplies reviewed information, methods, source records and prior lessons.
+3. **Lab** turns the question into an experiment, model, prototype or scenario comparison.
+4. **Future Simulator / Risk Lab** compares outcomes and uncertainty under visible assumptions.
+5. **JR PHEEF opportunity engine** helps users find collaborators, services, equipment, jobs, suppliers, housing or customers where relevant.
+6. **Human review and feedback** check outcomes; users choose what to save and whether their experience may inform future guidance.
+
+This creates a practical loop: **Question → Knowledge → Experiment → Decision → Action → Learning**.
+
+## 15. Film inspiration, copyright, and safety boundaries
+
+The platform may discuss films, characters and stories as cultural works, and may extract high-level, general problem-solving patterns. It should not present itself as the real or official version of a character, copy distinctive protected dialogue or scenes, or reproduce a film's protected character design as a product substitute. Original JR PHEEF identities and methods should be developed from broad archetypes and documented capabilities.
+
+For real-world tasks, a dramatic fictional approach must never override evidence, law, consent, safety, or professional standards. Speculative abilities—such as perfect prediction, unrestricted surveillance, mind-reading, or limitless invention—must be clearly labelled fictional unless a real capability is independently implemented and verified.
+
