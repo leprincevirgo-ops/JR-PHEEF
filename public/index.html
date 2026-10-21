@@ -675,7 +675,7 @@ async function openApp(){
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("welcome").textContent="Hello, "+(me.full_name||"Member");
-  $("dgbo").textContent=me.dgbo_id||"JR PHEEF MEMBER";
+  $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
   fillProfile();
   show("home");
   try{
