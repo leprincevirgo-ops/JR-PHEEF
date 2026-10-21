@@ -406,7 +406,94 @@ app.post("/api/flex/request", async (req, res) => {
   res.json({ ok: true, active: false, request_id: data.id, message: "Request recorded; credit is not enabled." });
 });
 
-/* PROFILE */
+
+/* KNOWLEDGE LIBRARY — curated content with provenance metadata */
+app.get("/api/knowledge", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const q = clean(req.query.q).slice(0, 120);
+    const domain = clean(req.query.domain).slice(0, 80);
+    let query = db.from("knowledge_articles")
+      .select("id,slug,title,domain,summary,content,tags,source_name,source_url,source_published_at,evidence_status,updated_at")
+      .eq("visibility", "published")
+      .order("domain", { ascending: true }).order("title", { ascending: true }).limit(100);
+    if (domain) query = query.ilike("domain", "%" + domain + "%");
+    if (q) query = query.or("title.ilike.%" + q.replace(/[,%()]/g, " ") + "%,summary.ilike.%" + q.replace(/[,%()]/g, " ") + "%,content.ilike.%" + q.replace(/[,%()]/g, " ") + "%,domain.ilike.%" + q.replace(/[,%()]/g, " ") + "%");
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json({ ok: true, count: data.length, articles: data });
+  } catch (e) {
+    console.error("Knowledge search:", e.message);
+    if (!res.headersSent) res.status(500).json({ ok: false, error: "Knowledge Library is temporarily unavailable." });
+  }
+});
+
+/* LAB — experiments are private to their owner */
+app.get("/api/lab/experiments", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const { data, error } = await db.from("lab_experiments").select("id,title,challenge,thinking_approach,constraints_text,hypothesis,method,success_measure,risk_notes,status,outcome_notes,lessons_learned,created_at,updated_at").eq("member_id", member.id).order("created_at", { ascending: false }).limit(50);
+    if (error) throw error;
+    res.json({ ok: true, experiments: data || [] });
+  } catch (e) {
+    console.error("Lab list:", e.message);
+    if (!res.headersSent) res.status(500).json({ ok: false, error: "Could not load your Lab experiments." });
+  }
+});
+
+app.post("/api/lab/experiments", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const title = clean(req.body.title).slice(0, 140);
+    const challenge = clean(req.body.challenge).slice(0, 4000);
+    const approach = clean(req.body.thinking_approach);
+    const allowed = ["detective","strategist","inventor","scientist","actuary","negotiator","protector","explorer","storyteller","futureai"];
+    if (!title || !challenge) return res.status(400).json({ ok: false, error: "A title and challenge are required." });
+    if (!allowed.includes(approach)) return res.status(400).json({ ok: false, error: "Choose a valid thinking approach." });
+    const row = {
+      member_id: member.id, title, challenge, thinking_approach: approach,
+      constraints_text: clean(req.body.constraints_text).slice(0, 1000),
+      hypothesis: clean(req.body.hypothesis).slice(0, 2000),
+      method: clean(req.body.method).slice(0, 4000),
+      success_measure: clean(req.body.success_measure).slice(0, 1000),
+      risk_notes: clean(req.body.risk_notes).slice(0, 2000),
+      status: "planned"
+    };
+    const { data, error } = await db.from("lab_experiments").insert(row).select("id,title,challenge,thinking_approach,constraints_text,hypothesis,method,success_measure,risk_notes,status,created_at").single();
+    if (error) throw error;
+    await logActivity(member.id, "LAB_EXPERIMENT_CREATED", { experiment_id: data.id });
+    res.status(201).json({ ok: true, experiment: data });
+  } catch (e) {
+    console.error("Lab save:", e.message);
+    if (!res.headersSent) res.status(500).json({ ok: false, error: "Could not save the experiment. Please try again." });
+  }
+});
+
+app.patch("/api/lab/experiments/:id", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const allowedStatus = ["planned","running","completed","cancelled"];
+    const update = {};
+    if (req.body.status !== undefined && allowedStatus.includes(clean(req.body.status))) update.status = clean(req.body.status);
+    if (req.body.outcome_notes !== undefined) update.outcome_notes = clean(req.body.outcome_notes).slice(0, 4000);
+    if (req.body.lessons_learned !== undefined) update.lessons_learned = clean(req.body.lessons_learned).slice(0, 4000);
+    if (!Object.keys(update).length) return res.status(400).json({ ok: false, error: "No valid experiment updates provided." });
+    update.updated_at = new Date().toISOString();
+    const { data, error } = await db.from("lab_experiments").update(update).eq("id", req.params.id).eq("member_id", member.id).select("id,status,outcome_notes,lessons_learned,updated_at").maybeSingle();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ ok: false, error: "Experiment not found." });
+    res.json({ ok: true, experiment: data });
+  } catch (e) {
+    console.error("Lab update:", e.message);
+    if (!res.headersSent) res.status(500).json({ ok: false, error: "Could not update the experiment." });
+  }
+});
+
+\n/* PROFILE */
 app.put("/api/profile", async (req, res) => {
   try {
     const m = await requireMember(req, res);
