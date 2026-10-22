@@ -186,7 +186,7 @@ placeholder="Password">
 <button onclick="show('create')">CREATE</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button>
+<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button>
 </div>
 
 <div id="home" class="page">
@@ -560,6 +560,32 @@ SAVE PROFILE
 <div id="vault" class="page hidden"><div class="card"><p class="eyebrow">PERSONAL CLOUD</p><h2>My Files</h2><p class="muted">Upload from this device, then sign into the same account on another device to retrieve files. Private storage; temporary download links; 25 MB per file.</p><input id="vaultFile" type="file" accept=".pdf,.txt,.csv,.json,.jpg,.jpeg,.png,.webp,.docx,.xlsx"><select id="vaultCategory"><option value="personal">Personal</option><option value="business">Business</option><option value="learning">Learning</option><option value="project">Project</option></select><button class="primary" onclick="uploadVaultFile()">UPLOAD FILE</button><p id="vaultMsg" aria-live="polite"></p></div><div class="card"><h3>Stored files</h3><button class="dark" onclick="loadVaultFiles()">REFRESH</button><div id="vaultFiles"></div></div></div>
 <div id="devices" class="page hidden"><div class="card"><p class="eyebrow">ACCOUNT CONTINUITY</p><h2>My Devices</h2><p class="muted">Sign in to the same JR PHEEF account on another phone, tablet or computer. Each device has its own session.</p><input id="deviceLabelInput" maxlength="80" placeholder="Name this device"><button class="primary" onclick="saveDeviceLabel()">SAVE DEVICE NAME</button><p id="deviceMsg" aria-live="polite"></p><button class="dark" onclick="loadDevices()">REFRESH DEVICES</button><div id="deviceList"></div></div></div>
 <div id="voice" class="page hidden"><div class="card"><p class="eyebrow">VOICE & NATURAL LANGUAGE</p><h2>Speak or type to JR PHEEF</h2><p class="muted">Speech recognition depends on browser/device support and microphone permission. Typing always remains available.</p><textarea id="commandInput" rows="3" maxlength="500" placeholder="Try: connect to JP-12AB34CD56, open my files, find shoes, open social"></textarea><div class="grid"><button class="primary" onclick="runCommand()">RUN COMMAND</button><button class="dark" onclick="startVoiceCommand()">🎙 SPEAK</button></div><p id="voiceMsg" aria-live="polite"></p></div><div class="card"><h3>Quick commands</h3><div class="grid"><button onclick="commandPreset('open social')">OPEN SOCIAL</button><button onclick="commandPreset('open economy')">OPEN ECONOMY</button><button onclick="commandPreset('open my files')">OPEN MY FILES</button><button onclick="commandPreset('open devices')">OPEN DEVICES</button><button onclick="commandPreset('open library')">OPEN LIBRARY</button><button onclick="commandPreset('find opportunities')">FIND OPPORTUNITIES</button></div></div></div>
+
+
+<div id="assistant" class="page hidden">
+ <div class="card" id="jrAiCard">
+  <p class="eyebrow" style="color:#42f5ff;letter-spacing:2px;font-size:11px">JR PHEEF UNIVERSE INTELLIGENCE</p>
+  <h2>Ask JR PHEEF</h2>
+  <p class="muted">One assistant for research, planning, learning, actuarial risk, business, science, opportunity discovery and practical next steps. Answers can be wrong; check important facts and sources.</p>
+  <div id="aiTranscript" class="listing" aria-live="polite" style="min-height:100px;white-space:normal"><p class="muted">Your conversation appears here. Your questions are sent to the AI provider only when you press ASK JR.</p></div>
+  <label for="aiQuestion">What would you like help with?</label>
+  <textarea id="aiQuestion" rows="4" maxlength="4000" placeholder="Example: Compare the risks and monthly costs of three small businesses in Nairobi."></textarea>
+  <label style="display:flex;gap:8px;align-items:center"><input id="aiWebResearch" type="checkbox" style="width:auto;margin:0"> Use web research for this question (may take longer)</label>
+  <button class="primary" id="aiAskButton" onclick="askJRAI()">ASK JR PHEEF</button>
+  <button class="dark" onclick="clearJRAI()">CLEAR CONVERSATION</button>
+  <p id="aiStatus" class="muted" aria-live="polite"></p>
+  <p class="muted" style="font-size:12px">Privacy: this assistant sends the question and recent chat context to the configured AI provider. Don't include passwords, verification codes, or sensitive personal details. It cannot move files, make payments, or contact people unless a separate verified integration is built and authorized.</p>
+ </div>
+ <div class="card">
+  <h3>JR PHEEF intelligence capabilities</h3>
+  <div class="grid">
+   <div class="listing"><b>Actuarial & Risk</b><p class="muted">Scenarios, probability, downside exposure and assumptions.</p></div>
+   <div class="listing"><b>Business & Operations</b><p class="muted">Costs, workflows, revenue ideas and measurable plans.</p></div>
+   <div class="listing"><b>Knowledge & Research</b><p class="muted">Connect Library notes with optional web research.</p></div>
+   <div class="listing"><b>Future Simulator</b><p class="muted">Compare plausible outcomes; no prophecy or guaranteed returns.</p></div>
+  </div>
+ </div>
+</div>
 
 </section>
 
@@ -990,6 +1016,29 @@ function escapeHtml(value){
     .replace(/'/g,"&#039;");
 }
 
+
+
+let aiHistory=[];
+function renderJRAI(){
+ const host=$("aiTranscript");if(!host)return;
+ host.innerHTML=aiHistory.map(m=>"<div class='listing'><b>"+(m.role==="user"?"YOU":"JR PHEEF AI")+"</b><p style='white-space:pre-wrap;overflow-wrap:anywhere'>"+escapeHtml(m.content)+"</p></div>").join("")||"<p class='muted'>Ask a question to begin.</p>";
+ host.scrollTop=host.scrollHeight;
+}
+async function askJRAI(){
+ const q=$("aiQuestion").value.trim(),status=$("aiStatus"),button=$("aiAskButton");
+ if(!q){status.textContent="Write a question first.";return;}
+ button.disabled=true;status.textContent="JR PHEEF is working through your question…";
+ try{
+  const d=await api("/api/ai/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:aiHistory.slice(-6),use_web:$("aiWebResearch").checked})});
+  if(!d.ok){status.textContent=d.message||d.error||"The assistant could not answer. Please retry.";return;}
+  aiHistory.push({role:"user",content:q},{role:"assistant",content:d.answer});
+  aiHistory=aiHistory.slice(-12);renderJRAI();$("aiQuestion").value="";
+  const sources=(d.knowledge_sources||[]).filter(s=>s.source_url&&/^https?:\/\//i.test(s.source_url));
+  status.textContent=(d.used_web_research?"Web research requested. ":"")+(sources.length?"Library sources: "+sources.map(s=>s.title).join("; "):"Review important claims against reliable sources.");
+ }catch(e){status.textContent="JR PHEEF could not reach the AI service. Check your connection and server configuration.";}
+ finally{button.disabled=false;}
+}
+function clearJRAI(){aiHistory=[];renderJRAI();$("aiStatus").textContent="Conversation cleared from this page.";}
 
 async function connectByJP(){const msg=$("jpConnectMsg"),host=$("jpConnectResult");msg.textContent="Sending request…";host.innerHTML="";try{const d=await api("/api/connections/by-jp-number",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jp_number:$("jpNumberInput").value})});if(!d.ok){msg.textContent=d.error||"Could not connect.";return;}msg.textContent=d.message||(d.already_exists?"A request already exists.":"Request sent.");host.innerHTML="<div class='listing'><b>"+escapeHtml(d.member?.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(d.member?.jp_number||"")+" · "+escapeHtml(d.connection?.status||"pending")+"</p></div>";loadConnections();}catch(e){msg.textContent="Network error. Try again.";}}
 async function loadConnections(){const host=$("connectionList");if(!host)return;try{const d=await api("/api/connections");if(!d.ok){host.textContent=d.error||"Could not load.";return;}host.innerHTML=(d.connections||[]).map(x=>{const incoming=String(x.receiver_id)===String(me?.id),p=x.other_member||{};return "<div class='listing'><b>"+escapeHtml(p.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.jp_number||"")+" · "+escapeHtml(x.status||"pending")+"</p>"+(x.status==="pending"&&incoming?"<button onclick=\"updateConnection('"+escapeHtml(x.id)+"','accepted')\">ACCEPT</button><button class='dark' onclick=\"updateConnection('"+escapeHtml(x.id)+"','declined')\">DECLINE</button>":"")+"</div>"}).join("")||"<p class='muted'>No requests yet.</p>";}catch(e){host.textContent="Could not load requests.";}}
