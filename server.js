@@ -31,10 +31,42 @@ const upload = multer({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "1mb" }));
+app.set("trust proxy", 1);
+app.use((req,res,next)=>{
+  res.setHeader("X-Content-Type-Options","nosniff");
+  res.setHeader("X-Frame-Options","DENY");
+  res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy","microphone=(self), camera=(), geolocation=()");
+  if(req.path.startsWith("/api/"))res.setHeader("Cache-Control","no-store");
+  const origin=req.get("origin");
+  if(origin && req.path.startsWith("/api/")){
+    try {
+      if(new URL(origin).host!==req.get("host"))return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
+    } catch { return res.status(403).json({ok:false,error:"Invalid request origin."}); }
+  }
+  next();
+});
+
 
 const clean = v => String(v ?? "").trim();
 const emailOf = v => clean(v).toLowerCase();
 const hash = v => crypto.createHash("sha256").update(String(v)).digest("hex");
+
+
+const requestRateBuckets = new Map();
+function checkRequestRate(req, scope, limit, windowMs) {
+  const now=Date.now();
+  const ip=String(req.ip||req.socket?.remoteAddress||"unknown");
+  const key=scope+":"+hash(ip);
+  let item=requestRateBuckets.get(key);
+  if(!item||now-item.start>windowMs)item={start:now,count:0};
+  item.count++;
+  requestRateBuckets.set(key,item);
+  if(requestRateBuckets.size>10000){
+    for(const [k,v] of requestRateBuckets)if(now-v.start>3600000)requestRateBuckets.delete(k);
+  }
+  return {allowed:item.count<=limit,retryAfter:Math.max(1,Math.ceil((windowMs-(now-item.start))/1000))};
+}
 
 function phoneOf(v) {
   let p = clean(v).replace(/^whatsapp:/i, "").replace(/[\s-]/g, "");
@@ -150,6 +182,8 @@ app.get("/", (req, res) => {
 
 /* REGISTER */
 app.post("/api/register", async (req, res) => {
+  const rate=checkRequestRate(req,"register",8,60*60*1000);
+  if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return res.status(429).json({ok:false,error:"Too many account creation attempts from this connection. Please try again later."});}
   try {
     const full_name = clean(req.body.full_name);
     const phone = phoneOf(req.body.phone);
@@ -210,6 +244,8 @@ app.post("/api/register", async (req, res) => {
 
 /* LOGIN */
 app.post("/api/login", async (req, res) => {
+  const rate=checkRequestRate(req,"login",15,15*60*1000);
+  if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return res.status(429).json({ok:false,error:"Too many sign-in attempts. Please wait and try again."});}
   try {
     const identifier = clean(req.body.identifier);
     const password = String(req.body.password || "");
