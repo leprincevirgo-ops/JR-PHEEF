@@ -10,14 +10,15 @@ const { createClient } = require("@supabase/supabase-js");
 const app = express();
 const PORT = process.env.PORT || 10000;
 const URL = process.env.SUPABASE_URL;
+// This server performs trusted account/session operations. Never fall back to
+// the public anon key: it cannot safely perform these operations under RLS.
 const KEY = process.env.SUPABASE_SECRET_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_ANON_KEY;
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
 const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_URL = process.env.TWILIO_WEBHOOK_URL;
 
 if (!URL || !KEY) {
-  console.error("Missing Supabase configuration");
+  console.error("Missing Supabase configuration: set SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) in Render. A public anon key is not sufficient for trusted server operations.");
   process.exit(1);
 }
 
