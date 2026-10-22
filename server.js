@@ -155,24 +155,19 @@ function contactBlocked(s) {
 }
 
 async function accessStatus(id) {
-  if (freeWindow()) {
-    return { allowed: true, reason: "FREE_WINDOW" };
-  }
-
-  const { data, error } = await db.from("access_passes")
-    .select("expires_at").eq("member_id", String(id))
-    .eq("status", "active").gt("expires_at", new Date().toISOString())
-    .order("expires_at", { ascending: false }).limit(1).maybeSingle();
-
-  if (error) throw error;
-  if (data) return { allowed: true, reason: "ACTIVE_PASS", expires_at: data.expires_at };
-  return { allowed: false, reason: "PAYMENT_REQUIRED", price: ACCESS_PRICE, hours: ACCESS_HOURS };
+  // Current product rule: discovery and listing access stay free. Connection
+  // fees are not collected until a mutual-match payment flow is integrated.
+  return {
+    allowed: true,
+    reason: "FREE_DISCOVERY",
+    message: "Browsing and listings are free. No connection fee is active in this build."
+  };
 }
 
 app.get("/health", (req, res) => res.json({
-  ok: true, app: "JR PHEEF", version: "5.1.0",
+  ok: true, app: "JR PHEEF", version: "5.2.0",
   ai: process.env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
-  access: "KSh 30 / 5 hours (legacy access gate; review before launch)", free_window: "02:00-06:00 EAT",
+  access: "FREE_DISCOVERY; match fees not activated", free_window: "retired",
   flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
 }));
 
@@ -339,44 +334,13 @@ app.get("/api/access", async (req, res) => {
 /* REDEEM POINTS
    NOTE: use a database transaction/RPC for production-grade atomic redemption. */
 app.post("/api/points/redeem-access", async (req, res) => {
-  try {
-    const m = await requireMember(req, res);
-    if (!m) return;
-    if (freeWindow()) return res.json({ ok: true, free: true, message: "Access is free right now." });
-
-    const points = Number(m.reward_points || 0);
-    if (points < ACCESS_PRICE)
-      return res.status(400).json({ ok: false, error: "You need 30 points for 5-hour access.", points });
-
-    const starts = new Date();
-    const expires = new Date(starts.getTime() + ACCESS_HOURS * 3600000);
-    const { data: updated, error } = await db.from("members")
-      .update({ reward_points: points - ACCESS_PRICE })
-      .eq("id", m.id).gte("reward_points", ACCESS_PRICE)
-      .select("reward_points").maybeSingle();
-
-    if (error || !updated)
-      return res.status(409).json({ ok: false, error: "Points could not be redeemed. Please retry." });
-
-    const { error: passError } = await db.from("access_passes").insert({
-      member_id: String(m.id), amount: ACCESS_PRICE, hours: ACCESS_HOURS,
-      payment_method: "points", source: "points", status: "active",
-      starts_at: starts.toISOString(), expires_at: expires.toISOString()
-    });
-
-    if (passError) {
-      console.error("Pass creation failed; points need reconciliation:", passError.message);
-      return res.status(500).json({ ok: false, error: "Pass creation failed. Contact support before retrying." });
-    }
-
-    await db.from("point_transactions").insert({
-      member_id: String(m.id), amount: -ACCESS_PRICE,
-      transaction_type: "REDEEM_ACCESS", description: "Points redeemed for 5-hour access"
-    });
-    res.json({ ok: true, points_remaining: updated.reward_points, expires_at: expires.toISOString() });
-  } catch {
-    res.status(500).json({ ok: false, error: "Redemption failed." });
-  }
+  const member = await requireMember(req, res);
+  if (!member) return;
+  return res.status(410).json({
+    ok: false,
+    error: "POINTS_REDEMPTION_NOT_ACTIVE",
+    message: "No points were deducted. Marketplace browsing is free; rewards redemption will be enabled after its rules are finalized."
+  });
 });
 
 /* OWNER POINT ADJUSTMENT */
