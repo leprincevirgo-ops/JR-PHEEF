@@ -325,7 +325,7 @@ app.get("/api/access", async (req, res) => {
   try {
     const m = await requireMember(req, res);
     if (!m) return;
-    res.json({ ok: true, ...(await accessStatus(m.id)), points: Number(m.reward_points || 0), points_needed: ACCESS_PRICE });
+    res.json({ ok: true, ...(await accessStatus(m.id)), points: Number(m.reward_points || 0), points_needed: 0 });
   } catch {
     res.status(500).json({ ok: false, error: "Could not check access." });
   }
