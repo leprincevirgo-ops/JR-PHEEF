@@ -811,6 +811,7 @@ app.delete("/api/social/posts/:id",async(req,res)=>{
 
 /* JR PHEEF AI ASSISTANT — server-side key, curated knowledge retrieval, optional web research */
 const aiRateBuckets = new Map();
+const aiDailyBuckets = new Map();
 const JR_AI_MODES = {
   universe: "General Universe Assistant: synthesize relevant fields, explain clearly, and offer practical next steps.",
   actuarial: "Actuarial and Risk Analyst: define assumptions, base rates, probability ranges, expected value, sensitivity, downside exposure, and scenarios. Label illustrative estimates and avoid guarantees.",
@@ -833,15 +834,21 @@ const JR_AI_INSTRUCTIONS = [
   "Be practical, clear, respectful, and concise. Ask a focused clarification only when necessary."
 ].join(" ");
 function checkAiRate(memberId) {
-  const now = Date.now(), key = String(memberId);
-  let item = aiRateBuckets.get(key);
-  if (!item || now - item.start > 60000) item = { start: now, count: 0 };
-  item.count++;
-  aiRateBuckets.set(key, item);
+  const now = Date.now(), key = String(memberId), day = new Date().toISOString().slice(0,10);
+  let minute = aiRateBuckets.get(key);
+  if (!minute || now - minute.start > 60000) minute = { start: now, count: 0 };
+  minute.count++;
+  aiRateBuckets.set(key, minute);
+  const dailyKey=key+":"+day;
+  const dailyCount=(aiDailyBuckets.get(dailyKey)||0)+1;
+  aiDailyBuckets.set(dailyKey,dailyCount);
   if (aiRateBuckets.size > 5000) {
     for (const [k,v] of aiRateBuckets) if (now-v.start>60000) aiRateBuckets.delete(k);
   }
-  return { allowed: item.count <= 12, remaining: Math.max(0,12-item.count) };
+  if (aiDailyBuckets.size > 20000) {
+    for (const k of aiDailyBuckets.keys()) if (!k.endsWith(":"+day)) aiDailyBuckets.delete(k);
+  }
+  return { allowed: minute.count <= 12 && dailyCount <= 50, remaining: Math.max(0,Math.min(12-minute.count,50-dailyCount)) };
 }
 async function retrieveAiKnowledge(question) {
   const { data, error } = await db.from("knowledge_articles")
@@ -870,7 +877,7 @@ app.post("/api/ai/chat", async (req,res)=>{
     const member=await requireMember(req,res); if(!member)return;
     const rate=checkAiRate(member.id);
     res.setHeader("X-AI-RateLimit-Remaining",String(rate.remaining));
-    if(!rate.allowed)return res.status(429).json({ok:false,error:"AI request limit reached. Please wait a minute and try again."});
+    if(!rate.allowed)return res.status(429).json({ok:false,error:"AI usage limit reached (12 per minute, up to 50 per day). Please wait and try again later."});
     if(!process.env.OPENAI_API_KEY)return res.status(503).json({ok:false,error:"AI_NOT_CONFIGURED",message:"The AI assistant is built but not activated on the server yet. Add OPENAI_API_KEY in Render Environment to enable it."});
     const message=clean(req.body.message).slice(0,4000);
     if(!message)return res.status(400).json({ok:false,error:"Write a question first."});
