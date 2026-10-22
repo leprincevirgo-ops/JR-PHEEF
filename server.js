@@ -41,7 +41,7 @@ app.use((req,res,next)=>{
   const origin=req.get("origin");
   if(origin && req.path.startsWith("/api/")){
     try {
-      if(new URL(origin).host!==req.get("host"))return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
+      if(new globalThis.URL(origin).host!==req.get("host"))return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
     } catch { return res.status(403).json({ok:false,error:"Invalid request origin."}); }
   }
   next();
