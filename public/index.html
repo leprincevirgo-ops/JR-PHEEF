@@ -245,8 +245,8 @@ placeholder="Password">
 </div>
 
 <div class="card">
-<div class="big">KSh 30</div>
-<div>5-hour access</div>
+<div class="big">FREE</div>
+<div>Discovery & listings</div>
 </div>
 
 </div>
@@ -255,9 +255,7 @@ placeholder="Password">
 <h2>Access</h2>
 <p id="accessText">Checking...</p>
 
-<button class="primary" onclick="redeemPoints()">
-⭐ USE 30 POINTS
-</button>
+<button class="dark" disabled title="Rewards redemption is not active yet">REWARDS REDEMPTION NOT ACTIVE</button>
 
 <button onclick="show('flex')">
 💙 PHEEF FLEX
@@ -759,7 +757,7 @@ async function refresh(){
   }else{
 
     $("accessText").textContent=
-      "KSh 30 = 5 hours, or redeem 30 points.";
+      access.message||"Browsing and listings are free. Connection fees are not active yet.";
   }
 
   fillProfile();
@@ -917,7 +915,7 @@ async function searchListings(category=""){
 
     $("results").innerHTML=
       `<div class="listing">${data.error}<br><br>
-      KSh 30 = 5 hours or redeem 30 points.
+      Browsing and listings are free. Connection fees are not active yet.
       </div>`;
 
     return;
