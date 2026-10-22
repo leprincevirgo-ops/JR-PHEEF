@@ -122,9 +122,10 @@ async function getMember(req) {
   const match = (req.headers.cookie || "").match(/(?:^|;\s*)jr_session=([^;]+)/);
   if (!match) return null;
 
+  const tokenHash=hash(decodeURIComponent(match[1]));
   const { data: session, error } = await db.from("sessions")
-    .select("member_id")
-    .eq("token_hash", hash(decodeURIComponent(match[1])))
+    .select("member_id,last_seen_at")
+    .eq("token_hash", tokenHash)
     .gt("expires_at", new Date().toISOString())
     .maybeSingle();
 
@@ -138,6 +139,11 @@ async function getMember(req) {
     String(member.status || "").toLowerCase()
   )) return null;
 
+  const lastSeen=session.last_seen_at?new Date(session.last_seen_at).getTime():0;
+  if(!lastSeen || Date.now()-lastSeen>300000){
+    db.from("sessions").update({last_seen_at:new Date().toISOString()})
+      .eq("token_hash",tokenHash).then(()=>{}).catch(()=>{});
+  }
   return member;
 }
 
@@ -613,13 +619,25 @@ app.post("/api/connections", async (req, res) => {
   if (!receiver_id || receiver_id === String(m.id))
     return res.status(400).json({ ok: false, error: "Invalid connection." });
 
-  const { data, error } = await db.from("connections").upsert({
+  const {data:existing,error:lookupError}=await db.from("connections").select("*")
+    .or("and(requester_id.eq."+m.id+",receiver_id.eq."+receiver_id+"),and(requester_id.eq."+receiver_id+",receiver_id.eq."+m.id+")")
+    .limit(1).maybeSingle();
+  if(lookupError)return res.status(500).json({ok:false,error:"Could not check existing connection."});
+  if(existing)return res.json({ok:true,already_exists:true,connection:existing});
+  const { data, error } = await db.from("connections").insert({
     requester_id: String(m.id), receiver_id, status: "pending",
     updated_at: new Date().toISOString()
-  }, { onConflict: "requester_id,receiver_id" }).select().single();
-
-  if (error) return res.status(400).json({ ok: false, error: "Connection request failed." });
-  res.json({ ok: true, connection: data });
+  }).select().single();
+  if (error) {
+    if(error.code==="23505"){
+      const again=await db.from("connections").select("*")
+        .or("and(requester_id.eq."+m.id+",receiver_id.eq."+receiver_id+"),and(requester_id.eq."+receiver_id+",receiver_id.eq."+m.id+")")
+        .limit(1).maybeSingle();
+      if(again.data)return res.json({ok:true,already_exists:true,connection:again.data});
+    }
+    return res.status(400).json({ ok: false, error: "Connection request failed." });
+  }
+  res.status(201).json({ ok: true, connection: data });
 });
 
 
