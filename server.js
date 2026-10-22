@@ -410,7 +410,7 @@ app.post("/api/flex/request", async (req, res) => {
   const { data, error } = await db.from("credit_requests").insert({
     member_id: String(m.id), requested_amount: amount, approved_amount: 0,
     principal: 0, interest_amount: 0, fees: 0, total_payable: 0,
-    status: "disabled", provider: "JR_PHEEF_PENDING_PARTNER", purpose: "marketplace_access"
+    status: "disabled", provider: "JR_PHEEF_PENDING_PARTNER", purpose: "flex_interest"
   }).select("id").single();
   if (error) return res.status(500).json({ ok: false, error: "Request could not be recorded." });
   res.json({ ok: true, active: false, request_id: data.id, message: "Request recorded; credit is not enabled." });
@@ -616,7 +616,7 @@ app.post("/api/connections", async (req, res) => {
   const m = await requireMember(req, res);
   if (!m) return;
   const receiver_id = clean(req.body.receiver_id);
-  if (!receiver_id || receiver_id === String(m.id))
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(receiver_id) || receiver_id === String(m.id))
     return res.status(400).json({ ok: false, error: "Invalid connection." });
 
   const {data:existing,error:lookupError}=await db.from("connections").select("*")
@@ -927,7 +927,7 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
       const { data } = await db.from("members").select("reward_points").eq("phone", phone).maybeSingle();
       answer = `JR PHEEF POINTS: ${Number(data?.reward_points || 0)}. 30 points can redeem 5-hour access.`;
     } else if (message === "ACCESS") {
-      answer = "JR PHEEF access: KSh 30 for 5 hours. Free access is 02:00–06:00 EAT. Daraja payments are not connected yet.";
+      answer = "JR PHEEF discovery and listings are free. Connection fees are not active in this build. Any future fee must be shown before confirmation. M-Pesa/Daraja payments are not connected yet.";
     } else if (["FLEX", "OKOA", "PAY LATER"].includes(message)) {
       answer = "PHEEF FLEX is being prepared. Credit is not active.";
     } else if (message === "HELP") {
