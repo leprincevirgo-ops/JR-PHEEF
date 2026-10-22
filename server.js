@@ -655,7 +655,18 @@ app.get("/api/connections", async (req,res) => {
       const p=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,profile_visibility").in("id",ids);
       if(!p.error) people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));
     }
-    res.json({ok:true,connections:(data||[]).map(x=>({...x,other_member:people[x.requester_id===String(m.id)?x.receiver_id:x.requester_id]||null}))});
+    res.json({ok:true,connections:(data||[]).map(x=>{
+      const other=people[x.requester_id===String(m.id)?x.receiver_id:x.requester_id]||null;
+      const isAccepted=x.status==="accepted";
+      return {...x,other_member:other?{
+        jp_number:other.jp_number||null,
+        dgbo_id:other.dgbo_id||null,
+        full_name:other.profile_visibility==="private"?"JR PHEEF Member":other.full_name,
+        verified:!!other.verified,
+        profile_visibility:other.profile_visibility||"public",
+        connected:isAccepted
+      }:null};
+    })});
   } catch(e){ console.error("Connections list:",e.message); if(!res.headersSent) res.status(500).json({ok:false,error:"Could not load connections."});}
 });
 app.post("/api/connections/by-jp-number", async(req,res)=>{
@@ -683,9 +694,12 @@ app.patch("/api/connections/:id",async(req,res)=>{
     let q=db.from("connections").select("*").eq("id",req.params.id).maybeSingle();
     const {data:current,error}=await q;if(error)throw error;
     if(!current || (String(current.requester_id)!==String(m.id)&&String(current.receiver_id)!==String(m.id)))return res.status(404).json({ok:false,error:"Connection request not found."});
-    if(status==="accepted" && String(current.receiver_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the recipient can accept this request."});
+    if(current.status!=="pending")return res.status(409).json({ok:false,error:"Only pending connection requests can be changed."});
+    if((status==="accepted"||status==="declined") && String(current.receiver_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the recipient can accept or decline this request."});
     if(status==="cancelled" && String(current.requester_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the sender can cancel this request."});
-    const {data,error:updateError}=await db.from("connections").update({status,updated_at:new Date().toISOString()}).eq("id",req.params.id).select().single();
+    const {data,error:updateError}=await db.from("connections").update({status,updated_at:new Date().toISOString()}).eq("id",req.params.id).eq("status","pending").select().maybeSingle();
+    if(updateError)throw updateError;
+    if(!data)return res.status(409).json({ok:false,error:"This connection request has already changed."});
     if(updateError)throw updateError;
     res.json({ok:true,connection:data});
   }catch(e){console.error("Connection update:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update connection."});}
@@ -695,14 +709,26 @@ app.patch("/api/connections/:id",async(req,res)=>{
 const vaultUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:25*1024*1024,files:1}});
 const VAULT_BUCKET="jr-pheef-private-files";
 const VAULT_TYPES=new Set(["application/pdf","text/plain","text/csv","application/json","image/jpeg","image/png","image/webp","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]);
+
+async function authenticateVaultUpload(req,res,next){
+  try{
+    const member=await getMember(req);
+    if(!member)return res.status(401).json({ok:false,error:"LOGIN_REQUIRED"});
+    req.jrMember=member;
+    next();
+  }catch(e){
+    console.error("Vault upload authentication:",clean(e.message).slice(0,160));
+    res.status(500).json({ok:false,error:"Could not verify your session."});
+  }
+}
 app.get("/api/vault/files",async(req,res)=>{
   try{const m=await requireMember(req,res);if(!m)return;
     const {data,error}=await db.from("file_vault").select("id,file_name,mime_type,size_bytes,category,created_at").eq("member_id",m.id).order("created_at",{ascending:false}).limit(100);
     if(error)throw error;res.json({ok:true,files:data||[]});
   }catch(e){console.error("Vault list:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load your files."});}
 });
-app.post("/api/vault/files",vaultUpload.single("file"),async(req,res)=>{
-  try{const m=await requireMember(req,res);if(!m)return;
+app.post("/api/vault/files",authenticateVaultUpload,vaultUpload.single("file"),async(req,res)=>{
+  try{const m=req.jrMember;
     const f=req.file;if(!f)return res.status(400).json({ok:false,error:"Choose a file first."});
     if(!VAULT_TYPES.has(f.mimetype))return res.status(415).json({ok:false,error:"This file type is not supported yet."});
     const fileName=path.basename(f.originalname).replace(/[\r\n]/g,"").slice(0,180)||"file";
@@ -932,7 +958,7 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
 
     if (message === "POINTS") {
       const { data } = await db.from("members").select("reward_points").eq("phone", phone).maybeSingle();
-      answer = `JR PHEEF POINTS: ${Number(data?.reward_points || 0)}. 30 points can redeem 5-hour access.`;
+      answer = `JR PHEEF POINTS: ${Number(data?.reward_points || 0)}. Points redemption is not active yet; browsing and listings are free.`;
     } else if (message === "ACCESS") {
       answer = "JR PHEEF discovery and listings are free. Connection fees are not active in this build. Any future fee must be shown before confirmation. M-Pesa/Daraja payments are not connected yet.";
     } else if (["FLEX", "OKOA", "PAY LATER"].includes(message)) {
