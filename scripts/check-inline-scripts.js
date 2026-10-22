@@ -28,6 +28,10 @@ const required = [
   'id="vault"',
   'id="devices"',
   'id="voice"',
+  'id="scifi"',
+  'function buildSciFiBrief()',
+  'function sendSciFiToAI()',
+  'Space & Satellite Concepts',
   'async function askJRAI()'
 ];
 for (const marker of required) {
