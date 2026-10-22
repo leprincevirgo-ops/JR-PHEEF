@@ -187,7 +187,7 @@ placeholder="Password">
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button>
+<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">FIXEDITCONNECT</button>
 </div>
 
 <div id="home" class="page">
@@ -660,6 +660,15 @@ SAVE PROFILE
 <label for="sciLimits">Constraints, assumptions or goals (optional)</label><textarea id="sciLimits" rows="2" placeholder="Budget, intended audience, realism level, timeline, available skills…"></textarea>
 <button class="primary" onclick="buildSciFiBrief()">BUILD MY CONCEPT</button><button class="dark" onclick="sendSciFiToAI()">ASK JR AI</button><p id="sciStatus" class="muted" aria-live="polite"></p><div id="sciOutput" class="listing hidden" aria-live="polite"></div></div>
 <div class="card"><h2>Reality labels</h2><p><span class="badge">Established</span> Supported by strong evidence.</p><p><span class="badge">Plausible</span> Consistent with known principles, but not necessarily demonstrated.</p><p><span class="badge">Speculative</span> Depends on unverified assumptions or future breakthroughs.</p><p><span class="badge">Fictional</span> Invented for storytelling; do not present as proven technology.</p><p class="muted">A simulation or story is not scientific proof.</p></div>
+</section><section id="fixedit" class="page hidden">
+<div class="card"><p class="eyebrow">FIXEDITCONNECT · REPAIRS & LOCAL SERVICES</p><h1>Find someone who can fix it.</h1><p class="muted">Find repairers, technicians, tradespeople and practical services through JR PHEEF listings. Confirm scope, price and safety before hiring. JR PHEEF does not independently verify providers yet.</p>
+<input id="fixSearch" maxlength="100" placeholder="What needs fixing? e.g. phone screen, plumbing, laptop, wiring">
+<input id="fixArea" maxlength="120" placeholder="Your area / estate / town (optional)">
+<select id="fixType"><option value="">All repair and service listings</option><option value="Tools">Tools & repair equipment</option><option value="Business & Operations">Professional services</option><option value="Small Business">Small service businesses</option><option value="Photography">Camera & photo equipment</option><option value="Communication">Phones & communication devices</option></select>
+<button class="primary" onclick="findFixedItServices()">FIND SERVICES</button>
+<button class="dark" onclick="startFixedItListing()">OFFER A REPAIR SERVICE</button><p id="fixMsg" class="muted" aria-live="polite"></p></div>
+<div class="card"><h2>Available listings</h2><div id="fixResults"><p class="muted">Search to discover services listed on JR PHEEF.</p></div></div>
+<div class="card"><h3>Safer service connections</h3><ul><li>Agree on the work, total cost and timing before handing over items or money.</li><li>Do not share passwords, PINs, one-time codes or private account access.</li><li>For electrical, gas, structural or other hazardous work, use appropriately qualified professionals.</li><li>Use JP Connect to request a connection; don't post private contact details publicly.</li></ul><p class="muted">Payments, provider verification, job tracking and dispute resolution are not represented as active unless separately implemented and tested.</p></div>
 </section></main>
 
 <script>
@@ -1194,7 +1203,40 @@ const p=data[mode],esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/
 out.innerHTML="<h3>"+p[0]+"</h3><p><b>Your concept</b><br>"+esc(idea)+"</p><h3>Planning framework</h3><p>"+p[1]+"</p><h3>Next steps</h3><ol><li>List assumptions and what must be verified.</li><li>Identify evidence, tools, people or skills needed.</li><li>Define a small, safe first experiment or draft.</li><li>Record results and revise the concept.</li></ol><p><b>Guardrail:</b> "+p[2]+"</p>"+(limits?"<p><b>Your constraints</b><br>"+esc(limits)+"</p>":"")+"<p class=muted>This locally generated brief is not scientific validation. Use ASK JR AI for model-assisted analysis when configured.</p>";
 out.classList.remove("hidden");status.textContent="Concept brief created on this device.";
 }
-function sendSciFiToAI(){const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value;if(!idea){document.getElementById("sciStatus").textContent="Add an idea or question first.";return;}const labels={world:"Universe Builder",science:"Science Reality Checker",forge:"Technology Forge",future:"Future Worlds Simulator",story:"Character & Story Intelligence",exchange:"Sci-Fi Project Exchange",space:"Space & Satellite Concepts"};const prompt="Help me with JR PHEEF SCI-FI module: "+labels[mode]+". Idea: "+idea+". Constraints: "+(limits||"None specified")+". Separate established facts, plausible ideas, speculation and fiction; cite sources if available; give practical next steps.";show("assistant");const box=document.getElementById("aiPrompt")||document.getElementById("assistantInput")||document.getElementById("chatPrompt")||document.getElementById("aiQuestion");if(box){box.value=prompt;box.focus();document.getElementById("sciStatus").textContent="Prompt prepared in AI Assistant. Submit it there to continue.";}else{document.getElementById("sciStatus").textContent="Open AI Assistant and paste this prompt: "+prompt;}}</script>
+function sendSciFiToAI(){const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value;if(!idea){document.getElementById("sciStatus").textContent="Add an idea or question first.";return;}const labels={world:"Universe Builder",science:"Science Reality Checker",forge:"Technology Forge",future:"Future Worlds Simulator",story:"Character & Story Intelligence",exchange:"Sci-Fi Project Exchange",space:"Space & Satellite Concepts"};const prompt="Help me with JR PHEEF SCI-FI module: "+labels[mode]+". Idea: "+idea+". Constraints: "+(limits||"None specified")+". Separate established facts, plausible ideas, speculation and fiction; cite sources if available; give practical next steps.";show("assistant");const box=document.getElementById("aiPrompt")||document.getElementById("assistantInput")||document.getElementById("chatPrompt")||document.getElementById("aiQuestion");if(box){box.value=prompt;box.focus();document.getElementById("sciStatus").textContent="Prompt prepared in AI Assistant. Submit it there to continue.";}else{document.getElementById("sciStatus").textContent="Open AI Assistant and paste this prompt: "+prompt;}}
+async function findFixedItServices(){
+ const q=document.getElementById("fixSearch").value.trim(),area=document.getElementById("fixArea").value.trim(),category=document.getElementById("fixType").value;
+ const msg=document.getElementById("fixMsg"),host=document.getElementById("fixResults");
+ if(!q){msg.textContent="Describe what needs fixing first.";return;}
+ msg.textContent="Searching current JR PHEEF listings…";host.innerHTML="";
+ try{
+  const data=await api("/api/listings?q="+encodeURIComponent(q)+(category?"&category="+encodeURIComponent(category):""));
+  if(!data.ok){msg.textContent=data.error||"Could not search listings.";return;}
+  let rows=(data.listings||[]).filter(x=>/repair|fix|technician|plumb|electric|service|mainten|install|laptop|phone|appliance|camera|mechanic|carpenter|painting|cleaning|tool|computer|screen/i.test([x.item_name,x.description,x.category].join(" ")));
+  if(area) rows=rows.filter(x=>String(x.location||"").toLowerCase().includes(area.toLowerCase()));
+  if(!rows.length){host.innerHTML="<p>No matching service listing found yet. Try a broader search or offer your own service listing.</p>";msg.textContent="Search completed. No matching listings were returned.";return;}
+  host.innerHTML=rows.map(x=>"<article class='listing'><b>"+escapeHtml(x.item_name||"Service listing")+"</b><p>"+escapeHtml(x.description||"")+"</p><p>Category: "+escapeHtml(x.category||"Other")+" · KSh "+Number(x.price||0).toLocaleString()+"</p><p>Location: "+escapeHtml(x.location||"Not specified")+"</p>"+(x.member_id&&String(x.member_id)!==String(me.id)?"<button class='primary' onclick='fixedItConnectRequest("+JSON.stringify(String(x.member_id))+")'>REQUEST JP CONNECT</button>":"<p class='muted'>Your listing</p>")+"</article>").join("");
+  msg.textContent="Found "+rows.length+" matching listing(s). Listings are not independently verified.";
+ }catch(e){msg.textContent="Search failed. Please try again shortly.";}
+}
+async function fixedItConnectRequest(memberId){
+ if(!memberId||String(memberId)===String(me.id))return;
+ const msg=document.getElementById("fixMsg");
+ try{
+  const data=await api("/api/connections",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({receiver_id:memberId})});
+  msg.textContent=data.ok?(data.message||"Connection request sent. Check JP Connect for updates."): (data.error||"Could not send connection request.");
+ }catch(e){msg.textContent="Connection request failed. Please try again.";}
+}
+function startFixedItListing(){
+ show("create");
+ const cat=document.getElementById("category");
+ if(cat)cat.value="Tools";
+ const title=document.getElementById("itemName");
+ if(title&&!title.value)title.value="Repair service: ";
+ const desc=document.getElementById("description");
+ if(desc&&!desc.value)desc.value="Describe the repair/service offered, devices or work supported, service area, availability, and any qualifications. Do not include private contact details.";
+}
+</script>
 
 </body>
  </html>
