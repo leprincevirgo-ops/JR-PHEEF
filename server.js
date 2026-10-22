@@ -138,8 +138,9 @@ async function accessStatus(id) {
 }
 
 app.get("/health", (req, res) => res.json({
-  ok: true, app: "JR PHEEF", version: "5.0.0",
-  access: "KSh 30 / 5 hours", free_window: "02:00-06:00 EAT",
+  ok: true, app: "JR PHEEF", version: "5.1.0",
+  ai: process.env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
+  access: "KSh 30 / 5 hours (legacy access gate; review before launch)", free_window: "02:00-06:00 EAT",
   flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
 }));
 
@@ -742,11 +743,19 @@ app.get("/api/social/feed",async(req,res)=>{
     const {data:rels,error:relError}=await db.from("connections").select("requester_id,receiver_id").eq("status","accepted").or("requester_id.eq."+m.id+",receiver_id.eq."+m.id);
     if(relError)throw relError;
     const ids=[String(m.id),...(rels||[]).map(x=>String(x.requester_id)===String(m.id)?String(x.receiver_id):String(x.requester_id))];
-    const {data,error}=await db.from("social_posts").select("id,member_id,body,visibility,created_at").in("member_id",ids).in("visibility",["public","connections"]).order("created_at",{ascending:false}).limit(100);
-    if(error)throw error;
-    const memberIds=[...new Set((data||[]).map(p=>String(p.member_id)))];
-    let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,jp_number,verified").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
-    res.json({ok:true,posts:(data||[]).filter(p=>p.visibility==="public"||String(p.member_id)===String(m.id)||ids.includes(String(p.member_id))).map(p=>({...p,author:people[String(p.member_id)]||{full_name:"JR PHEEF Member"}}))});
+    const [publicResult,personalResult]=await Promise.all([
+      db.from("social_posts").select("id,member_id,body,visibility,created_at").eq("visibility","public").order("created_at",{ascending:false}).limit(100),
+      db.from("social_posts").select("id,member_id,body,visibility,created_at").in("member_id",ids).in("visibility",["connections","private"]).order("created_at",{ascending:false}).limit(100)
+    ]);
+    if(publicResult.error)throw publicResult.error;
+    if(personalResult.error)throw personalResult.error;
+    const posts=[...(publicResult.data||[]),...(personalResult.data||[])]
+      .filter((p,i,all)=>all.findIndex(x=>String(x.id)===String(p.id))===i)
+      .filter(p=>p.visibility==="public"||(String(p.member_id)===String(m.id))||(p.visibility==="connections"&&ids.includes(String(p.member_id))))
+      .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,100);
+    const memberIds=[...new Set(posts.map(p=>String(p.member_id)))];
+    let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,jp_number,verified,profile_visibility").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
+    res.json({ok:true,posts:posts.map(p=>({...p,author:people[String(p.member_id)]||{full_name:"JR PHEEF Member"}}))});
   }catch(e){console.error("Social feed:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load the community feed."});}
 });
 app.get("/api/social/posts",async(req,res)=>{
@@ -767,7 +776,7 @@ app.post("/api/social/posts",async(req,res)=>{
 app.delete("/api/social/posts/:id",async(req,res)=>{
   try{const m=await requireMember(req,res);if(!m)return;
     const {error,count}=await db.from("social_posts").delete({count:"exact"}).eq("id",req.params.id).eq("member_id",m.id);
-    if(error)throw error;res.json({ok:true});
+    if(error)throw error;if(count===0)return res.status(404).json({ok:false,error:"Post not found or you cannot delete it."});res.json({ok:true});
   }catch(e){console.error("Social post delete:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not delete post."});}
 });
 
