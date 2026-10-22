@@ -265,3 +265,24 @@ Implementation sequence:
 4. Consider licensed commercial providers or direct satellite/ground-station partnerships only after a clear use case, budget, legal review, and technical feasibility assessment.
 
 The guiding principle is **connect to satellite data and services responsibly; do not claim direct satellite control, universal coverage, real-time imagery, or precision that the data source cannot support.**
+
+
+## Sci-Fi & Futures Studio
+
+The product includes a dedicated Sci-Fi & Futures Studio integrated with Universe Assistant, Lab, Library, Future Simulator, and the opportunity network. Its seven user-facing modules are:
+
+1. Universe Builder — original settings, world rules, factions, characters, timelines and continuity ledgers.
+2. Science Reality Checker — separate established evidence, plausible extrapolation, speculation and fictional premises; source claims and express uncertainty.
+3. Technology Forge — problem statements, concept briefs, dependencies, failure modes and safe early prototypes.
+4. Future Worlds Simulator — best-case, baseline and downside scenarios, editable assumptions, indicators and uncertainty; scenarios are not predictions.
+5. Character & Story Intelligence — original character motivations, relationships, arcs and continuity; do not copy protected characters, scenes or dialogue.
+6. Sci-Fi Project Exchange — structured briefs for finding writers, artists, programmers, scientists, designers and other collaborators through JR PHEEF.
+7. Space & Satellite Concepts — conceptual mission planning for orbits, communication latency, power, thermal constraints, debris and regulatory review.
+
+### Current implementation status
+
+The first UI iteration is a client-side planning-workbench prototype. Users can choose a module, enter an idea and constraints, and generate a structured concept brief in the browser. The AI handoff prepares a prompt for the existing AI Assistant. This iteration does not claim persistent project storage, automated scientific verification, physics-grade simulation, external collaborator matching, satellite control, or professional engineering validation. Those require dedicated backend/API work, source integration, persistent project tables and tests.
+
+### Reality-label standard
+
+Outputs should label claims as Established (reliable evidence), Plausible (consistent with known principles but not demonstrated), Speculative (depends on unverified assumptions), or Fictional (invented for storytelling). Research outputs should attach sources where available, identify missing evidence and avoid presenting simulated outcomes as facts.
