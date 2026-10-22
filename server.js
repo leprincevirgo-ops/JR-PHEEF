@@ -113,7 +113,7 @@ function cookie(token, clear = false) {
 
 async function logActivity(id, action, details = {}) {
   const { error } = await db.from("activity_log").insert({
-    member_id: String(id), action, details
+    member_id: String(id), action, meta: details
   });
   if (error) console.error("Activity log failed:", error.message);
 }
