@@ -569,10 +569,9 @@ app.get("/api/listings", async (req, res) => {
   }
 });
 
-app.post("/api/listings", upload.array("photos", 20), async (req, res) => {
+app.post("/api/listings", authenticateMemberBeforeUpload, upload.array("photos", 20), async (req, res) => {
   try {
-    const m = await requireMember(req, res);
-    if (!m) return;
+    const m = req.jrMember;
     const access = await accessStatus(m.id);
     if (!access.allowed) return res.status(402).json({ ok: false, error: "MARKETPLACE_ACCESS_REQUIRED", price: ACCESS_PRICE, hours: ACCESS_HOURS });
 
@@ -710,14 +709,14 @@ const vaultUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:25*102
 const VAULT_BUCKET="jr-pheef-private-files";
 const VAULT_TYPES=new Set(["application/pdf","text/plain","text/csv","application/json","image/jpeg","image/png","image/webp","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]);
 
-async function authenticateVaultUpload(req,res,next){
+async function authenticateMemberBeforeUpload(req,res,next){
   try{
     const member=await getMember(req);
     if(!member)return res.status(401).json({ok:false,error:"LOGIN_REQUIRED"});
     req.jrMember=member;
     next();
   }catch(e){
-    console.error("Vault upload authentication:",clean(e.message).slice(0,160));
+    console.error("Upload authentication:",clean(e.message).slice(0,160));
     res.status(500).json({ok:false,error:"Could not verify your session."});
   }
 }
@@ -727,7 +726,7 @@ app.get("/api/vault/files",async(req,res)=>{
     if(error)throw error;res.json({ok:true,files:data||[]});
   }catch(e){console.error("Vault list:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load your files."});}
 });
-app.post("/api/vault/files",authenticateVaultUpload,vaultUpload.single("file"),async(req,res)=>{
+app.post("/api/vault/files",authenticateMemberBeforeUpload,vaultUpload.single("file"),async(req,res)=>{
   try{const m=req.jrMember;
     const f=req.file;if(!f)return res.status(400).json({ok:false,error:"Choose a file first."});
     if(!VAULT_TYPES.has(f.mimetype))return res.status(415).json({ok:false,error:"This file type is not supported yet."});
