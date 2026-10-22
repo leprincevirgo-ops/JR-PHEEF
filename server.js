@@ -631,7 +631,7 @@ app.get("/api/rooms",async(req,res)=>{
       q=q.lte("rent_ksh",maxRent);
     }
     const {data,error}=await q;if(error)throw error;
-    res.json({ok:true,rooms:data||[]});
+    res.json({ok:true,rooms:(data||[]).map(room=>({...room,is_mine:String(room.member_id)===String(m.id)}))});
   }catch(e){console.error("Rooms search:",clean(e.message).slice(0,180));if(!res.headersSent)res.status(500).json({ok:false,error:"Rooms Near Me is temporarily unavailable."});}
 });
 app.post("/api/rooms",async(req,res)=>{
