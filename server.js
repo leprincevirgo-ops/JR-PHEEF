@@ -610,6 +610,75 @@ app.post("/api/listings", authenticateMemberBeforeUpload, upload.array("photos",
   }
 });
 
+/* ROOMS NEAR ME — rental listings, separate from goods listings */
+app.get("/api/rooms",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res);if(!m)return;
+    let q=db.from("room_listings")
+      .select("id,member_id,title,room_type,rent_ksh,location,description,amenities,available_from,status,created_at,updated_at")
+      .eq("status","active").order("created_at",{ascending:false}).limit(100);
+    const term=clean(req.query.q).slice(0,100).replace(/[,%_()]/g," ");
+    const type=clean(req.query.type);
+    const location=clean(req.query.location).slice(0,180).replace(/[,%_()]/g," ");
+    const maxRent=req.query.max_rent===undefined||req.query.max_rent===""?null:Number(req.query.max_rent);
+    if(term)q=q.or("title.ilike.%"+term+"%,location.ilike.%"+term+"%,description.ilike.%"+term+"%");
+    if(location)q=q.ilike("location","%"+location+"%");
+    if(type&&!["bedsitter","studio","one_bedroom","two_bedroom","three_bedroom","four_bedroom","shared","single_room","other"].includes(type))
+      return res.status(400).json({ok:false,error:"Choose a valid room type."});
+    if(type)q=q.eq("room_type",type);
+    if(maxRent!==null){
+      if(!Number.isFinite(maxRent)||maxRent<0)return res.status(400).json({ok:false,error:"Enter a valid maximum rent."});
+      q=q.lte("rent_ksh",maxRent);
+    }
+    const {data,error}=await q;if(error)throw error;
+    res.json({ok:true,rooms:data||[]});
+  }catch(e){console.error("Rooms search:",clean(e.message).slice(0,180));if(!res.headersSent)res.status(500).json({ok:false,error:"Rooms Near Me is temporarily unavailable."});}
+});
+app.post("/api/rooms",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res);if(!m)return;
+    const title=clean(req.body.title).slice(0,120);
+    const room_type=clean(req.body.room_type);
+    const location=clean(req.body.location).slice(0,180);
+    const description=clean(req.body.description).slice(0,2000);
+    const rent_ksh=Number(req.body.rent_ksh);
+    const available_from=clean(req.body.available_from)||null;
+    const amenities=Array.isArray(req.body.amenities)?req.body.amenities.map(x=>clean(x).slice(0,40)).filter(Boolean).slice(0,20):[];
+    const allowed=["bedsitter","studio","one_bedroom","two_bedroom","three_bedroom","four_bedroom","shared","single_room","other"];
+    if(title.length<3||!location||location.length<2)return res.status(400).json({ok:false,error:"Enter a room title and location."});
+    if(!allowed.includes(room_type))return res.status(400).json({ok:false,error:"Choose a valid room type."});
+    if(!Number.isFinite(rent_ksh)||rent_ksh<0)return res.status(400).json({ok:false,error:"Enter a valid monthly rent in KSh."});
+    if(contactBlocked(title)||contactBlocked(location)||contactBlocked(description))return res.status(400).json({ok:false,error:"Do not include phone numbers, emails or external contact links. Use JP Connect to connect safely."});
+    if(available_from&&!/^\d{4}-\d{2}-\d{2}$/.test(available_from))return res.status(400).json({ok:false,error:"Use a valid available-from date."});
+    const {data,error}=await db.from("room_listings").insert({
+      member_id:m.id,title,room_type,location,description,rent_ksh,amenities,available_from,status:"active"
+    }).select("id,title,room_type,rent_ksh,location,description,amenities,available_from,status,created_at").single();
+    if(error)throw error;
+    await logActivity(m.id,"CREATE_ROOM_LISTING",{room_id:data.id});
+    res.status(201).json({ok:true,room:data,message:"Room listing published."});
+  }catch(e){console.error("Room listing create:",clean(e.message).slice(0,180));if(!res.headersSent)res.status(500).json({ok:false,error:"Room listing could not be created."});}
+});
+app.patch("/api/rooms/:id",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res);if(!m)return;
+    const status=clean(req.body.status);
+    if(!["active","paused","filled"].includes(status))return res.status(400).json({ok:false,error:"Choose active, paused or filled."});
+    const {data,error}=await db.from("room_listings").update({status,updated_at:new Date().toISOString()})
+      .eq("id",req.params.id).eq("member_id",m.id)
+      .select("id,title,status,updated_at").maybeSingle();
+    if(error)throw error;if(!data)return res.status(404).json({ok:false,error:"Room listing not found or not yours."});
+    res.json({ok:true,room:data});
+  }catch(e){console.error("Room listing update:",clean(e.message).slice(0,180));if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update the room listing."});}
+});
+app.delete("/api/rooms/:id",async(req,res)=>{
+  try{
+    const m=await requireMember(req,res);if(!m)return;
+    const {data,error}=await db.from("room_listings").delete().eq("id",req.params.id).eq("member_id",m.id).select("id").maybeSingle();
+    if(error)throw error;if(!data)return res.status(404).json({ok:false,error:"Room listing not found or not yours."});
+    res.json({ok:true});
+  }catch(e){console.error("Room listing delete:",clean(e.message).slice(0,180));if(!res.headersSent)res.status(500).json({ok:false,error:"Could not delete the room listing."});}
+});
+
 /* CONNECTION REQUEST */
 app.post("/api/connections", async (req, res) => {
   const m = await requireMember(req, res);
