@@ -791,7 +791,15 @@ app.get("/api/social/feed",async(req,res)=>{
       .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,100);
     const memberIds=[...new Set(posts.map(p=>String(p.member_id)))];
     let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,jp_number,verified,profile_visibility").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
-    res.json({ok:true,posts:posts.map(p=>({...p,author:people[String(p.member_id)]||{full_name:"JR PHEEF Member"}}))});
+    res.json({ok:true,posts:posts.map(p=>{
+      const person=people[String(p.member_id)]||{full_name:"JR PHEEF Member"};
+      const own=String(p.member_id)===String(m.id);
+      return {...p,author:{
+        full_name:!own&&person.profile_visibility==="private"?"JR PHEEF Member":person.full_name,
+        jp_number:own||ids.includes(String(p.member_id))?person.jp_number:null,
+        verified:!!person.verified
+      }};
+    })});
   }catch(e){console.error("Social feed:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load the community feed."});}
 });
 app.get("/api/social/posts",async(req,res)=>{
@@ -804,6 +812,7 @@ app.post("/api/social/posts",async(req,res)=>{
   try{const m=await requireMember(req,res);if(!m)return;
     const body=clean(req.body.body),visibility=clean(req.body.visibility)||"connections";
     if(!body||body.length>2000)return res.status(400).json({ok:false,error:"Write a post of 1–2000 characters."});
+    if(contactBlocked(body))return res.status(400).json({ok:false,error:"Please do not post phone numbers, emails or external contact links. Use JP Connect and the approved Deal Room to connect safely."});
     if(!["private","connections","public"].includes(visibility))return res.status(400).json({ok:false,error:"Invalid post visibility."});
     const {data,error}=await db.from("social_posts").insert({member_id:m.id,body,visibility}).select("id,body,visibility,created_at").single();
     if(error)throw error;res.status(201).json({ok:true,post:data});
