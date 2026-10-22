@@ -473,12 +473,10 @@ CREATE
 <div class="big" id="pointsBig">0</div>
 
 <p>
-Use <b>30 points</b> for 5 hours of marketplace access.
+Points are rewards. Browsing and listings are free; reward redemption will be enabled after its rules are finalized.
 </p>
 
-<button class="primary" onclick="redeemPoints()">
-REDEEM 30 POINTS
-</button>
+<button class="dark" disabled>REDEMPTION NOT ACTIVE YET</button>
 
 <p class="muted">
 Points are JR PHEEF rewards and are not cash withdrawals.
@@ -507,7 +505,7 @@ PHEEF FLEX is being prepared for eligible members.
 </p>
 
 <p class="muted">
-Real credit is currently inactive. You can use JR PHEEF Points or pay for a normal access pass.
+Real credit is currently inactive. Marketplace discovery is free. FLEX and any credit services remain inactive until a partner and safeguards are in place.
 </p>
 
 <input id="flexAmount"
@@ -754,9 +752,9 @@ async function refresh(){
   if(access.allowed){
 
     $("accessText").textContent=
-      access.reason==="FREE_WINDOW"
-      ? "FREE ACCESS — 02:00 to 06:00 EAT"
-      : "Your marketplace access is active.";
+      access.reason==="FREE_DISCOVERY"
+      ? "FREE DISCOVERY — browsing and listings are free. Connection fees are not active yet."
+      : "Your access is active.";
 
   }else{
 
