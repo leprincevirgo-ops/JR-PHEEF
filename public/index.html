@@ -187,7 +187,7 @@ placeholder="Password">
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button>
+<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button>
 </div>
 
 <div id="home" class="page">
@@ -645,7 +645,22 @@ SAVE PROFILE
 
 </section>
 
-</main>
+<section id="scifi" class="page hidden">
+<div class="card"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">JR PHEEF · SCI-FI & FUTURES STUDIO</p><h1>Imagine beyond today's limits.</h1><p class="muted">Create original worlds, test ideas against known science, explore possible futures, design prototypes and find collaborators.</p>
+<div class="grid">
+<div class="listing"><b>01 · Universe Builder</b><p class="muted">Worlds, characters and continuity.</p></div>
+<div class="listing"><b>02 · Science Reality Checker</b><p class="muted">Evidence, plausible extrapolation and fiction.</p></div>
+<div class="listing"><b>03 · Technology Forge</b><p class="muted">Concept briefs and safe prototypes.</p></div>
+<div class="listing"><b>04 · Future Worlds Simulator</b><p class="muted">Scenarios, assumptions and risks.</p></div>
+<div class="listing"><b>05 · Character & Story Intelligence</b><p class="muted">Original characters and story continuity.</p></div>
+<div class="listing"><b>06 · Sci-Fi Project Exchange</b><p class="muted">Prepare a brief to find collaborators.</p></div>
+<div class="listing"><b>07 · Space & Satellite Concepts</b><p class="muted">Orbits, communication and mission concepts.</p></div></div></div>
+<div class="card"><h2>Choose your studio</h2><select id="sciMode"><option value="world">Universe Builder</option><option value="science">Science Reality Checker</option><option value="forge">Technology Forge</option><option value="future">Future Worlds Simulator</option><option value="story">Character & Story Intelligence</option><option value="exchange">Sci-Fi Project Exchange</option><option value="space">Space & Satellite Concepts</option></select>
+<label for="sciIdea">Your idea or question</label><textarea id="sciIdea" rows="4" placeholder="Example: A research city on Europa that uses underwater robots to explore the ocean beneath its ice."></textarea>
+<label for="sciLimits">Constraints, assumptions or goals (optional)</label><textarea id="sciLimits" rows="2" placeholder="Budget, intended audience, realism level, timeline, available skills…"></textarea>
+<button class="primary" onclick="buildSciFiBrief()">BUILD MY CONCEPT</button><button class="dark" onclick="sendSciFiToAI()">ASK JR AI</button><p id="sciStatus" class="muted" aria-live="polite"></p><div id="sciOutput" class="listing hidden" aria-live="polite"></div></div>
+<div class="card"><h2>Reality labels</h2><p><span class="badge">Established</span> Supported by strong evidence.</p><p><span class="badge">Plausible</span> Consistent with known principles, but not necessarily demonstrated.</p><p><span class="badge">Speculative</span> Depends on unverified assumptions or future breakthroughs.</p><p><span class="badge">Fictional</span> Invented for storytelling; do not present as proven technology.</p><p class="muted">A simulation or story is not scientific proof.</p></div>
+</section></main>
 
 <script>
 let me=null;
@@ -1171,7 +1186,15 @@ function startVoiceCommand(){const R=window.SpeechRecognition||window.webkitSpee
   }
 
 })();
-</script>
+function buildSciFiBrief(){
+const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value,out=document.getElementById("sciOutput"),status=document.getElementById("sciStatus");
+if(!idea){status.textContent="Add an idea or question first.";return;}
+const data={world:["Universe Builder","Define the setting, era, environment, societies, rules and central conflict.","Keep a continuity ledger of fixed facts and open questions."],science:["Science Reality Checker","Separate established science, plausible extrapolation, speculation and fictional assumptions.","Do not call an idea proven without reliable sources."],forge:["Technology Forge","Define the problem, user, operating principle, components, dependencies, failure modes and a safe proof of concept.","Start with a simulation or harmless prototype; do not imply the concept is build-ready."],future:["Future Worlds Simulator","Create best-case, baseline and downside scenarios with assumptions, time horizon, uncertainties and leading indicators.","Scenarios are not predictions; compare assumptions explicitly."],story:["Character & Story Intelligence","Develop original characters, goals, flaws, relationships, stakes and a story arc consistent with the world rules.","Track continuity and create original characters rather than copying protected characters or scenes."],exchange:["Sci-Fi Project Exchange","Define deliverables, skills needed, roles, tools, milestones, budget if known and contributor expectations.","Do not publish private contact details or promise investment returns."],space:["Space & Satellite Concepts","Define mission objective, orbit or destination, communications, power, thermal constraints, latency, debris risk and regulations.","Label estimates and seek qualified engineering and regulatory review before real deployment."]};
+const p=data[mode],esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+out.innerHTML="<h3>"+p[0]+"</h3><p><b>Your concept</b><br>"+esc(idea)+"</p><h3>Planning framework</h3><p>"+p[1]+"</p><h3>Next steps</h3><ol><li>List assumptions and what must be verified.</li><li>Identify evidence, tools, people or skills needed.</li><li>Define a small, safe first experiment or draft.</li><li>Record results and revise the concept.</li></ol><p><b>Guardrail:</b> "+p[2]+"</p>"+(limits?"<p><b>Your constraints</b><br>"+esc(limits)+"</p>":"")+"<p class=muted>This locally generated brief is not scientific validation. Use ASK JR AI for model-assisted analysis when configured.</p>";
+out.classList.remove("hidden");status.textContent="Concept brief created on this device.";
+}
+function sendSciFiToAI(){const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value;if(!idea){document.getElementById("sciStatus").textContent="Add an idea or question first.";return;}const labels={world:"Universe Builder",science:"Science Reality Checker",forge:"Technology Forge",future:"Future Worlds Simulator",story:"Character & Story Intelligence",exchange:"Sci-Fi Project Exchange",space:"Space & Satellite Concepts"};const prompt="Help me with JR PHEEF SCI-FI module: "+labels[mode]+". Idea: "+idea+". Constraints: "+(limits||"None specified")+". Separate established facts, plausible ideas, speculation and fiction; cite sources if available; give practical next steps.";show("assistant");const box=document.getElementById("aiPrompt")||document.getElementById("assistantInput")||document.getElementById("chatPrompt")||document.getElementById("aiQuestion");if(box){box.value=prompt;box.focus();document.getElementById("sciStatus").textContent="Prompt prepared in AI Assistant. Submit it there to continue.";}else{document.getElementById("sciStatus").textContent="Open AI Assistant and paste this prompt: "+prompt;}}</script>
 
 </body>
  </html>
