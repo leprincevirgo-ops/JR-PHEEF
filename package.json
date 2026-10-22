@@ -4,7 +4,8 @@
   "description": "JR PHEEF - Find. Match. Connect. Create.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --check server.js && node scripts/check-inline-scripts.js"
   },
   "engines": {
     "node": ">=20"
