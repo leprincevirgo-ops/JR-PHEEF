@@ -184,6 +184,7 @@ placeholder="Password">
 <button onclick="show('library')">LIBRARY</button>
 <button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
+<button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
 <button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button>
@@ -553,6 +554,54 @@ SAVE PROFILE
 <div id="jpconnect" class="page hidden"><div class="card"><p class="eyebrow">DIRECT MEMBER CONNECTION</p><h2>Connect by JP Number</h2><p class="muted">Send a connection request by JP number. Phone and email remain private until shared by their owner.</p><input id="jpNumberInput" maxlength="24" placeholder="JP-12AB34CD56"><button class="primary" onclick="connectByJP()">FIND & REQUEST CONNECTION</button><p id="jpConnectMsg" aria-live="polite"></p><div id="jpConnectResult"></div></div><div class="card"><h3>Your connection requests</h3><button class="dark" onclick="loadConnections()">REFRESH</button><div id="connectionList"></div></div></div>
 <div id="social" class="page hidden"><div class="card"><p class="eyebrow">SOCIAL SIDE</p><h2>People & Community</h2><p class="muted">Share ideas and updates with visibility you choose.</p><textarea id="socialBody" maxlength="2000" rows="4" placeholder="What would you like to share?"></textarea><select id="socialVisibility"><option value="connections">My connections</option><option value="private">Only me</option><option value="public">Public</option></select><button class="primary" onclick="publishSocialPost()">SHARE POST</button><p id="socialMsg" aria-live="polite"></p></div><div class="card"><h3>My posts</h3><button class="dark" onclick="loadSocialPosts()">REFRESH</button><div id="socialPosts"></div></div></div>
 <div id="economy" class="page hidden"><div class="card"><p class="eyebrow">ECONOMIC SIDE</p><h2>Opportunities & Trade</h2><p class="muted">Goods, services, jobs, property, transport, delivery, business offers and paid tools.</p><div class="grid"><div class="listing"><b>Find & Match</b><p class="muted">Discover opportunities. Show any fee before confirmation.</p><button onclick="show('find')">FIND</button></div><div class="listing"><b>Sell & Offer</b><p class="muted">Publish a genuine offer.</p><button onclick="show('create')">CREATE</button></div><div class="listing"><b>Optional business tools</b><p class="muted">Featured listings, business profiles and analytics.</p></div><div class="listing"><b>Transparent fees</b><p class="muted">No hidden fees. Billing is active only when integrated and verified.</p></div></div><h3>Revenue streams</h3><ul><li>Optional business promotions.</li><li>Voluntary PRO / PRIME memberships.</li><li>Clearly disclosed connection or completed-service fees.</li><li>Delivery and organization tools when integrated.</li><li>Opt-in aggregated market insights with privacy safeguards.</li></ul><p class="muted">This is an interface for the proposed model; it does not activate billing.</p></div></div>
+<div id="rooms" class="page hidden">
+  <div class="card">
+    <p class="eyebrow">ROOMS NEAR ME · RENTAL DISCOVERY</p>
+    <h2>Find a place to stay</h2>
+    <p class="muted">Search rental listings by area, room type and monthly budget. Contact details stay private; use JP Connect to request a connection.</p>
+    <input id="roomSearch" maxlength="100" placeholder="Search: bedsitter, near CBD, Westlands...">
+    <input id="roomLocation" maxlength="180" placeholder="Area / estate / town">
+    <div class="grid">
+      <select id="roomTypeFilter">
+        <option value="">All room types</option>
+        <option value="bedsitter">Bedsitter</option>
+        <option value="studio">Studio</option>
+        <option value="one_bedroom">1 bedroom</option>
+        <option value="two_bedroom">2 bedrooms</option>
+        <option value="three_bedroom">3 bedrooms</option>
+        <option value="four_bedroom">4 bedrooms</option>
+        <option value="shared">Shared accommodation</option>
+        <option value="single_room">Single room</option>
+        <option value="other">Other</option>
+      </select>
+      <input id="roomMaxRent" type="number" min="0" step="100" placeholder="Max monthly rent (KSh)">
+    </div>
+    <button class="primary" onclick="loadRooms()">SEARCH ROOMS</button>
+    <div id="roomsResults" aria-live="polite"><p class="muted">Search by location to see available listings.</p></div>
+  </div>
+  <div class="card">
+    <h3>List a room</h3>
+    <p class="muted">Publish a genuine rental listing. Do not include phone numbers or external contact links.</p>
+    <input id="roomTitle" maxlength="120" placeholder="Listing title">
+    <select id="roomTypeCreate">
+      <option value="bedsitter">Bedsitter</option>
+      <option value="studio">Studio</option>
+      <option value="one_bedroom">1 bedroom</option>
+      <option value="two_bedroom">2 bedrooms</option>
+      <option value="three_bedroom">3 bedrooms</option>
+      <option value="four_bedroom">4 bedrooms</option>
+      <option value="shared">Shared accommodation</option>
+      <option value="single_room">Single room</option>
+      <option value="other">Other</option>
+    </select>
+    <input id="roomRent" type="number" min="0" step="100" placeholder="Monthly rent (KSh)">
+    <input id="roomCreateLocation" maxlength="180" placeholder="Location / estate / town">
+    <input id="roomAvailableFrom" type="date" aria-label="Available from date">
+    <textarea id="roomDescription" maxlength="2000" rows="3" placeholder="Describe the room, facilities and terms"></textarea>
+    <button class="primary" onclick="createRoomListing()">PUBLISH ROOM</button>
+    <p id="roomCreateMsg" aria-live="polite"></p>
+  </div>
+</div>
 <div id="vault" class="page hidden"><div class="card"><p class="eyebrow">PERSONAL CLOUD</p><h2>My Files</h2><p class="muted">Upload from this device, then sign into the same account on another device to retrieve files. Private storage; temporary download links; 25 MB per file.</p><input id="vaultFile" type="file" accept=".pdf,.txt,.csv,.json,.jpg,.jpeg,.png,.webp,.docx,.xlsx"><select id="vaultCategory"><option value="personal">Personal</option><option value="business">Business</option><option value="learning">Learning</option><option value="project">Project</option></select><button class="primary" onclick="uploadVaultFile()">UPLOAD FILE</button><p id="vaultMsg" aria-live="polite"></p></div><div class="card"><h3>Stored files</h3><button class="dark" onclick="loadVaultFiles()">REFRESH</button><div id="vaultFiles"></div></div></div>
 <div id="devices" class="page hidden"><div class="card"><p class="eyebrow">ACCOUNT CONTINUITY</p><h2>My Devices</h2><p class="muted">Sign in to the same JR PHEEF account on another phone, tablet or computer. Each device has its own session.</p><input id="deviceLabelInput" maxlength="80" placeholder="Name this device"><button class="primary" onclick="saveDeviceLabel()">SAVE DEVICE NAME</button><p id="deviceMsg" aria-live="polite"></p><button class="dark" onclick="loadDevices()">REFRESH DEVICES</button><div id="deviceList"></div></div></div>
 <div id="voice" class="page hidden"><div class="card"><p class="eyebrow">VOICE & NATURAL LANGUAGE</p><h2>Speak or type to JR PHEEF</h2><p class="muted">Speech recognition depends on browser/device support and microphone permission. Typing always remains available.</p><textarea id="commandInput" rows="3" maxlength="500" placeholder="Try: connect to JP-12AB34CD56, open my files, find shoes, open social"></textarea><div class="grid"><button class="primary" onclick="runCommand()">RUN COMMAND</button><button class="dark" onclick="startVoiceCommand()">🎙 SPEAK</button></div><p id="voiceMsg" aria-live="polite"></p></div><div class="card"><h3>Quick commands</h3><div class="grid"><button onclick="commandPreset('open social')">OPEN SOCIAL</button><button onclick="commandPreset('open economy')">OPEN ECONOMY</button><button onclick="commandPreset('open my files')">OPEN MY FILES</button><button onclick="commandPreset('open devices')">OPEN DEVICES</button><button onclick="commandPreset('open library')">OPEN LIBRARY</button><button onclick="commandPreset('find opportunities')">FIND OPPORTUNITIES</button></div></div></div>
@@ -1057,6 +1106,49 @@ async function updateConnection(id,status){const d=await api("/api/connections/"
 async function publishSocialPost(){const msg=$("socialMsg");msg.textContent="Publishing…";const d=await api("/api/social/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:$("socialBody").value,visibility:$("socialVisibility").value})});msg.textContent=d.ok?"Post saved.":(d.error||"Could not publish.");if(d.ok){$("socialBody").value="";loadSocialPosts();}}
 async function loadSocialPosts(){const host=$("socialPosts");if(!host)return;const d=await api("/api/social/feed");host.innerHTML=d.ok?(d.posts||[]).map(p=>"<div class='listing'><b>"+escapeHtml(p.author?.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.body)+"</p><p class='muted'>"+escapeHtml(p.visibility)+" · "+escapeHtml(new Date(p.created_at).toLocaleString())+"</p>"+(String(p.member_id)===String(me?.id)?"<button class='danger' onclick=\"deleteSocialPost('"+escapeHtml(p.id)+"')\">DELETE</button>":"")+"</div>").join("")||"<p class='muted'>No community posts yet. Share the first idea.</p>":escapeHtml(d.error||"Could not load community feed.");}
 async function deleteSocialPost(id){const d=await api("/api/social/posts/"+encodeURIComponent(id),{method:"DELETE"});if(!d.ok)alert(d.error||"Delete failed.");loadSocialPosts();}
+async function loadRooms(){
+  const params=new URLSearchParams();
+  const q=$("roomSearch").value.trim(),location=$("roomLocation").value.trim();
+  const type=$("roomTypeFilter").value,maxRent=$("roomMaxRent").value;
+  if(q)params.set("q",q);
+  if(location)params.set("location",location);
+  if(type)params.set("type",type);
+  if(maxRent!=="")params.set("max_rent",maxRent);
+  const host=$("roomsResults");host.innerHTML="<p class='muted'>Searching rental listings...</p>";
+  const data=await api("/api/rooms?"+params.toString());
+  if(!data.ok){host.innerHTML="<p>"+escapeHtml(data.error||"Could not load rooms.")+"</p>";return;}
+  host.innerHTML=(data.rooms||[]).map(room=>`
+    <div class="listing">
+      <b>${escapeHtml(room.title)}</b>
+      <div class="badge">${escapeHtml(String(room.room_type||"").replaceAll("_"," "))}</div>
+      <p><b>KSh ${Number(room.rent_ksh||0).toLocaleString()} / month</b></p>
+      <p>📍 ${escapeHtml(room.location||"")}</p>
+      <p>${escapeHtml(room.description||"No extra details provided.")}</p>
+      <p class="muted">Available: ${escapeHtml(room.available_from||"Ask through JR PHEEF")}</p>
+      ${room.is_mine?`<button class="dark" onclick="setRoomStatus('${escapeHtml(room.id)}','paused')">PAUSE</button><button class="dark" onclick="setRoomStatus('${escapeHtml(room.id)}','filled')">MARK FILLED</button><button class="danger" onclick="deleteRoomListing('${escapeHtml(room.id)}')">DELETE</button>`:`<button class="primary" onclick="connectByJP()">CONNECT SAFELY</button>`}
+    </div>`).join("")||"<p class='muted'>No active rooms match these filters yet. Try a nearby area or a higher budget.</p>";
+}
+async function createRoomListing(){
+  const data=await api("/api/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    title:$("roomTitle").value,room_type:$("roomTypeCreate").value,rent_ksh:$("roomRent").value,
+    location:$("roomCreateLocation").value,available_from:$("roomAvailableFrom").value,
+    description:$("roomDescription").value
+  })});
+  $("roomCreateMsg").textContent=data.message||data.error||"Could not publish the room.";
+  if(data.ok){$("roomTitle").value="";$("roomRent").value="";$("roomCreateLocation").value="";$("roomDescription").value="";await loadRooms();}
+}
+async function setRoomStatus(id,status){
+  const data=await api("/api/rooms/"+encodeURIComponent(id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});
+  if(!data.ok){alert(data.error||"Could not update room.");return;}
+  await loadRooms();
+}
+async function deleteRoomListing(id){
+  if(!confirm("Delete this room listing?"))return;
+  const data=await api("/api/rooms/"+encodeURIComponent(id),{method:"DELETE"});
+  if(!data.ok){alert(data.error||"Could not delete room.");return;}
+  await loadRooms();
+}
+
 async function uploadVaultFile(){const f=$("vaultFile").files[0],msg=$("vaultMsg");if(!f){msg.textContent="Choose a file first.";return;}if(f.size>25*1024*1024){msg.textContent="Maximum size is 25 MB.";return;}const form=new FormData();form.append("file",f);form.append("category",$("vaultCategory").value);msg.textContent="Uploading securely…";try{const d=await api("/api/vault/files",{method:"POST",body:form});msg.textContent=d.ok?"Stored in your private vault.":(d.error||"Upload failed.");if(d.ok){$("vaultFile").value="";loadVaultFiles();}}catch(e){msg.textContent="Upload failed. Check connection.";}}
 async function loadVaultFiles(){const host=$("vaultFiles");if(!host)return;try{const d=await api("/api/vault/files");host.innerHTML=d.ok?(d.files||[]).map(f=>"<div class='listing'><b>"+escapeHtml(f.file_name)+"</b><p class='muted'>"+(Number(f.size_bytes)/1024).toFixed(1)+" KB · "+escapeHtml(f.category)+" · "+escapeHtml(new Date(f.created_at).toLocaleDateString())+"</p><button class='primary' onclick=\"downloadVaultFile('"+escapeHtml(f.id)+"')\">DOWNLOAD</button><button class='danger' onclick=\"deleteVaultFile('"+escapeHtml(f.id)+"')\">DELETE</button></div>").join("")||"<p class='muted'>No stored files.</p>":escapeHtml(d.error||"Could not load.");}catch(e){host.textContent="Could not load files.";}}
 async function downloadVaultFile(id){const d=await api("/api/vault/files/"+encodeURIComponent(id)+"/download");if(d.ok&&d.url)window.location.href=d.url;else alert(d.error||"Download unavailable.");}
