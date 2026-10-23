@@ -1,6 +1,6 @@
 {
   "name": "jr-pheef-marketplace",
-  "version": "3.3.0",
+  "version": "5.2.0",
   "description": "JR PHEEF - Find. Match. Connect. Create.",
   "main": "server.js",
   "scripts": {
