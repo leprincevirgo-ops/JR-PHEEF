@@ -187,7 +187,7 @@ placeholder="Password">
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">FIXEDITCONNECT</button>
+<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &AMP; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">FIXEDITCONNECT</button>
 </div>
 
 <div id="home" class="page">
@@ -338,11 +338,11 @@ placeholder="Password">
 <div id="lab" class="page hidden">
   <div class="card">
     <h2>JR PHEEF LAB</h2>
-    <p class="muted"><b>Observe. Experiment. Test. Improve.</b> The Lab is where JR PHEEF turns knowledge into experiments, simulations, prototypes, and practical solutions.</p>
+    <p class="muted"><b>Observe. Experiment. Test. Improve.</b> The LAB is where JR PHEEF turns knowledge into experiments, simulations, prototypes, and practical solutions.</p>
     <p>Character intelligence means learning transferable methods—not copying a film character's identity, dialogue, likeness, or protected story. Choose the thinking approach that best fits your challenge.</p>
   </div>
   <div class="card">
-    <h2>Character Intelligence Studio</h2>
+    <h2>CHARACTER INTELLIGENCE STUDIO</h2>
     <label for="labArchetype">Thinking approach</label>
     <select id="labArchetype">
       <option value="detective">Detective — clues, evidence, competing explanations</option>
@@ -356,20 +356,20 @@ placeholder="Password">
       <option value="storyteller">Storyteller — perspective, meaning and clear communication</option>
       <option value="futureai">Future AI — systems, scenarios, feedback and optimization</option>
     </select>
-    <label for="labChallenge">What problem should the Lab examine?</label>
+    <label for="labChallenge">What problem should the LAB examine?</label>
     <textarea id="labChallenge" rows="4" placeholder="Describe a real problem, invention, decision, or opportunity..."></textarea>
     <label for="labConstraints">Constraints or resources (optional)</label>
     <input id="labConstraints" placeholder="e.g. KSh 5,000, 30 days, Nairobi">
-    <button class="primary" onclick="runCharacterLab()">BUILD EXPERIMENT PLAN</button>
+    <button class="primary" onclick="runCharacterLAB()">BUILD EXPERIMENT PLAN</button>
     <div id="labOutput" aria-live="polite"></div>
   </div>
   <div class="card">
     <h2>My saved experiments</h2>
     <p class="muted">Saved plans belong to your account. Update progress and record what you learn.</p>
-    <div id="myLabExperiments"><p class="muted">Loading your Lab…</p></div>
+    <div id="myLABExperiments"><p class="muted">Loading your LAB…</p></div>
   </div>
   <div class="card">
-    <h2>Lab principles</h2>
+    <h2>LAB principles</h2>
     <div class="listing"><b>1 · Ask</b><p class="muted">Define the real question and what a useful result would look like.</p></div>
     <div class="listing"><b>2 · Model</b><p class="muted">Identify evidence, assumptions, risks, resources and alternative explanations.</p></div>
     <div class="listing"><b>3 · Test safely</b><p class="muted">Use the smallest ethical, legal and affordable experiment that can teach something useful.</p></div>
@@ -380,10 +380,10 @@ placeholder="Password">
 <div id="library" class="page hidden">
   <div class="card">
     <h2>JR PHEEF LIBRARY</h2>
-    <p class="muted">A knowledge home for concepts, methods, experiments, source notes, lessons, and reusable decision tools—connected to the Universe and Lab.</p>
-    <input id="librarySearch" type="search" placeholder="Search the knowledge library..." oninput="filterLibrary(this.value)">
+    <p class="muted">A knowledge home for concepts, methods, experiments, source notes, lessons, and reusable decision tools—connected to the Universe and LAB.</p>
+    <input id="librarySearch" type="search" placeholder="Search the knowledge library..." oninput="filterLIBRARY(this.value)">
     <div id="libraryItems" aria-live="polite"><p class="muted">Loading your knowledge library…</p></div>
-    <p class="muted">Knowledge notes are stored in JR PHEEF's database. Starter articles are internally reviewed guidance, not externally source-verified research. New sources can be added and reviewed as the Library grows.</p>
+    <p class="muted">Knowledge notes are stored in JR PHEEF's database. Starter articles are internally reviewed guidance, not externally source-verified research. New sources can be added and reviewed as the LIBRARY grows.</p>
   </div>
 </div>
 
@@ -558,7 +558,7 @@ SAVE PROFILE
   <div class="card">
     <p class="eyebrow">ROOMS NEAR ME · RENTAL DISCOVERY</p>
     <h2>Find a place to stay</h2>
-    <p class="muted">Search rental listings by area, room type and monthly budget. Contact details stay private; use JP Connect to request a connection.</p>
+    <p class="muted">Search rental listings by area, room type and monthly budget. Contact details stay private; use JP CONNECT to request a connection.</p>
     <input id="roomSearch" maxlength="100" placeholder="Search: bedsitter, near CBD, Westlands...">
     <input id="roomLocation" maxlength="180" placeholder="Area / estate / town">
     <div class="grid">
@@ -603,7 +603,7 @@ SAVE PROFILE
   </div>
 </div>
 <div id="vault" class="page hidden"><div class="card"><p class="eyebrow">PERSONAL CLOUD</p><h2>My Files</h2><p class="muted">Upload from this device, then sign into the same account on another device to retrieve files. Private storage; temporary download links; 25 MB per file.</p><input id="vaultFile" type="file" accept=".pdf,.txt,.csv,.json,.jpg,.jpeg,.png,.webp,.docx,.xlsx"><select id="vaultCategory"><option value="personal">Personal</option><option value="business">Business</option><option value="learning">Learning</option><option value="project">Project</option></select><button class="primary" onclick="uploadVaultFile()">UPLOAD FILE</button><p id="vaultMsg" aria-live="polite"></p></div><div class="card"><h3>Stored files</h3><button class="dark" onclick="loadVaultFiles()">REFRESH</button><div id="vaultFiles"></div></div></div>
-<div id="devices" class="page hidden"><div class="card"><p class="eyebrow">ACCOUNT CONTINUITY</p><h2>My Devices</h2><p class="muted">Sign in to the same JR PHEEF account on another phone, tablet or computer. Each device has its own session.</p><input id="deviceLabelInput" maxlength="80" placeholder="Name this device"><button class="primary" onclick="saveDeviceLabel()">SAVE DEVICE NAME</button><p id="deviceMsg" aria-live="polite"></p><button class="dark" onclick="loadDevices()">REFRESH DEVICES</button><div id="deviceList"></div></div></div>
+<div id="devices" class="page hidden"><div class="card"><p class="eyebrow">ACCOUNT CONTINUITY</p><h2>My Devices</h2><p class="muted">Sign in to the same JR PHEEF account on another phone, tablet or computer. Each device has its own session.</p><input id="deviceLABelInput" maxlength="80" placeholder="Name this device"><button class="primary" onclick="saveDeviceLABel()">SAVE DEVICE NAME</button><p id="deviceMsg" aria-live="polite"></p><button class="dark" onclick="loadDevices()">REFRESH DEVICES</button><div id="deviceList"></div></div></div>
 <div id="voice" class="page hidden"><div class="card"><p class="eyebrow">VOICE & NATURAL LANGUAGE</p><h2>Speak or type to JR PHEEF</h2><p class="muted">Speech recognition depends on browser/device support and microphone permission. Typing always remains available.</p><textarea id="commandInput" rows="3" maxlength="500" placeholder="Try: connect to JP-12AB34CD56, open my files, find shoes, open social"></textarea><div class="grid"><button class="primary" onclick="runCommand()">RUN COMMAND</button><button class="dark" onclick="startVoiceCommand()">🎙 SPEAK</button></div><p id="voiceMsg" aria-live="polite"></p></div><div class="card"><h3>Quick commands</h3><div class="grid"><button onclick="commandPreset('open social')">OPEN SOCIAL</button><button onclick="commandPreset('open economy')">OPEN ECONOMY</button><button onclick="commandPreset('open my files')">OPEN MY FILES</button><button onclick="commandPreset('open devices')">OPEN DEVICES</button><button onclick="commandPreset('open library')">OPEN LIBRARY</button><button onclick="commandPreset('find opportunities')">FIND OPPORTUNITIES</button></div></div></div>
 
 
@@ -637,7 +637,7 @@ SAVE PROFILE
   <div class="grid">
    <div class="listing"><b>Actuarial & Risk</b><p class="muted">Scenarios, probability, downside exposure and assumptions.</p></div>
    <div class="listing"><b>Business & Operations</b><p class="muted">Costs, workflows, revenue ideas and measurable plans.</p></div>
-   <div class="listing"><b>Knowledge & Research</b><p class="muted">Connect Library notes with optional web research.</p></div>
+   <div class="listing"><b>Knowledge & Research</b><p class="muted">Connect LIBRARY notes with optional web research.</p></div>
    <div class="listing"><b>Future Simulator</b><p class="muted">Compare plausible outcomes; no prophecy or guaranteed returns.</p></div>
   </div>
  </div>
@@ -648,14 +648,14 @@ SAVE PROFILE
 <section id="scifi" class="page hidden">
 <div class="card"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">JR PHEEF · SCI-FI & FUTURES STUDIO</p><h1>Imagine beyond today's limits.</h1><p class="muted">Create original worlds, test ideas against known science, explore possible futures, design prototypes and find collaborators.</p>
 <div class="grid">
-<div class="listing"><b>01 · Universe Builder</b><p class="muted">Worlds, characters and continuity.</p></div>
-<div class="listing"><b>02 · Science Reality Checker</b><p class="muted">Evidence, plausible extrapolation and fiction.</p></div>
-<div class="listing"><b>03 · Technology Forge</b><p class="muted">Concept briefs and safe prototypes.</p></div>
-<div class="listing"><b>04 · Future Worlds Simulator</b><p class="muted">Scenarios, assumptions and risks.</p></div>
-<div class="listing"><b>05 · Character & Story Intelligence</b><p class="muted">Original characters and story continuity.</p></div>
-<div class="listing"><b>06 · Sci-Fi Project Exchange</b><p class="muted">Prepare a brief to find collaborators.</p></div>
-<div class="listing"><b>07 · Space & Satellite Concepts</b><p class="muted">Orbits, communication and mission concepts.</p></div></div></div>
-<div class="card"><h2>Choose your studio</h2><select id="sciMode"><option value="world">Universe Builder</option><option value="science">Science Reality Checker</option><option value="forge">Technology Forge</option><option value="future">Future Worlds Simulator</option><option value="story">Character & Story Intelligence</option><option value="exchange">Sci-Fi Project Exchange</option><option value="space">Space & Satellite Concepts</option></select>
+<div class="listing"><b>01 · UNIVERSE BUILDER</b><p class="muted">Worlds, characters and continuity.</p></div>
+<div class="listing"><b>02 · SCIENCE REALITY CHECKER</b><p class="muted">Evidence, plausible extrapolation and fiction.</p></div>
+<div class="listing"><b>03 · TECHNOLOGY FORGE</b><p class="muted">Concept briefs and safe prototypes.</p></div>
+<div class="listing"><b>04 · FUTURE WORLDS SIMULATOR</b><p class="muted">Scenarios, assumptions and risks.</p></div>
+<div class="listing"><b>05 · CHARACTER &amp; STORY INTELLIGENCE</b><p class="muted">Original characters and story continuity.</p></div>
+<div class="listing"><b>06 · SCI-FI PROJECT EXCHANGE</b><p class="muted">Prepare a brief to find collaborators.</p></div>
+<div class="listing"><b>07 · SPACE &amp; SATELLITE CONCEPTS</b><p class="muted">Orbits, communication and mission concepts.</p></div></div></div>
+<div class="card"><h2>Choose your studio</h2><select id="sciMode"><option value="world">UNIVERSE BUILDER</option><option value="science">SCIENCE REALITY CHECKER</option><option value="forge">TECHNOLOGY FORGE</option><option value="future">FUTURE WORLDS SIMULATOR</option><option value="story">CHARACTER &amp; STORY INTELLIGENCE</option><option value="exchange">SCI-FI PROJECT EXCHANGE</option><option value="space">SPACE &amp; SATELLITE CONCEPTS</option></select>
 <label for="sciIdea">Your idea or question</label><textarea id="sciIdea" rows="4" placeholder="Example: A research city on Europa that uses underwater robots to explore the ocean beneath its ice."></textarea>
 <label for="sciLimits">Constraints, assumptions or goals (optional)</label><textarea id="sciLimits" rows="2" placeholder="Budget, intended audience, realism level, timeline, available skills…"></textarea>
 <button class="primary" onclick="buildSciFiBrief()">BUILD MY CONCEPT</button><button class="dark" onclick="sendSciFiToAI()">ASK JR AI</button><p id="sciStatus" class="muted" aria-live="polite"></p><div id="sciOutput" class="listing hidden" aria-live="polite"></div></div>
@@ -668,7 +668,7 @@ SAVE PROFILE
 <button class="primary" onclick="findFixedItServices()">FIND SERVICES</button>
 <button class="dark" onclick="startFixedItListing()">OFFER A REPAIR SERVICE</button><p id="fixMsg" class="muted" aria-live="polite"></p></div>
 <div class="card"><h2>Available listings</h2><div id="fixResults"><p class="muted">Search to discover services listed on JR PHEEF.</p></div></div>
-<div class="card"><h3>Safer service connections</h3><ul><li>Agree on the work, total cost and timing before handing over items or money.</li><li>Do not share passwords, PINs, one-time codes or private account access.</li><li>For electrical, gas, structural or other hazardous work, use appropriately qualified professionals.</li><li>Use JP Connect to request a connection; don't post private contact details publicly.</li></ul><p class="muted">Payments, provider verification, job tracking and dispute resolution are not represented as active unless separately implemented and tested.</p></div>
+<div class="card"><h3>Safer service connections</h3><ul><li>Agree on the work, total cost and timing before handing over items or money.</li><li>Do not share passwords, PINs, one-time codes or private account access.</li><li>For electrical, gas, structural or other hazardous work, use appropriately qualified professionals.</li><li>Use JP CONNECT to request a connection; don't post private contact details publicly.</li></ul><p class="muted">Payments, provider verification, job tracking and dispute resolution are not represented as active unless separately implemented and tested.</p></div>
 </section></main>
 
 <script>
@@ -701,7 +701,7 @@ function show(id){
 
   if(id==="points") refresh();
   if(id==="home") refresh();
-  if(id==="library") loadLibrary($("librarySearch").value);
+  if(id==="library") loadLIBRARY($("librarySearch").value);
   if(id==="lab") loadMyExperiments();
   if(id==="jpconnect") loadConnections();
   if(id==="social") loadSocialPosts();
@@ -860,7 +860,7 @@ async function redeemPoints(){
 
 
 
-function runCharacterLab(){
+function runCharacterLAB(){
   const challenge=$("labChallenge").value.trim();
   const constraints=$("labConstraints").value.trim();
   const approach=$("labArchetype").value;
@@ -877,32 +877,32 @@ function runCharacterLab(){
     futureai:["Define the system, objective, constraints and feedback signals.","Compare past evidence, current state and multiple future scenarios.","Run a small reversible test, measure outcomes and update the model."]
   };
   if(!challenge){$("labOutput").innerHTML="<p>Please describe the challenge first.</p>";return;}
-  const titles={detective:"Evidence Investigation",strategist:"Strategy Room",inventor:"Invention Bench",scientist:"Scientific Test Plan",actuary:"Risk &amp; Resilience Lab",negotiator:"Negotiation Studio",protector:"Safety Review",explorer:"Exploration Plan",storyteller:"Communication Studio",futureai:"Systems &amp; Future Lab"};
+  const titles={detective:"Evidence Investigation",strategist:"Strategy Room",inventor:"Invention Bench",scientist:"Scientific Test Plan",actuary:"Risk &amp; Resilience LAB",negotiator:"Negotiation Studio",protector:"Safety Review",explorer:"Exploration Plan",storyteller:"Communication Studio",futureai:"Systems &amp; Future LAB"};
   const steps=plans[approach]||plans.scientist;
   const title=titles[approach].replace(/&amp;/g,"&")+" — "+challenge.slice(0,70);
-  $("labOutput").innerHTML="<h3>"+titles[approach]+"</h3><p><b>Challenge:</b> "+escapeHtml(challenge)+"</p>"+(constraints?"<p><b>Constraints:</b> "+escapeHtml(constraints)+"</p>":"")+"<ol>"+steps.map(s=>"<li>"+escapeHtml(s)+"</li>").join("")+"</ol><p class='muted'>This is a structured planning worksheet, not a claim that a movie character or a connected advanced AI has performed the analysis. Validate important decisions with evidence and qualified people where needed.</p><button class='primary' id='saveLabPlan' onclick='saveLabPlan()'>SAVE EXPERIMENT TO MY LAB</button><p id='labSaveMsg' aria-live='polite'></p>";
-  window.currentLabPlan={title,challenge,constraints,approach,method:steps.join("\\n")};
+  $("labOutput").innerHTML="<h3>"+titles[approach]+"</h3><p><b>Challenge:</b> "+escapeHtml(challenge)+"</p>"+(constraints?"<p><b>Constraints:</b> "+escapeHtml(constraints)+"</p>":"")+"<ol>"+steps.map(s=>"<li>"+escapeHtml(s)+"</li>").join("")+"</ol><p class='muted'>This is a structured planning worksheet, not a claim that a movie character or a connected advanced AI has performed the analysis. Validate important decisions with evidence and qualified people where needed.</p><button class='primary' id='saveLABPlan' onclick='saveLABPlan()'>SAVE EXPERIMENT TO MY LAB</button><p id='labSaveMsg' aria-live='polite'></p>";
+  window.currentLABPlan={title,challenge,constraints,approach,method:steps.join("\\n")};
 }
-async function saveLabPlan(){
-  const p=window.currentLabPlan; const msg=$("labSaveMsg");
+async function saveLABPlan(){
+  const p=window.currentLABPlan; const msg=$("labSaveMsg");
   if(!p){msg.textContent="Build an experiment plan first.";return;}
-  const button=$("saveLabPlan");button.disabled=true;msg.textContent="Saving to your private Lab…";
+  const button=$("saveLABPlan");button.disabled=true;msg.textContent="Saving to your private LAB…";
   try{
     const data=await api("/api/lab/experiments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:p.title,challenge:p.challenge,thinking_approach:p.approach,constraints_text:p.constraints,method:p.method,hypothesis:"",success_measure:"Define a measurable result before running the experiment."})});
-    msg.textContent=data.ok?"Experiment saved to your private Lab.":"Could not save: "+(data.error||"try again");
+    msg.textContent=data.ok?"Experiment saved to your private LAB.":"Could not save: "+(data.error||"try again");
     if(data.ok) loadMyExperiments();
   }catch(e){msg.textContent="Connection error. Please retry.";}
   finally{button.disabled=false;}
 }
 async function loadMyExperiments(){
-  const host=$("myLabExperiments"); if(!host) return;
+  const host=$("myLABExperiments"); if(!host) return;
   try{
     const data=await api("/api/lab/experiments");
     if(!data.ok){host.innerHTML="<p class='muted'>Sign in to load your saved experiments.</p>";return;}
-    host.innerHTML=(data.experiments||[]).map(e=>"<div class='listing'><b>"+escapeHtml(e.title)+"</b><p>"+escapeHtml(e.challenge)+"</p><p class='muted'>"+escapeHtml(e.thinking_approach)+" · "+escapeHtml(e.status)+" · "+escapeHtml(new Date(e.created_at).toLocaleDateString())+"</p>"+(e.method?"<details><summary>Plan</summary><p>"+escapeHtml(e.method)+"</p></details>":"")+"<label>Update status</label><select id='labstatus-"+escapeHtml(e.id)+"'><option value='planned' "+(e.status==="planned"?"selected":"")+">Planned</option><option value='running' "+(e.status==="running"?"selected":"")+">Running</option><option value='completed' "+(e.status==="completed"?"selected":"")+">Completed</option><option value='cancelled' "+(e.status==="cancelled"?"selected":"")+">Cancelled</option></select><textarea id='lablesson-"+escapeHtml(e.id)+"' rows='2' placeholder='Outcome or lesson learned'>"+escapeHtml(e.lessons_learned||"")+"</textarea><button class='dark' onclick=\"updateLabExperiment('"+escapeHtml(e.id)+"')\">SAVE PROGRESS</button><p id='labupdate-"+escapeHtml(e.id)+"' class='muted'></p></div>").join("")||"<p class='muted'>Your saved experiments will appear here.</p>";
+    host.innerHTML=(data.experiments||[]).map(e=>"<div class='listing'><b>"+escapeHtml(e.title)+"</b><p>"+escapeHtml(e.challenge)+"</p><p class='muted'>"+escapeHtml(e.thinking_approach)+" · "+escapeHtml(e.status)+" · "+escapeHtml(new Date(e.created_at).toLocaleDateString())+"</p>"+(e.method?"<details><summary>Plan</summary><p>"+escapeHtml(e.method)+"</p></details>":"")+"<label>Update status</label><select id='labstatus-"+escapeHtml(e.id)+"'><option value='planned' "+(e.status==="planned"?"selected":"")+">Planned</option><option value='running' "+(e.status==="running"?"selected":"")+">Running</option><option value='completed' "+(e.status==="completed"?"selected":"")+">Completed</option><option value='cancelled' "+(e.status==="cancelled"?"selected":"")+">Cancelled</option></select><textarea id='lablesson-"+escapeHtml(e.id)+"' rows='2' placeholder='Outcome or lesson learned'>"+escapeHtml(e.lessons_learned||"")+"</textarea><button class='dark' onclick=\"updateLABExperiment('"+escapeHtml(e.id)+"')\">SAVE PROGRESS</button><p id='labupdate-"+escapeHtml(e.id)+"' class='muted'></p></div>").join("")||"<p class='muted'>Your saved experiments will appear here.</p>";
   }catch(e){host.innerHTML="<p class='muted'>Could not load saved experiments.</p>";}
 }
-async function updateLabExperiment(id){
+async function updateLABExperiment(id){
   const msg=$("labupdate-"+id);
   try{
     const data=await api("/api/lab/experiments/"+encodeURIComponent(id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:$("labstatus-"+id).value,lessons_learned:$("lablesson-"+id).value})});
@@ -910,15 +910,15 @@ async function updateLabExperiment(id){
   }catch(e){msg.textContent="Connection error. Try again.";}
 }
 let libraryRequest=0;
-async function filterLibrary(term){ return loadLibrary(term); }
-async function loadLibrary(term=""){
+async function filterLIBRARY(term){ return loadLIBRARY(term); }
+async function loadLIBRARY(term=""){
   const host=$("libraryItems"); if(!host) return;
   const request=++libraryRequest;
   host.innerHTML="<p class='muted'>Searching the knowledge database…</p>";
   try{
     const data=await api("/api/knowledge?q="+encodeURIComponent(String(term||"").trim()));
     if(request!==libraryRequest) return;
-    if(!data.ok) throw new Error(data.error||"Library unavailable");
+    if(!data.ok) throw new Error(data.error||"LIBRARY unavailable");
     host.innerHTML=(data.articles||[]).map(a=>"<article class='listing library-item'><b>"+escapeHtml(a.title)+"</b><p class='muted'>"+escapeHtml(a.domain)+" · "+escapeHtml(a.evidence_status.replaceAll("_"," "))+"</p><p>"+escapeHtml(a.summary)+"</p><details><summary>Read knowledge note</summary><p>"+escapeHtml(a.content)+"</p>"+(a.source_url?"<p>Source: <a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(a.source_url)+"'>"+escapeHtml(a.source_name||a.source_url)+"</a></p>":"<p class='muted'>No external source attached yet.</p>")+"</details><p>"+(a.tags||[]).map(t=>"<span class='badge'>"+escapeHtml(t)+"</span>").join(" ")+"</p></article>").join("")||"<p>No matching knowledge notes found.</p>";
   }catch(e){ if(request===libraryRequest) host.innerHTML="<p>"+escapeHtml(e.message)+" Sign in again or retry shortly.</p>"; }
 }
@@ -1177,10 +1177,10 @@ async function uploadVaultFile(){const f=$("vaultFile").files[0],msg=$("vaultMsg
 async function loadVaultFiles(){const host=$("vaultFiles");if(!host)return;try{const d=await api("/api/vault/files");host.innerHTML=d.ok?(d.files||[]).map(f=>"<div class='listing'><b>"+escapeHtml(f.file_name)+"</b><p class='muted'>"+(Number(f.size_bytes)/1024).toFixed(1)+" KB · "+escapeHtml(f.category)+" · "+escapeHtml(new Date(f.created_at).toLocaleDateString())+"</p><button class='primary' onclick=\"downloadVaultFile('"+escapeHtml(f.id)+"')\">DOWNLOAD</button><button class='danger' onclick=\"deleteVaultFile('"+escapeHtml(f.id)+"')\">DELETE</button></div>").join("")||"<p class='muted'>No stored files.</p>":escapeHtml(d.error||"Could not load.");}catch(e){host.textContent="Could not load files.";}}
 async function downloadVaultFile(id){const d=await api("/api/vault/files/"+encodeURIComponent(id)+"/download");if(d.ok&&d.url)window.location.href=d.url;else alert(d.error||"Download unavailable.");}
 async function deleteVaultFile(id){if(!confirm("Delete this file from your private vault?"))return;const d=await api("/api/vault/files/"+encodeURIComponent(id),{method:"DELETE"});if(!d.ok)alert(d.error||"Delete failed.");loadVaultFiles();}
-async function saveDeviceLabel(){const d=await api("/api/devices/label",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({label:$("deviceLabelInput").value.trim()||"My device"})});$("deviceMsg").textContent=d.ok?"Device name saved.":(d.error||"Could not save.");if(d.ok)loadDevices();}
+async function saveDeviceLABel(){const d=await api("/api/devices/label",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({label:$("deviceLABelInput").value.trim()||"My device"})});$("deviceMsg").textContent=d.ok?"Device name saved.":(d.error||"Could not save.");if(d.ok)loadDevices();}
 async function loadDevices(){const host=$("deviceList");if(!host)return;const d=await api("/api/devices");host.innerHTML=d.ok?(d.devices||[]).map(x=>"<div class='listing'><b>"+escapeHtml(x.label)+(x.current?" · THIS DEVICE":"")+"</b><p class='muted'>"+escapeHtml(x.user_agent)+"</p><p class='muted'>Last active: "+escapeHtml(x.last_seen_at?new Date(x.last_seen_at).toLocaleString():"Unknown")+"</p></div>").join("")||"<p class='muted'>No active devices.</p>":escapeHtml(d.error||"Could not load.");}
 function commandPreset(s){$("commandInput").value=s;runCommand();}
-function runCommand(){const raw=$("commandInput").value.trim(),q=raw.toLowerCase(),msg=$("voiceMsg");if(!q){msg.textContent="Type or speak a command.";return;}const jp=raw.match(/\bJP-[A-Z0-9]{6,16}\b/i);if(jp&&/(connect|add|find|request|message)/i.test(raw)){show("jpconnect");$("jpNumberInput").value=jp[0].toUpperCase();connectByJP();return;}if(/\b(social|community|post|people)\b/.test(q)){show("social");msg.textContent="Opened Social.";return;}if(/\b(economy|economic|business|trade|sell|money|revenue)\b/.test(q)){show("economy");msg.textContent="Opened Economy.";return;}if(/\b(file|files|vault|upload|download|document)\b/.test(q)){show("vault");msg.textContent="Opened My Files.";return;}if(/\b(device|devices|computer|tablet)\b/.test(q)){show("devices");msg.textContent="Opened Devices.";return;}if(/\b(library|knowledge|research)\b/.test(q)){show("library");msg.textContent="Opened Library.";return;}if(/\b(lab|experiment)\b/.test(q)){show("lab");msg.textContent="Opened Lab.";return;}if(/\b(find|search|opportunit|looking for)\b/.test(q)){show("find");const s=$("searchQ");const term=raw.replace(/find|search|opportunities|opportunity/ig,"").trim();if(s)s.value=term;searchListings();msg.textContent="Opened opportunity search.";return;}if(/\b(home|universe|dashboard)\b/.test(q)){show("home");msg.textContent="Opened your JR PHEEF home.";return;}msg.textContent="Try: open Social, open Economy, open My Files, open Devices, open Library, find opportunities, or connect to JP-…";}
+function runCommand(){const raw=$("commandInput").value.trim(),q=raw.toLowerCase(),msg=$("voiceMsg");if(!q){msg.textContent="Type or speak a command.";return;}const jp=raw.match(/\bJP-[A-Z0-9]{6,16}\b/i);if(jp&&/(connect|add|find|request|message)/i.test(raw)){show("jpconnect");$("jpNumberInput").value=jp[0].toUpperCase();connectByJP();return;}if(/\b(social|community|post|people)\b/.test(q)){show("social");msg.textContent="Opened Social.";return;}if(/\b(economy|economic|business|trade|sell|money|revenue)\b/.test(q)){show("economy");msg.textContent="Opened Economy.";return;}if(/\b(file|files|vault|upload|download|document)\b/.test(q)){show("vault");msg.textContent="Opened My Files.";return;}if(/\b(device|devices|computer|tablet)\b/.test(q)){show("devices");msg.textContent="Opened Devices.";return;}if(/\b(library|knowledge|research)\b/.test(q)){show("library");msg.textContent="Opened LIBRARY.";return;}if(/\b(lab|experiment)\b/.test(q)){show("lab");msg.textContent="Opened LAB.";return;}if(/\b(find|search|opportunit|looking for)\b/.test(q)){show("find");const s=$("searchQ");const term=raw.replace(/find|search|opportunities|opportunity/ig,"").trim();if(s)s.value=term;searchListings();msg.textContent="Opened opportunity search.";return;}if(/\b(home|universe|dashboard)\b/.test(q)){show("home");msg.textContent="Opened your JR PHEEF home.";return;}msg.textContent="Try: open Social, open Economy, open My Files, open Devices, open LIBRARY, find opportunities, or connect to JP-…";}
 function startVoiceCommand(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){$("voiceMsg").textContent="Voice recognition is unavailable in this browser. You can still type commands.";return;}const r=new R();r.lang="en-KE";r.interimResults=false;r.maxAlternatives=1;$("voiceMsg").textContent="Listening…";r.onresult=e=>{$("commandInput").value=e.results[0][0].transcript;$("voiceMsg").textContent="Heard: "+e.results[0][0].transcript;runCommand();};r.onerror=e=>{$("voiceMsg").textContent="Voice input failed ("+e.error+"). Type your command or check microphone permission.";};r.start();}
 
 (async function(){
@@ -1198,12 +1198,12 @@ function startVoiceCommand(){const R=window.SpeechRecognition||window.webkitSpee
 function buildSciFiBrief(){
 const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value,out=document.getElementById("sciOutput"),status=document.getElementById("sciStatus");
 if(!idea){status.textContent="Add an idea or question first.";return;}
-const data={world:["Universe Builder","Define the setting, era, environment, societies, rules and central conflict.","Keep a continuity ledger of fixed facts and open questions."],science:["Science Reality Checker","Separate established science, plausible extrapolation, speculation and fictional assumptions.","Do not call an idea proven without reliable sources."],forge:["Technology Forge","Define the problem, user, operating principle, components, dependencies, failure modes and a safe proof of concept.","Start with a simulation or harmless prototype; do not imply the concept is build-ready."],future:["Future Worlds Simulator","Create best-case, baseline and downside scenarios with assumptions, time horizon, uncertainties and leading indicators.","Scenarios are not predictions; compare assumptions explicitly."],story:["Character & Story Intelligence","Develop original characters, goals, flaws, relationships, stakes and a story arc consistent with the world rules.","Track continuity and create original characters rather than copying protected characters or scenes."],exchange:["Sci-Fi Project Exchange","Define deliverables, skills needed, roles, tools, milestones, budget if known and contributor expectations.","Do not publish private contact details or promise investment returns."],space:["Space & Satellite Concepts","Define mission objective, orbit or destination, communications, power, thermal constraints, latency, debris risk and regulations.","Label estimates and seek qualified engineering and regulatory review before real deployment."]};
+const data={world:["UNIVERSE BUILDER","Define the setting, era, environment, societies, rules and central conflict.","Keep a continuity ledger of fixed facts and open questions."],science:["SCIENCE REALITY CHECKER","Separate established science, plausible extrapolation, speculation and fictional assumptions.","Do not call an idea proven without reliable sources."],forge:["TECHNOLOGY FORGE","Define the problem, user, operating principle, components, dependencies, failure modes and a safe proof of concept.","Start with a simulation or harmless prototype; do not imply the concept is build-ready."],future:["FUTURE WORLDS SIMULATOR","Create best-case, baseline and downside scenarios with assumptions, time horizon, uncertainties and leading indicators.","Scenarios are not predictions; compare assumptions explicitly."],story:["CHARACTER &amp; STORY INTELLIGENCE","Develop original characters, goals, flaws, relationships, stakes and a story arc consistent with the world rules.","Track continuity and create original characters rather than copying protected characters or scenes."],exchange:["SCI-FI PROJECT EXCHANGE","Define deliverables, skills needed, roles, tools, milestones, budget if known and contributor expectations.","Do not publish private contact details or promise investment returns."],space:["SPACE &amp; SATELLITE CONCEPTS","Define mission objective, orbit or destination, communications, power, thermal constraints, latency, debris risk and regulations.","LABel estimates and seek qualified engineering and regulatory review before real deployment."]};
 const p=data[mode],esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
 out.innerHTML="<h3>"+p[0]+"</h3><p><b>Your concept</b><br>"+esc(idea)+"</p><h3>Planning framework</h3><p>"+p[1]+"</p><h3>Next steps</h3><ol><li>List assumptions and what must be verified.</li><li>Identify evidence, tools, people or skills needed.</li><li>Define a small, safe first experiment or draft.</li><li>Record results and revise the concept.</li></ol><p><b>Guardrail:</b> "+p[2]+"</p>"+(limits?"<p><b>Your constraints</b><br>"+esc(limits)+"</p>":"")+"<p class=muted>This locally generated brief is not scientific validation. Use ASK JR AI for model-assisted analysis when configured.</p>";
 out.classList.remove("hidden");status.textContent="Concept brief created on this device.";
 }
-function sendSciFiToAI(){const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value;if(!idea){document.getElementById("sciStatus").textContent="Add an idea or question first.";return;}const labels={world:"Universe Builder",science:"Science Reality Checker",forge:"Technology Forge",future:"Future Worlds Simulator",story:"Character & Story Intelligence",exchange:"Sci-Fi Project Exchange",space:"Space & Satellite Concepts"};const prompt="Help me with JR PHEEF SCI-FI module: "+labels[mode]+". Idea: "+idea+". Constraints: "+(limits||"None specified")+". Separate established facts, plausible ideas, speculation and fiction; cite sources if available; give practical next steps.";show("assistant");const box=document.getElementById("aiPrompt")||document.getElementById("assistantInput")||document.getElementById("chatPrompt")||document.getElementById("aiQuestion");if(box){box.value=prompt;box.focus();document.getElementById("sciStatus").textContent="Prompt prepared in AI Assistant. Submit it there to continue.";}else{document.getElementById("sciStatus").textContent="Open AI Assistant and paste this prompt: "+prompt;}}
+function sendSciFiToAI(){const idea=document.getElementById("sciIdea").value.trim(),limits=document.getElementById("sciLimits").value.trim(),mode=document.getElementById("sciMode").value;if(!idea){document.getElementById("sciStatus").textContent="Add an idea or question first.";return;}const labels={world:"UNIVERSE BUILDER",science:"SCIENCE REALITY CHECKER",forge:"TECHNOLOGY FORGE",future:"FUTURE WORLDS SIMULATOR",story:"CHARACTER &amp; STORY INTELLIGENCE",exchange:"SCI-FI PROJECT EXCHANGE",space:"SPACE &amp; SATELLITE CONCEPTS"};const prompt="Help me with JR PHEEF SCI-FI module: "+labels[mode]+". Idea: "+idea+". Constraints: "+(limits||"None specified")+". Separate established facts, plausible ideas, speculation and fiction; cite sources if available; give practical next steps.";show("assistant");const box=document.getElementById("aiPrompt")||document.getElementById("assistantInput")||document.getElementById("chatPrompt")||document.getElementById("aiQuestion");if(box){box.value=prompt;box.focus();document.getElementById("sciStatus").textContent="Prompt prepared in AI ASSISTANT. Submit it there to continue.";}else{document.getElementById("sciStatus").textContent="Open AI ASSISTANT and paste this prompt: "+prompt;}}
 async function findFixedItServices(){
  const q=document.getElementById("fixSearch").value.trim(),area=document.getElementById("fixArea").value.trim(),category=document.getElementById("fixType").value;
  const msg=document.getElementById("fixMsg"),host=document.getElementById("fixResults");
@@ -1224,7 +1224,7 @@ async function fixedItConnectRequest(memberId){
  const msg=document.getElementById("fixMsg");
  try{
   const data=await api("/api/connections",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({receiver_id:memberId})});
-  msg.textContent=data.ok?(data.message||"Connection request sent. Check JP Connect for updates."): (data.error||"Could not send connection request.");
+  msg.textContent=data.ok?(data.message||"Connection request sent. Check JP CONNECT for updates."): (data.error||"Could not send connection request.");
  }catch(e){msg.textContent="Connection request failed. Please try again.";}
 }
 function startFixedItListing(){
