@@ -1,4 +1,3 @@
-
 const express = require("express");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
@@ -7,6 +6,7 @@ const path = require("path");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
 
+const VERSION = require("./package.json").version;
 const app = express();
 const PORT = process.env.PORT || 10000;
 const URL = process.env.SUPABASE_URL;
@@ -29,6 +29,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 6 * 1024 * 1024, files: 20 }
 });
+const IMAGE_EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "1mb" }));
@@ -52,6 +53,8 @@ app.use((req,res,next)=>{
 const clean = v => String(v ?? "").trim();
 const emailOf = v => clean(v).toLowerCase();
 const hash = v => crypto.createHash("sha256").update(String(v)).digest("hex");
+// Escape LIKE wildcards so user input is matched literally by ilike().
+const likeSafe = s => String(s).replace(/[\\%_]/g, "\\$&");
 
 
 const requestRateBuckets = new Map();
@@ -172,11 +175,15 @@ async function accessStatus(id) {
 }
 
 app.get("/health", (req, res) => res.json({
-  ok: true, app: "JR PHEEF", version: "5.2.0",
+  ok: true, app: "JR PHEEF", version: VERSION,
   ai: process.env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
   access: "FREE_DISCOVERY; match fees not activated", free_window: "retired",
   flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
 }));
+
+// Serve other static assets (images, manifest, etc.) from /public.
+// index:false keeps "/" handled by the route below.
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -200,6 +207,8 @@ app.post("/api/register", async (req, res) => {
       return res.status(400).json({ ok: false, error: "Enter a valid Kenyan phone number." });
     if (password.length < 8)
       return res.status(400).json({ ok: false, error: "Password must be at least 8 characters." });
+    if (password.length > 72)
+      return res.status(400).json({ ok: false, error: "Password must be 72 characters or fewer." });
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ ok: false, error: "Enter a valid email address." });
     if (birth_year !== null && (!Number.isInteger(birth_year) || birth_year < 1900 || birth_year > new Date().getFullYear()))
@@ -214,7 +223,7 @@ app.post("/api/register", async (req, res) => {
 
     if (email) {
       const { data, error } = await db.from("members").select("id")
-        .ilike("email", email).limit(1);
+        .ilike("email", likeSafe(email)).limit(1);
       if (error) throw error;
       if (data?.length) return res.status(409).json({ ok: false, error: "An account with this email already exists. Log in with that email, or use account recovery." });
     }
@@ -257,7 +266,7 @@ app.post("/api/login", async (req, res) => {
     let member = null;
     if (identifier.includes("@")) {
       const { data, error } = await db.from("members").select("*")
-        .ilike("email", emailOf(identifier)).limit(2);
+        .ilike("email", likeSafe(emailOf(identifier))).limit(2);
       if (error) throw error;
       if (data?.length > 1) return res.status(409).json({ ok: false, error: "More than one account uses this email. Contact JR PHEEF support to safely resolve the duplicate." });
       member = data?.[0] || null;
@@ -516,13 +525,18 @@ app.put("/api/profile", async (req, res) => {
       if (req.body[k] !== undefined) update[k] = req.body[k];
     }
 
-    if (update.full_name !== undefined && (!clean(update.full_name) || clean(update.full_name).length > 100))
+    // Normalise text fields before validating and saving them.
+    for (const k of ["full_name", "bio", "location", "theme"]) {
+      if (update[k] !== undefined) update[k] = clean(update[k]);
+    }
+
+    if (update.full_name !== undefined && (!update.full_name || update.full_name.length > 100))
       return res.status(400).json({ ok: false, error: "Enter a valid name." });
-    if (update.bio !== undefined && clean(update.bio).length > 1000)
+    if (update.bio !== undefined && update.bio.length > 1000)
       return res.status(400).json({ ok: false, error: "Bio is too long." });
-    if (update.location !== undefined && clean(update.location).length > 150)
+    if (update.location !== undefined && update.location.length > 150)
       return res.status(400).json({ ok: false, error: "Location is too long." });
-    if (update.theme !== undefined && !/^[a-z0-9_-]{1,30}$/i.test(clean(update.theme)))
+    if (update.theme !== undefined && !/^[a-z0-9_-]{1,30}$/i.test(update.theme))
       return res.status(400).json({ ok: false, error: "Invalid theme." });
     if (update.profile_visibility !== undefined && !["public", "private", "connections"].includes(update.profile_visibility))
       return res.status(400).json({ ok: false, error: "Invalid profile visibility." });
@@ -581,30 +595,44 @@ app.post("/api/listings", authenticateMemberBeforeUpload, upload.array("photos",
     const price = Number(req.body.price || 0);
     if (!item_name || item_name.length > 120)
       return res.status(400).json({ ok: false, error: "Enter a valid listing title." });
+    if (description.length > 3000)
+      return res.status(400).json({ ok: false, error: "Description is too long." });
     if (!Number.isFinite(price) || price < 0)
       return res.status(400).json({ ok: false, error: "Enter a valid price." });
     if (contactBlocked(item_name) || contactBlocked(description))
       return res.status(400).json({ ok: false, error: "Direct contact details cannot be shared in listings." });
 
-    const photos = [];
-    for (const f of req.files || []) {
-      if (!["image/jpeg", "image/png", "image/webp"].includes(f.mimetype))
-        return res.status(400).json({ ok: false, error: "Only JPG, PNG, and WebP images are accepted." });
-      const filename = `${m.id}/${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" })[f.mimetype]}`;
-      const { error } = await db.storage.from("jr-pheef-media").upload(filename, f.buffer, { contentType: f.mimetype, upsert: false });
-      if (error) throw error;
-      const { data } = db.storage.from("jr-pheef-media").getPublicUrl(filename);
-      photos.push(data.publicUrl);
-    }
+    // Validate every file BEFORE uploading any, so a bad file never leaves
+    // orphaned images behind in the public bucket.
+    const files = req.files || [];
+    if (files.some(f => !IMAGE_EXT[f.mimetype]))
+      return res.status(400).json({ ok: false, error: "Only JPG, PNG, and WebP images are accepted." });
 
-    const { data, error } = await db.from("jr_listings").insert({
-      member_id: String(m.id), item_name, description,
-      category: clean(req.body.category), price,
-      location: clean(req.body.location), photos, status: "active"
-    }).select().single();
-    if (error) throw error;
-    await logActivity(m.id, "CREATE_LISTING", { listing_id: data.id });
-    res.status(201).json({ ok: true, listing: data });
+    const photos = [];
+    const uploaded = [];
+    try {
+      for (const f of files) {
+        const filename = `${m.id}/${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${IMAGE_EXT[f.mimetype]}`;
+        const { error } = await db.storage.from("jr-pheef-media").upload(filename, f.buffer, { contentType: f.mimetype, upsert: false });
+        if (error) throw error;
+        uploaded.push(filename);
+        const { data } = db.storage.from("jr-pheef-media").getPublicUrl(filename);
+        photos.push(data.publicUrl);
+      }
+
+      const { data, error } = await db.from("jr_listings").insert({
+        member_id: String(m.id), item_name, description,
+        category: clean(req.body.category).slice(0, 60), price,
+        location: clean(req.body.location).slice(0, 180), photos, status: "active"
+      }).select().single();
+      if (error) throw error;
+      await logActivity(m.id, "CREATE_LISTING", { listing_id: data.id });
+      return res.status(201).json({ ok: true, listing: data });
+    } catch (inner) {
+      // Roll back any photos uploaded for a listing that was not created.
+      if (uploaded.length) await db.storage.from("jr-pheef-media").remove(uploaded).catch(() => {});
+      throw inner;
+    }
   } catch (e) {
     console.error("Create listing:", e.message);
     if (!res.headersSent) res.status(500).json({ ok: false, error: "Listing could not be created." });
@@ -684,6 +712,8 @@ app.delete("/api/rooms/:id",async(req,res)=>{
 app.post("/api/connections", async (req, res) => {
   const m = await requireMember(req, res);
   if (!m) return;
+  if (!checkRequestRate(req, "connect", 30, 3600000).allowed)
+    return res.status(429).json({ ok: false, error: "Too many requests. Try again later." });
   const receiver_id = clean(req.body.receiver_id);
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(receiver_id) || receiver_id === String(m.id))
     return res.status(400).json({ ok: false, error: "Invalid connection." });
@@ -741,6 +771,8 @@ app.get("/api/connections", async (req,res) => {
 app.post("/api/connections/by-jp-number", async(req,res)=>{
   try{
     const m=await requireMember(req,res); if(!m) return;
+    if(!checkRequestRate(req,"connect",30,3600000).allowed)
+      return res.status(429).json({ok:false,error:"Too many requests. Try again later."});
     const jp=clean(req.body.jp_number).toUpperCase().replace(/\s+/g,"");
     if(!/^JP-[A-Z0-9]{6,16}$/.test(jp)) return res.status(400).json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."});
     const {data:target,error}=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,status,profile_visibility").eq("jp_number",jp).maybeSingle();
@@ -760,8 +792,8 @@ app.patch("/api/connections/:id",async(req,res)=>{
     const m=await requireMember(req,res); if(!m)return;
     const status=clean(req.body.status);
     if(!["accepted","declined","cancelled"].includes(status))return res.status(400).json({ok:false,error:"Invalid connection action."});
-    let q=db.from("connections").select("*").eq("id",req.params.id).maybeSingle();
-    const {data:current,error}=await q;if(error)throw error;
+    const {data:current,error}=await db.from("connections").select("*").eq("id",req.params.id).maybeSingle();
+    if(error)throw error;
     if(!current || (String(current.requester_id)!==String(m.id)&&String(current.receiver_id)!==String(m.id)))return res.status(404).json({ok:false,error:"Connection request not found."});
     if(current.status!=="pending")return res.status(409).json({ok:false,error:"Only pending connection requests can be changed."});
     if((status==="accepted"||status==="declined") && String(current.receiver_id)!==String(m.id))return res.status(403).json({ok:false,error:"Only the recipient can accept or decline this request."});
@@ -769,7 +801,6 @@ app.patch("/api/connections/:id",async(req,res)=>{
     const {data,error:updateError}=await db.from("connections").update({status,updated_at:new Date().toISOString()}).eq("id",req.params.id).eq("status","pending").select().maybeSingle();
     if(updateError)throw updateError;
     if(!data)return res.status(409).json({ok:false,error:"This connection request has already changed."});
-    if(updateError)throw updateError;
     res.json({ok:true,connection:data});
   }catch(e){console.error("Connection update:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update connection."});}
 });
@@ -1026,7 +1057,8 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
     let answer = "Welcome to JR PHEEF — Find. Match. Trade. Send HELP for options.";
 
     if (message === "POINTS") {
-      const { data } = await db.from("members").select("reward_points").eq("phone", phone).maybeSingle();
+      const { data } = await db.from("members").select("reward_points")
+        .in("phone", phoneVariants(phone)).limit(1).maybeSingle();
       answer = `JR PHEEF POINTS: ${Number(data?.reward_points || 0)}. Points redemption is not active yet; browsing and listings are free.`;
     } else if (message === "ACCESS") {
       answer = "JR PHEEF discovery and listings are free. Connection fees are not active in this build. Any future fee must be shown before confirmation. M-Pesa/Daraja payments are not connected yet.";
@@ -1054,9 +1086,9 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error("Request error:", err.message);
   if (res.headersSent) return next(err);
-  res.status(err instanceof multer.MulterError ? 400 : 500)
-    .json({ ok: false, error: err instanceof multer.MulterError ? "Photo upload limits exceeded." : "Request failed." });
+  const badRequest = err instanceof multer.MulterError || err.status === 400 || err.type === "entity.parse.failed";
+  res.status(badRequest ? 400 : 500)
+    .json({ ok: false, error: badRequest ? "Invalid request or upload limits exceeded." : "Request failed." });
 });
 
-app.listen(PORT, () => console.log(`JR PHEEF 5.0 listening on ${PORT}`));
- 
+app.listen(PORT, () => console.log(`JR PHEEF ${VERSION} listening on ${PORT}`));
