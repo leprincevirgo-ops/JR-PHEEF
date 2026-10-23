@@ -621,8 +621,10 @@ app.post("/api/listings", authenticateMemberBeforeUpload, upload.array("photos",
       }
 
       const { data, error } = await db.from("jr_listings").insert({
-        member_id: String(m.id), item_name, description,
+        member_id: String(m.id), item_name, title: item_name, description,
         category: clean(req.body.category).slice(0, 60), price,
+        condition: clean(req.body.condition).slice(0, 40) || null,
+        negotiable: req.body.negotiable === true || req.body.negotiable === "true" || req.body.negotiable === "on",
         location: clean(req.body.location).slice(0, 180), photos, status: "active"
       }).select().single();
       if (error) throw error;
@@ -1074,6 +1076,13 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
     console.error("WhatsApp:", e.message);
     res.type("text/xml").send("<Response><Message>JR PHEEF is temporarily unavailable.</Message></Response>");
   }
+});
+
+/* MARKETPLACE: my listings, deal rooms, chat, reports, notifications, password reset, admin API */
+require("./routes/market")({
+  app, db, crypto, bcrypt, twilio,
+  clean, hash, phoneOf, phoneVariants,
+  requireMember, checkRequestRate, contactBlocked, logActivity
 });
 
 /* NOT FOUND + ERRORS */
