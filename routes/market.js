@@ -98,6 +98,8 @@ module.exports = function mountMarket(ctx) {
     if (b.price !== undefined) {
       const v = Number(b.price);
       if (!Number.isFinite(v) || v < 0) return bad(res, "Enter a valid price.");
+      const { data: cur } = await db.from("jr_listings").select("original_price").eq("id", id).eq("member_id", m.id).maybeSingle();
+      if (cur && cur.original_price !== null) return bad(res, "End the Power Sale first, then change the price.", 409);
       u.price = v;
     }
     if (b.category !== undefined) u.category = clean(b.category).slice(0, 60);
