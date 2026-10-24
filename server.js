@@ -94,9 +94,10 @@ const MEMBER_FIELDS = [
 
 function safeMember(m) {
   if (!m) return null;
-  return Object.fromEntries(
-    MEMBER_FIELDS.filter(k => Object.hasOwn(m, k)).map(k => [k, m[k]])
-  );
+  return {
+    ...Object.fromEntries(MEMBER_FIELDS.filter(k => Object.hasOwn(m, k)).map(k => [k, m[k]])),
+    is_owner: [m.account_type, m.role].some(v => String(v || "").toLowerCase() === "owner")
+  };
 }
 
 function freeWindow() {
