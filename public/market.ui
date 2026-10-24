@@ -135,7 +135,7 @@
       return `<div class="listing">
         ${photo ? `<img src="${esc(photo)}" alt="" loading="lazy" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:8px">` : ""}
         <b>${esc(x.item_name || "Opportunity")}</b>${x.negotiable ? ' <span class="badge">Negotiable</span>' : ""}<br>
-        ${KSH(x.price)}<br>📍 ${esc(x.location || "")}<br>${esc(x.description || "")}<br>
+        ${x.original_price ? `<s class="muted">${KSH(x.original_price)}</s> <b>${KSH(x.price)}</b> <span class="badge">${esc(x.promo_label || "Power Sale")}</span>` : KSH(x.price)}<br>📍 ${esc(x.location || "")}<br>${esc(x.description || "")}<br>
         ${mine ? '<span class="muted">Your listing</span>'
           : `<button class="primary" onclick="startDeal('${esc(x.id)}',${x.negotiable ? "true" : "false"},${Number(x.price || 0)})">OPEN DEAL</button>
              <button class="dark" onclick="reportListing('${esc(x.id)}','${esc(x.member_id)}')">REPORT</button>`}
@@ -190,8 +190,9 @@
       <div class="listing">
        ${(x.photos || [])[0] ? `<img src="${esc(x.photos[0])}" alt="" loading="lazy" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:8px">` : ""}
        <b>${esc(x.item_name)}</b> <span class="badge">${esc(x.status)}</span><br>
-       ${KSH(x.price)} · 👁 ${Number(x.views || 0)} · ${esc(x.category || "")}<br>
+       ${x.original_price ? `<s class="muted">${KSH(x.original_price)}</s> <b>${KSH(x.price)}</b> <span class="badge">${esc(x.promo_label || "Power Sale")}</span>` : KSH(x.price)} · 👁 ${Number(x.views || 0)} · ${esc(x.category || "")}<br>
        <button onclick="editListing('${esc(x.id)}')">EDIT</button>
+       ${x.status === "active" ? (x.original_price ? `<button class="dark" onclick="endPromo('${esc(x.id)}')">END POWER SALE</button>` : `<button class="dark" onclick="promoteListing('${esc(x.id)}')">POWER SALE</button>`) : ""}
        ${x.status === "active" ? `<button class="dark" onclick="setListing('${esc(x.id)}',{status:'paused'})">PAUSE</button>` : ""}
        ${x.status !== "active" ? `<button class="dark" onclick="setListing('${esc(x.id)}',{status:'active'})">ACTIVATE</button>` : ""}
        ${x.status !== "sold" ? `<button class="dark" onclick="setListing('${esc(x.id)}',{status:'sold'})">MARK SOLD</button>` : ""}
