@@ -54,7 +54,7 @@
   const COMMAND_CARD = `
 <div class="card" id="jrCommandCard"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">TALK TO JR</p>
  <h2 style="margin-bottom:6px">What do you want to do today?</h2>
- <textarea id="jrSay" rows="2" maxlength="600" placeholder="Try: find me a supplier near my shop, open my deals, or I want to open a small shop with KSh 200,000"></textarea>
+ <textarea id="jrSay" rows="2" maxlength="600" placeholder="Tell JR the outcome you want: plan a business, find a service, research a product, organize a project, discover opportunities, or improve JR PHEEF."></textarea>
  <button class="primary" onclick="jrAsk()">ASK JR</button><button class="dark" onclick="jrListen()">🎙 SPEAK</button>
  <div id="jrReply" aria-live="polite"></div></div>`;
 
@@ -65,9 +65,64 @@
   function inject() {
     $("app").insertAdjacentHTML("beforeend", PAGES);
     const nav = document.querySelector("#app .nav"), first = nav.children[1] || null;
-    [["PROJECTS", "projects"], ["SHAPE JR", "ideas"], ["ADS", "ads"], ["JR SETTINGS", "jrsettings"]].forEach(([l, id]) => {
+    [["PROJECTS", "projects"], ["SHAPE JR", "ideas"], ["ADVERTISEMENT CENTRE", "ads"], ["JR SETTINGS", "jrsettings"]].forEach(([l, id]) => {
       const b = document.createElement("button"); b.textContent = l; b.onclick = () => show(id); nav.insertBefore(b, first);
     });
+
+    // Group existing navigation buttons into simple menus while preserving
+    // the original nodes, click handlers, and destinations.
+    const style = document.createElement("style");
+    style.id = "jp-unified-navigation-style";
+    style.textContent = "#app .nav.jp-nav-grouped{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:12px 0}#app .nav .jp-nav-group{position:relative;flex:0 0 auto}#app .nav .jp-nav-group>summary{cursor:pointer;list-style:none;white-space:nowrap;border:1px solid rgba(66,245,255,.24);background:#082b46;border-radius:10px;padding:10px 12px;color:#eafcff;font-size:11px;font-weight:bold}#app .nav .jp-nav-group>summary::-webkit-details-marker{display:none}#app .nav .jp-nav-group .jp-nav-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:190px;max-height:60vh;overflow:auto;padding:8px;border:1px solid rgba(66,245,255,.25);border-radius:14px;background:#041629;box-shadow:0 16px 40px #0009;display:flex;flex-direction:column;gap:5px}#app .nav .jp-nav-group .jp-nav-menu button{width:100%;text-align:left;white-space:normal;font-size:11px;margin:0;padding:11px}@media(max-width:600px){#app .nav .jp-nav-group .jp-nav-menu{position:fixed;left:12px;right:12px;top:auto;max-height:60vh;min-width:0}}";
+    document.head.appendChild(style);
+    const groups = [
+      {label:"DISCOVER", names:["ECOSYSTEM","FIND","SOCIAL","JP CONNECT"]},
+      {label:"CREATE & GROW", names:["CREATE","PROJECTS","SHAPE JR","ADVERTISEMENT CENTRE","ADS"]},
+      {label:"INTELLIGENCE", names:["UNIVERSE","LAB","LIBRARY","AI ASSISTANT","SCI-FI & FUTURES","REPAIR SERVICES"]},
+      {label:"SERVICES", names:["ROOMS NEAR ME","FLEX","POINTS","ECONOMY","DELIVERY","JR PHEEF DELIVERY","ACCESS GOV","POWER SALE"]},
+      {label:"MY SPACE", names:["PROFILE","MY FILES","DEVICES","VOICE / TYPE","JR SETTINGS"]},
+      {label:"CONTROL", names:["COMMAND CENTER","OWNER CONTROL CENTER","DGBO CONTROL CENTER"]}
+    ];
+    const buttons = [...nav.querySelectorAll(":scope > button")];
+    nav.classList.add("jp-nav-grouped");
+    const home = buttons.find(b => b.textContent.trim().toUpperCase() === "HOME");
+    const used = new Set(home ? [home] : []);
+    for (const group of groups) {
+      const members = buttons.filter(b => !used.has(b) && group.names.includes(b.textContent.trim().toUpperCase()));
+      if (!members.length) continue;
+      const details = document.createElement("details");
+      details.className = "jp-nav-group";
+      const summary = document.createElement("summary");
+      summary.textContent = group.label;
+      const menu = document.createElement("div");
+      menu.className = "jp-nav-menu";
+      menu.setAttribute("role","group");
+      menu.setAttribute("aria-label",group.label);
+      for (const button of members) {
+        used.add(button);
+        menu.appendChild(button);
+      }
+      details.append(summary,menu);
+      nav.appendChild(details);
+    }
+    const remaining = buttons.filter(b => !used.has(b));
+    if (remaining.length) {
+      const details = document.createElement("details");
+      details.className = "jp-nav-group";
+      const summary = document.createElement("summary");
+      summary.textContent = "MORE";
+      const menu = document.createElement("div");
+      menu.className = "jp-nav-menu";
+      menu.setAttribute("role","group");
+      menu.setAttribute("aria-label","More JR PHEEF sections");
+      remaining.forEach(button => menu.appendChild(button));
+      details.append(summary,menu);
+      nav.appendChild(details);
+    }
+    nav.addEventListener("click", event => {
+      if (event.target.closest("button")) nav.querySelectorAll("details[open]").forEach(d => d.open = false);
+    });
+
     const anchor = $("myActivity") || $("coordination");
     anchor.insertAdjacentHTML("beforebegin", COMMAND_CARD);
     const find = $("results"); if (find) find.insertAdjacentHTML("beforebegin", '<div id="sponsoredBox"></div>');
