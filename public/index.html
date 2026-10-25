@@ -181,6 +181,8 @@ placeholder="Password">
 <div class="nav">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
+<button onclick="show('family');loadFamily()">FAMILY</button>
+<button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
 <button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('lab')">LAB</button>
 <button onclick="show('library')">LIBRARY</button>
@@ -274,6 +276,24 @@ placeholder="Password">
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 
+<div id="family" class="page hidden">
+  <div class="card" style="border:1px solid #20d9ee;background:linear-gradient(135deg,#06162b,#0a2d50)">
+    <p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">FAMILY · FINANCIAL ACCESS TO MONEY FOR INVESTMENTS &amp; LOVING YOURSELF</p>
+    <h1>Your goals. Your future.</h1>
+    <p class="muted">FAMILY has its own member space for personal savings goals and financial-service requests. This tracker does not hold money, make loans, promise investment returns, or execute transfers.</p>
+    <div class="grid"><div class="card"><b>MY GOALS</b><div id="familyGoalCount" class="big">—</div><p class="muted">Saved goals</p></div><div class="card"><b>TRACKED SAVINGS</b><div id="familySavedTotal" class="big">KSh —</div><p class="muted">Self-reported tracker only</p></div><div class="card"><b>MY REQUESTS</b><div id="familyRequestCount" class="big">—</div><p class="muted">Recorded requests</p></div></div>
+  </div>
+  <div class="card"><h2>CREATE A SAVINGS GOAL</h2><label for="familyGoalTitle">Goal name</label><input id="familyGoalTitle" maxlength="120" placeholder="e.g. Education, emergency fund, business equipment"><label for="familyGoalTarget">Target amount (KSh)</label><input id="familyGoalTarget" type="number" min="1" step="1" placeholder="Target amount"><label for="familyGoalSaved">Amount already saved (KSh)</label><input id="familyGoalSaved" type="number" min="0" step="1" value="0" placeholder="0"><label for="familyGoalDate">Target date (optional)</label><input id="familyGoalDate" type="date"><button class="primary" onclick="createFamilyGoal()">SAVE GOAL</button><p id="familyGoalMsg" class="muted" aria-live="polite"></p><div id="familyGoalsList"></div></div>
+  <div class="card"><h2>REQUEST A FINANCIAL-SERVICE REFERRAL</h2><p class="muted">Record an interest in savings, investment or lending support. A request is not approval or an offer of credit. Any regulated service must be handled by an appropriately licensed provider.</p><label for="familyRequestKind">What do you need?</label><select id="familyRequestKind"><option value="savings">Savings guidance</option><option value="investment">Investment information</option><option value="loan">Loan information</option></select><label for="familyRequestAmount">Amount (KSh)</label><input id="familyRequestAmount" type="number" min="1" step="1" placeholder="Amount you want to discuss"><label for="familyRequestPurpose">Purpose</label><textarea id="familyRequestPurpose" maxlength="500" placeholder="Explain what you need and what you want to achieve."></textarea><button class="primary" onclick="submitFamilyRequest()">RECORD REQUEST</button><p id="familyRequestMsg" class="muted" aria-live="polite"></p><div id="familyRequestsList"></div></div>
+</div>
+<div id="referrals" class="page hidden">
+  <div class="card" style="border:1px solid #20d9ee;background:linear-gradient(135deg,#06162b,#0a2d50)">
+    <p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">JR PHEEF · COMMUNITY GROWTH</p><h1>INVITE &amp; GROW</h1><p class="muted">Invite people to discover JR PHEEF. Referral tracking and rewards must be confirmed by the platform; this screen does not promise cash or automatic bonuses.</p>
+    <div class="grid"><div class="card"><b>YOUR JP NUMBER</b><p id="referralJpNumber">Loading…</p></div><div class="card"><b>YOUR INVITE CODE</b><p id="referralCode">Checking account…</p></div></div>
+    <button class="primary" onclick="copyReferralInvite()">COPY INVITATION MESSAGE</button><button onclick="shareReferralInvite()">SHARE INVITATION</button><p id="referralMsg" class="muted" aria-live="polite"></p>
+  </div>
+  <div class="card"><h2>HOW REFERRALS SHOULD WORK</h2><ol><li>Share your unique invite link or code.</li><li>Your friend creates and verifies a genuine account.</li><li>JR checks eligibility and suspicious duplicate activity.</li><li>Any eligible reward is shown with its source, status and rules.</li></ol><p class="muted">The current account's referral code is shown only if one exists. No referral URL or reward is fabricated. Cash rewards and withdrawals remain inactive until the tracking, funding rules and payment integrations are implemented and tested.</p></div>
+</div>
 <div id="universe" class="page hidden">
   <div class="card">
     <h2>JR PHEEF UNIVERSE</h2>
@@ -1246,6 +1266,7 @@ function startFixedItListing(){
 <script src="/market-ui.js"></script>
 <script src="/extras-ui.js"></script>
 <script src="/ecosystem-ui.js"></script>
+<script src="/family-ui.js"></script>
 <script src="/jr-ui.js"></script>
 
 </body>
