@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 
 const html = fs.readFileSync("public/index.html", "utf8");
+const path = require("node:path");
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 
 if (scripts.length === 0) {
@@ -42,5 +43,24 @@ for (const marker of required) {
   if (html.includes(marker)) console.log("PASS: expected feature marker " + marker);
   else { failures++; console.error("FAIL: missing feature marker " + marker); }
 }
+// Every local JavaScript asset referenced by the page must exist and parse.
+const assets = [...html.matchAll(/<script\\b[^>]*\\bsrc=["']([^"']+\\.js)(?:\\?[^"']*)?["'][^>]*>/gi)]
+  .map(m => m[1])
+  .filter(src => src.startsWith("/") && !src.startsWith("//"));
+for (const src of assets) {
+  const file = path.join("public", src.replace(/^\\/+/, ""));
+  if (!fs.existsSync(file)) {
+    failures++;
+    console.error("FAIL: referenced frontend asset missing " + file);
+    continue;
+  }
+  try {
+    new vm.Script(fs.readFileSync(file, "utf8"), { filename: file });
+    console.log("PASS: referenced frontend asset exists and parses " + file);
+  } catch (error) {
+    failures++;
+    console.error("FAIL: frontend syntax " + file + ": " + error.message);
+  }
+}
 if (failures) process.exit(1);
-console.log("All inline-script and feature-marker checks passed.");
+console.log("All inline-script, feature-marker, and referenced-asset checks passed.");
