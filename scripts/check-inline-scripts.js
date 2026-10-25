@@ -44,11 +44,11 @@ for (const marker of required) {
   else { failures++; console.error("FAIL: missing feature marker " + marker); }
 }
 // Every local JavaScript asset referenced by the page must exist and parse.
-const assets = [...html.matchAll(/<script\\b[^>]*\\bsrc=["']([^"']+\\.js)(?:\\?[^"']*)?["'][^>]*>/gi)]
+const assets = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+\.js)(?:\?[^"']*)?["'][^>]*>/gi)]
   .map(m => m[1])
   .filter(src => src.startsWith("/") && !src.startsWith("//"));
 for (const src of assets) {
-  const file = path.join("public", src.replace(/^\\/+/, ""));
+  const file = path.join("public", src.replace(/^\/+/, ""));
   if (!fs.existsSync(file)) {
     failures++;
     console.error("FAIL: referenced frontend asset missing " + file);
