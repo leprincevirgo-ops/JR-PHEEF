@@ -1,4 +1,4 @@
-<script src="/market-ui.js"></script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -63,6 +63,8 @@ button{
 button.primary{background:#00a9dc}
 button.dark{background:#063653}
 button.danger{background:#813b52}
+button:disabled{opacity:.55}
+a{color:#42f5ff}
 .category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
 .category-tile{margin:0;text-align:left;min-height:48px;background:linear-gradient(135deg,#063653,#075b7a);border:1px solid #17648c}
 .category-tile:hover,.category-tile:focus{outline:2px solid #00d9ff;background:#075b7a}
@@ -119,7 +121,7 @@ button.primary{background:linear-gradient(110deg,#087fc5,#00b8d4);color:#001522}
 
 <header>
   <div class="logo">JR <span>PHEEF</span></div>
-  <button onclick="logout()">LOGOUT</button>
+  <button id="logoutBtn" class="hidden" onclick="logout()">LOGOUT</button>
 </header>
 
 <main>
@@ -187,7 +189,7 @@ placeholder="Password">
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &AMP; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
+<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
 </div>
 
 <div id="home" class="page">
@@ -780,6 +782,7 @@ async function register(){
 async function openApp(){
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
   $("welcome").textContent="Hello, "+(me.full_name||"Member");
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
   fillProfile();
@@ -808,6 +811,7 @@ async function refresh(){
   if(!data.logged_in){
     $("auth").classList.remove("hidden");
     $("app").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
     return;
   }
 
@@ -1238,5 +1242,11 @@ function startFixedItListing(){
 }
 </script>
 
+<!-- JR PHEEF add-ons: load in this order, after the main script above -->
+<script src="/market-ui.js"></script>
+<script src="/extras-ui.js"></script>
+<script src="/ecosystem-ui.js"></script>
+<script src="/jr-ui.js"></script>
+
 </body>
- </html>
+</html>
