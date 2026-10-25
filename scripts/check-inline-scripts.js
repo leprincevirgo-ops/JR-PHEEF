@@ -36,7 +36,7 @@ const required = [
   'REPAIR SERVICES',
   'function buildSciFiBrief()',
   'function sendSciFiToAI()',
-  'Space & Satellite Concepts',
+  'SPACE &amp; SATELLITE CONCEPTS',
   'async function askJRAI()'
 ];
 for (const marker of required) {
