@@ -2,6 +2,7 @@
 (function () {
   "use strict";
   const $ = id => document.getElementById(id);
+  let currentMember = null;
   const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   const money = value => "KSh " + Number(value || 0).toLocaleString("en-KE", {maximumFractionDigits:2});
   async function apiCall(url, options) {
@@ -81,7 +82,7 @@
   };
   window.loadReferralCenter=async function(){
     try {
-      const data=await apiCall("/api/me"), member=data.member||{};
+      const data=await apiCall("/api/me"), member=data.member||{}; currentMember=member;
       setText("referralJpNumber",member.jp_number||"Not available");
       setText("referralCode",member.referral_code||"No referral code assigned yet");
       const button=document.querySelector('#referrals button.primary');
@@ -90,7 +91,7 @@
     } catch(e){setText("referralJpNumber","Sign in required");setText("referralCode","Unavailable");setText("referralMsg",e.message);}
   };
   function inviteText(){
-    const code=(window.me&&window.me.referral_code)||"";
+    const code=(currentMember&&currentMember.referral_code)||"";
     return "Join me on JR PHEEF — Find. Match. Trade. "+(code?"My invite code: "+code:"");
   }
   window.copyReferralInvite=async function(){
