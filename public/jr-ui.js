@@ -51,6 +51,13 @@
  <button class="primary" onclick="jrSaveSettings()">SAVE</button><p id="jsMsg" class="muted" aria-live="polite"></p></div>
  <div class="card"><h3>What JR did or proposed</h3><div id="jsLog"></div></div></div>`;
 
+
+<div id="jrteacher" class="page hidden"><div class="card"><h2>JR TEACHER</h2><p>Learn subjects, languages, practical skills, business, and technology step by step. Ask for examples, quizzes, or a study plan.</p><textarea id="jtTopic" rows="3" maxlength="1200" placeholder="What do you want to learn?"></textarea><select id="jtLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Teaching a child</option></select><button class="primary" onclick="jrTeacherAsk()">LEARN WITH JR</button><p id="jtMsg" class="muted">Uses JR's currently available assistant capabilities; not a replacement for a qualified teacher.</p></div></div>
+<div id="dgboinfo" class="page hidden"><div class="card"><p class="muted">POWERED BY DIME GLOBAL BUSINESS OPERATORS</p><h2>OPEN DGBO</h2><p>DIME GLOBAL BUSINESS OPERATORS (DGBO) is the parent business platform intended to connect people, businesses, investment ideas, saving opportunities, and practical business development across local and international markets.</p><h3>HOW DGBO CONNECTS TO JR PHEEF</h3><p>JR PHEEF is the opportunity and coordination platform. DGBO provides parent-company direction, business development, partnerships, and ecosystem coordination. FAMILY is a separate planned venture focused on financial access and personal investment goals, subject to applicable legal and licensing requirements.</p><div class="listing"><b>BUILDING BEYOND BORDERS</b><p>Develop connected businesses and technology that serve people locally and internationally, with responsible governance and value shared across the ecosystem.</p></div><p class="muted">This introduction is not a substitute for verified registration details or formal company documents.</p><button class="primary" onclick="show('ecosystem')">OPEN ECOSYSTEM</button></div></div>
+<div id="jrglossary" class="page hidden"><div class="card"><h2>JR PHEEF · ABBREVIATIONS</h2><div class="listing"><b>JR PHEEF</b><p>Brand name; no verified official expanded form is assigned. Product promise: Find. Match. Connect.</p></div><div class="listing"><b>DGBO</b><p>DIME GLOBAL BUSINESS OPERATORS — parent business umbrella.</p></div><div class="listing"><b>FAMILY</b><p>Financial Access to Money for Investments &amp; Loving Yourself — planned separate venture.</p></div><div class="listing"><b>AI</b><p>Artificial Intelligence.</p></div><div class="listing"><b>POS</b><p>Point of Sale — sales, receipts, and stock tools.</p></div><div class="listing"><b>JP</b><p>JR PHEEF identifier/connection-number concept.</p></div><div class="listing"><b>UX / UI</b><p>User Experience / User Interface.</p></div><div class="listing"><b>RLS</b><p>Row-Level Security — database access rules for individual records.</p></div><div class="listing"><b>API</b><p>Application Programming Interface — how software systems communicate.</p></div><div class="listing"><b>2FA</b><p>Two-Factor Authentication.</p></div></div></div>
+<div id="jrthemes" class="page hidden"><div class="card"><h2>THEMES &amp; WALLPAPERS</h2><p>Choose how JR PHEEF looks on this device.</p><label for="jtTheme">Theme</label><select id="jtTheme"><option value="ocean">NEON OCEAN · BLUE + CYAN</option><option value="midnight">MIDNIGHT BLACK + GOLD</option><option value="aurora">AURORA · BLUE + AQUA</option><option value="violet">COSMIC VIOLET</option></select><label for="jtDensity">Layout density</label><select id="jtDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select><p class="muted">Saved locally on this device. Account-wide sync and custom wallpaper uploads are not connected yet.</p><button class="primary" onclick="jrSaveTheme()">SAVE APPEARANCE</button><p id="jtThemeMsg" class="muted" aria-live="polite"></p></div></div>
+<div id="jrpos" class="page hidden"><div class="card"><h2>JR PHEEF POS</h2><p>Planned point-of-sale workspace for shops and service businesses: product catalogue, barcode support, stock tracking, sales records, receipts, staff permissions, and daily summaries.</p><div class="listing"><b>PREVIEW ONLY</b><p>This screen does not process payments, hold funds, or verify M-Pesa transactions. Payments remain inactive.</p></div><p class="muted">Build stages: persistent stock and products, cashier roles, receipts, offline-safe queue, audit logs, tax configuration, then tested payment-provider integration.</p></div></div>
+
   const COMMAND_CARD = `
 <div class="card" id="jrCommandCard"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">TALK TO JR</p>
  <h2 style="margin-bottom:6px">What do you want to do today?</h2>
@@ -65,7 +72,7 @@
   function inject() {
     $("app").insertAdjacentHTML("beforeend", PAGES);
     const nav = document.querySelector("#app .nav"), first = nav.children[1] || null;
-    [["PROJECTS", "projects"], ["SHAPE JR", "ideas"], ["ADVERTISEMENT CENTRE", "ads"], ["JR SETTINGS", "jrsettings"]].forEach(([l, id]) => {
+    [["PROJECTS", "projects"], ["SHAPE JR", "ideas"], ["ADVERTISEMENT CENTRE", "ads"], ["JR TEACHER", "jrteacher"], ["OPEN DGBO", "dgboinfo"], ["ABBREVIATIONS", "jrglossary"], ["THEMES & WALLPAPERS", "jrthemes"], ["JR PHEEF POS", "jrpos"], ["JR SETTINGS", "jrsettings"]].forEach(([l, id]) => {
       const b = document.createElement("button"); b.textContent = l; b.onclick = () => show(id); nav.insertBefore(b, first);
     });
 
@@ -298,6 +305,27 @@
     const note = prompt("Short note for the member (optional)", ""); if (note === null) return;
     const d = await call("/api/admin/ideas/" + encodeURIComponent(id), "PATCH", { status, owner_note: note }); if (!d.ok) alert(d.error || "Failed."); loadOwnerJr();
   };
+
+
+  window.jrTeacherAsk = function () {
+    const topic = $("jtTopic").value.trim();
+    if (!topic) { $("jtMsg").textContent = "Tell JR Teacher what you want to learn."; return; }
+    $("jrSay").value = "JR TEACHER: Teach me " + topic + ". Level: " + $("jtLevel").value + ". Give a clear lesson, examples, a short quiz, then answers.";
+    show("home"); window.jrAsk();
+  };
+  window.jrApplyTheme = function (theme) {
+    const themes = {ocean:["#021225","#073d70","#00d9ff","#17648c"],midnight:["#050505","#17130a","#f5bd4a","#72521a"],aurora:["#03151c","#064c58","#55ffe1","#177d87"],violet:["#09051d","#28104a","#c9a0ff","#7047a8"]};
+    const t = themes[theme] || themes.ocean;
+    document.body.style.background = "radial-gradient(circle at top," + t[1] + "," + t[0] + " 65%)";
+    document.documentElement.style.setProperty("--jp-cyan",t[2]); document.documentElement.style.setProperty("--jp-line",t[3]);
+    document.querySelectorAll(".card").forEach(el => el.style.borderColor = t[3]);
+  };
+  window.jrApplyDensity = function (density) { document.querySelectorAll(".card").forEach(el => el.style.padding = density === "compact" ? "12px" : "18px"); };
+  window.jrSaveTheme = function () {
+    try { const theme=$("jtTheme").value,density=$("jtDensity").value; localStorage.setItem("jr-pheef-theme",theme);localStorage.setItem("jr-pheef-density",density);jrApplyTheme(theme);jrApplyDensity(density);$("jtThemeMsg").textContent="Appearance saved on this device."; }
+    catch (_) {$("jtThemeMsg").textContent="This browser did not allow saving.";}
+  };
+  try { const t=localStorage.getItem("jr-pheef-theme"),d=localStorage.getItem("jr-pheef-density");if(t)window.jrApplyTheme(t);if(d)window.jrApplyDensity(d); } catch (_) {}
 
   const starter = setInterval(() => {
     if (inited || !$("alerts") || !document.querySelector("#app .nav")) return;
