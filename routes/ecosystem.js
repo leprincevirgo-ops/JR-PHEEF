@@ -184,15 +184,19 @@ module.exports = function mountEcosystem(ctx) {
 
   app.delete("/api/family/goals/:id", wrap("Goal delete", async (req, res) => {
     const m = await requireMember(req, res); if (!m) return;
+    if (!await familyLink(req, res, m)) return;
     const id = clean(req.params.id);
     if (!UUID.test(id)) return bad(res, "Goal not found.", 404);
-    const { error } = await db.from("family_goals").delete().eq("id", id).eq("member_id", m.id);
+    const { data, error } = await db.from("family_goals").delete()
+      .eq("id", id).eq("member_id", m.id).select("id").maybeSingle();
     if (error) throw error;
+    if (!data) return bad(res, "Goal not found.", 404);
     res.json({ ok: true });
   }));
 
   app.get("/api/family/applications", wrap("Requests mine", async (req, res) => {
     const m = await requireMember(req, res); if (!m) return;
+    if (!await familyLink(req, res, m)) return;
     const { data, error } = await db.from("family_applications").select("id,kind,amount,purpose,status,partner_note,created_at").eq("member_id", m.id).order("created_at", { ascending: false }).limit(30);
     if (error) throw error;
     res.json({ ok: true, requests: data || [] });
