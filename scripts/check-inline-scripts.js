@@ -37,7 +37,12 @@ const required = [
   'function buildSciFiBrief()',
   'function sendSciFiToAI()',
   'SPACE &amp; SATELLITE CONCEPTS',
-  'async function askJRAI()'
+  'async function askJRAI()',
+  'id="family"',
+  'id="referrals"',
+  'function createFamilyGoal()',
+  'function submitFamilyRequest()',
+  'function copyReferralInvite()'
 ];
 for (const marker of required) {
   if (html.includes(marker)) console.log("PASS: expected feature marker " + marker);
