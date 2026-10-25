@@ -179,7 +179,7 @@ app.get("/health", (req, res) => res.json({
   ok: true, app: "JR PHEEF", version: VERSION,
   ai: process.env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
   access: "FREE_DISCOVERY; match fees not activated", free_window: "retired",
-  flex: "PREPARED / INACTIVE", daraja: "NOT CONNECTED"
+  flex: "PREPARED / INACTIVE", daraja: process.env.PAYMENTS_ENABLED === "true" ? "ENABLED" : "OFF"
 }));
 
 // Serve other static assets (images, manifest, etc.) from /public.
@@ -1080,11 +1080,20 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
 });
 
 /* MARKETPLACE: my listings, deal rooms, chat, reports, notifications, password reset, admin API */
-require("./routes/market")({
+const routeCtx = {
   app, db, crypto, bcrypt, twilio,
   clean, hash, phoneOf, phoneVariants,
   requireMember, checkRequestRate, contactBlocked, logActivity
-});
+};
+require("./routes/market")(routeCtx);
+/* DELIVERY, POWER SALE and M-PESA PAYMENTS (payments stay off until configured in Render) */
+require("./routes/delivery")(routeCtx);
+require("./routes/powersale")(routeCtx);
+require("./routes/payments")(routeCtx);
+/* ECOSYSTEM: DGBO (parent) + FAMILY + JR PHEEF as one connected system */
+require("./routes/ecosystem")(routeCtx);
+/* JR COMMAND: talk to JR, project plans, ideas, advertising centre, autonomy settings */
+require("./routes/jr")(routeCtx);
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {
