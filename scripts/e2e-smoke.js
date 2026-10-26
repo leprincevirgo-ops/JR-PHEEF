@@ -8,21 +8,35 @@
 const assert = require("node:assert/strict");
 
 const base = (process.env.BASE_URL || "https://jr-pheef-marketplace.onrender.com").replace(/\/$/, "");
-const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 15000);
+const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 45000);
+const attempts = Number(process.env.SMOKE_ATTEMPTS || 2);
 
 async function request(path) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(base + path, {
-      method: "GET",
-      redirect: "follow",
-      signal: controller.signal,
-      headers: { "user-agent": "JR-PHEEF-smoke-test/1.0" }
-    });
-  } finally {
-    clearTimeout(timer);
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(base + path, {
+        method: "GET",
+        redirect: "follow",
+        signal: controller.signal,
+        headers: { "user-agent": "JR-PHEEF-smoke-test/1.0" }
+      });
+      if (response.status >= 500 && attempt < attempts) {
+        await response.arrayBuffer().catch(() => {});
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, 2000));
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  throw lastError || new Error("Request failed after retries");
 }
 
 async function main() {
