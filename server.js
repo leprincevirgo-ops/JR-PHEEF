@@ -1048,8 +1048,24 @@ app.post("/api/ai/chat", async (req,res)=>{
     });
     const result=await response.json().catch(()=>({}));
     if(!response.ok){
-      console.error("AI provider error:",response.status,clean(result.error?.code||result.error?.type||"provider_error"));
-      return res.status(response.status===429?429:502).json({ok:false,error:response.status===429?"AI provider is busy or the project quota is reached. Please retry later.":"AI provider request failed. Check the server's AI model and API configuration."});
+      const providerCode = clean(result.error?.code || result.error?.type || "provider_error").slice(0,100);
+      const retryAfter = Number(response.headers.get("retry-after"));
+      console.error("AI provider error:", response.status, providerCode);
+      if (response.status === 429) {
+        // Quota exhaustion needs an owner-side billing/quota fix; rate limiting may clear.
+        const quota = /quota|billing|insufficient_quota|credit/i.test(providerCode);
+        if (Number.isFinite(retryAfter) && retryAfter > 0) res.setHeader("Retry-After", String(Math.min(300, Math.ceil(retryAfter))));
+        return res.status(429).json({
+          ok:false,
+          error: quota
+            ? "AI_PROVIDER_QUOTA: JR AI is temporarily unavailable because the AI provider reports a quota or billing limit. Please try again later."
+            : "AI_RATE_LIMITED: JR AI is receiving too many requests. Please wait briefly and try again."
+        });
+      }
+      if (response.status === 401 || response.status === 403) {
+        return res.status(503).json({ok:false,error:"AI_PROVIDER_AUTH: JR AI configuration needs administrator attention."});
+      }
+      return res.status(502).json({ok:false,error:"AI_PROVIDER_ERROR: JR AI could not complete the request. Please retry shortly."});
     }
     const answer=clean(result.output_text || (result.output||[]).flatMap(o=>(o.content||[]).filter(x=>x.type==="output_text").map(x=>x.text)).join("\n"));
     if(!answer)return res.status(502).json({ok:false,error:"The AI returned no text. Please retry."});
