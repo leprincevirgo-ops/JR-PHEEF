@@ -338,6 +338,20 @@ placeholder="Password">
     <p class="muted">FAMILY has its own member space for personal savings goals and financial-service requests. This tracker does not hold money, make loans, promise investment returns, or execute transfers.</p>
     <div class="grid"><div class="card"><b>MY GOALS</b><div id="familyGoalCount" class="big">—</div><p class="muted">Saved goals</p></div><div class="card"><b>TRACKED SAVINGS</b><div id="familySavedTotal" class="big">KSh —</div><p class="muted">Self-reported tracker only</p></div><div class="card"><b>MY REQUESTS</b><div id="familyRequestCount" class="big">—</div><p class="muted">Recorded requests</p></div></div>
   </div>
+  <div class="card" id="familyBankWorkspace" style="border:1px solid rgba(64,255,174,.35);background:linear-gradient(135deg,#071d25,#082b38)">
+    <p style="color:#6df5b1;font-size:11px;letter-spacing:2px;font-weight:bold">FAMILY · BANKING PREPARATION</p>
+    <h2>Build your financial future</h2>
+    <p class="muted">FAMILY is part of the JR PHEEF ecosystem. This is the preparation workspace for future licensed financial services—not an active bank account.</p>
+    <div class="grid"><div class="card"><b>PRODUCT STATUS</b><p id="familyBankStatus" class="big" style="font-size:17px;color:#6df5b1">PRE-LAUNCH</p></div><div class="card"><b>IDENTITY STATUS</b><p id="familyBankKyc" class="muted">Identity status: not started</p></div></div>
+    <label for="familyBankType">What would you like FAMILY to help with?</label>
+    <select id="familyBankType"><option value="financial_education">Financial education</option><option value="account_interest">Register interest in future account services</option><option value="licensed_partner_referral">Referral to a licensed financial provider</option><option value="kyc_help">Identity verification guidance</option><option value="support">FAMILY support</option></select>
+    <label for="familyBankTopic">Topic</label><input id="familyBankTopic" maxlength="120" placeholder="e.g. budgeting, savings education, future account information">
+    <label for="familyBankDetails">Tell FAMILY what you need</label><textarea id="familyBankDetails" maxlength="700" placeholder="Do not enter passwords, PINs, account numbers or sensitive identity documents here."></textarea>
+    <button class="primary" onclick="submitFamilyBankRequest()">SEND FAMILY REQUEST</button>
+    <button onclick="loadFamilyBank()">REFRESH REQUESTS</button>
+    <p id="familyBankMsg" class="muted" aria-live="polite">Deposits, loans, stored value, payments and transfers are disabled. Requests may be referred to a properly licensed provider.</p>
+    <div id="familyBankRequests"></div>
+  </div>
   <div class="card"><h2>CREATE A SAVINGS GOAL</h2><label for="familyGoalTitle">Goal name</label><input id="familyGoalTitle" maxlength="120" placeholder="e.g. Education, emergency fund, business equipment"><label for="familyGoalTarget">Target amount (KSh)</label><input id="familyGoalTarget" type="number" min="1" step="1" placeholder="Target amount"><label for="familyGoalSaved">Amount already saved (KSh)</label><input id="familyGoalSaved" type="number" min="0" step="1" value="0" placeholder="0"><label for="familyGoalDate">Target date (optional)</label><input id="familyGoalDate" type="date"><button class="primary" onclick="createFamilyGoal()">SAVE GOAL</button><p id="familyGoalMsg" class="muted" aria-live="polite"></p><div id="familyGoalsList"></div></div>
   <div class="card"><h2>REQUEST A FINANCIAL-SERVICE REFERRAL</h2><p class="muted">Record an interest in savings, investment or lending support. A request is not approval or an offer of credit. Any regulated service must be handled by an appropriately licensed provider.</p><label for="familyRequestKind">What do you need?</label><select id="familyRequestKind"><option value="savings">Savings guidance</option><option value="investment">Investment information</option><option value="loan">Loan information</option></select><label for="familyRequestAmount">Amount (KSh)</label><input id="familyRequestAmount" type="number" min="1" step="1" placeholder="Amount you want to discuss"><label for="familyRequestPurpose">Purpose</label><textarea id="familyRequestPurpose" maxlength="500" placeholder="Explain what you need and what you want to achieve."></textarea><button class="primary" onclick="submitFamilyRequest()">RECORD REQUEST</button><p id="familyRequestMsg" class="muted" aria-live="polite"></p><div id="familyRequestsList"></div></div>
 </div>
@@ -1336,6 +1350,7 @@ async function jrTeacherAsk(){
 <script src="/extras-ui.js"></script>
 <script src="/ecosystem-ui.js"></script>
 <script src="/family-ui.js"></script>
+<script src="/family-bank-ui.js"></script>
 <script src="/jr-ui.js"></script>
 
 </body>
