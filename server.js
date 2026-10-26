@@ -89,7 +89,7 @@ function phoneVariants(v) {
 const MEMBER_FIELDS = [
   "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
-  "show_location", "verified", "status", "plan", "created_at"
+  "show_location", "verified", "status", "plan", "referral_code", "created_at"
 ];
 
 function safeMember(m) {
@@ -242,6 +242,7 @@ app.post("/api/register", async (req, res) => {
       password_hash: await bcrypt.hash(password, 12),
       verified: false, status: "active", plan: "FREE",
       reward_points: 0, credits: 0, rewards: 0, referrals: 0,
+      referral_code: "JR-" + crypto.randomBytes(6).toString("hex").toUpperCase(),
       cash_balance: 0, theme: "ocean", account_type: "individual"
     }).select("id,dgbo_id,full_name").single();
 
@@ -309,10 +310,27 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+/* Assign referral codes to older accounts when they first restore a session. */
+async function ensureReferralCode(member) {
+  if (!member || member.referral_code) return member;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const code = "JR-" + crypto.randomBytes(6).toString("hex").toUpperCase();
+    const { data, error } = await db.from("members").update({ referral_code: code })
+      .eq("id", member.id).is("referral_code", null).select("referral_code").maybeSingle();
+    if (error) throw error;
+    if (data?.referral_code) return { ...member, referral_code: data.referral_code };
+    const { data: current, error: readError } = await db.from("members").select("referral_code").eq("id", member.id).maybeSingle();
+    if (readError) throw readError;
+    if (current?.referral_code) return { ...member, referral_code: current.referral_code };
+  }
+  throw new Error("Could not assign a referral code.");
+}
+
 /* SESSION RESTORE */
 app.get("/api/me", async (req, res) => {
   try {
-    const member = await getMember(req);
+    let member = await getMember(req);
+    if (member && !member.referral_code) member = await ensureReferralCode(member);
     res.json({ ok: true, logged_in: !!member, ...(member ? { member: safeMember(member) } : {}) });
   } catch {
     res.status(500).json({ ok: false, error: "Could not restore session." });
