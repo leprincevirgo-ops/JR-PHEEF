@@ -114,6 +114,36 @@ main{max-width:1040px}
 input,textarea,select{border-color:rgba(66,245,255,.24);background:rgba(2,14,29,.94)}
 button.primary{background:linear-gradient(110deg,#087fc5,#00b8d4);color:#001522}
 @media(min-width:720px){#universeHero{padding:30px}}
+/* Classic command-centre redesign inspired by the supplied middle reference */
+:root{--jp-bg:#030b1a;--jp-panel:rgba(5,19,42,.88);--jp-cyan:#42f5ff;--jp-blue:#258bff;--jp-gold:#d6b15e;--jp-border:rgba(74,180,255,.25)}
+body{background:radial-gradient(ellipse at 50% -10%,rgba(15,106,206,.38),transparent 40%),radial-gradient(circle at 85% 22%,rgba(0,238,255,.09),transparent 28%),linear-gradient(150deg,#020714 0%,#071a35 48%,#020714 100%);background-attachment:fixed}
+header{padding:14px clamp(14px,3vw,30px);background:rgba(2,8,20,.9);border-bottom:1px solid var(--jp-border)}
+.logo{font-size:clamp(20px,3vw,27px);letter-spacing:2.5px;text-shadow:0 0 22px rgba(66,245,255,.22)}
+main{max-width:1240px;padding:clamp(12px,2.4vw,28px)}
+.nav{top:62px;gap:8px;padding:12px 4px;scrollbar-width:thin}
+.nav button{min-height:38px;padding:10px 13px;background:linear-gradient(135deg,#0a2549,#06152d);border-color:rgba(66,245,255,.2);color:#d9f7ff}
+.card{background:linear-gradient(145deg,rgba(8,29,61,.93),rgba(3,13,31,.97));border:1px solid var(--jp-border);border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.025)}
+#universeHero{position:relative;isolation:isolate;overflow:hidden;min-height:265px;padding:clamp(22px,4vw,42px);border-color:rgba(66,245,255,.38);background:radial-gradient(circle at 83% 44%,rgba(0,221,255,.2),transparent 26%),radial-gradient(circle at 83% 44%,transparent 0 13%,rgba(58,172,255,.2) 13.2% 13.5%,transparent 13.8% 22%,rgba(58,172,255,.13) 22.2% 22.5%,transparent 22.8%),linear-gradient(110deg,rgba(8,42,82,.98),rgba(2,14,34,.98) 65%)}
+#universeHero:after{content:"";position:absolute;z-index:-1;right:-55px;top:-100px;width:360px;max-width:48vw;aspect-ratio:1;border-radius:50%;border:1px solid rgba(66,245,255,.25);box-shadow:0 0 0 24px rgba(66,245,255,.025),0 0 0 55px rgba(66,245,255,.02),inset 0 0 55px rgba(0,161,255,.13);background:radial-gradient(circle at 30% 28%,rgba(66,245,255,.22),transparent 43%)}
+#universeHero h1{max-width:720px;text-shadow:0 5px 25px #0008}
+.jp-command-label,.jp-kicker{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--jp-cyan);text-transform:uppercase}
+.jp-dashboard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0 20px}
+.jp-dash-tile{position:relative;min-height:112px;margin:0;padding:17px 14px;text-align:left;border-radius:16px;border:1px solid var(--jp-border);background:linear-gradient(145deg,rgba(8,36,73,.92),rgba(3,15,34,.96));color:#f3fbff;display:flex;flex-direction:column;gap:10px;justify-content:space-between;transition:transform .18s ease,border-color .18s ease}
+.jp-dash-tile:hover,.jp-dash-tile:focus-visible{transform:translateY(-2px);border-color:var(--jp-cyan);outline:2px solid rgba(66,245,255,.18)}
+.jp-dash-icon{font-size:23px;color:var(--jp-cyan);line-height:1}
+.jp-dash-title{font-size:13px;font-weight:800;letter-spacing:.4px}
+.jp-dash-sub{font-size:11px;line-height:1.4;color:#9abbd5;font-weight:400}
+.jp-status-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.jp-status-item{padding:14px;border:1px solid rgba(66,245,255,.16);border-radius:14px;background:rgba(3,15,32,.75)}
+.jp-status-item strong{display:block;color:#dffaff;font-size:12px;margin-bottom:6px}
+.jp-status-item span{font-size:11px;line-height:1.45;color:#93b7ce}
+.jp-section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:24px 0 10px}
+.jp-section-head h2{margin:0}
+.jp-section-head p{margin:5px 0 0;color:#8fb2cd;font-size:12px}
+@media(max-width:800px){.jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#universeHero:after{right:-120px;opacity:.7}.nav{top:56px}}
+@media(max-width:420px){.jp-status-strip{grid-template-columns:1fr}.jp-dash-tile{min-height:100px;padding:13px}.jp-dash-sub{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.jp-dash-tile{transition:none}.jp-dash-tile:hover{transform:none}}
+
 </style>
 </head>
 
@@ -181,7 +211,7 @@ placeholder="Password">
 <div class="nav">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
-<button onclick="show('family');loadFamily()">FAMILY</button>
+<button onclick="show('family');loadFamily()">FAMILY</button><button onclick="show('teacher')">JR TEACHER</button>
 <button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
 <button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('lab')">LAB</button>
@@ -195,6 +225,23 @@ placeholder="Password">
 </div>
 
 <div id="home" class="page">
+<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">FIND · MATCH · TRADE</span></div>
+<div class="jp-dashboard-grid" aria-label="JR PHEEF quick access">
+<button class="jp-dash-tile" onclick="show('find')"><span class="jp-dash-icon">⌕</span><span><span class="jp-dash-title">DISCOVER</span><br><span class="jp-dash-sub">Find goods, work and opportunities</span></span></button>
+<button class="jp-dash-tile" onclick="show('social')"><span class="jp-dash-icon">◎</span><span><span class="jp-dash-title">JR SOCIAL</span><br><span class="jp-dash-sub">Community, posts and connections</span></span></button>
+<button class="jp-dash-tile" onclick="show('assistant')"><span class="jp-dash-icon">✧</span><span><span class="jp-dash-title">JR ASSISTANT</span><br><span class="jp-dash-sub">Plan, research and coordinate</span></span></button>
+<button class="jp-dash-tile" onclick="show('family');loadFamily()"><span class="jp-dash-icon">⌂</span><span><span class="jp-dash-title">FAMILY</span><br><span class="jp-dash-sub">Personal goals and requests</span></span></button>
+<button class="jp-dash-tile" onclick="show('teacher')"><span class="jp-dash-icon">✎</span><span><span class="jp-dash-title">JR TEACHER</span><br><span class="jp-dash-sub">Learn, practice and plan your study</span></span></button>
+<button class="jp-dash-tile" onclick="show('voice')"><span class="jp-dash-icon">◖))</span><span><span class="jp-dash-title">VOICE / TYPE</span><br><span class="jp-dash-sub">Speak naturally or type to JR</span></span></button>
+<button class="jp-dash-tile" onclick="show('vault')"><span class="jp-dash-icon">▣</span><span><span class="jp-dash-title">MY FILES</span><br><span class="jp-dash-sub">Manage your JR PHEEF files</span></span></button>
+<button class="jp-dash-tile" onclick="show('ecosystem')"><span class="jp-dash-icon">◈</span><span><span class="jp-dash-title">OPEN DGBO</span><br><span class="jp-dash-sub">Parent company and ventures</span></span></button>
+<button class="jp-dash-tile" onclick="show('referrals');loadReferralCenter()"><span class="jp-dash-icon">↗</span><span><span class="jp-dash-title">INVITE & GROW</span><br><span class="jp-dash-sub">Referral code and activity</span></span></button>
+</div>
+<div class="jp-status-strip" aria-label="Service availability">
+<div class="jp-status-item"><strong>MEMBER SPACE</strong><span>Account features depend on successful sign-in and permissions.</span></div>
+<div class="jp-status-item"><strong>FAMILY TRACKER</strong><span>Goals and service requests; no money is held or transferred here.</span></div>
+<div class="jp-status-item"><strong>PAYMENTS</strong><span>Disabled for this release until payment integrations are approved and tested.</span></div>
+</div>
 <div class="card" id="universeHero"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">JR PHEEF · PERSONAL OPPORTUNITY SYSTEM</p><h1 style="font-size:clamp(30px,6vw,46px);line-height:1.05">Your world.<br><span style="color:#42f5ff">More possibilities.</span></h1><p class="muted">One connected space to discover opportunities, meet people, explore knowledge, and move ideas forward.</p><p style="color:#a7faff;font-size:11px">● YOUR PERSONAL SPACE</p><button class="primary" onclick="show('find')">FIND OPPORTUNITIES</button><button onclick="show('create')">CREATE LISTING</button><button class="dark" onclick="show('universe')">UNIVERSE ASSISTANT</button><p class="muted" style="margin-top:18px">FIND <span style="color:#42f5ff">→</span> MATCH <span style="color:#42f5ff">→</span> TRADE</p></div>
 <div class="card" id="coordination">
 <h2>What would you like to do?</h2>
@@ -276,6 +323,14 @@ placeholder="Password">
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 
+<div id="teacher" class="page hidden">
+<div class="card" id="teacherHero"><p class="jp-kicker">JR TEACHER · LEARN AT YOUR PACE</p><h2>Understand it. Practise it. Own it.</h2><p class="muted">Choose a subject and level. JR can explain, simplify, quiz you, or help plan a study week. Answers depend on AI availability and may need fact-checking.</p>
+<label for="teacherSubject">Subject</label><select id="teacherSubject"><option>Mathematics</option><option>English & Writing</option><option>Science</option><option>Business & Entrepreneurship</option><option>Computing & Technology</option><option>Financial Literacy</option><option>History & Geography</option><option>Languages</option><option>Exam Preparation</option><option>Other</option></select>
+<label for="teacherLevel">Level</label><select id="teacherLevel"><option>Beginner</option><option>Primary</option><option>Secondary</option><option>College / University</option><option>Professional</option><option>Advanced</option></select>
+<label for="teacherMode">What should JR do?</label><select id="teacherMode"><option value="teach">Teach me step by step</option><option value="quiz">Quiz me and explain mistakes</option><option value="simplify">Explain in simple words</option><option value="study">Make a study plan</option></select>
+<label for="teacherQuestion">What do you want to learn?</label><textarea id="teacherQuestion" rows="4" maxlength="3000" placeholder="Ask a question, paste a problem, or name a topic…"></textarea>
+<button class="primary" onclick="jrTeacherAsk()">ASK JR TEACHER</button><button class="dark" onclick="document.getElementById('teacherQuestion').value='';document.getElementById('teacherAnswer').textContent=''">CLEAR</button><p id="teacherMsg" class="muted" aria-live="polite"></p><div id="teacherAnswer" class="listing" aria-live="polite"></div>
+</div></div>
 <div id="family" class="page hidden">
   <div class="card" style="border:1px solid #20d9ee;background:linear-gradient(135deg,#06162b,#0a2d50)">
     <p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">FAMILY · FINANCIAL ACCESS TO MONEY FOR INVESTMENTS &amp; LOVING YOURSELF</p>
@@ -1263,6 +1318,20 @@ function startFixedItListing(){
 </script>
 
 <!-- JR PHEEF add-ons: load in this order, after the main script above -->
+<script>
+async function jrTeacherAsk(){
+ const q=document.getElementById("teacherQuestion"),out=document.getElementById("teacherAnswer"),msg=document.getElementById("teacherMsg");
+ const question=(q.value||"").trim(); if(!question){msg.textContent="Enter a topic or question first.";return;}
+ msg.textContent="JR Teacher is preparing your lesson…";out.textContent="";
+ const subject=document.getElementById("teacherSubject").value,level=document.getElementById("teacherLevel").value,mode=document.getElementById("teacherMode").value;
+ const prompts={teach:"Teach me step by step",quiz:"Quiz me with questions and explain my mistakes",simplify:"Explain in simple words with an example",study:"Create a realistic study plan"};
+ try{
+  const r=await fetch("/api/ai/chat",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"universe",message:"Act as JR TEACHER. Subject: "+subject+". Learner level: "+level+". Task: "+prompts[mode]+". Teach accurately, state uncertainty, and use short sections. Topic/question: "+question})});
+  const d=await r.json(); if(!r.ok||!d.ok){msg.textContent=d.message||d.error||"JR Teacher could not answer. Try again later.";return;}
+  out.textContent=d.answer||d.reply||"No answer was returned.";msg.textContent="Lesson ready. Ask a follow-up by editing your question.";
+ }catch(e){msg.textContent="Connection failed. Please try again.";}
+}
+</script>
 <script src="/market-ui.js"></script>
 <script src="/extras-ui.js"></script>
 <script src="/ecosystem-ui.js"></script>
