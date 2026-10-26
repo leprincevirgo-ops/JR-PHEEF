@@ -211,7 +211,7 @@ placeholder="Password">
 <div class="nav">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
-<button onclick="show('family');loadFamily()">FAMILY</button>
+<button onclick="show('family');loadFamily()">FAMILY</button><button onclick="show('teacher')">JR TEACHER</button>
 <button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
 <button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('lab')">LAB</button>
@@ -231,6 +231,7 @@ placeholder="Password">
 <button class="jp-dash-tile" onclick="show('social')"><span class="jp-dash-icon">◎</span><span><span class="jp-dash-title">JR SOCIAL</span><br><span class="jp-dash-sub">Community, posts and connections</span></span></button>
 <button class="jp-dash-tile" onclick="show('assistant')"><span class="jp-dash-icon">✧</span><span><span class="jp-dash-title">JR ASSISTANT</span><br><span class="jp-dash-sub">Plan, research and coordinate</span></span></button>
 <button class="jp-dash-tile" onclick="show('family');loadFamily()"><span class="jp-dash-icon">⌂</span><span><span class="jp-dash-title">FAMILY</span><br><span class="jp-dash-sub">Personal goals and requests</span></span></button>
+<button class="jp-dash-tile" onclick="show('teacher')"><span class="jp-dash-icon">✎</span><span><span class="jp-dash-title">JR TEACHER</span><br><span class="jp-dash-sub">Learn, practice and plan your study</span></span></button>
 <button class="jp-dash-tile" onclick="show('voice')"><span class="jp-dash-icon">◖))</span><span><span class="jp-dash-title">VOICE / TYPE</span><br><span class="jp-dash-sub">Speak naturally or type to JR</span></span></button>
 <button class="jp-dash-tile" onclick="show('vault')"><span class="jp-dash-icon">▣</span><span><span class="jp-dash-title">MY FILES</span><br><span class="jp-dash-sub">Manage your JR PHEEF files</span></span></button>
 <button class="jp-dash-tile" onclick="show('ecosystem')"><span class="jp-dash-icon">◈</span><span><span class="jp-dash-title">OPEN DGBO</span><br><span class="jp-dash-sub">Parent company and ventures</span></span></button>
@@ -322,6 +323,14 @@ placeholder="Password">
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 
+<div id="teacher" class="page hidden">
+<div class="card" id="teacherHero"><p class="jp-kicker">JR TEACHER · LEARN AT YOUR PACE</p><h2>Understand it. Practise it. Own it.</h2><p class="muted">Choose a subject and level. JR can explain, simplify, quiz you, or help plan a study week. Answers depend on AI availability and may need fact-checking.</p>
+<label for="teacherSubject">Subject</label><select id="teacherSubject"><option>Mathematics</option><option>English & Writing</option><option>Science</option><option>Business & Entrepreneurship</option><option>Computing & Technology</option><option>Financial Literacy</option><option>History & Geography</option><option>Languages</option><option>Exam Preparation</option><option>Other</option></select>
+<label for="teacherLevel">Level</label><select id="teacherLevel"><option>Beginner</option><option>Primary</option><option>Secondary</option><option>College / University</option><option>Professional</option><option>Advanced</option></select>
+<label for="teacherMode">What should JR do?</label><select id="teacherMode"><option value="teach">Teach me step by step</option><option value="quiz">Quiz me and explain mistakes</option><option value="simplify">Explain in simple words</option><option value="study">Make a study plan</option></select>
+<label for="teacherQuestion">What do you want to learn?</label><textarea id="teacherQuestion" rows="4" maxlength="3000" placeholder="Ask a question, paste a problem, or name a topic…"></textarea>
+<button class="primary" onclick="jrTeacherAsk()">ASK JR TEACHER</button><button class="dark" onclick="document.getElementById('teacherQuestion').value='';document.getElementById('teacherAnswer').textContent=''">CLEAR</button><p id="teacherMsg" class="muted" aria-live="polite"></p><div id="teacherAnswer" class="listing" aria-live="polite"></div>
+</div></div>
 <div id="family" class="page hidden">
   <div class="card" style="border:1px solid #20d9ee;background:linear-gradient(135deg,#06162b,#0a2d50)">
     <p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">FAMILY · FINANCIAL ACCESS TO MONEY FOR INVESTMENTS &amp; LOVING YOURSELF</p>
@@ -1309,6 +1318,20 @@ function startFixedItListing(){
 </script>
 
 <!-- JR PHEEF add-ons: load in this order, after the main script above -->
+<script>
+async function jrTeacherAsk(){
+ const q=document.getElementById("teacherQuestion"),out=document.getElementById("teacherAnswer"),msg=document.getElementById("teacherMsg");
+ const question=(q.value||"").trim(); if(!question){msg.textContent="Enter a topic or question first.";return;}
+ msg.textContent="JR Teacher is preparing your lesson…";out.textContent="";
+ const subject=document.getElementById("teacherSubject").value,level=document.getElementById("teacherLevel").value,mode=document.getElementById("teacherMode").value;
+ const prompts={teach:"Teach me step by step",quiz:"Quiz me with questions and explain my mistakes",simplify:"Explain in simple words with an example",study:"Create a realistic study plan"};
+ try{
+  const r=await fetch("/api/ai/chat",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"universe",message:"Act as JR TEACHER. Subject: "+subject+". Learner level: "+level+". Task: "+prompts[mode]+". Teach accurately, state uncertainty, and use short sections. Topic/question: "+question})});
+  const d=await r.json(); if(!r.ok||!d.ok){msg.textContent=d.message||d.error||"JR Teacher could not answer. Try again later.";return;}
+  out.textContent=d.answer||d.reply||"No answer was returned.";msg.textContent="Lesson ready. Ask a follow-up by editing your question.";
+ }catch(e){msg.textContent="Connection failed. Please try again.";}
+}
+</script>
 <script src="/market-ui.js"></script>
 <script src="/extras-ui.js"></script>
 <script src="/ecosystem-ui.js"></script>
