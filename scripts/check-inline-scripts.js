@@ -40,13 +40,29 @@ const required = [
   'async function askJRAI()',
   'id="family"',
   'id="referrals"',
-  'function createFamilyGoal()',
-  'function submitFamilyRequest()',
-  'function copyReferralInvite()'
 ];
 for (const marker of required) {
   if (html.includes(marker)) console.log("PASS: expected feature marker " + marker);
   else { failures++; console.error("FAIL: missing feature marker " + marker); }
+}
+// Functions in external assets must be checked in the asset, not in HTML.
+const requiredAssetMarkers = {
+  "public/family-ui.js": [
+    "window.createFamilyGoal",
+    "window.submitFamilyRequest",
+    "window.copyReferralInvite",
+    "window.loadFamily",
+    "/api/family/goals",
+    "/api/family/applications"
+  ]
+};
+for (const [file, markers] of Object.entries(requiredAssetMarkers)) {
+  if (!fs.existsSync(file)) { failures++; console.error("FAIL: required feature asset missing " + file); continue; }
+  const source = fs.readFileSync(file, "utf8");
+  for (const marker of markers) {
+    if (source.includes(marker)) console.log("PASS: asset marker " + file + " :: " + marker);
+    else { failures++; console.error("FAIL: missing asset marker " + file + " :: " + marker); }
+  }
 }
 // Every local JavaScript asset referenced by the page must exist and parse.
 const assets = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+\.js)(?:\?[^"']*)?["'][^>]*>/gi)]
