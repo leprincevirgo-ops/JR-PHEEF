@@ -21,7 +21,7 @@ In the Render service's Environment settings, add:
 
 Do not place the API key in GitHub, public/index.html, a client-side variable, screenshots, or messages. After saving the variable, Render will redeploy. The /health response reports whether the key is configured, not whether the provider key has valid billing or model access.
 
-OpenAI's current Responses API supports model responses, built-in web search, and function tools. JR PHEEF currently uses the Responses API and optional web search; it does not yet allow model-selected tools to perform actions in user accounts.
+OpenAI's current Responses API supports model responses, built-in web search, and function tools. The main chat request uses `store: false` to avoid provider-side response storage. This does not replace JR PHEEF's own consent, access-control, or retention responsibilities. JR PHEEF currently uses the Responses API and optional web search; it does not yet allow model-selected tools to perform actions in user accounts.
 
 ## Safety and limitations
 
@@ -38,3 +38,8 @@ OpenAI's current Responses API supports model responses, built-in web search, an
 Run npm test.
 
 This checks Node server syntax and parses the inline browser JavaScript. A successful syntax test does not replace authenticated end-to-end tests for two separate member accounts, private file upload/download/delete, connection permissions, RLS, and provider API configuration.
+
+
+## Billing errors
+
+The application can be correctly configured while provider requests still fail. Production logs have shown `credit_balance_exhausted`, which indicates the API organization has run out of prepaid credits. ChatGPT subscriptions and API billing are separate. Check the intended API organization's billing balance and spend limits; never paste the API key into chat or commit it to GitHub. After billing is corrected, retry a single request and verify the provider response. If a different quota code appears, follow that code's documented remedy instead of assuming more credits are always the answer.
