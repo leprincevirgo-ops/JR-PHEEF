@@ -96,8 +96,19 @@ async function main() {
     });
   }
 
+  // Session restoration is intentionally public: an anonymous browser must be
+  // able to ask whether a session exists without being treated as logged in.
+  await check("session restoration safely reports anonymous state", async () => {
+    const response = await request("/api/me");
+    assert.equal(response.status, 200, "expected HTTP 200 for session restoration");
+    const body = await response.json();
+    assert.equal(body.ok, true, "session restoration should succeed");
+    assert.equal(body.logged_in, false, "anonymous session must not be logged in");
+    assert.equal(Object.prototype.hasOwnProperty.call(body, "member"), false,
+      "anonymous response must not expose member data");
+  });
+
   for (const endpoint of [
-    "/api/me",
     "/api/listings/mine",
     "/api/deals",
     "/api/notifications",
