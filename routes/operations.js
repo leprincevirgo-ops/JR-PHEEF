@@ -27,7 +27,7 @@ module.exports = function mountOperations(ctx) {
   // Store only a small navigation checkpoint, never passwords or form contents.
   app.get("/api/continuity", wrap("Continuity read", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
-    const { data, error } = await db.from("jr_user_continuity")
+    const { data, error } = await db.from("jr_member_state")
       .select("state,updated_at").eq("member_id", member.id).maybeSingle();
     if (error) throw error;
     res.json({ ok: true, state: data?.state || null, updated_at: data?.updated_at || null });
@@ -45,7 +45,7 @@ module.exports = function mountOperations(ctx) {
       saved_at: new Date().toISOString(),
       workspace_id: typeof body.workspace_id === "string" && body.workspace_id.length <= 80 ? body.workspace_id : null
     };
-    const { error } = await db.from("jr_user_continuity").upsert({
+    const { error } = await db.from("jr_member_state").upsert({
       member_id: member.id, state, updated_at: new Date().toISOString()
     }, { onConflict: "member_id" });
     if (error) throw error;
