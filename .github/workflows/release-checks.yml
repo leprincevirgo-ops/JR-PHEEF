@@ -1,0 +1,50 @@
+name: JR PHEEF release checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jr-pheef-release-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-and-route-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check server, route modules, inline scripts and assets
+        run: npm test
+
+  deployed-read-only-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify live service journeys without writing production data
+        env:
+          BASE_URL: https://jr-pheef-marketplace.onrender.com
+          REQUIRE_PAYMENTS_OFF: "true"
+          SMOKE_ATTEMPTS: "3"
+        run: node scripts/e2e-smoke.js
