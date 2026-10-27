@@ -17,9 +17,12 @@ module.exports = function mountOperations(ctx) {
     "jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts",
     "delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","businessgrowth"
   ]);
-  const nairobiDate = () => new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Nairobi", year: "numeric", month: "2-digit", day: "2-digit"
-  }).format(new Date());
+  const nairobiDate = () => {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Nairobi", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date()).map(p => [p.type, p.value]));
+    return parts.year + "-" + parts.month + "-" + parts.day;
+  };
 
   // Store only a small navigation checkpoint, never passwords or form contents.
   app.get("/api/continuity", wrap("Continuity read", async (req, res) => {
