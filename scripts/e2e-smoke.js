@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 
-// Public smoke checks for the deployed JR PHEEF service.
+// Read-only release smoke checks. No accounts, listings, deals, or payments are created.
 // Usage: BASE_URL=https://your-host.example npm run test:e2e
-// This intentionally does not create accounts or mutate production data.
 
 const assert = require("node:assert/strict");
 
@@ -21,7 +20,7 @@ async function request(path) {
         method: "GET",
         redirect: "follow",
         signal: controller.signal,
-        headers: { "user-agent": "JR-PHEEF-smoke-test/1.0" }
+        headers: { "user-agent": "JR-PHEEF-release-smoke/2.0" }
       });
       if (response.status >= 500 && attempt < attempts) {
         await response.arrayBuffer().catch(() => {});
@@ -39,11 +38,20 @@ async function request(path) {
   throw lastError || new Error("Request failed after retries");
 }
 
+async function expectProtected(path) {
+  const response = await request(path);
+  assert.equal(response.status, 401, path + " must reject unauthenticated access with HTTP 401; got " + response.status);
+  const body = await response.json();
+  assert.equal(body.ok, false, path + " should return an error payload");
+}
+
 async function main() {
   let failures = 0;
+  let passed = 0;
   async function check(name, fn) {
     try {
       await fn();
+      passed++;
       console.log("PASS " + name);
     } catch (error) {
       failures++;
@@ -51,31 +59,63 @@ async function main() {
     }
   }
 
-  await check("homepage returns HTML", async () => {
+  await check("homepage returns JR PHEEF HTML", async () => {
     const response = await request("/");
     assert.equal(response.status, 200, "expected HTTP 200, got " + response.status);
-    const type = response.headers.get("content-type") || "";
-    assert.match(type, /text\/html/i, "expected HTML content type, got " + type);
+    assert.match(response.headers.get("content-type") || "", /text\/html/i);
     const html = await response.text();
-    assert.match(html, /<title>\s*JR PHEEF\s*<\/title>/i, "JR PHEEF page title missing");
+    assert.match(html, /<title>\s*JR PHEEF\s*<\/title>/i, "page title missing");
     assert.match(html, /<html[\s>]/i, "HTML document root missing");
+    assert.match(html, /id="auth"/i, "sign-in entry point missing");
+    assert.match(html, /id="home"/i, "member home entry point missing");
   });
 
-  await check("health endpoint reports healthy service", async () => {
+  await check("health endpoint reports service identity and version", async () => {
     const response = await request("/health");
     assert.equal(response.status, 200, "expected HTTP 200, got " + response.status);
     const body = await response.json();
     assert.equal(body.ok, true, "health payload did not report ok=true");
     assert.equal(body.app, "JR PHEEF", "unexpected app identity");
     assert.ok(body.version, "version missing from health payload");
+    assert.ok(["OFF", "ENABLED"].includes(body.daraja), "Daraja state missing");
+    if (process.env.REQUIRE_PAYMENTS_OFF === "true") {
+      assert.equal(body.daraja, "OFF", "release safety gate: M-Pesa must remain OFF until explicitly approved");
+    }
   });
 
+  for (const asset of [
+    "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
+    "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js"
+  ]) {
+    await check("frontend asset loads: " + asset, async () => {
+      const response = await request(asset);
+      assert.equal(response.status, 200, "expected HTTP 200, got " + response.status);
+      assert.match(response.headers.get("content-type") || "", /javascript|ecmascript|text\/plain/i);
+      const source = await response.text();
+      assert.ok(source.length > 100, "asset is unexpectedly empty");
+    });
+  }
+
+  for (const endpoint of [
+    "/api/me",
+    "/api/listings/mine",
+    "/api/deals",
+    "/api/notifications",
+    "/api/ecosystem",
+    "/api/family/goals",
+    "/api/family/bank",
+    "/api/jr/settings",
+    "/api/payments/status"
+  ]) {
+    await check("private endpoint blocks anonymous access: " + endpoint, () => expectProtected(endpoint));
+  }
+
   if (failures) {
-    console.error("\n" + failures + " smoke check(s) failed against " + base);
+    console.error("\n" + passed + " passed, " + failures + " failed against " + base);
     process.exitCode = 1;
     return;
   }
-  console.log("\nAll public smoke checks passed against " + base);
+  console.log("\nAll " + passed + " read-only release smoke checks passed against " + base);
 }
 
 main().catch(error => {
