@@ -1129,6 +1129,8 @@ require("./routes/ecosystem")(routeCtx);
 require("./routes/family-bank")(routeCtx);
 /* JR COMMAND: talk to JR, project plans, ideas, advertising centre, autonomy settings */
 require("./routes/jr")(routeCtx);
+/* CONTINUITY + BUSINESS OPERATING PLANS */
+require("./routes/operations")(routeCtx);
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {
