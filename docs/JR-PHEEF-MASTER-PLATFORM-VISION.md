@@ -92,3 +92,50 @@ Completed matches and transactions, repeat use, time saved, business outcomes, f
 **JR PHEEF — Find. Match. Trade.**
 
 One connected ecosystem for operating, learning, connecting, verifying, and exchanging legitimate economic value across supported devices and environments. Build incrementally; claims must reflect features actually implemented and tested.
+
+
+## Continuity: resume where the user left off
+
+JR PHEEF should preserve a user's working context across interruptions and supported devices, subject to authentication, permissions, available storage, and sync status.
+
+- Persist the last stable route/page, workspace, relevant item or record, search/filter state, drafts, and unfinished workflow checkpoints.
+- Save incrementally rather than relying on a clean app exit. Synchronize state securely across devices when online.
+- On reconnect or sign-in on another device, restore the latest synchronized context and explain when newer data or unsynchronized work may be missing.
+- Support cached/read-only access and queued offline changes only for workflows designed to be safe offline. Resolve conflicts explicitly instead of silently overwriting data.
+- For consequential operations—payments, refunds, stock adjustments, orders, staff changes—use idempotency keys, clear pending/completed/failed states, and reconciliation to prevent duplicate actions.
+- Protect saved context with account isolation, encryption where appropriate, retention controls, and user-accessible session/device controls. Never restore private business or personal information to an unauthorized user.
+- Be honest about limits: data that never synchronized and existed only on a lost or damaged device may not be recoverable. Some pages require a live connection or current authorization.
+
+## Daily Business Growth Planner
+
+JR PHEEF should offer an intelligent daily operating and growth plan to eligible registered business accounts across the ecosystem, including businesses owned by external customers—not only DGBO ventures. Delivery channels may include in-app business workspace, push notifications, and user-approved email or other supported channels.
+
+### Daily plan contents
+
+1. **Today's priorities:** a short, ranked list of practical actions for the business's actual industry, size, goals, location, and current stage.
+2. **Operations checklist:** opening/closing tasks, staff responsibilities, stock checks, service quality, safety, maintenance, and compliance reminders as relevant.
+3. **Growth opportunities:** customer retention, new customer segments, partnerships, offers, product/service improvements, and useful JR PHEEF connections.
+4. **Numbers to watch:** a small set of business KPIs and comparisons against the business's own reliable history, targets, and seasonality.
+5. **Risks and exceptions:** low stock, unusual sales, possible waste, overdue tasks, unresolved orders, or other supported signals—with confidence and evidence shown.
+6. **Execution support:** checklists, draft messages, supplier-order proposals, campaign drafts, task assignment, and links to the relevant operating tools.
+7. **End-of-day review:** completed actions, outcomes, unresolved items, and a learning loop that improves the next plan.
+
+### Personalization and trust
+
+- Tailor plans to the business's declared goals and authorized, reliable data; do not invent sales, costs, customer facts, market findings, or performance improvements.
+- Clearly distinguish measured facts, estimates, recommendations, and assumptions. Explain why a recommendation appears and how success will be measured.
+- Start with useful, achievable actions; prioritize by expected value, effort, urgency, risk, and the owner's capacity.
+- Do not promise revenue, profit, investment returns, or guaranteed growth. Test recommendations and track actual outcomes.
+- Let owners set goals, preferred delivery times, frequency, channels, languages, quiet hours, and notification preferences. Avoid spam and generic repetitive advice.
+- Protect each business's data from other businesses. External market information can be shared only when lawful and properly sourced; one customer's confidential records must never be used to benefit another.
+- The plan may be sent to every eligible registered business account; account tier may determine advanced analytics, automation, collaboration, and execution tools, but eligibility and differences must be explained transparently.
+- Suggestions that spend money, change prices, contact customers, place orders, alter stock, change staff access, or make legally consequential decisions require the appropriate human approval and permission. Low-risk tasks may be automated only within owner-configured limits.
+- Keep an auditable record of plans, recommendations, approvals, actions, data sources, and measured outcomes, with controls to correct errors and turn off delivery.
+
+### Example: MAATHAIS Supermarket, Nairobi CBD
+
+A plan might suggest checking fast-moving essentials before peak hours, reviewing low-stock alerts, confirming supplier delivery times, assigning an expiry-date check, publishing an approved daily offer, and reviewing sales/margin results at closing. These are example actions, not assertions about MAATHAIS's actual data. Recommendations should become specific only after JR has authorized, reliable information about its catalogue, sales, stock, operating hours, and goals.
+
+### Measures of success
+
+Track plan delivery and engagement, completion rates, time saved, verified stock/waste changes, customer retention, operational reliability, and business outcomes against a baseline. Also track irrelevant recommendations, notification opt-outs, errors, and harmful or unauthorized actions. The goal is useful daily progress—not merely sending more messages.
