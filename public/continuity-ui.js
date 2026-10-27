@@ -29,8 +29,8 @@
       '<label for="bgGoals">What do you want to improve?</label><textarea id="bgGoals" maxlength="1000" rows="2" placeholder="Sales, stock, customer service, costs, operations, expansion…"></textarea>',
       '<button class="primary" id="bgCreate" onclick="jrCreateBusiness()">SAVE BUSINESS</button><p id="bgMsg" class="muted" aria-live="polite"></p></div>',
       '<div class="card"><h3>Your business workspaces</h3><select id="bgSelect" onchange="jrLoadDailyPlan()"><option value="">Choose a business</option></select>',
-      '<button class="primary" onclick="jrMakeDailyPlan()">CREATE TODAY\\'S PLAN</button><button class="dark" onclick="jrLoadBusinesses()">REFRESH BUSINESSES</button><p id="bgPlanMsg" class="muted" aria-live="polite"></p></div>',
-      '<div id="bgPlan" class="card"><p class="muted">Choose a business to view today\\'s plan.</p></div>',
+      '<button class="primary" onclick="jrMakeDailyPlan()">CREATE TODAY\'S PLAN</button><button class="dark" onclick="jrLoadBusinesses()">REFRESH BUSINESSES</button><p id="bgPlanMsg" class="muted" aria-live="polite"></p></div>',
+      '<div id="bgPlan" class="card"><p class="muted">Choose a business to view today\'s plan.</p></div>',
       '<div class="card"><p class="muted">Plans are recommendations, not guarantees. Review purchases, price changes, customer messages and other consequential actions before execution. Automatic daily delivery requires a scheduler to be configured.</p></div>'
     ].join("");
     $("app").appendChild(page);
@@ -65,15 +65,15 @@
     msg.textContent=d.reused?"Today's saved plan is ready.":"Today's plan is ready. A notification was added to JR PHEEF alerts.";renderPlan(d.daily_plan);
   };
   window.jrLoadDailyPlan=async function(){
-    const id=selected();if(!id){if($("bgPlan"))$("bgPlan").innerHTML='<p class="muted">Choose a business to view today\\'s plan.</p>';return;}
+    const id=selected();if(!id){if($("bgPlan"))$("bgPlan").innerHTML='<p class="muted">Choose a business to view today\'s plan.</p>';return;}
     const d=await call("/api/business/"+encodeURIComponent(id)+"/daily-plan");
     if(!d.ok){$("bgPlanMsg").textContent=d.error||"Could not load plan.";return;}
-    if(d.daily_plan)renderPlan(d.daily_plan);else $("bgPlan").innerHTML='<h3>Today\\'s plan</h3><p class="muted">No plan saved for today. Select CREATE TODAY\\'S PLAN to prepare one.</p>';
+    if(d.daily_plan)renderPlan(d.daily_plan);else $("bgPlan").innerHTML='<h3>Today\'s plan</h3><p class="muted">No plan saved for today. Select CREATE TODAY\'S PLAN to prepare one.</p>';
   };
   function renderPlan(row){
     const p=row?.plan||{},host=$("bgPlan");if(!host)return;
-    host.innerHTML='<p class="muted">'+esc(p.date||row.plan_date)+' · '+esc(String(row.source||p.source||"template").toUpperCase())+'</p><h2>'+esc(p.headline||("Daily plan for "+(p.business_name||"your business")))+'</h2><p>'+esc(p.summary||"")+'</p><h3>Today\\'s priorities</h3>'+
-      (p.priorities||[]).map(t=>'<article class="listing"><b>'+esc(t.title)+'</b><p class="muted">'+esc(t.detail)+'</p><p class="muted">'+esc(t.evidence||"")+'</p><p>Status: '+esc(t.status||"pending")+'</p><button class="'+(t.status==="completed"?"dark":"primary")+'" onclick="jrSetDailyTask(\\''+esc(row.business_id)+'\\',\\''+esc(t.id)+'\\',\\''+(t.status==="completed"?"pending":"completed")+'\\')">'+(t.status==="completed"?"MARK PENDING":"MARK COMPLETE")+'</button></article>').join("")+
+    host.innerHTML='<p class="muted">'+esc(p.date||row.plan_date)+' · '+esc(String(row.source||p.source||"template").toUpperCase())+'</p><h2>'+esc(p.headline||("Daily plan for "+(p.business_name||"your business")))+'</h2><p>'+esc(p.summary||"")+'</p><h3>Today\'s priorities</h3>'+
+      (p.priorities||[]).map(t=>'<article class="listing"><b>'+esc(t.title)+'</b><p class="muted">'+esc(t.detail)+'</p><p class="muted">'+esc(t.evidence||"")+'</p><p>Status: '+esc(t.status||"pending")+'</p><button class="'+(t.status==="completed"?"dark":"primary")+'" onclick="jrSetDailyTask(\''+esc(row.business_id)+'\',\''+esc(t.id)+'\',\''+(t.status==="completed"?"pending":"completed")+'\')">'+(t.status==="completed"?"MARK PENDING":"MARK COMPLETE")+'</button></article>').join("")+
       '<h3>Numbers to watch</h3><ul>'+(p.numbers_to_watch||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul><h3>Risks and assumptions</h3><ul>'+(p.risks||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
   }
   window.jrSetDailyTask=async function(businessId,taskId,status){
