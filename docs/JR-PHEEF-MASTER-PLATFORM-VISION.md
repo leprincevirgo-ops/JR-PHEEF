@@ -163,3 +163,5 @@ This section separates implemented code from the larger product roadmap.
 - Cross-device continuity restores the saved page and scroll position; it does not yet synchronize every draft, open modal, chat transcript, or unsynchronized device-only change.
 - POS, M-Pesa live payment processing, external-app integrations, and complete business OS migration must be tested and enabled module by module; this document does not claim they are all live.
 - No real business workspace, order, payment, or customer record should be created for release testing without explicit test data and authorization.
+
+- Automatic daily delivery remains blocked until Render billing is enabled for a scheduled job. The runner script is committed, but creating the scheduled service was rejected because Render requires payment information. Manual generation from the business workspace remains available. Do not describe automatic delivery as active until a cron job is created and a scheduled run is verified.
