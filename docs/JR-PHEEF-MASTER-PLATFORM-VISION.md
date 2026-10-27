@@ -139,3 +139,27 @@ A plan might suggest checking fast-moving essentials before peak hours, reviewin
 ### Measures of success
 
 Track plan delivery and engagement, completion rates, time saved, verified stock/waste changes, customer retention, operational reliability, and business outcomes against a baseline. Also track irrelevant recommendations, notification opt-outs, errors, and harmful or unauthorized actions. The goal is useful daily progress—not merely sending more messages.
+
+
+## Current implementation status — 27 October 2026
+
+This section separates implemented code from the larger product roadmap.
+
+### Added in the current stabilization pass
+
+- Server-side per-member continuity checkpoint API, storing the last page and scroll position without storing passwords or arbitrary form contents.
+- Browser continuity UI that keeps a local checkpoint and syncs it to the server when online; it attempts to restore the last synchronized page after sign-in on another supported device.
+- Business workspace API and interface for registering a business profile.
+- Daily business plan generation per workspace and Nairobi-local date, with an AI-generated plan when the provider is available and a clearly identified template fallback when it is not.
+- Saved plan task completion tracking and a JR notification when a plan is created.
+- Read-only release smoke checks expanded to cover the new asset and anonymous access protection for continuity and business endpoints.
+- Provider-side response storage disabled for the main JR AI chat request.
+
+### Remaining release gates
+
+- Run automated checks and live endpoint smoke tests after the current deployment finishes.
+- The OpenAI provider previously returned `credit_balance_exhausted`; model access is not the same as available API billing. AI-generated answers may remain unavailable until the API organization's credit balance or spend limit is corrected. The daily business planner falls back to templates.
+- The daily-plan scheduler hook is implemented, but an external scheduled job and its secret must be configured before plans are automatically generated and delivered each day. Until then, owners create today's plan from their business workspace.
+- Cross-device continuity restores the saved page and scroll position; it does not yet synchronize every draft, open modal, chat transcript, or unsynchronized device-only change.
+- POS, M-Pesa live payment processing, external-app integrations, and complete business OS migration must be tested and enabled module by module; this document does not claim they are all live.
+- No real business workspace, order, payment, or customer record should be created for release testing without explicit test data and authorization.
