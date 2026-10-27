@@ -85,7 +85,7 @@ async function main() {
 
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
-    "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js"
+    "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js"
   ]) {
     await check("frontend asset loads: " + asset, async () => {
       const response = await request(asset);
@@ -116,7 +116,10 @@ async function main() {
     "/api/family/goals",
     "/api/family/bank",
     "/api/jr/settings",
-    "/api/payments/status"
+    "/api/payments/status",
+    "/api/continuity",
+    "/api/business/workspaces",
+    "/api/business/test-business-id/daily-plan"
   ]) {
     await check("private endpoint blocks anonymous access: " + endpoint, () => expectProtected(endpoint));
   }
