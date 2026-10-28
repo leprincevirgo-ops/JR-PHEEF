@@ -68,6 +68,9 @@ async function main() {
     assert.match(html, /<html[\s>]/i, "HTML document root missing");
     assert.match(html, /id="auth"/i, "sign-in entry point missing");
     assert.match(html, /id="home"/i, "member home entry point missing");
+    assert.match(html, /id="jpidentity"/i, "JP Identity workspace missing");
+    assert.match(html, /JP IDENTITY/i, "JP Identity navigation missing");
+    assert.match(html, /Cosmic Signature/i, "Cosmic Signature preview missing");
   });
 
   await check("health endpoint reports service identity and version", async () => {
@@ -85,7 +88,8 @@ async function main() {
 
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
-    "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js"
+    "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js",
+    "/jp-identity.css", "/jp-identity-ui.js"
   ]) {
     await check("frontend asset loads: " + asset, async () => {
       const response = await request(asset);
