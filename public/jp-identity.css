@@ -1,0 +1,12 @@
+/* JR PHEEF JP identity workspace. UI-only; does not change authorization. */
+.jp-identity-hero{background:radial-gradient(circle at 85% 10%,rgba(66,245,255,.13),transparent 38%),linear-gradient(135deg,rgba(6,27,57,.97),rgba(3,12,29,.98))}
+.jp-identity-number{display:flex;flex-direction:column;gap:7px;padding:20px;margin-top:16px;border:1px solid rgba(66,245,255,.3);border-radius:16px;background:rgba(2,11,25,.72)}
+.jp-identity-number span,.jp-identity-number small{color:#9bbbd2;font-size:12px}
+.jp-identity-number strong{font-size:clamp(25px,5vw,40px);letter-spacing:1.5px;color:#42f5ff;overflow-wrap:anywhere}
+.jp-window-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.jp-window-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;padding:17px;text-align:left;border:1px solid rgba(66,245,255,.2);border-radius:15px;background:linear-gradient(145deg,rgba(7,37,69,.95),rgba(3,14,31,.98));color:#edf8ff}
+.jp-window-card strong{font-size:16px;color:#42f5ff}
+.jp-window-card span,.jp-window-card em{font-size:12px;line-height:1.5;color:#a6c1d5;font-style:normal}
+.jp-window-card em{margin-top:auto;color:#d6faff}
+.jp-window-static{cursor:default}
+@media(max-width:700px){.jp-window-grid{grid-template-columns:1fr}.jp-window-card{min-height:110px}}

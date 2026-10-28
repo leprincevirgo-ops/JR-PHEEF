@@ -163,6 +163,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:420px){.jp-section-head{align-items:flex-start;flex-direction:column}.jp-section-head .badge{white-space:normal}.jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jp-dash-title{font-size:12px}.jp-dash-sub{font-size:10px}}
 
 </style>
+<link rel="stylesheet" href="/jp-identity.css">
 </head>
 
 <body>
@@ -229,6 +230,7 @@ placeholder="Password">
 <div class="nav">
 <button onclick="show('home')">HOME</button>
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
+<button onclick="show('jpidentity');loadJpIdentity()">JP IDENTITY</button>
 <button onclick="show('family');loadFamily()">FAMILY</button><button onclick="show('teacher')">JR TEACHER</button>
 <button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
 <button onclick="show('universe')">UNIVERSE</button>
@@ -389,6 +391,36 @@ placeholder="Password">
   </div>
   <div class="card"><h2>HOW REFERRALS SHOULD WORK</h2><ol><li>Share your unique invite link or code.</li><li>Your friend creates and verifies a genuine account.</li><li>JR checks eligibility and suspicious duplicate activity.</li><li>Any eligible reward is shown with its source, status and rules.</li></ol><p class="muted">The current account's referral code is shown only if one exists. No referral URL or reward is fabricated. Cash rewards and withdrawals remain inactive until the tracking, funding rules and payment integrations are implemented and tested.</p></div>
 </div>
+<div id="jpidentity" class="page hidden">
+  <div class="card jp-identity-hero">
+    <p class="jp-kicker">JP NUMBER · IDENTITY · CONTINUITY</p>
+    <h1>Your identity. Your history. Your choice.</h1>
+    <p class="muted">JP numbers are designed to identify people and connected entities across participating services. A JP number is an identifier, not permission to access private records.</p>
+    <div class="jp-identity-number"><span>Your registered JP number</span><strong id="jpIdentityNumber">Checking account…</strong><small id="jpIdentityStatus" aria-live="polite">Loading your signed-in profile.</small></div>
+  </div>
+  <div class="card">
+    <h2>Explore your Cosmic Signature</h2>
+    <p class="muted">Optional symbolic numerology inspired by a birth date. It is not scientific evidence of luck, personality, identity, or destiny. Your date is calculated in this browser and is not saved by this preview.</p>
+    <label for="jpBirthDate">Birth date</label><input id="jpBirthDate" type="date" max="2026-10-28">
+    <button class="primary" id="jpCalculateSignature" type="button">CALCULATE SYMBOLIC SIGNATURE</button>
+    <div id="jpCosmicResult" class="listing" aria-live="polite">Enter a birth date to see a local-only numerology preview.</div>
+  </div>
+  <div class="card">
+    <h2>Connected business windows</h2>
+    <p class="muted">Each business opens its own workspace. Cross-business data sharing requires explicit authorization and a working integration.</p>
+    <div class="jp-window-grid">
+      <button type="button" class="jp-window-card" data-jp-window="home"><strong>JR PHEEF</strong><span>Platform, services, opportunities and user ecosystems</span><em>Open workspace →</em></button>
+      <button type="button" class="jp-window-card" data-jp-window="family"><strong>FAMILY</strong><span>Financial-services workspace in preparation; not a live bank or payment service yet</span><em>Open workspace →</em></button>
+      <div class="jp-window-card jp-window-static"><strong>DGBO</strong><span>Business development and governance; separate access required</span><em>Connected by approved integration only</em></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>JP registry design</h2>
+    <ul class="muted"><li>Personal JP: permanent person identifier.</li><li>Business JP: organization identifier.</li><li>Ecosystem JP: workspace identifier.</li><li>Service JP: registered service identifier.</li><li>Transaction JP: unique reference for a recorded transaction.</li><li>Cosmic Signature: optional symbolic layer; never an identity credential.</li></ul>
+    <p class="muted">This screen is a preview of the standard. New registry records, cross-service identity linking, historical archives, and transaction identifiers require verified backend/database implementation before they are considered active.</p>
+  </div>
+</div>
+
 <div id="universe" class="page hidden">
   <div class="card">
     <h2>JR PHEEF UNIVERSE</h2>
@@ -1416,6 +1448,7 @@ async function jrTeacherAsk(){
 <script src="/family-bank-ui.js"></script>
 <script src="/jr-ui.js"></script>
 <script src="/continuity-ui.js"></script>
+<script src="/jp-identity-ui.js"></script>
 
 </body>
 </html>
