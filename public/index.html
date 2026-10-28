@@ -232,6 +232,7 @@ placeholder="Password">
 <button onclick="show('ecosystem')">ECOSYSTEM</button>
 <button onclick="show('family');loadFamily()">FAMILY</button><button onclick="show('teacher')">JR TEACHER</button>
 <button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
+<button onclick="show('explore')">EXPLORE</button>
 <button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('lab')">LAB</button>
 <button onclick="show('library')">LIBRARY</button>
@@ -390,6 +391,33 @@ placeholder="Password">
   </div>
   <div class="card"><h2>HOW REFERRALS SHOULD WORK</h2><ol><li>Share your unique invite link or code.</li><li>Your friend creates and verifies a genuine account.</li><li>JR checks eligibility and suspicious duplicate activity.</li><li>Any eligible reward is shown with its source, status and rules.</li></ol><p class="muted">The current account's referral code is shown only if one exists. No referral URL or reward is fabricated. Cash rewards and withdrawals remain inactive until the tracking, funding rules and payment integrations are implemented and tested.</p></div>
 </div>
+
+<div id="explore" class="page hidden">
+  <section class="cc-explore-hero">
+    <div class="cc-explore-copy">
+      <div class="jp-kicker">JR PHEEF · VISUAL EXPLORER</div>
+      <h1>Explore beyond your screen.</h1>
+      <p>Discover cities, nature, architecture, space, oceans and ideas. Choose a scene as your JR PHEEF wallpaper, or open a wider visual search.</p>
+      <div class="cc-explore-actions">
+        <button class="primary" type="button" onclick="ccExploreSearch('world destinations and places')">EXPLORE THE WORLD ↗</button>
+        <button class="dark" type="button" onclick="ccClearWallpaper()">RESET WALLPAPER</button>
+      </div>
+      <p class="cc-explore-note">Photos load from Unsplash. Wallpaper changes apply to this browser view; images and search results are provided by external websites.</p>
+    </div>
+    <div class="cc-orbit-art" aria-hidden="true"><span>EXPLORE</span></div>
+  </section>
+  <div class="jp-section-head"><div><div class="jp-kicker">PICK A WORLD</div><h2>Visual destinations</h2><p>Tap a photo to preview it as your background. Use Explore to find more.</p></div><span class="badge">PHOTO · PLACE · PLANET</span></div>
+  <div class="cc-explore-grid">
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=85" alt="City skyline at night" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">CITY LIGHTS</span><h3>City skylines</h3><p>Discover cities, architecture and urban life.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1800&q=90','City skylines')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('beautiful world city skylines')">EXPLORE ↗</button></div></div></article>
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=85" alt="Mountain range under dramatic skies" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">WILD EARTH</span><h3>Mountains &amp; nature</h3><p>Explore landscapes, forests, lakes and trails.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1800&q=90','Mountains and nature')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('mountains national parks nature destinations')">EXPLORE ↗</button></div></div></article>
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=900&q=85" alt="Ocean waves meeting the shore" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">BLUE PLANET</span><h3>Oceans &amp; islands</h3><p>Discover coastlines, reefs, islands and marine life.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1800&q=90','Oceans and islands')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('ocean islands coral reefs destinations')">EXPLORE ↗</button></div></div></article>
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=85" alt="Earth seen from space" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">BEYOND EARTH</span><h3>Space &amp; worlds</h3><p>Explore planets, galaxies, astronomy and space missions.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1800&q=90','Earth from space')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('NASA planets galaxies space exploration images')">EXPLORE ↗</button></div></div></article>
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=900&q=85" alt="Modern architectural building" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">DESIGN &amp; CULTURE</span><h3>Architecture &amp; culture</h3><p>Visit landmarks, museums, art and local traditions.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1800&q=90','Architecture and culture')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('world architecture landmarks culture')">EXPLORE ↗</button></div></div></article>
+    <article class="cc-place-card"><img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=85" alt="Peaceful lake and mountains at sunset" loading="lazy"><div class="cc-place-info"><span class="cc-place-tag">QUIET PLACES</span><h3>Peaceful escapes</h3><p>Find calm scenery, scenic stays and travel inspiration.</p><div class="cc-place-actions"><button type="button" class="primary" onclick="ccSetWallpaper('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=90','Peaceful escapes')">SET WALLPAPER</button><button type="button" class="dark" onclick="ccExploreSearch('beautiful peaceful places to visit worldwide')">EXPLORE ↗</button></div></div></article>
+  </div>
+  <div class="card cc-explore-search"><div class="jp-kicker">YOUR WORLD, YOUR CURIOSITY</div><h2>Where should JR take you?</h2><p class="muted">Search for a city, country, animal, invention, building, planet, art style or any topic you want to see.</p><form onsubmit="event.preventDefault();ccExploreSearch(document.getElementById('ccExploreQuery').value)"><label for="ccExploreQuery">Explore anything</label><input id="ccExploreQuery" type="search" placeholder="e.g. Nairobi at night, Mars, wildlife in Kenya"><button class="primary" type="submit">EXPLORE SEARCH ↗</button></form><p id="ccWallpaperStatus" class="muted" aria-live="polite">No wallpaper selected yet.</p></div>
+</div>
+
 <div id="universe" class="page hidden">
   <div class="card">
     <h2>JR PHEEF UNIVERSE</h2>
