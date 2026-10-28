@@ -175,6 +175,28 @@ async function accessStatus(id) {
   };
 }
 
+// Read-only ecosystem overview used by the member dashboard. This reports the
+// architecture baseline only; it does not imply that external integrations are live.
+app.get("/api/ecosystem", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    res.setHeader("Cache-Control", "no-store");
+    return res.json({
+      ok: true,
+      generated_at: new Date().toISOString(),
+      ventures: [
+        { slug: "jr-pheef", name: "JR PHEEF", status: "design baseline" },
+        { slug: "dgbo", name: "DGBO", status: "integration not independently verified" },
+        { slug: "family", name: "FAMILY", status: "integration not independently verified" }
+      ]
+    });
+  } catch (e) {
+    console.error("Ecosystem overview:", e.message);
+    if (!res.headersSent) return res.status(500).json({ ok: false, error: "Ecosystem status could not be loaded." });
+  }
+});
+
 app.get("/health", (req, res) => res.json({
   ok: true, app: "JR PHEEF", version: VERSION,
   ai: process.env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
