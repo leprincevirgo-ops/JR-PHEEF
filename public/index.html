@@ -337,6 +337,14 @@ placeholder="Password">
 <div id="ecosystem" class="page hidden">
 <div class="card"><h2>ONE JR PHEEF ECOSYSTEM</h2><p class="muted">One connected experience for opportunities, business coordination and eligible partner services. Each organisation retains its own responsibilities and permissions.</p>
 <div class="grid"><div class="card"><h3>DGBO</h3><b>Parent company</b><p class="muted">Strategy, governance, approved investment and long-term continuity.</p></div><div class="card"><h3>JR PHEEF</h3><b>Opportunity engine</b><p class="muted">Discover opportunities, publish offers, connect participants and coordinate next steps.</p></div><div class="card"><h3>FAMILY</h3><b>Financial access</b><p class="muted">Separate financial-services layer. Wallet, lending and payments are not presented as active unless integrated and verified.</p></div></div></div>
+<div class="card" id="connectedArchitecture">
+<h2>INTELLIGENCE · COMMAND · OPERATIONS · CONTROL</h2>
+<p class="muted">One architecture across JR PHEEF, DGBO and FAMILY. Each environment keeps its own permissions and private data. These cards show the architecture target; component readiness is not claimed until separately implemented and tested.</p>
+<div id="ecosystemArchitectureStatus" class="muted" aria-live="polite">Loading your authorized ecosystem overview…</div>
+<div id="ecosystemArchitectureGrid" class="grid"></div>
+<div class="listing"><b>Shared safety rules</b><p class="muted">Default-deny access · explicit approval for consequential actions · audit trail · revocable permissions · succession and recovery plan.</p></div>
+<button class="dark" onclick="loadEcosystemArchitecture()">REFRESH ECOSYSTEM STATUS</button>
+</div>
 <div class="card"><h2>Coordinate a goal</h2><p class="muted">Describe what you want to achieve. JR PHEEF creates a practical checklist and links to existing platform actions. It does not itself fund, purchase, hire or contact providers.</p><textarea id="ecosystemGoal" maxlength="1200" placeholder="Example: I want to open a small supermarket in Nairobi."></textarea>
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
@@ -810,6 +818,7 @@ function show(id){
 
   if(id==="points") refresh();
   if(id==="home") refresh();
+  if(id==="ecosystem") loadEcosystemArchitecture();
   if(id==="library") loadLIBRARY($("librarySearch").value);
   if(id==="lab") loadMyExperiments();
   if(id==="jpconnect") loadConnections();
@@ -1060,6 +1069,42 @@ function runFutureSimulator(){
     "<div class='listing'><b>Base case · "+baseP+"%</b><br>Volume: "+base.volume.toLocaleString("en-KE",{maximumFractionDigits:1})+"<br>Net: "+money(base.net)+"</div>"+
     "<div class='listing'><b>Upside · "+upP+"%</b><br>Volume: "+up.volume.toLocaleString("en-KE",{maximumFractionDigits:1})+"<br>Net: "+money(up.net)+"</div>"+
     "<div class='listing'><b>Probability-weighted scenario value</b><br><span class='big'>"+money(expected)+"</span><p class='muted'>This weighted value depends entirely on the probabilities and assumptions you supplied. It is not a guaranteed or objectively established forecast.</p></div>";
+}
+
+async function loadEcosystemArchitecture(){
+  const status=$("ecosystemArchitectureStatus"), grid=$("ecosystemArchitectureGrid");
+  if(!status||!grid)return;
+  status.textContent="Checking your signed-in ecosystem access…";
+  try{
+    const data=await api("/api/ecosystem");
+    if(!data.ok){
+      status.textContent=data.error==="LOGIN_REQUIRED"?"Sign in to view your authorized ecosystem overview.":"Ecosystem status could not be loaded.";
+      grid.innerHTML="";
+      return;
+    }
+    const environments=[
+      {slug:"jr-pheef",name:"JR PHEEF",desc:"Coordinates approved people, services, tools and knowledge across the ecosystem."},
+      {slug:"dgbo",name:"DGBO",desc:"Owns business governance, organizational decisions and operating performance."},
+      {slug:"family",name:"FAMILY",desc:"Coordinates private family plans, goals and continuity; not a wallet or lender."}
+    ];
+    const components=[
+      ["Intelligence","Research, evidence, risk and opportunity analysis."],
+      ["Command Center","Strategic overview, priorities and authorized decisions."],
+      ["Control Room","Operational status, incidents, alerts and task monitoring."],
+      ["Control System","Permissions, approvals, policy enforcement and audit."]
+    ];
+    const ventures=Array.isArray(data.ventures)?data.ventures:[];
+    const esc=s=>escapeHtml(String(s??""));
+    status.textContent="Authorized overview loaded. Architecture readiness is shown as “Design baseline” until each component passes its own implementation tests.";
+    grid.innerHTML=environments.map(env=>{
+      const v=ventures.find(x=>String(x.slug).toLowerCase()===env.slug || String(x.name).toLowerCase()===env.name.toLowerCase());
+      const label=v?(v.status||"registered"):"integration status not independently verified";
+      return "<div class='card'><h3>"+esc(env.name)+"</h3><p class='muted'>"+esc(env.desc)+"</p><span class='badge'>Environment: "+esc(label)+"</span>"+components.map(pair=>"<div class='listing'><b>"+esc(pair[0])+"</b><p class='muted'>"+esc(pair[1])+"</p><span class='badge'>Design baseline</span></div>").join("")+"</div>";
+    }).join("");
+  }catch(e){
+    status.textContent="Could not load ecosystem status. Please try again.";
+    grid.innerHTML="";
+  }
 }
 
 function coordinateGoal(){
