@@ -1,0 +1,68 @@
+/* JR PHEEF Control Centre — visual layer only; no permissions or data behavior changed. */
+:root{
+  --cc-bg:#050b18;--cc-panel:#0a1730;--cc-panel-2:#0d2040;
+  --cc-line:rgba(112,177,255,.22);--cc-text:#edf6ff;--cc-muted:#9bb0ca;
+  --cc-accent:#43e5f5;--cc-green:#56e3ad;--cc-amber:#f5c66b;--cc-red:#ff7f91;
+}
+html{scroll-behavior:smooth}
+body{color:var(--cc-text);background:radial-gradient(ellipse at 50% -18%,rgba(24,103,198,.25),transparent 45%),linear-gradient(145deg,#030814,#07142a 55%,#030814)}
+header{min-height:68px;padding:12px clamp(14px,3vw,34px);background:rgba(3,9,22,.94);border-bottom:1px solid var(--cc-line)}
+header>div{min-width:0}
+.logo{letter-spacing:2px}
+main{width:min(100%,1480px);max-width:1480px;padding:clamp(12px,2vw,28px)}
+#app{min-width:0}
+#app>.nav,.nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px;margin:0 0 18px;border:1px solid var(--cc-line);border-radius:16px;background:rgba(4,13,29,.94);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.nav button{min-height:42px;padding:10px 13px;border-radius:10px;border:1px solid rgba(117,178,255,.2);background:#0b1d38;color:#d9eaff;font-size:11px;letter-spacing:.45px}
+.nav button:hover,.nav button:focus-visible{border-color:var(--cc-accent);background:#10294b}
+.nav .jp-nav-group>summary{min-height:42px;display:flex;align-items:center;border:1px solid var(--cc-line);background:#0c1e3b;color:#eff8ff}
+.nav .jp-nav-group .jp-nav-menu{z-index:45;border-color:var(--cc-line);background:#07152b}
+.page{min-width:0;animation:cc-enter .22s ease-out}
+.page> .card:first-child{margin-top:0}
+.card{min-width:0;padding:clamp(16px,2vw,25px);margin:12px 0;border-radius:18px;border:1px solid var(--cc-line);background:linear-gradient(145deg,rgba(10,27,55,.97),rgba(4,13,29,.98));box-shadow:0 12px 32px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.025)}
+.card h1,.card h2{letter-spacing:-.025em}
+.card h2{font-size:clamp(19px,2.1vw,27px)}
+.card h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#d6eaff}
+.muted{color:var(--cc-muted);line-height:1.6}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.big{font-variant-numeric:tabular-nums;color:var(--cc-accent);font-size:clamp(25px,3vw,34px)}
+.listing{border:1px solid var(--cc-line);background:rgba(3,13,29,.55);border-radius:13px}
+input,textarea,select{min-width:0;min-height:46px;border-radius:10px;border:1px solid rgba(117,178,255,.26);background:#061329;color:var(--cc-text);font-size:16px}
+textarea{resize:vertical}
+input::placeholder,textarea::placeholder{color:#7189a8}
+button{min-height:42px;border:1px solid rgba(117,178,255,.15);border-radius:10px;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+button.primary{background:linear-gradient(110deg,#087fc5,#11b9cb);color:#031321}
+button.dark{background:#102442;color:#e5f4ff;border:1px solid var(--cc-line)}
+button.danger{background:#4b1d32;border:1px solid rgba(255,127,145,.3)}
+button:disabled{cursor:not-allowed}
+.badge{border:1px solid var(--cc-line);color:#c9f8ff;background:rgba(12,43,70,.85)}
+.category-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.category-tile{background:linear-gradient(145deg,#0b2445,#07152a);border-color:var(--cc-line);color:#eaf5ff}
+#ecosystem .grid>.card,#family .grid>.card{margin:0;background:rgba(4,16,34,.8)}
+#connectedArchitecture{border-color:rgba(67,229,245,.34);background:linear-gradient(145deg,rgba(8,34,62,.98),rgba(4,14,30,.98))}
+#connectedArchitecture .listing{margin-top:16px}
+#ecosystemArchitectureGrid{align-items:stretch}
+#ecosystemArchitectureGrid>.card{height:100%}
+#universeHero{border-radius:20px}
+#auth{max-width:760px;margin:clamp(20px,5vw,64px) auto}
+#auth>.card{padding:clamp(20px,4vw,40px)}
+#auth h1{font-size:clamp(27px,5vw,44px)}
+#app .hidden,.hidden{display:none!important}
+@keyframes cc-enter{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:1000px){
+  .jp-dashboard-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #family .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  main{padding:12px}
+  #app>.nav,.nav{position:relative;top:auto;gap:6px;padding:9px}
+  .nav button{min-height:44px;max-width:100%;white-space:normal}
+  .grid,.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card{border-radius:15px}
+  #universeHero:after{opacity:.35}
+}
+@media(max-width:380px){
+  .grid,.category-grid{grid-template-columns:minmax(0,1fr)}
+  .jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jp-dash-tile{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.page{animation:none}button{transition:none}}
