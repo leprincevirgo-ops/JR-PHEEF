@@ -163,7 +163,6 @@ module.exports = function mountOpportunities(ctx) {
     }).select("id,review_status,created_at").single();
     if (error && error.code === "23505") return bad(res, "You have already reported this opportunity.", 409);
     if (error) throw error;
-    await db.from("jr_opportunities").update({ report_count: 1 }).eq("id", id).eq("report_count", 0);
     await logActivity(member.id, "OPPORTUNITY_REPORTED", { opportunity_id: id, reason });
     res.status(201).json({ ok: true, report: data, message: "Report submitted for review. Automated flags are not proof of wrongdoing." });
   }));
