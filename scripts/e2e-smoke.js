@@ -114,6 +114,8 @@ async function main() {
 
   for (const endpoint of [
     "/api/listings/mine",
+    "/api/opportunities",
+    "/api/opportunities/mine",
     "/api/deals",
     "/api/notifications",
     "/api/ecosystem",
