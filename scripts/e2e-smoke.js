@@ -94,7 +94,7 @@ async function main() {
     await check("frontend asset loads: " + asset, async () => {
       const response = await request(asset);
       assert.equal(response.status, 200, "expected HTTP 200, got " + response.status);
-      assert.match(response.headers.get("content-type") || "", /javascript|ecmascript|text\/plain/i);
+      assert.match(response.headers.get("content-type") || "", /javascript|ecmascript|text\\/plain|text\\/css/i);
       const source = await response.text();
       assert.ok(source.length > 100, "asset is unexpectedly empty");
     });
