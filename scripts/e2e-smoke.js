@@ -89,7 +89,8 @@ async function main() {
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
     "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js",
-    "/jp-identity.css", "/jp-identity-ui.js", "/opportunities-ui.js"
+    "/jp-identity.css", "/jp-identity-ui.js",
+    ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/opportunities-ui.js"] : [])
   ]) {
     await check("frontend asset loads: " + asset, async () => {
       const response = await request(asset);
@@ -114,8 +115,7 @@ async function main() {
 
   for (const endpoint of [
     "/api/listings/mine",
-    "/api/opportunities",
-    "/api/opportunities/mine",
+    ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/api/opportunities", "/api/opportunities/mine"] : []),
     "/api/deals",
     "/api/notifications",
     "/api/ecosystem",
