@@ -136,9 +136,10 @@ module.exports = function mountOpportunities(ctx) {
     if (String(opportunity.owner_user_id) === String(member.id)) return bad(res, "You cannot express interest in your own opportunity.");
     const message = clean(req.body && req.body.message).slice(0, 1500);
     if (contactBlocked(message)) return bad(res, "Do not include direct contact details. Use the Deal Room to connect.");
-    const { data, error } = await db.from("jr_opportunity_interests").upsert({
-      opportunity_id: id, member_id: member.id, message, status: "pending", updated_at: new Date().toISOString()
-    }, { onConflict: "opportunity_id,member_id" }).select("id,opportunity_id,member_id,message,status,created_at,updated_at").single();
+    const { data, error } = await db.from("jr_opportunity_interests").insert({
+      opportunity_id: id, member_id: member.id, message, status: "pending"
+    }).select("id,opportunity_id,member_id,message,status,created_at,updated_at").single();
+    if (error && error.code === "23505") return bad(res, "You have already expressed interest in this opportunity.", 409);
     if (error) throw error;
     await logActivity(member.id, "OPPORTUNITY_INTERESTED", { opportunity_id: id });
     res.status(201).json({ ok: true, interest: data, message: "Interest recorded. Continue through JR PHEEF's approved connection flow." });
