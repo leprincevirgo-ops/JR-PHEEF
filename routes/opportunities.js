@@ -21,7 +21,7 @@ module.exports = function mountOpportunities(ctx) {
     bad(res, "Too many requests. Please try again shortly.", 429);
     return true;
   };
-  const publicFields = "id,owner_user_id,title,description,opportunity_type,availability_status,audience_scope,country_code,location,eligible_regions,offer_details,requirements,commercial_terms,currency_code,deadline_at,publication_status,verification_status,published_at,expires_at,created_at,updated_at";
+  const publicFields = "id,title,description,opportunity_type,availability_status,audience_scope,country_code,location,eligible_regions,offer_details,requirements,commercial_terms,currency_code,deadline_at,publication_status,verification_status,published_at,expires_at,created_at,updated_at";
 
   app.get("/api/opportunities", wrap("Opportunity feed", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
@@ -142,6 +142,30 @@ module.exports = function mountOpportunities(ctx) {
     if (error) throw error;
     await logActivity(member.id, "OPPORTUNITY_INTERESTED", { opportunity_id: id });
     res.status(201).json({ ok: true, interest: data, message: "Interest recorded. Continue through JR PHEEF's approved connection flow." });
+  }));
+
+  app.post("/api/opportunities/:id/report", wrap("Opportunity report", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    if (rateLimited(req, res, "opportunity-report", 10, 60 * 60 * 1000)) return;
+    const id = clean(req.params.id);
+    if (!UUID.test(id)) return bad(res, "Opportunity not found.", 404);
+    const reason = clean(req.body && req.body.reason);
+    const details = clean(req.body && req.body.details).slice(0, 1500);
+    if (!["misleading","spam","impersonation","prohibited","contact_bypass","other"].includes(reason))
+      return bad(res, "Choose a valid report reason.");
+    const { data: opportunity, error: opError } = await db.from("jr_opportunities")
+      .select("id,owner_user_id").eq("id", id).maybeSingle();
+    if (opError) throw opError;
+    if (!opportunity || String(opportunity.owner_user_id) === String(member.id))
+      return bad(res, "Opportunity not found or cannot be reported.", 404);
+    const { data, error } = await db.from("jr_opportunity_reports").insert({
+      opportunity_id: id, reporter_member_id: member.id, reason, details
+    }).select("id,review_status,created_at").single();
+    if (error && error.code === "23505") return bad(res, "You have already reported this opportunity.", 409);
+    if (error) throw error;
+    await db.from("jr_opportunities").update({ report_count: 1 }).eq("id", id).eq("report_count", 0);
+    await logActivity(member.id, "OPPORTUNITY_REPORTED", { opportunity_id: id, reason });
+    res.status(201).json({ ok: true, report: data, message: "Report submitted for review. Automated flags are not proof of wrongdoing." });
   }));
 
   app.get("/api/opportunities/:id/interests", wrap("Opportunity interests", async (req, res) => {
