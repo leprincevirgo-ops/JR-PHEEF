@@ -1153,6 +1153,7 @@ require("./routes/family-bank")(routeCtx);
 require("./routes/jr")(routeCtx);
 /* CONTINUITY + BUSINESS OPERATING PLANS */
 require("./routes/operations")(routeCtx);
+require("./routes/opportunities")(routeCtx);
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {

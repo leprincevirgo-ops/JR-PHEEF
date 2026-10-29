@@ -24,6 +24,7 @@ scripts.forEach((match, index) => {
 const required = [
   'id="assistant"',
   'id="jpconnect"',
+  'id="opportunities"',
   'id="social"',
   'id="economy"',
   'id="vault"',
@@ -47,6 +48,11 @@ for (const marker of required) {
 }
 // Functions in external assets must be checked in the asset, not in HTML.
 const requiredAssetMarkers = {
+  "public/opportunities-ui.js": [
+    "window.postOpportunity",
+    "window.loadOpportunities",
+    "/api/opportunities"
+  ],
   "public/family-ui.js": [
     "window.createFamilyGoal",
     "window.submitFamilyRequest",
