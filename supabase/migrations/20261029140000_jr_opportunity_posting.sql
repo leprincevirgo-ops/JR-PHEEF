@@ -49,6 +49,25 @@ create table if not exists public.jr_opportunity_interests (
   updated_at timestamptz not null default now(),
   unique (opportunity_id, member_id)
 );
+create table if not exists public.jr_opportunity_reports (
+  id uuid primary key default gen_random_uuid(),
+  opportunity_id uuid not null references public.jr_opportunities(id) on delete cascade,
+  reporter_member_id uuid not null references public.members(id) on delete cascade,
+  reason text not null check (reason in ('misleading','spam','impersonation','prohibited','contact_bypass','other')),
+  details text not null default '' check (char_length(details) <= 1500),
+  review_status text not null default 'pending' check (review_status in ('pending','reviewing','actioned','dismissed')),
+  reviewed_by uuid references public.members(id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (opportunity_id, reporter_member_id)
+);
+create index if not exists jr_opportunity_reports_review_idx
+  on public.jr_opportunity_reports (review_status, created_at);
+
+alter table public.jr_opportunity_reports enable row level security;
+revoke all on public.jr_opportunity_reports from anon, authenticated;
+grant all on public.jr_opportunity_reports to service_role;
+
 create index if not exists jr_opportunity_interests_member_idx
   on public.jr_opportunity_interests (member_id, created_at desc);
 create index if not exists jr_opportunity_interests_opportunity_idx
