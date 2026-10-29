@@ -238,6 +238,7 @@ placeholder="Password">
 <button onclick="show('library')">LIBRARY</button>
 <button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
+<button onclick="show('opportunities');loadOpportunities()">POST OPPORTUNITY</button>
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
@@ -534,6 +535,35 @@ placeholder="Password">
     <div id="libraryItems" aria-live="polite"><p class="muted">Loading your knowledge library…</p></div>
     <p class="muted">Knowledge notes are stored in JR PHEEF's database. Starter articles are internally reviewed guidance, not externally source-verified research. New sources can be added and reviewed as the LIBRARY grows.</p>
   </div>
+</div>
+
+<div id="opportunities" class="page hidden">
+<div class="card">
+<h2>POST AN OPPORTUNITY</h2>
+<p class="muted">Publish an existing business opportunity. Listings are unverified unless a specific verification check is completed.</p>
+<label for="opTitle">Opportunity title</label><input id="opTitle" maxlength="140" placeholder="Example: Seeking distribution partner for available products">
+<label for="opDescription">Description</label><textarea id="opDescription" maxlength="5000" placeholder="Describe what is available, the value, and important details (10–5000 characters)."></textarea>
+<div class="grid">
+<div><label for="opAvailability">Availability</label><select id="opAvailability"><option value="available_now" selected>Available now</option><option value="coming_soon">Coming soon</option><option value="seeking_interest">Seeking interested people first</option><option value="recurring">Recurring opportunity</option></select></div>
+<div><label for="opAudience">Audience</label><select id="opAudience"><option value="local_and_international" selected>Local and international</option><option value="local">Local</option><option value="national">National</option><option value="international">International</option><option value="remote">Remote or online</option></select></div>
+</div>
+<div class="grid">
+<div><label for="opCountry">Country code (optional)</label><input id="opCountry" maxlength="2" placeholder="KE"></div>
+<div><label for="opLocation">Location (optional)</label><input id="opLocation" maxlength="180" placeholder="City, region or general area"></div>
+</div>
+<label for="opRegions">Eligible countries (optional, comma-separated ISO codes)</label><input id="opRegions" placeholder="KE, UG, GB">
+<label for="opOffer">What is offered?</label><textarea id="opOffer" maxlength="2000" placeholder="Products, resources, access, expertise or assets available"></textarea>
+<label for="opRequirements">What is needed?</label><textarea id="opRequirements" maxlength="2000" placeholder="Skills, partners, buyers, suppliers, resources or qualifications"></textarea>
+<label for="opTerms">Commercial terms (optional)</label><textarea id="opTerms" maxlength="2000" placeholder="Budget, price, currency or terms to negotiate"></textarea>
+<div class="grid">
+<div><label for="opCurrency">Currency code (optional)</label><input id="opCurrency" maxlength="3" placeholder="KES"></div>
+<div><label for="opDeadline">Deadline (optional)</label><input id="opDeadline" type="datetime-local"></div>
+</div>
+<button class="primary" onclick="postOpportunity()">PUBLISH OPPORTUNITY</button>
+<p id="opPostMessage" aria-live="polite"></p>
+</div>
+<div class="card"><h2>OPPORTUNITIES AVAILABLE NOW</h2><button onclick="loadOpportunities()">REFRESH</button><div id="opportunityFeed" aria-live="polite"></div></div>
+<div class="card"><h2>MY OPPORTUNITIES</h2><button onclick="loadMyOpportunities()">MY POSTS</button><div id="myOpportunityFeed" aria-live="polite"></div></div>
 </div>
 
 <div id="find" class="page hidden">
@@ -1449,6 +1479,7 @@ async function jrTeacherAsk(){
 <script src="/jr-ui.js"></script>
 <script src="/continuity-ui.js"></script>
 <script src="/jp-identity-ui.js"></script>
+<script src="/opportunities-ui.js"></script>
 
 </body>
 </html>
