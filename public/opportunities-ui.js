@@ -86,6 +86,20 @@
       window.alert(d.message || "Interest recorded.");
     } catch(e) { window.alert(e.message); }
   };
+  window.reportOpportunity = async function (id) {
+    const reason=window.prompt("Report reason: misleading, spam, impersonation, prohibited, contact_bypass, or other");
+    if(!reason) return;
+    const allowed=["misleading","spam","impersonation","prohibited","contact_bypass","other"];
+    const normalized=reason.trim().toLowerCase();
+    if(!allowed.includes(normalized)){window.alert("Choose one of the listed report reasons.");return;}
+    const details=window.prompt("Optional details (do not include private information):")||"";
+    try {
+      const d=await api("/api/opportunities/"+encodeURIComponent(id)+"/report",{
+        method:"POST",body:JSON.stringify({reason:normalized,details})
+      });
+      window.alert(d.message || "Report submitted for review.");
+    } catch(e) { window.alert(e.message); }
+  };
   window.closeOpportunity = async function (id) {
     if(!window.confirm("Close this opportunity? It will no longer appear in the active feed.")) return;
     try {
