@@ -2,7 +2,7 @@
 module.exports = function mountMessages({ app, db, requireMember, checkRequestRate, clean }) {
   const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const fail=(res,error,status=400)=>res.status(status).json({ok:false,error});
-  const wrap=(fn)=>async(req,res)=>{try{await fn(req,res);}catch(e){console.error("JR Connect:",clean(e?.message).slice(0,180));if(!res.headersSent)fail(res,"Messaging is temporarily unavailable.",500);}};
+  const wrap=(fn)=>async(req,res)=>{try{await fn(req,res);}catch(e){console.error("JR Connect:",clean(e?.message||"request error").slice(0,180));if(!res.headersSent)fail(res,"Messaging is temporarily unavailable.",500);}};
   async function member(req,res){return await requireMember(req,res);}
   async function conversation(id,userId){
     if(!UUID.test(id))return null;
@@ -11,6 +11,37 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data,error:e}=await db.from("jr_conversations").select("id,title,is_group,updated_at,created_at").eq("id",id).maybeSingle();
     if(e)throw e;return data||null;
   }
+  // Authenticated server-sent updates. Browser clients never receive database credentials.
+  app.get("/api/messages/stream",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    res.setHeader("Content-Type","text/event-stream; charset=utf-8");
+    res.setHeader("Cache-Control","no-cache, no-transform");
+    res.setHeader("Connection","keep-alive");
+    res.flushHeaders?.();
+    let closed=false,last="",busy=false;
+    const send=(event,data)=>{if(!closed&&!res.writableEnded)res.write("event: "+event+"\ndata: "+JSON.stringify(data)+"\n\n");};
+    const tick=async()=>{
+      if(closed||busy)return;busy=true;
+      try{
+        const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id").eq("member_id",m.id).limit(200);
+        if(error)throw error;
+        const ids=(parts||[]).map(x=>x.conversation_id);
+        if(!ids.length){if(last!=="none"){last="none";send("refresh",{reason:"conversations"});}return;}
+        const {data:rooms,error:e}=await db.from("jr_conversations").select("id,updated_at").in("id",ids).order("updated_at",{ascending:false}).limit(200);
+        if(e)throw e;
+        const stamp=(rooms||[]).map(x=>x.id+":"+x.updated_at).join("|");
+        if(last&&stamp!==last)send("refresh",{reason:"messages"});
+        last=stamp;
+      }catch(e){console.error("JR Connect stream:",clean(e?.message||"stream error").slice(0,160));}
+      finally{busy=false;}
+    };
+    send("ready",{ok:true});await tick();
+    const timer=setInterval(tick,5000);
+    const heartbeat=setInterval(()=>send("ping",{at:Date.now()}),20000);
+    // IncomingMessage "close" can fire after the request body is consumed; only
+    // the response close event reliably indicates that the SSE client disconnected.
+    res.on("close",()=>{closed=true;clearInterval(timer);clearInterval(heartbeat);});
+  }));
   app.get("/api/messages/conversations",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id,last_read_at").eq("member_id",m.id).limit(200);
@@ -31,7 +62,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-create",20,3600000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"Too many new conversations. Try again later.",429);}
     const raw=Array.isArray(req.body.member_jp_numbers)?req.body.member_jp_numbers:[req.body.member_jp_number];
-    const numbers=[...new Set(raw.map(x=>clean(x).toUpperCase()).filter(Boolean))].slice(0,30);
+    const numbers=[...new Set(raw.map(x=>clean(typeof x==="string"?x:"").toUpperCase()).filter(Boolean))].slice(0,30);
     if(!numbers.length)return fail(res,"Enter at least one member JP number.");
     const {data:found,error}=await db.from("members").select("id,jp_number,status").in("jp_number",numbers);
     if(error)throw error;
@@ -46,7 +77,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
       }
     }
     const isGroup=recipients.length>1;
-    const title=clean(req.body.title).slice(0,80);
+    const title=clean(req.body.title||"").slice(0,80);
     if(isGroup&&!title)return fail(res,"Give your group a name.");
     const {data:room,error:ce}=await db.from("jr_conversations").insert({created_by:m.id,title:isGroup?title:null,is_group:isGroup}).select("id,title,is_group,updated_at").single();
     if(ce)throw ce;
@@ -72,7 +103,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-send",60,60000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"You're sending messages too quickly.",429);}
     const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
-    const body=clean(req.body.body);if(!body||body.length>4000)return fail(res,"Messages must contain 1–4000 characters.");
+    const body=clean(typeof req.body.body==="string"?req.body.body:"");if(!body||body.length>4000)return fail(res,"Messages must contain 1–4000 characters.");
     const {data:parts,error:pe}=await db.from("jr_conversation_participants").select("member_id").eq("conversation_id",room.id);if(pe)throw pe;
     const ids=(parts||[]).map(x=>x.member_id).filter(id=>String(id)!==String(m.id));
     if(!ids.length)return fail(res,"There are no other participants in this conversation.",409);
