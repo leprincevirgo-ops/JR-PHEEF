@@ -91,7 +91,7 @@ async function main() {
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
     "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js",
-    "/jp-identity.css", "/jp-identity-ui.js", "/themes.css", "/themes.js",
+    "/jp-identity.css", "/jp-identity-ui.js", "/themes.css", "/themes.js", "/apphub.css", "/apphub-ui.js",
     ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/opportunities-ui.js"] : [])
   ]) {
     await check("frontend asset loads: " + asset, async () => {
