@@ -153,6 +153,25 @@ This is a consolidated record of relevant decisions, not a verbatim export or mo
 - “End-to-end verified” means the complete user journey was exercised against the deployed system, including relevant authorization boundaries.
 - “Market ready” requires all release gates, security/privacy/legal/support/operational checks and real-world acceptance. Do not use this label prematurely.
 
-## 11. Conversation continuity
+## 11. Public anonymity and founder privacy
+
+The creator's public identity must remain pseudonymous, following the model of a creator known by a pseudonym. Do not publish a legal name, personal contact details, photographs, date of birth, public founder biography or personal social profiles. JP-01 is a protected internal identifier and must not be exposed as a public founder lookup. Private legal ownership, recovery and succession evidence must remain restricted, encrypted, least-privilege and audited. See `docs/PUBLIC-ANONYMITY-AND-FOUNDER-PRIVACY.md`. Provider-level metadata such as source-control account handles, repository ownership, commits, domains and billing may remain externally visible; absolute anonymity must not be claimed until those surfaces are reviewed and any approved migration is completed.
+
+## 12. Navigation decision
+
+Back and forward are global history controls, not destination tabs. They belong in the application header, adjacent to the JR PHEEF brand/account controls. The navigation area is reserved for destinations and must not contain duplicate history arrows or duplicate Appearance destinations. Appearance is reached from the single Settings hub. The browser, if enabled, is a tool destination and must not masquerade as back/forward navigation.
+
+## 13. Conversation continuity
 
 Use this document as the canonical project journey in future JR PHEEF conversations. Append dated decisions and verified changes rather than silently rewriting history. Do not claim that the assistant can edit or merge old chat transcripts; the original chats remain unchanged. This record carries their relevant decisions forward into the engineering project.
+
+
+## 14. Pull-request consolidation (2026-10-30)
+
+- PR #20 closed as superseded: auth preferences and migration are already in main and applied; Face Unlock remains disabled pending a proper passkey implementation.
+- PR #24 closed as superseded: theme and Settings system already exists on main.
+- PR #10 closed as superseded: UI add-on files and asset checks already exist on main.
+- PR #9 closed as superseded: command-centre dashboard work was previously incorporated.
+- PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
+- PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
+- PR #1 and #4 remain under review for unique, non-duplicated requirements; do not merge wholesale.
