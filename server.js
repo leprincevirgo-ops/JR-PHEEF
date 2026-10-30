@@ -87,7 +87,7 @@ function phoneVariants(v) {
 }
 
 const MEMBER_FIELDS = [
-  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme",
+  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme", "profile_photo",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
   "show_location", "verified", "status", "plan", "referral_code", "created_at"
 ];
@@ -610,6 +610,56 @@ app.patch("/api/lab/experiments/:id", async (req, res) => {
   }
 });
 
+
+/* MEMBER PROFILE PHOTO — authenticated upload to the existing public media bucket. */
+app.post("/api/profile/photo", authenticateMemberBeforeUpload, upload.single("photo"), async (req, res) => {
+  let uploadedPath = null;
+  try {
+    const member = req.jrMember;
+    const file = req.file;
+    if (!file) return res.status(400).json({ ok: false, error: "Choose a profile photo first." });
+    const extensions = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+    const ext = extensions[file.mimetype];
+    if (!ext || file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ ok: false, error: "Use a JPG, PNG or WebP image up to 5 MB." });
+    }
+    const b = file.buffer;
+    const validImage =
+      (ext === "jpg" && b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) ||
+      (ext === "png" && b.length > 8 && b.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) ||
+      (ext === "webp" && b.length > 12 && b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP");
+    if (!validImage) return res.status(400).json({ ok: false, error: "The uploaded file is not a valid image." });
+
+    uploadedPath = "profile-photos/" + member.id + "/" + crypto.randomUUID() + "." + ext;
+    const bucket = db.storage.from("jr-pheef-media");
+    const { error: uploadError } = await bucket.upload(uploadedPath, b, {
+      contentType: file.mimetype, upsert: false, cacheControl: "3600"
+    });
+    if (uploadError) throw uploadError;
+    const { data: publicData } = bucket.getPublicUrl(uploadedPath);
+    const photoUrl = publicData.publicUrl;
+    const { data: updated, error: updateError } = await db.from("members")
+      .update({ profile_photo: photoUrl }).eq("id", member.id).select("*").single();
+    if (updateError) throw updateError;
+
+    // Remove only a previous profile image owned by this same member.
+    const oldUrl = clean(member.profile_photo || member.avatar_url);
+    const bucketMarker = "/storage/v1/object/public/jr-pheef-media/";
+    const oldAt = oldUrl.indexOf(bucketMarker);
+    if (oldAt >= 0) {
+      const oldPath = decodeURIComponent(oldUrl.slice(oldAt + bucketMarker.length));
+      if (oldPath.startsWith("profile-photos/" + member.id + "/") && oldPath !== uploadedPath) {
+        await bucket.remove([oldPath]).catch(() => {});
+      }
+    }
+    await logActivity(member.id, "PROFILE_PHOTO_UPDATED");
+    return res.json({ ok: true, member: safeMember(updated), profile_photo: photoUrl });
+  } catch (e) {
+    if (uploadedPath) await db.storage.from("jr-pheef-media").remove([uploadedPath]).catch(() => {});
+    console.error("Profile photo upload:", e.message);
+    if (!res.headersSent) return res.status(500).json({ ok: false, error: "Profile photo could not be saved. Please try again." });
+  }
+});
 
 /* PROFILE */
 app.put("/api/profile", async (req, res) => {
