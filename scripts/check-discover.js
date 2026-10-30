@@ -1,0 +1,11 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const js=fs.readFileSync("public/discover-ui.js","utf8");
+const css=fs.readFileSync("public/discover.css","utf8");
+for(const marker of ['href="/discover.css"','src="/discover-ui.js"'])assert.ok(html.includes(marker),"Discover asset missing: "+marker);
+for(const marker of ["Entertainment","Photography","Business & Finance","Scientific Research","Data & Analytics","Development Tools","Small Business","Business & Operations","Music / Video","images","videos","shopping","maps","noopener noreferrer","localStorage","Saved subjects"])assert.ok(js.includes(marker),"Discover feature missing: "+marker);
+assert.ok(js.includes('id="discover"'),"Discover page mount missing");
+assert.ok(css.includes(".jp-discover-grid"),"Discover category grid styles missing");
+console.log("PASS: universal Discover categories, external result types, saved subjects and UI assets.");
