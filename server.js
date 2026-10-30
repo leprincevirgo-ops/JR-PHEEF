@@ -310,6 +310,19 @@ app.post("/api/login", async (req, res) => {
     if (["blocked", "suspended", "disabled"].includes(String(member.status || "").toLowerCase()))
       return res.status(403).json({ ok: false, error: "This account is restricted." });
 
+    // Phone sign-in can be disabled without deleting the member's contact number.
+    // Email sign-in remains available as the SIM-independent fallback.
+    if (!identifier.includes("@")) {
+      const { data: authPrefs, error: prefsError } = await db
+        .from("member_authentication_preferences")
+        .select("phone_login_enabled")
+        .eq("member_id", member.id)
+        .maybeSingle();
+      if (prefsError) throw prefsError;
+      if (authPrefs && authPrefs.phone_login_enabled === false)
+        return res.status(403).json({ ok: false, error: "Phone sign-in is turned off for this account. Sign in with your verified email address instead." });
+    }
+
     const token = crypto.randomBytes(48).toString("hex");
     const { error } = await db.from("sessions").insert({
       member_id: String(member.id), token_hash: hash(token),
@@ -356,6 +369,49 @@ app.get("/api/me", async (req, res) => {
     res.json({ ok: true, logged_in: !!member, ...(member ? { member: safeMember(member) } : {}) });
   } catch {
     res.status(500).json({ ok: false, error: "Could not restore session." });
+  }
+});
+
+/* PRIVATE SIGN-IN PREFERENCES — accessible only to the authenticated member. */
+app.get("/api/auth/preferences", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    const { data, error } = await db.from("member_authentication_preferences")
+      .select("phone_login_enabled,face_unlock_enabled,updated_at")
+      .eq("member_id", member.id).maybeSingle();
+    if (error) throw error;
+    res.setHeader("Cache-Control", "no-store");
+    return res.json({ ok: true, preferences: {
+      phone_login_enabled: data?.phone_login_enabled ?? true,
+      face_unlock_enabled: data?.face_unlock_enabled ?? false,
+      face_unlock_available: false
+    }});
+  } catch (e) {
+    console.error("Read auth preferences:", e.message);
+    if (!res.headersSent) return res.status(500).json({ ok: false, error: "Sign-in settings could not be loaded." });
+  }
+});
+
+app.put("/api/auth/preferences", async (req, res) => {
+  try {
+    const member = await requireMember(req, res);
+    if (!member) return;
+    if (typeof req.body.phone_login_enabled !== "boolean")
+      return res.status(400).json({ ok: false, error: "Choose whether phone-number sign-in is enabled." });
+    // Face Unlock is not advertised as active until WebAuthn registration,
+    // challenge verification, recovery and device-removal flows are complete.
+    if (req.body.face_unlock_enabled === true)
+      return res.status(409).json({ ok: false, error: "Face Unlock is not available yet. Your device's biometric data is never stored by JR PHEEF." });
+    const { data, error } = await db.from("member_authentication_preferences")
+      .upsert({ member_id: member.id, phone_login_enabled: req.body.phone_login_enabled, face_unlock_enabled: false, updated_at: new Date().toISOString() }, { onConflict: "member_id" })
+      .select("phone_login_enabled,face_unlock_enabled").single();
+    if (error) throw error;
+    await logActivity(member.id, "AUTH_PREFERENCES_UPDATED", { phone_login_enabled: data.phone_login_enabled });
+    return res.json({ ok: true, preferences: { ...data, face_unlock_available: false } });
+  } catch (e) {
+    console.error("Update auth preferences:", e.message);
+    if (!res.headersSent) return res.status(500).json({ ok: false, error: "Sign-in settings could not be saved." });
   }
 });
 
