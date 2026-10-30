@@ -100,3 +100,17 @@ body.jp-theme-active .page>.card,body.jp-theme-active .jp-theme-page>.card{trans
 #app>.nav button[aria-label="Open JR PHEEF settings"]{border-color:var(--jp-theme-accent);background:linear-gradient(135deg,rgba(27,68,101,.98),rgba(14,31,57,.98))}
 @media(max-width:850px){.jp-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.jp-settings-grid{grid-template-columns:1fr}.jp-settings-card{min-height:170px;padding:18px}}
+
+/* In-app navigation and member profile photos */
+.jp-nav-arrow{min-width:42px!important;width:42px;height:40px;padding:0!important;font-size:21px!important;font-weight:800;border-radius:12px!important}
+.jp-nav-arrow:disabled{opacity:.32;cursor:not-allowed;filter:saturate(.3)}
+.jp-profile-card{overflow:hidden}
+.jp-profile-photo-row{display:flex;align-items:center;gap:18px;padding:12px 0 22px;margin-bottom:18px;border-bottom:1px solid var(--jp-theme-border)}
+.jp-profile-photo{width:112px;height:112px;flex:0 0 112px;border-radius:50%;object-fit:cover;border:3px solid var(--jp-theme-accent);background:#10243b;box-shadow:0 8px 25px rgba(0,0,0,.3)}
+.jp-profile-photo-fallback{display:grid;place-items:center;color:var(--jp-theme-accent);font-size:30px;font-weight:900;letter-spacing:2px}
+.jp-profile-photo-actions{min-width:0}
+.jp-profile-photo-actions strong{font-size:16px}
+.jp-profile-photo-actions .muted{font-size:12px}
+.jp-profile-photo-actions input[type=file]{display:block;max-width:100%;margin:8px 0}
+.jp-profile-photo-actions button{margin-top:4px}
+@media(max-width:520px){.jp-profile-photo-row{align-items:flex-start;gap:12px}.jp-profile-photo{width:82px;height:82px;flex-basis:82px}.jp-nav-arrow{min-width:36px!important;width:36px;height:36px}}
