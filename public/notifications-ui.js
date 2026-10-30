@@ -39,7 +39,7 @@ function mount(){
  const header=document.querySelector("body > header"),actions=document.querySelector(".jp-command-header-actions");
  if(!header||$("jpNotificationPanel"))return;
  const host=actions||header;
- button=el("button","jp-notification-bell","♧");button.type="button";button.title="Notifications";button.setAttribute("aria-label","Open notifications");button.setAttribute("aria-expanded","false");
+ button=el("button","jp-notification-bell","♧");button.type="button";button.title="Notifications";button.setAttribute("aria-label","Open notifications");button.setAttribute("aria-controls","jpNotificationPanel");button.setAttribute("aria-expanded","false");button.classList.add("hidden");
  badge=el("span","jp-notification-badge","0");badge.hidden=true;button.append(badge);button.addEventListener("click",()=>panel.hidden?open():close());host.append(button);
  panel=el("section","jp-notification-panel");panel.id="jpNotificationPanel";panel.hidden=true;panel.setAttribute("aria-label","JR PHEEF notifications");
  const head=el("div","jp-notification-head");const title=el("div","");title.append(el("div","jp-kicker","JR PHEEF CONNECTED ACTIVITY"),el("h2","","Notifications"));
@@ -50,13 +50,13 @@ function mount(){
  document.addEventListener("click",e=>{if(!panel.hidden&&!panel.contains(e.target)&&!button.contains(e.target))close()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden)close()});
  const old=window.openApp;
- if(typeof old==="function"&&!old.__jrNotificationsWrapped){const wrapped=async function(){const r=await old.apply(this,arguments);window.jrNotificationsReady=true;await fetchAlerts(false);return r};wrapped.__jrNotificationsWrapped=true;window.openApp=wrapped;}
+ if(typeof old==="function"&&!old.__jrNotificationsWrapped){const wrapped=async function(){const r=await old.apply(this,arguments);window.jrNotificationsReady=true;button.classList.remove("hidden");await fetchAlerts(false);return r};wrapped.__jrNotificationsWrapped=true;window.openApp=wrapped;}
  const oldLogout=window.logout;
- if(typeof oldLogout==="function"&&!oldLogout.__jrNotificationsLogoutWrapped){const wrapped=async function(){window.jrNotificationsReady=false;close();return oldLogout.apply(this,arguments)};wrapped.__jrNotificationsLogoutWrapped=true;window.logout=wrapped;}
+ if(typeof oldLogout==="function"&&!oldLogout.__jrNotificationsLogoutWrapped){const wrapped=async function(){window.jrNotificationsReady=false;button.classList.add("hidden");close();return oldLogout.apply(this,arguments)};wrapped.__jrNotificationsLogoutWrapped=true;window.logout=wrapped;}
  window.addEventListener("focus",()=>{if(window.jrNotificationsReady)fetchAlerts(true)});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&window.jrNotificationsReady)fetchAlerts(true)});
  timer=setInterval(()=>{if(window.jrNotificationsReady&&!document.hidden)fetchAlerts(true)},45000);
- if(document.querySelector("#app:not(.hidden)")){window.jrNotificationsReady=true;fetchAlerts(false)}
+ if(document.querySelector("#app:not(.hidden)")){window.jrNotificationsReady=true;button.classList.remove("hidden");fetchAlerts(false)}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 })();
