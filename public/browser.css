@@ -1,0 +1,7 @@
+/* JR PHEEF Browser module */
+.jp-browser-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.jp-browser-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.jp-browser-frame{display:block;width:100%;height:min(68vh,760px);border:1px solid var(--jp-theme-border);border-radius:14px;background:#fff}
+.jp-browser-status{font-size:12px;color:#9bb7cc}
+.jp-browser-note{font-size:11px;color:#8faac4;line-height:1.6}
+@media(max-width:620px){.jp-browser-toolbar{grid-template-columns:1fr 1fr}.jp-browser-toolbar input{grid-column:1/-1}.jp-browser-frame{height:62vh}.jp-browser-toolbar button{min-height:44px}}
