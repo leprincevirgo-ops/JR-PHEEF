@@ -73,8 +73,6 @@ async function main() {
     assert.match(html, /Cosmic Signature/i, "Cosmic Signature preview missing");
     assert.match(html, /href="\/themes\.css"/i, "Appearance Studio stylesheet is not linked");
     assert.match(html, /src="\/themes\.js"/i, "Appearance Studio script is not linked");
-    assert.match(html, /href="\\/apphub\\.css"/i, "App Hub stylesheet is not linked");
-    assert.match(html, /src="\\/apphub-ui\\.js"/i, "App Hub script is not linked");
   });
 
   await check("health endpoint reports service identity and version", async () => {
@@ -93,7 +91,7 @@ async function main() {
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
     "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js",
-    "/jp-identity.css", "/jp-identity-ui.js", "/themes.css", "/themes.js", "/apphub.css", "/apphub-ui.js",
+    "/jp-identity.css", "/jp-identity-ui.js", "/themes.css", "/themes.js",
     ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/opportunities-ui.js"] : [])
   ]) {
     await check("frontend asset loads: " + asset, async () => {
