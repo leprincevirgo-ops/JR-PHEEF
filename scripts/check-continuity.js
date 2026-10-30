@@ -1,0 +1,11 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const ui=fs.readFileSync("public/continuity-ui.js","utf8");
+const routes=fs.readFileSync("routes/operations.js","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+assert.ok(ui.includes('fetch("/api/me"')&&ui.includes("memberId"),"continuity must resolve authenticated member identity");
+assert.ok(!ui.includes("window.me"),"continuity must not rely on a non-exported lexical member variable");
+for(const id of ["discover","explore","apphub","browser","messages"])assert.ok(routes.includes('"'+id+'"'),"continuity page allowlist missing "+id);
+assert.ok(ui.includes('"/api/continuity"')&&ui.includes("window.addEventListener(\"pagehide\""),"continuity read/write and local fallback missing");
+assert.ok(html.includes("/continuity-ui.js"),"continuity UI must be loaded");
+console.log("JR PHEEF cross-device continuity identity checks passed.");
