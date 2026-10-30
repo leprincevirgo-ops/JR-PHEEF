@@ -89,7 +89,7 @@ settings.innerHTML=`
  <article class="card jp-settings-card"><span class="jp-settings-icon">🛡️</span><h2>Privacy & data</h2><p class="jp-theme-note">Understand what stays in this browser, what is stored in your account and which local data you can clear.</p><button class="primary" type="button" data-settings-go="jrprivacy">OPEN PRIVACY CENTRE</button></article>
  <article class="card jp-settings-card"><span class="jp-settings-icon">❔</span><h2>Help & support</h2><p class="jp-theme-note">Read quick answers and copy a diagnostic summary when reporting a problem.</p><button class="primary" type="button" data-settings-go="jrhelp">OPEN HELP CENTRE</button></article>
 </div>`;
-settings.addEventListener("click",e=>{const b=e.target.closest("[data-settings-go]");if(!b)return;const target=b.dataset.settingsGo;window.show(target);if(b.dataset.settingsFocus==="security"){setTimeout(()=>{const panel=document.querySelector("#profile h2:nth-of-type(2)");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});},80);}});
+app.addEventListener("click",e=>{const b=e.target.closest("[data-settings-go]");if(!b)return;const target=b.dataset.settingsGo;window.show(target);if(b.dataset.settingsFocus==="security"){setTimeout(()=>{const panel=document.querySelector("#profile h2:nth-of-type(2)");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});},80);}});
 app.appendChild(settings);
 addSettingsUtilityPages(app);
 }
