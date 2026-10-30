@@ -16,3 +16,7 @@
 @media(max-width:800px){.jp-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.jp-explore-hero{grid-template-columns:1fr}.jp-explore-orbit{width:120px;margin:auto}.jp-explore-grid{grid-template-columns:1fr}.jp-explore-card img{height:205px}.jp-explore-search{grid-template-columns:1fr}.jp-explore-search label{grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.jp-explore-card{scroll-behavior:auto}}
+
+/* Explore-to-Appearance integration */
+.jp-explore-card .jp-explore-wallpaper{width:100%;margin:8px 0 0;border:1px solid var(--jp-theme-border);background:rgba(7,31,54,.92);color:#dffaff;font-size:11px;letter-spacing:.4px}
+.jp-explore-card .jp-explore-wallpaper:hover,.jp-explore-card .jp-explore-wallpaper:focus-visible{border-color:var(--jp-theme-accent);outline:2px solid var(--jp-theme-accent-soft)}
