@@ -728,6 +728,20 @@ SAVE PROFILE
 <p id="profileMsg"></p>
 </div>
 
+<div class="card">
+<h2>SECURITY & SIGN-IN</h2>
+<p class="muted">Control which sign-in methods are available for this account. Your saved phone contact is never deleted by changing this setting.</p>
+<label style="display:flex;gap:10px;align-items:center"><input id="phoneLoginEnabled" type="checkbox" style="width:auto"> Allow sign-in with phone number</label>
+<p class="muted">If disabled, use your verified email address and password. Keep your email current to retain access without a SIM card.</p>
+<div class="listing">
+  <b>Face Unlock</b>
+  <p class="muted">Not available yet. JR PHEEF does not collect or store facial images, face templates, or biometric data. Device passkeys may use face, fingerprint or device PIN depending on your device.</p>
+  <button class="dark" disabled>FACE UNLOCK — COMING LATER</button>
+</div>
+<button class="primary" onclick="saveAuthPreferences()">SAVE SIGN-IN SETTINGS</button>
+<p id="authPreferencesMsg" aria-live="polite"></p>
+</div>
+
 </div>
 
 
@@ -888,6 +902,7 @@ function show(id){
   if(id==="social") loadSocialPosts();
   if(id==="vault") loadVaultFiles();
   if(id==="devices") loadDevices();
+  if(id==="profile") loadAuthPreferences();
 }
 
 async function api(url,options={}){
@@ -1267,6 +1282,33 @@ async function requestFlex(){
 
   $("flexMsg").textContent=
     data.message||data.error;
+}
+
+async function loadAuthPreferences(){
+  const status=$("authPreferencesMsg");
+  try{
+    const d=await api("/api/auth/preferences");
+    if(!d.ok){status.textContent=d.error||"Could not load sign-in settings.";return;}
+    $("phoneLoginEnabled").checked=d.preferences.phone_login_enabled;
+    status.textContent="";
+  }catch(e){status.textContent="Could not load sign-in settings. Please retry.";}
+}
+
+async function saveAuthPreferences(){
+  const status=$("authPreferencesMsg");
+  const button=document.querySelector('#profile button.primary');
+  status.textContent="Saving sign-in settings…";
+  try{
+    const d=await api("/api/auth/preferences",{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({phone_login_enabled:$("phoneLoginEnabled").checked,face_unlock_enabled:false})
+    });
+    status.textContent=d.ok
+      ? "Sign-in settings saved. Your phone contact details remain unchanged."
+      : (d.error||"Could not save sign-in settings.");
+    if(d.ok)$("phoneLoginEnabled").checked=d.preferences.phone_login_enabled;
+  }catch(e){status.textContent="Could not save sign-in settings. Please retry.";}
 }
 
 async function saveProfile(){
