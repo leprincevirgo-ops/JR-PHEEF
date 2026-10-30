@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --check server.js && node scripts/check-route-files.js && node scripts/check-inline-scripts.js && node --check public/jp-identity-ui.js && node --check public/opportunities-ui.js",
+    "test": "node --check server.js && node scripts/check-route-files.js && node scripts/check-inline-scripts.js && node --check public/jp-identity-ui.js && node --check public/opportunities-ui.js && node --check public/themes.js",
     "test:e2e": "node scripts/e2e-smoke.js",
     "business:daily-plans": "node scripts/run-daily-plans.js"
   },
