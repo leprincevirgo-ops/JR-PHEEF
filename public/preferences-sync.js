@@ -47,6 +47,11 @@ function attach(){
   const wrapped=async function(){const result=await old.apply(this,arguments);await restore();return result};
   wrapped.__jrPreferencesWrapped=true;window.openApp=wrapped;
  }
+ const oldLogout=window.logout;
+ if(typeof oldLogout==="function"&&!oldLogout.__jrPreferencesLogoutWrapped){
+  const wrappedLogout=async function(){memberId=null;clearTimeout(timer);return oldLogout.apply(this,arguments)};
+  wrappedLogout.__jrPreferencesLogoutWrapped=true;window.logout=wrappedLogout;
+ }
  restore();
 }
 window.addEventListener("online",()=>{if(memberId){Object.keys(KEYS).forEach(push)}else restore()});
