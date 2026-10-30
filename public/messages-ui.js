@@ -4,11 +4,19 @@
  const $=id=>document.getElementById(id);
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const call=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});return await r.json();}catch{return{ok:false,error:"Network error. Try again."};}};
- let active=null,stream=null;
+ let active=null,stream=null,refreshing=false;
  function status(s){if($("jrChatStatus"))$("jrChatStatus").textContent=s||"";}
  function activePage(){return $("messages")&&!$("messages").classList.contains("hidden");}
+ function connectStream(){
+  if(stream||!window.EventSource)return;
+  stream=new EventSource("/api/messages/stream");
+  stream.addEventListener("refresh",async()=>{if(!activePage()||refreshing)return;refreshing=true;try{await window.jrMessagesLoad();if(active)await open(active,true);}finally{refreshing=false;}});
+  stream.addEventListener("ready",()=>status("Live connection active"));
+  stream.onerror=()=>status("Reconnecting to live messages…");
+ }
  window.jrMessagesLoad=async function(){
-  const box=$("jrConversations");if(!box)return;\n  if(!stream && window.EventSource){stream=new EventSource("/api/messages/stream");stream.addEventListener("refresh",()=>{if(activePage()){jrMessagesLoad();if(active)open(active,true);}});stream.onerror=()=>status("Reconnecting to live messages…");stream.addEventListener("ready",()=>status("Live connection active"));}
+  const box=$("jrConversations");if(!box)return;
+  connectStream();
   const d=await call("/api/messages/conversations");if(!d.ok){box.textContent=d.error||"Could not load conversations.";return;}
   box.innerHTML="";
   (d.conversations||[]).forEach(c=>{
@@ -51,6 +59,5 @@
   input.value="";await open(active);await jrMessagesLoad();input.focus();
  };
  $("jrChatInput")?.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();jrSendMessage();}});
- const poll=setInterval(()=>{if(activePage()){jrMessagesLoad();if(active)open(active);}},10000);
- window.addEventListener("beforeunload",()=>clearInterval(poll));
+ window.addEventListener("beforeunload",()=>{if(stream)stream.close();});
 })();
