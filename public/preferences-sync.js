@@ -34,6 +34,7 @@ async function restore(){
   }
   suppress=false;
   document.dispatchEvent(new CustomEvent("jr:preferences-restored"));
+  for(const [key,field] of Object.entries(KEYS))if(!Object.prototype.hasOwnProperty.call(p,field))await push(key);
  }finally{suppress=false;restoring=false}
 }
 Storage.prototype.setItem=function(key,value){
