@@ -141,9 +141,9 @@ if(typeof window.show!=="function")return;
 const original=window.show;
 let stack=[],index=-1,restoring=false;
 function syncArrows(){
-const nav=document.querySelector(".nav");
-const back=nav&&nav.querySelector('[aria-label="Go back"]');
-const forward=nav&&nav.querySelector('[aria-label="Go forward"]');
+const controls=document.getElementById("jpHeaderNavigation");
+const back=controls&&controls.querySelector('[aria-label="Go back"]');
+const forward=controls&&controls.querySelector('[aria-label="Go forward"]');
 if(back)back.disabled=index<=0;
 if(forward)forward.disabled=index<0||index>=stack.length-1;
 }
