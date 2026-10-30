@@ -13,7 +13,7 @@ module.exports = function mountOperations(ctx) {
   };
   const bad = (res, error, status = 400) => res.status(status).json({ ok: false, error });
   const PAGE_IDS = new Set([
-    "home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant",
+    "home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages",
     "jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts",
     "delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","businessgrowth"
   ]);
