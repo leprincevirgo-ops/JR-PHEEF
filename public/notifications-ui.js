@@ -36,7 +36,7 @@ async function markRead(){
 function open(){panel.hidden=false;button.setAttribute("aria-expanded","true");fetchAlerts(false)}
 function close(){panel.hidden=true;button.setAttribute("aria-expanded","false")}
 function mount(){
- const header=document.querySelector("body > header"),actions=$("jpCommandPalette")?.parentElement||document.querySelector(".jp-command-header-actions");
+ const header=document.querySelector("body > header"),actions=document.querySelector(".jp-command-header-actions");
  if(!header||$("jpNotificationPanel"))return;
  const host=actions||header;
  button=el("button","jp-notification-bell","♧");button.type="button";button.title="Notifications";button.setAttribute("aria-label","Open notifications");button.setAttribute("aria-expanded","false");
