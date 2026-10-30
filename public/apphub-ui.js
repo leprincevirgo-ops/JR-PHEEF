@@ -4,9 +4,9 @@ const KEY="jr-pheef-app-hub-v1";
 const CATEGORIES=["Social & Communication","Business & Finance","Entertainment & Streaming","Education & Research","Shopping","Photography & Creativity","Productivity","Travel & Navigation","Development Tools","Health & Fitness","Security","Other"];
 const $=id=>document.getElementById(id);
 let apps=[];
-function read(){try{const v=JSON.parse(localStorage.getItem(KEY)||"[]");apps=Array.isArray(v)?v.filter(x=>x&&typeof x.name==="string"&&typeof x.url==="string"):[]}catch(e){apps=[]}}
+function read(){try{const v=JSON.parse(localStorage.getItem(KEY)||"[]");apps=Array.isArray(v)?v.filter(x=>x&&typeof x.name==="string"&&x.name.trim()&&typeof x.url==="string"&&safeUrl(x.url)&&CATEGORIES.includes(x.category)).slice(0,100).map(x=>({...x,url:safeUrl(x.url),name:x.name.trim().slice(0,60),favorite:x.favorite===true})):[]}catch(e){apps=[]}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(apps));return true}catch(e){return false}}
-function safeUrl(raw){try{const u=new URL(String(raw||"").trim());return u.protocol==="https:"||u.protocol==="http:"?u.href:null}catch(e){return null}}
+function safeUrl(raw){try{const u=new URL(String(raw||"").trim());return (u.protocol==="https:"||u.protocol==="http:")&&!u.username&&!u.password?u.href:null}catch(e){return null}}
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 function mount(){
  const app=$("app"),home=$("home");if(!app||!home||$("apphub"))return;
@@ -21,7 +21,7 @@ function mount(){
  const tools=node("div","card jp-apphub-tools");const search=document.createElement("input");search.id="jpAppSearch";search.type="search";search.placeholder="Find an app in your library";search.setAttribute("aria-label","Search your applications");const filter=document.createElement("select");filter.id="jpAppFilter";filter.setAttribute("aria-label","Filter applications");["All categories",...CATEGORIES].forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;filter.append(o)});tools.append(search,filter);
  const status=node("p","muted");status.id="jpAppHubStatus";status.setAttribute("aria-live","polite");const list=node("div","jp-apphub-grid");list.id="jpAppHubList";page.append(form,tools,status,list);
  const note=node("p","muted","Your App Hub list is currently saved in this browser only. Cross-device sync and native Android/desktop app launching are not enabled in this web release.");note.id="jpAppHubNote";page.append(note);app.append(page);
- form.addEventListener("submit",e=>{e.preventDefault();const n=name.value.trim(),u=safeUrl(url.value);if(!n||!u){status.textContent="Enter an application name and a valid HTTP or HTTPS website address.";return}apps.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),name:n,url:u,category:cat.value,favorite:false,createdAt:new Date().toISOString()});if(!save()){apps.pop();status.textContent="This browser could not save the application. Check available local storage.";return}name.value="";url.value="";status.textContent="Application added to your App Hub.";render()});
+ form.addEventListener("submit",e=>{e.preventDefault();const n=name.value.trim(),u=safeUrl(url.value);if(!n||!u){status.textContent="Enter an application name and a valid HTTP or HTTPS website address.";return}if(apps.length>=100){status.textContent="Your App Hub has reached its 100-application limit.";return}const id=window.crypto&&typeof window.crypto.randomUUID==="function"?window.crypto.randomUUID():String(Date.now())+"-"+Math.random().toString(36).slice(2);apps.push({id,name:n,url:u,category:cat.value,favorite:false,createdAt:new Date().toISOString()});if(!save()){apps.pop();status.textContent="This browser could not save the application. Check available local storage.";return}name.value="";url.value="";status.textContent="Application added to your App Hub.";render()});
  search.addEventListener("input",render);filter.addEventListener("change",render);read();render();
 }
 function render(){
