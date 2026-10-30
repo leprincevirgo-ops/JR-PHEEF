@@ -13,7 +13,7 @@ const PRESETS=[
 {name:"Minimal",a:"#d5e4f5",b:"#26374b",wall:"none"}
 ];
 const DEFAULTS={global:"Midnight",wallpaper:"aurora",opacity:22,section:{},customImage:false};
-let state={global:"Midnight",wallpaper:"aurora",opacity:22,section:{},customImage:false};
+let state={global:"Midnight",wallpaper:"aurora",opacity:22,section:{},customImage:false},storedImageUrl=null;
 const $=id=>document.getElementById(id);
 function read(){try{const v=JSON.parse(localStorage.getItem(STORE)||"{}");state={...state,...v,section:v.section||{}};}catch(e){}}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){alert("Your browser could not save these appearance settings. Try a smaller wallpaper image.");}}
@@ -35,7 +35,7 @@ document.body.classList.add("jp-theme-active");
 document.body.style.setProperty("--jp-theme-accent",accent);
 document.body.style.setProperty("--jp-theme-accent-soft",hexRgba(accent,.14));
 document.body.style.setProperty("--jp-theme-border",hexRgba(accent,.32));
-document.body.style.setProperty("--jp-theme-wallpaper",state.customImage&&state.customImageData?"url("+state.customImageData+")":wallpaper(wall));
+document.body.style.setProperty("--jp-theme-wallpaper",state.customImage&&storedImageUrl?"url("+storedImageUrl+")":wallpaper(wall));
 document.body.style.setProperty("--jp-theme-wallpaper-opacity",String(Math.max(0,Math.min(60,Number(state.opacity)||22))/100));
 document.body.dataset.jpSection=section;
 }
@@ -102,7 +102,7 @@ if(file.size>12*1024*1024){$("jpWallpaperStatus").textContent="Image is too larg
 $("jpWallpaperStatus").textContent="Preparing your wallpaper…";
 try{const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/bitmap.width,1100/bitmap.height),canvas=document.createElement("canvas");canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",.78));if(!blob)throw new Error("Image conversion failed");await storeImage(blob);state.customImage=true;state.wallpaper="none";save();await loadStoredImage();apply();$("jpWallpaperStatus").textContent="Wallpaper uploaded and saved in this browser ("+Math.round(blob.size/1024)+" KB).";}catch(err){$("jpWallpaperStatus").textContent="Could not save this image. Try another image or a built-in wallpaper.";}
 }
-async function loadStoredImage(){const blob=await getImage();if(blob){const url=URL.createObjectURL(blob);document.body.style.setProperty("--jp-theme-wallpaper","url("+url+")");}else{state.customImage=false;}}
+async function loadStoredImage(){const blob=await getImage();if(blob){if(storedImageUrl)URL.revokeObjectURL(storedImageUrl);storedImageUrl=URL.createObjectURL(blob);}else{state.customImage=false;storedImageUrl=null;}}
 function wrapShow(){
 if(typeof window.show!=="function")return;
 const original=window.show;
