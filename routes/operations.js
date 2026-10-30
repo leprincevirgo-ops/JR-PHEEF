@@ -13,7 +13,7 @@ module.exports = function mountOperations(ctx) {
   };
   const bad = (res, error, status = 400) => res.status(status).json({ ok: false, error });
   const PAGE_IDS = new Set([
-    "home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant",
+    "home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages",
     "jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts",
     "delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","businessgrowth"
   ]);
@@ -23,6 +23,74 @@ module.exports = function mountOperations(ctx) {
     }).formatToParts(new Date()).map(p => [p.type, p.value]));
     return parts.year + "-" + parts.month + "-" + parts.day;
   };
+
+  // Cross-device member preferences. Only explicitly allowlisted, bounded UI data is accepted.
+  const preferenceLimits = { app_hub: 100, discover_saved: 100 };
+  function cleanPreferences(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+    const out = {};
+    if (Object.prototype.hasOwnProperty.call(input, "app_hub")) {
+      if (!Array.isArray(input.app_hub) || input.app_hub.length > preferenceLimits.app_hub) return null;
+      const apps = [];
+      for (const item of input.app_hub) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+        const name = clean(item.name).slice(0, 60), url = clean(item.url).slice(0, 2048), category = clean(item.category).slice(0, 60);
+        let parsed; try { parsed = new URL(url); } catch { return null; }
+        if (!name || !["http:","https:"].includes(parsed.protocol) || parsed.username || parsed.password || !category) return null;
+        apps.push({ id: clean(item.id).slice(0, 80), name, url: parsed.href, category, favorite: item.favorite === true, createdAt: clean(item.createdAt).slice(0, 40) });
+      }
+      out.app_hub = apps;
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "discover_saved")) {
+      if (!Array.isArray(input.discover_saved) || input.discover_saved.length > preferenceLimits.discover_saved) return null;
+      const topics = input.discover_saved.map(x => clean(x).trim().slice(0, 120));
+      if (topics.some(x => !x)) return null;
+      out.discover_saved = [...new Set(topics)];
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "appearance")) {
+      const a = input.appearance;
+      if (!a || typeof a !== "object" || Array.isArray(a)) return null;
+      const presets = ["Midnight","Royal purple","Emerald","Sunset","Ocean","Rose","Gold","Minimal"];
+      const walls = ["aurora","nebula","sunset","waves","geometry","none"];
+      const appearance = {};
+      if (a.global !== undefined) { if (!presets.includes(a.global)) return null; appearance.global = a.global; }
+      if (a.wallpaper !== undefined) { if (!walls.includes(a.wallpaper)) return null; appearance.wallpaper = a.wallpaper; }
+      if (a.opacity !== undefined) { const n = Number(a.opacity); if (!Number.isInteger(n) || n < 0 || n > 60) return null; appearance.opacity = n; }
+      if (a.section !== undefined) {
+        if (!a.section || typeof a.section !== "object" || Array.isArray(a.section) || Object.keys(a.section).length > 40) return null;
+        const sections = {};
+        for (const [id,v] of Object.entries(a.section)) {
+          if (!/^[a-z][a-z0-9_-]{0,40}$/.test(id) || !v || typeof v !== "object" || Array.isArray(v)) return null;
+          const item = {};
+          if (v.preset !== undefined) { if (!presets.includes(v.preset)) return null; item.preset = v.preset; }
+          if (v.accent !== undefined) { if (!/^#[0-9a-f]{6}$/i.test(String(v.accent))) return null; item.accent = v.accent; }
+          if (v.wallpaper !== undefined) { if (v.wallpaper !== "" && !walls.includes(v.wallpaper)) return null; item.wallpaper = v.wallpaper; }
+          sections[id] = item;
+        }
+        appearance.section = sections;
+      }
+      for (const k of ["highContrast","compact","reduceMotion"]) if (a[k] !== undefined) { if (typeof a[k] !== "boolean") return null; appearance[k] = a[k]; }
+      out.appearance = appearance;
+    }
+    return Object.keys(out).length ? out : null;
+  }
+  app.get("/api/preferences", wrap("Member preferences read", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const { data, error } = await db.from("jr_member_preferences").select("preferences,updated_at").eq("member_id", member.id).maybeSingle();
+    if (error) throw error;
+    res.json({ ok: true, preferences: data?.preferences || {}, updated_at: data?.updated_at || null });
+  }));
+  app.put("/api/preferences", wrap("Member preferences save", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const patch = cleanPreferences(req.body);
+    if (!patch) return bad(res, "Preferences are invalid or contain unsupported fields.");
+    const { data: current, error: readError } = await db.from("jr_member_preferences").select("preferences").eq("member_id", member.id).maybeSingle();
+    if (readError) throw readError;
+    const merged = { ...(current?.preferences || {}), ...patch };
+    const { error } = await db.from("jr_member_preferences").upsert({ member_id: member.id, preferences: merged, updated_at: new Date().toISOString() }, { onConflict: "member_id" });
+    if (error) throw error;
+    res.json({ ok: true, preferences: merged });
+  }));
 
   // Store only a small navigation checkpoint, never passwords or form contents.
   app.get("/api/continuity", wrap("Continuity read", async (req, res) => {
