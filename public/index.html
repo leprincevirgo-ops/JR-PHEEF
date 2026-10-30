@@ -163,6 +163,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:800px){.jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.jp-dash-tile{min-height:112px;padding:14px}.jp-status-strip{grid-template-columns:1fr}}
 @media(max-width:420px){.jp-section-head{align-items:flex-start;flex-direction:column}.jp-section-head .badge{white-space:normal}.jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jp-dash-title{font-size:12px}.jp-dash-sub{font-size:10px}}
 
+
+/* JR PHEEF immersive environments: distinct wallpaper + palette per destination */
+:root{--jp-accent:#42f5ff;--jp-accent2:#258bff;--jp-wallpaper:none}
+body{transition:background .35s ease}
+body[data-jp-page="home"]{background:linear-gradient(180deg,rgba(2,9,22,.18),rgba(2,9,22,.88) 48%,#020916 100%),url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2200&q=85') center 12%/cover fixed,#020916}
+body[data-jp-page="ecosystem"]{--jp-accent:#d6b15e;--jp-accent2:#f0d48a;background:linear-gradient(180deg,rgba(3,10,24,.55),rgba(3,10,24,.94)),url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#071326}
+body[data-jp-page="family"]{--jp-accent:#70e6a1;--jp-accent2:#21b978;background:linear-gradient(180deg,rgba(3,23,24,.56),rgba(3,23,24,.96)),url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#06201b}
+body[data-jp-page="assistant"]{--jp-accent:#bd91ff;--jp-accent2:#536dff;background:linear-gradient(180deg,rgba(12,7,34,.5),rgba(8,8,28,.96)),url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#08091e}
+body[data-jp-page="teacher"]{--jp-accent:#70c8ff;--jp-accent2:#367dff;background:linear-gradient(180deg,rgba(4,20,42,.5),rgba(4,20,42,.96)),url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#06172c}
+body[data-jp-page="find"],body[data-jp-page="create"],body[data-jp-page="economy"]{--jp-accent:#ffc77a;--jp-accent2:#ef8b38;background:linear-gradient(180deg,rgba(26,13,5,.48),rgba(22,12,6,.96)),url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#1b1008}
+body[data-jp-page="travel"],body[data-jp-page="rooms"]{--jp-accent:#7de8e5;--jp-accent2:#298db9}
+body[data-jp-page="social"]{--jp-accent:#ff9bc8;--jp-accent2:#9d7cff;background:linear-gradient(180deg,rgba(24,8,29,.5),rgba(17,8,28,.96)),url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1800&q=80') center/cover fixed,#17091f}
+body[data-jp-page="vault"],body[data-jp-page="devices"],body[data-jp-page="profile"]{--jp-accent:#8de1ff;--jp-accent2:#557dff}
+body[data-jp-page="home"] #universeHero{background:linear-gradient(90deg,rgba(2,13,31,.92),rgba(2,13,31,.55) 62%,rgba(2,13,31,.2)),url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1800&q=80') center 48%/cover;border-color:rgba(66,245,255,.55);min-height:300px}
+body[data-jp-page] .card{backdrop-filter:blur(13px);background:linear-gradient(145deg,rgba(5,19,42,.84),rgba(2,11,26,.91));border-color:color-mix(in srgb,var(--jp-accent) 32%,transparent)}
+body[data-jp-page] .jp-dash-icon{color:var(--jp-accent);border-color:color-mix(in srgb,var(--jp-accent) 35%,transparent)}
+body[data-jp-page] .big,body[data-jp-page] .jp-kicker{color:var(--jp-accent)}
+body[data-jp-page] button.primary{background:linear-gradient(110deg,var(--jp-accent2),var(--jp-accent));color:#061323}
+body[data-jp-page] .category-tile,body[data-jp-page] .jp-dash-tile{border-color:color-mix(in srgb,var(--jp-accent) 28%,transparent)}
+@media(max-width:700px){body[data-jp-page="home"],body[data-jp-page="ecosystem"],body[data-jp-page="family"],body[data-jp-page="assistant"],body[data-jp-page="teacher"],body[data-jp-page="find"],body[data-jp-page="create"],body[data-jp-page="economy"],body[data-jp-page="social"]{background-attachment:scroll}}
+
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 </head>
@@ -897,6 +918,8 @@ function show(id){
     .forEach(x=>x.classList.add("hidden"));
 
   $(id).classList.remove("hidden");
+  // The active destination controls its own JR PHEEF wallpaper and accent palette.
+  document.body.dataset.jpPage=id;
 
   if(id==="points") refresh();
   if(id==="home") refresh();
