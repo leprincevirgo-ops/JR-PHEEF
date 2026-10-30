@@ -174,4 +174,4 @@ Use this document as the canonical project journey in future JR PHEEF conversati
 - PR #9 closed as superseded: command-centre dashboard work was previously incorporated.
 - PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
 - PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
-- PR #1 and #4 remain under review for unique, non-duplicated requirements; do not merge wholesale.
+- PR #1 and #4 were closed without merging because their branches contain duplicated or stale architecture. Unique category validation, glossary, DGBO explainer and POS-preview requirements remain on the roadmap for focused implementation.
