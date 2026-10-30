@@ -7,7 +7,7 @@ const KEYS={
 };
 let memberId=null,suppress=false,timer=null,restoring=false;
 const originalSet=Storage.prototype.setItem;
-function currentMember(){return window.me&&window.me.id?String(window.me.id):null}
+async function resolveMember(){if(memberId)return memberId;try{const r=await fetch("/api/me",{credentials:"include"});const d=await r.json();if(r.ok&&d.logged_in&&d.member&&d.member.id)memberId=String(d.member.id)}catch{}return memberId}
 function readKey(key){try{return JSON.parse(localStorage.getItem(key)||"null")}catch{return null}}
 function request(method,body){return fetch("/api/preferences",{method,credentials:"include",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined}).then(async r=>({ok:r.ok,data:await r.json().catch(()=>({}))})).catch(()=>({ok:false,data:{}}))}
 function schedule(key){if(suppress||restoring||!memberId||!KEYS[key])return;clearTimeout(timer);timer=setTimeout(()=>push(key),700)}
@@ -19,8 +19,8 @@ async function push(key){
  if(!result.ok&&navigator.onLine)console.warn("JR PHEEF preferences sync deferred.");
 }
 async function restore(){
- const id=currentMember();if(!id||id===memberId&&restoring)return;
- memberId=id;restoring=true;
+ const id=await resolveMember();if(!id||restoring)return;
+ restoring=true;
  try{
   const result=await request("GET");
   if(!result.ok)return;
@@ -47,9 +47,9 @@ function attach(){
   const wrapped=async function(){const result=await old.apply(this,arguments);await restore();return result};
   wrapped.__jrPreferencesWrapped=true;window.openApp=wrapped;
  }
- if(currentMember())restore();
+ restore();
 }
-window.addEventListener("online",()=>{if(memberId){Object.keys(KEYS).forEach(push)}else attach()});
+window.addEventListener("online",()=>{if(memberId){Object.keys(KEYS).forEach(push)}else restore()});
 window.addEventListener("storage",e=>{if(e.key&&KEYS[e.key])schedule(e.key)});
 document.addEventListener("jr:preferences-restored",()=>{});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attach);else attach();
