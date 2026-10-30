@@ -64,5 +64,6 @@ function mount(){
  function renderSaved(){const host=$("jpDiscoverSaved")?.querySelector(".jp-discover-saved-list");if(!host)return;host.replaceChildren();if(!saved.length){host.append(el("p","muted","No saved subjects yet."));return}saved.forEach(q=>{const b=el("button","dark",q);b.type="button";b.addEventListener("click",()=>showSubject(q));host.append(b)})}
  renderSaved();
 }
+document.addEventListener("jr:preferences-restored",()=>{saved=readSaved();renderSaved();});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 })();
