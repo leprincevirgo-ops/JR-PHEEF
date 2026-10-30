@@ -764,8 +764,19 @@ REQUEST FLEX
 
 <div id="profile" class="page hidden">
 
-<div class="card">
+<div class="card jp-profile-card">
 <h2>PROFILE</h2>
+<div class="jp-profile-photo-row">
+  <img id="profilePhotoPreview" class="jp-profile-photo" alt="Your JR PHEEF profile photo" src="" hidden>
+  <div id="profilePhotoFallback" class="jp-profile-photo jp-profile-photo-fallback" aria-hidden="true">JP</div>
+  <div class="jp-profile-photo-actions">
+    <strong>Your profile photo</strong>
+    <p class="muted">Add a clear photo so people can recognize you. JPG, PNG or WebP, up to 5 MB.</p>
+    <input id="profilePhotoFile" type="file" accept="image/jpeg,image/png,image/webp">
+    <button class="primary" type="button" onclick="uploadProfilePhoto()">UPLOAD PROFILE PHOTO</button>
+    <p id="profilePhotoMsg" class="muted" aria-live="polite"></p>
+  </div>
+</div>
 
 <input id="profileName" placeholder="Name">
 <input id="profileEmail" placeholder="Email">
@@ -1062,6 +1073,12 @@ function fillProfile(){
   $("profileLocation").value=me.location||"";
   $("profileBio").value=me.bio||"";
   $("profileTheme").value=me.theme||"ocean";
+  const photo=me.profile_photo||me.avatar_url||"";
+  const preview=$("profilePhotoPreview"),fallback=$("profilePhotoFallback");
+  if(preview&&fallback){
+    if(photo){preview.src=photo;preview.hidden=false;fallback.hidden=true;}
+    else{preview.removeAttribute("src");preview.hidden=true;fallback.hidden=false;}
+  }
 }
 
 async function refresh(){
@@ -1375,6 +1392,21 @@ async function saveAuthPreferences(){
       : (d.error||"Could not save sign-in settings.");
     if(d.ok)$("phoneLoginEnabled").checked=d.preferences.phone_login_enabled;
   }catch(e){status.textContent="Could not save sign-in settings. Please retry.";}
+}
+
+async function uploadProfilePhoto(){
+  const input=$("profilePhotoFile"),file=input.files&&input.files[0],msg=$("profilePhotoMsg");
+  if(!file){msg.textContent="Choose a photo first.";return;}
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){msg.textContent="Choose a JPG, PNG or WebP image.";return;}
+  if(file.size>5*1024*1024){msg.textContent="Photo must be 5 MB or smaller.";return;}
+  const form=new FormData();form.append("photo",file);
+  msg.textContent="Uploading your photo…";
+  try{
+    const data=await api("/api/profile/photo",{method:"POST",body:form});
+    if(!data.ok){msg.textContent=data.error||"Photo upload failed.";return;}
+    me=data.member;fillProfile();msg.textContent="Your profile photo has been saved.";
+    input.value="";
+  }catch(e){msg.textContent="Could not upload the photo. Please try again.";}
 }
 
 async function saveProfile(){
