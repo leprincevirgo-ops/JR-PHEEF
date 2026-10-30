@@ -39,5 +39,6 @@ function render(){
   actions.append(fav,edit,del);card.append(actions);host.append(card);
  });
 }
+document.addEventListener("jr:preferences-restored",()=>{read();render();});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 })();
