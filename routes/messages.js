@@ -2,7 +2,7 @@
 module.exports = function mountMessages({ app, db, requireMember, checkRequestRate, clean }) {
   const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const fail=(res,error,status=400)=>res.status(status).json({ok:false,error});
-  const wrap=(fn)=>async(req,res)=>{try{await fn(req,res);}catch(e){console.error("JR Connect:",clean(e?.message).slice(0,180));if(!res.headersSent)fail(res,"Messaging is temporarily unavailable.",500);}};
+  const wrap=(fn)=>async(req,res)=>{try{await fn(req,res);}catch(e){console.error("JR Connect:",clean(e?.message||"request error").slice(0,180));if(!res.headersSent)fail(res,"Messaging is temporarily unavailable.",500);}};
   async function member(req,res){return await requireMember(req,res);}
   async function conversation(id,userId){
     if(!UUID.test(id))return null;
@@ -12,15 +12,16 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     if(e)throw e;return data||null;
   }
   // Authenticated server-sent updates. Browser clients never receive database credentials.
-  app.get("/api/messages/stream",async(req,res)=>{
+  app.get("/api/messages/stream",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
-    res.setHeader("Content-Type","text/event-stream");
+    res.setHeader("Content-Type","text/event-stream; charset=utf-8");
     res.setHeader("Cache-Control","no-cache, no-transform");
     res.setHeader("Connection","keep-alive");
     res.flushHeaders?.();
-    let closed=false, last="";
-    const send=(event,data)=>{if(!closed)res.write("event: "+event+"\\ndata: "+JSON.stringify(data)+"\\n\\n");};
+    let closed=false,last="",busy=false;
+    const send=(event,data)=>{if(!closed&&!res.writableEnded)res.write("event: "+event+"\ndata: "+JSON.stringify(data)+"\n\n");};
     const tick=async()=>{
+      if(closed||busy)return;busy=true;
       try{
         const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id").eq("member_id",m.id).limit(200);
         if(error)throw error;
@@ -32,13 +33,14 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
         if(last&&stamp!==last)send("refresh",{reason:"messages"});
         last=stamp;
       }catch(e){console.error("JR Connect stream:",clean(e?.message||"stream error").slice(0,160));}
+      finally{busy=false;}
     };
-    send("ready",{ok:true});
-    await tick();
-    const timer=setInterval(tick,3000);
+    send("ready",{ok:true});await tick();
+    const timer=setInterval(tick,5000);
     const heartbeat=setInterval(()=>send("ping",{at:Date.now()}),20000);
     req.on("close",()=>{closed=true;clearInterval(timer);clearInterval(heartbeat);});
-  });
+    res.on("close",()=>{closed=true;clearInterval(timer);clearInterval(heartbeat);});
+  }));
   app.get("/api/messages/conversations",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id,last_read_at").eq("member_id",m.id).limit(200);
@@ -74,7 +76,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
       }
     }
     const isGroup=recipients.length>1;
-    const title=clean(req.body.title || "").slice(0,80);
+    const title=clean(req.body.title||"").slice(0,80);
     if(isGroup&&!title)return fail(res,"Give your group a name.");
     const {data:room,error:ce}=await db.from("jr_conversations").insert({created_by:m.id,title:isGroup?title:null,is_group:isGroup}).select("id,title,is_group,updated_at").single();
     if(ce)throw ce;
