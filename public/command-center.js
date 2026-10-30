@@ -29,6 +29,7 @@ const MODULES=[
  ["assistant","AI assistant","Research, plan and coordinate with AI","✦"],
  ["projects","Projects","Organise work, tasks and milestones","▤"],
  ["family","Family","Private family coordination space","⌂"],
+ ["profile","Profile","Your member profile and account details","👤"],
  ["vault","My files","Your documents and stored files","▣"],
  ["library","Library","Knowledge and learning resources","▧"],
  ["lab","Lab & research","Experiments, research and ideas","⚗"],
