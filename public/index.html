@@ -223,6 +223,26 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
+
+/* JR PHEEF immersive destination themes */
+:root{--jp-accent:#42f5ff;--jp-accent2:#258bff}
+body{transition:background .3s ease}
+body[data-jp-page="home"]{background:linear-gradient(180deg,rgba(2,9,22,.15),rgba(2,9,22,.9) 58%,#020916),url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=2200&q=85') center 15%/cover fixed,#020916}
+body[data-jp-page="ecosystem"]{--jp-accent:#e2bd6c;--jp-accent2:#f0d48a;background:linear-gradient(180deg,#03101bd9,#030a18f2),url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1800&q=80') center/cover fixed}
+body[data-jp-page="family"]{--jp-accent:#70e6a1;--jp-accent2:#21b978;background:linear-gradient(180deg,#031718a8,#031718f5),url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1800&q=80') center/cover fixed}
+body[data-jp-page="assistant"]{--jp-accent:#bd91ff;--jp-accent2:#536dff;background:linear-gradient(180deg,#0c0722b8,#08081ef5),url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1800&q=80') center/cover fixed}
+body[data-jp-page="teacher"]{--jp-accent:#70c8ff;--jp-accent2:#367dff}
+body[data-jp-page="find"],body[data-jp-page="create"],body[data-jp-page="economy"]{--jp-accent:#ffc77a;--jp-accent2:#ef8b38;background:linear-gradient(180deg,#1a0d05aa,#160c06f5),url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=80') center/cover fixed}
+body[data-jp-page="social"]{--jp-accent:#ff9bc8;--jp-accent2:#9d7cff;background:linear-gradient(180deg,#18081dbb,#11081cf5),url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1800&q=80') center/cover fixed}
+body[data-jp-page] .card{backdrop-filter:blur(12px);border-color:color-mix(in srgb,var(--jp-accent) 30%,transparent)}
+body[data-jp-page] .big,body[data-jp-page] .jp-kicker{color:var(--jp-accent)}
+body[data-jp-page] button.primary{background:linear-gradient(110deg,var(--jp-accent2),var(--jp-accent));color:#061323}
+.jp-browser-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.jp-browser-frame{width:100%;height:min(68vh,760px);border:1px solid var(--jp-border);border-radius:14px;background:#fff}
+.jp-history-controls{display:flex;gap:4px;align-items:center}
+.jp-history-controls button{min-width:38px;padding:9px}
+@media(max-width:650px){.jp-browser-toolbar{grid-template-columns:1fr 1fr}.jp-browser-toolbar input{grid-column:1/-1}.jp-browser-frame{height:62vh}}
+
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
@@ -232,7 +252,12 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 
 <header>
   <div><div class="logo">JR <span>PHEEF</span></div><div style="font-size:9px;letter-spacing:1.5px;color:#8fb8d4;margin-top:3px">FIND. MATCH. TRADE. <span style="color:#42f5ff">·</span> POWERED BY DGBO</div></div>
-  <button id="logoutBtn" class="hidden" onclick="logout()">LOGOUT</button>
+  <div class="jp-history-controls hidden" id="jpHistoryControls" aria-label="Page navigation">
+    <button type="button" class="dark" id="jpBack" onclick="jrNavigate(-1)" aria-label="Go back" title="Back">‹</button>
+    <button type="button" class="dark" id="jpForward" onclick="jrNavigate(1)" aria-label="Go forward" title="Forward">›</button>
+    <button type="button" class="dark" onclick="show('browser')" title="Open JR Browser" aria-label="Open JR Browser">🌐</button>
+    <button id="logoutBtn" class="hidden" onclick="logout()">LOGOUT</button>
+  </div>
 </header>
 
 <main>
@@ -307,6 +332,21 @@ placeholder="Password">
 <button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
 </div>
 
+<div id="browser" class="page hidden">
+<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · BROWSER</div><h2>Explore the web from JR PHEEF</h2><p>Search the web or open a website. Some websites block embedded viewing; use Open externally when that happens.</p></div></div>
+<div class="card">
+ <div class="jp-browser-toolbar">
+  <input id="jrBrowserAddress" type="url" inputmode="url" autocomplete="url" placeholder="Search or enter a website address" aria-label="Search or website address">
+  <button class="primary" onclick="jrBrowserGo()">Go</button><button class="dark" onclick="jrBrowserExternal()">Open externally ↗</button>
+ </div>
+ <div class="jp-history-controls" style="margin:8px 0">
+  <button class="dark" onclick="jrBrowserBack()" aria-label="Browser back">‹</button><button class="dark" onclick="jrBrowserForward()" aria-label="Browser forward">›</button><button class="dark" onclick="jrBrowserReload()">↻</button>
+  <span id="jrBrowserStatus" class="muted" aria-live="polite">JR PHEEF Browser is ready.</span>
+ </div>
+ <iframe id="jrBrowserFrame" class="jp-browser-frame" title="JR PHEEF web browser" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; clipboard-read; clipboard-write"></iframe>
+ <p class="muted" style="font-size:11px">For security, JR PHEEF does not read passwords or private content from websites. Websites that prevent embedding will need to open in a separate browser tab.</p>
+</div>
+</div>
 <div id="home" class="page">
 <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">FIND · MATCH · TRADE</span></div>
 <div class="jp-dashboard-grid" aria-label="JR PHEEF quick access">
@@ -964,11 +1004,33 @@ function showLogin(){
   $("loginBox").classList.remove("hidden");
 }
 
-function show(id){
+const jrPageHistory=[];
+let jrPageHistoryIndex=-1;
+let jrHistoryChanging=false;
+function jrUpdateHistoryButtons(){
+  const back=$("jpBack"),forward=$("jpForward");
+  if(back)back.disabled=jrPageHistoryIndex<=0;
+  if(forward)forward.disabled=jrPageHistoryIndex<0||jrPageHistoryIndex>=jrPageHistory.length-1;
+}
+function jrNavigate(direction){
+  const next=jrPageHistoryIndex+direction;
+  if(next<0||next>=jrPageHistory.length)return;
+  jrHistoryChanging=true;jrPageHistoryIndex=next;show(jrPageHistory[next],{fromHistory:true});jrHistoryChanging=false;jrUpdateHistoryButtons();
+}
+function show(id,options={}){
+  if(!options.fromHistory&&!jrHistoryChanging){
+    if(jrPageHistory[jrPageHistoryIndex]!==id){
+      jrPageHistory.splice(jrPageHistoryIndex+1);
+      jrPageHistory.push(id);jrPageHistoryIndex=jrPageHistory.length-1;
+    }
+  }
   document.querySelectorAll(".page")
     .forEach(x=>x.classList.add("hidden"));
 
   $(id).classList.remove("hidden");
+  document.body.dataset.jpPage=id;
+  const controls=$("jpHistoryControls");if(controls)controls.classList.toggle("hidden",!me);
+  jrUpdateHistoryButtons();
 
   if(id==="points") refresh();
   if(id==="home") refresh();
@@ -981,6 +1043,27 @@ function show(id){
   if(id==="devices") loadDevices();
   if(id==="profile") loadAuthPreferences();
 }
+
+const jrBrowserHistory=[];let jrBrowserIndex=-1;
+function jrBrowserResolve(){
+ const raw=($("jrBrowserAddress").value||"").trim();if(!raw)return "";
+ if(/^https?:\/\//i.test(raw))return raw;
+ if(/^(localhost|[\w-]+\.[a-z]{2,})(:\d+)?([/?#].*)?$/i.test(raw))return "https://"+raw;
+ return "https://www.google.com/search?q="+encodeURIComponent(raw);
+}
+function jrBrowserGo(){
+ const url=jrBrowserResolve();if(!url)return;
+ try{const parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))throw new Error("Only HTTP and HTTPS websites are supported.");
+ $("jrBrowserAddress").value=parsed.href;$("jrBrowserFrame").src=parsed.href;
+ jrBrowserHistory.splice(jrBrowserIndex+1);jrBrowserHistory.push(parsed.href);jrBrowserIndex=jrBrowserHistory.length-1;
+ $("jrBrowserStatus").textContent="Loading "+parsed.hostname+" — if blocked, choose Open externally.";
+ }catch(e){$("jrBrowserStatus").textContent=e.message;}
+}
+function jrBrowserExternal(){const url=jrBrowserResolve();if(url)window.open(url,"_blank","noopener,noreferrer");}
+function jrBrowserBack(){if(jrBrowserIndex>0){jrBrowserIndex--;$("jrBrowserFrame").src=jrBrowserHistory[jrBrowserIndex];$("jrBrowserAddress").value=jrBrowserHistory[jrBrowserIndex];}}
+function jrBrowserForward(){if(jrBrowserIndex<jrBrowserHistory.length-1){jrBrowserIndex++;$("jrBrowserFrame").src=jrBrowserHistory[jrBrowserIndex];$("jrBrowserAddress").value=jrBrowserHistory[jrBrowserIndex];}}
+function jrBrowserReload(){const frame=$("jrBrowserFrame");if(frame.src)frame.src=frame.src;}
+$("jrBrowserAddress")?.addEventListener("keydown",e=>{if(e.key==="Enter")jrBrowserGo();});
 
 async function api(url,options={}){
   const r=await fetch(url,{
