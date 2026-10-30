@@ -58,6 +58,27 @@ page.innerHTML=`
  <div class="card"><div class="jp-kicker">05 · RESET</div><h2>Restore JR PHEEF appearance</h2><p class="jp-theme-note">Reset all colours, wallpaper and display preferences to the JR PHEEF default. This does not affect your account, listings or data.</p><button class="danger" id="jpResetAll">RESET ALL APPEARANCE</button><p id="jpResetStatus" class="jp-theme-note" aria-live="polite"></p></div>
 </div></div>`;
 app.appendChild(page);
+const settingsNav=document.createElement("button");
+settingsNav.type="button";
+settingsNav.textContent="SETTINGS";
+settingsNav.setAttribute("aria-label","Open JR PHEEF settings");
+settingsNav.onclick=()=>window.show("jrsettings");
+if(nav)nav.appendChild(settingsNav);
+const settings=document.createElement("section");
+settings.id="jrsettings";
+settings.className="page hidden jp-settings-page";
+settings.innerHTML=`
+<div class="card jp-settings-hero"><p class="jp-kicker">JR PHEEF · CONTROL CENTRE</p><h1>Settings</h1><p class="muted">Manage your account, privacy, sign-in, appearance and app preferences from one place.</p></div>
+<div class="jp-settings-grid">
+ <article class="card jp-settings-card"><span class="jp-settings-icon">👤</span><h2>Profile & account</h2><p class="jp-theme-note">Update your name, email, location and personal profile details.</p><button class="primary" type="button" data-settings-go="profile">OPEN PROFILE</button></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🔐</span><h2>Security & sign-in</h2><p class="jp-theme-note">Manage available sign-in methods and review account security options.</p><button class="primary" type="button" data-settings-go="profile" data-settings-focus="security">SECURITY SETTINGS</button></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🎨</span><h2>Appearance</h2><p class="jp-theme-note">Choose themes, wallpapers, workspace colours and display preferences.</p><button class="primary" type="button" data-settings-go="themes">CUSTOMIZE APPEARANCE</button></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🧭</span><h2>App preferences</h2><p class="jp-theme-note">Adjust your JR PHEEF experience. More controls will appear here as they become available.</p><span class="jp-settings-status">Additional preferences are being prepared.</span></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🛡️</span><h2>Privacy & data</h2><p class="jp-theme-note">Review privacy controls and how your information is used. Sensitive account actions remain protected.</p><span class="jp-settings-status">Privacy controls are being expanded.</span></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">❔</span><h2>Help & support</h2><p class="jp-theme-note">Get help using JR PHEEF and report a problem.</p><span class="jp-settings-status">Support centre integration is pending.</span></article>
+</div>`;
+settings.addEventListener("click",e=>{const b=e.target.closest("[data-settings-go]");if(!b)return;const target=b.dataset.settingsGo;window.show(target);if(b.dataset.settingsFocus==="security"){setTimeout(()=>{const panel=document.querySelector("#profile h2:nth-of-type(2)");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});},80);}});
+app.appendChild(settings);
 }
 function render(){
 const host=$("jpThemePresets");if(!host)return;
