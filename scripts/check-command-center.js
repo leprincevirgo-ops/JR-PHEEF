@@ -1,0 +1,12 @@
+"use strict";
+const fs=require("node:fs");
+const assert=require("node:assert/strict");
+const js=fs.readFileSync("public/command-center.js","utf8");
+const css=fs.readFileSync("public/command-center.css","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+for(const id of ["home","discover","explore","apphub","browser","messages","projects","jrsettings"])assert.ok(js.includes('["'+id+'"'),"launcher destination missing: "+id);
+for(const key of ["jpCommandPalette","ArrowDown","ArrowUp","noopener,noreferrer","jr-pheef-app-hub-v1"])assert.ok(js.includes(key),"launcher safety/navigation feature missing: "+key);
+assert.ok(js.includes('e.ctrlKey||e.metaKey'),"keyboard shortcut missing");
+assert.ok(css.includes(".jp-command-overlay")&&css.includes("@media(max-width:620px)"),"responsive palette styles missing");
+assert.ok(html.includes("/command-center.js")&&html.includes("/command-center.css"),"command centre assets not loaded");
+console.log("JR PHEEF command centre checks passed.");
