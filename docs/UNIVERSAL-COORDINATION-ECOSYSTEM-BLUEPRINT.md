@@ -126,7 +126,7 @@ A feature is not complete merely because a screen exists. Completion requires:
 
 ## Current verified baseline (30 October 2026)
 - GitHub: `leprincevirgo-ops/JR-PHEEF`, default branch `main`, repository visibility public.
-- Render: live service on Free plan, auto-deploy from `main`; latest confirmed live commit `97b9fca33f0a55b469932aee7a ed6f33fea09381` (remove the space when referencing the SHA).
+- Render: live service on Free plan, auto-deploy from `main`; latest confirmed live commit `97b9fca33f0a55b469932aeea7ed6f33fea09381`.
 - Supabase project: `tzyrlwshwkbnkbhjnpev`, ACTIVE_HEALTHY; security advisor returned no lints.
 - Performance advisor: two unindexed foreign keys (created_by on jr_conversations; sender_id on jr_messages) and 66 unused-index notices. Do not drop indexes without workload evidence.
 - Existing browser is a sandboxed iframe/search surface, not Chromium.
