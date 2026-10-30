@@ -4,11 +4,11 @@
  const $=id=>document.getElementById(id);
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const call=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});return await r.json();}catch{return{ok:false,error:"Network error. Try again."};}};
- let active=null,timer=null;
+ let active=null,stream=null;
  function status(s){if($("jrChatStatus"))$("jrChatStatus").textContent=s||"";}
  function activePage(){return $("messages")&&!$("messages").classList.contains("hidden");}
  window.jrMessagesLoad=async function(){
-  const box=$("jrConversations");if(!box)return;
+  const box=$("jrConversations");if(!box)return;\n  if(!stream && window.EventSource){stream=new EventSource("/api/messages/stream");stream.addEventListener("refresh",()=>{if(activePage()){jrMessagesLoad();if(active)open(active,true);}});stream.onerror=()=>status("Reconnecting to live messages…");stream.addEventListener("ready",()=>status("Live connection active"));}
   const d=await call("/api/messages/conversations");if(!d.ok){box.textContent=d.error||"Could not load conversations.";return;}
   box.innerHTML="";
   (d.conversations||[]).forEach(c=>{
@@ -19,11 +19,11 @@
   if(!d.conversations?.length){const p=document.createElement("p");p.className="muted";p.textContent="No conversations yet. Start a chat using a member's JP number.";box.appendChild(p);}
   if(active&&!d.conversations?.some(c=>c.id===active))active=null;
  };
- async function open(id){
+ async function open(id,preservePosition=false){
   active=id;const d=await call("/api/messages/conversations/"+encodeURIComponent(id));
   if(!d.ok){status(d.error);return;}
   $("jrChatHeader").textContent=d.conversation.title||d.participants.filter(p=>p.name!=="You").map(p=>p.name).join(", ")||"Private chat";
-  const box=$("jrChatMessages");box.innerHTML="";
+  const box=$("jrChatMessages");const wasAtBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.innerHTML="";
   (d.messages||[]).forEach(m=>{
    const row=document.createElement("div");row.style.cssText="margin:8px 0;padding:9px 12px;border-radius:12px;max-width:88%;background:"+(m.sender_name==="You"?"rgba(35,150,180,.25)":"rgba(130,150,180,.16)")+";margin-left:"+(m.sender_name==="You"?"auto":"0");
    const who=document.createElement("b");who.textContent=m.sender_name+" · ";
@@ -31,7 +31,7 @@
    const time=document.createElement("small");time.style.cssText="display:block;opacity:.65;margin-top:4px";time.textContent=new Date(m.created_at).toLocaleString();
    row.append(who,body,time);box.appendChild(row);
   });
-  box.scrollTop=box.scrollHeight;status("");
+  if(!preservePosition||wasAtBottom)box.scrollTop=box.scrollHeight;status("");
  }
  window.jrNewChat=async function(){
   const raw=prompt("Enter one member JP number, or several separated by commas for a group chat:");
