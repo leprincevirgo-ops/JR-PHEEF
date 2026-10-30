@@ -41,3 +41,9 @@ body.jp-theme-active[data-jp-section="themes"]{--jp-theme-glow:rgba(66,245,255,.
 .jp-theme-actions button{margin:0}
 @media(max-width:760px){.jp-theme-layout{grid-template-columns:1fr}.jp-theme-swatches{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){body.jp-theme-active *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.jp-theme-high-contrast .card,.jp-theme-high-contrast .jp-dash-tile{border-width:2px;border-color:var(--jp-theme-accent)}
+.jp-theme-high-contrast .muted,.jp-theme-high-contrast .jp-dash-sub,.jp-theme-high-contrast .jp-theme-note{color:#d1e8f8}
+.jp-theme-compact .jp-dashboard-grid{gap:8px}
+.jp-theme-compact .jp-dash-tile{min-height:92px;padding:12px}
+.jp-theme-reduce-motion *,body.jp-theme-active.jp-theme-reduce-motion *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
