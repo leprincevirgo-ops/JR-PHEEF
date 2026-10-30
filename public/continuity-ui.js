@@ -5,18 +5,24 @@
     try { const r = await fetch(url, {method:method||"GET",credentials:"include",headers:body===undefined?{}:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)}); return await r.json().catch(()=>({ok:false,error:"Invalid server response."})); }
     catch { return {ok:false,error:"Connection unavailable. Your local checkpoint is retained on this device."}; }
   };
-  let saving=false, restoring=false, timer=null, ready=false;
-  const key=()=> "jr-pheef:continuity:"+String(window.me?.id||"anonymous");
+  let saving=false, restoring=false, timer=null, ready=false, memberId=null, resolving=null;
+  async function resolveMember(){
+    if(memberId)return memberId;
+    if(resolving)return resolving;
+    resolving=(async()=>{try{const r=await fetch("/api/me",{credentials:"include"});const d=await r.json();if(r.ok&&d.logged_in&&d.member&&d.member.id)memberId=String(d.member.id);}catch{}finally{resolving=null}return memberId})();
+    return resolving;
+  }
+  const key=()=> "jr-pheef:continuity:"+String(memberId||"anonymous");
   const pageNow=()=>[...document.querySelectorAll("#app .page")].find(p=>!p.classList.contains("hidden"))?.id||"home";
   const localSave=s=>{try{localStorage.setItem(key(),JSON.stringify(s));}catch{}};
   const localRead=()=>{try{return JSON.parse(localStorage.getItem(key())||"null");}catch{return null;}};
   async function saveNow(){
-    if(!window.me?.id||restoring||saving)return;
+    if(!memberId||restoring||saving)return;
     const state={page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()};
     localSave(state); if(!navigator.onLine)return; saving=true;
     try{const r=await call("/api/continuity","PUT",state);if(!r.ok)console.warn("JR continuity sync deferred:",r.error||"unavailable");}finally{saving=false;}
   }
-  function schedule(){if(restoring||!window.me?.id)return;clearTimeout(timer);timer=setTimeout(saveNow,450);}
+  function schedule(){if(restoring||!memberId)return;clearTimeout(timer);timer=setTimeout(saveNow,450);}
   function ensurePage(){
     if(!$("app")||$("businessgrowth"))return;
     const page=document.createElement("section"); page.id="businessgrowth"; page.className="page hidden";
@@ -81,17 +87,19 @@
     if(!d.ok){$("bgPlanMsg").textContent=d.error||"Could not update task.";return;}renderPlan(d.daily_plan);
   };
   async function restore(){
-    if(!window.me?.id)return;restoring=true;let state=localRead();
+    if(!await resolveMember())return;restoring=true;let state=localRead();
     if(navigator.onLine){const r=await call("/api/continuity");if(r.ok&&r.state?.page){state=r.state;localSave(state);}}
     if(state?.page&&$(state.page)?.classList.contains("page")){try{window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo(0,Math.max(0,Number(state.scroll_y)||0)));}
     restoring=false;ready=true;schedule();
   }
   const oldShow=window.show;
   if(typeof oldShow==="function")window.show=function(id){const r=oldShow.apply(this,arguments);if(id==="businessgrowth")window.jrLoadBusinesses();schedule();return r;};
+  const oldLogout=window.logout;
+  if(typeof oldLogout==="function")window.logout=async function(){memberId=null;ready=false;clearTimeout(timer);return oldLogout.apply(this,arguments);};
   const oldOpen=window.openApp;
   if(typeof oldOpen==="function")window.openApp=async function(){const r=await oldOpen.apply(this,arguments);ensurePage();await restore();return r;};
   window.addEventListener("scroll",schedule,{passive:true});
-  window.addEventListener("pagehide",()=>{if(window.me?.id)localSave({page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
+  window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
   window.addEventListener("online",()=>{if(ready)schedule();});
   document.addEventListener("DOMContentLoaded",ensurePage);
 })();
