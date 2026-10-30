@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-const STORE="jr-pheef-visual-settings-v1", DB="jr-pheef-visual-assets", SECTION_IDS=["home","ecosystem","jpidentity","family","teacher","referrals","universe","lab","library","find","create","opportunities","rooms","points","flex","profile","assistant","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","command","themes","projects","ideas","ads","jrsettings"];
+const STORE="jr-pheef-visual-settings-v1", DB="jr-pheef-visual-assets", SECTION_IDS=["home","ecosystem","jpidentity","family","teacher","referrals","universe","lab","library","find","create","opportunities","rooms","points","flex","profile","assistant","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","command","themes","projects","ideas","ads","jrsettings","jrpreferences","jrprivacy","jrhelp"];
 const SECTIONS=[["home","Home dashboard"],["ecosystem","DGBO ecosystem"],["find","Discover & marketplace"],["create","Create listing"],["opportunities","Opportunities"],["social","Social"],["jpconnect","JP Connect"],["assistant","AI assistant"],["universe","Universe"],["lab","Lab & research"],["teacher","JR Teacher"],["library","Library"],["family","Family"],["referrals","Invite & grow"],["profile","Profile"],["vault","My files"],["voice","Voice & type"],["rooms","Rooms"],["economy","Economy"],["flex","PHEEF Flex"],["devices","Devices"],["jpidentity","JP Identity"],["scifi","Sci-fi & futures"],["fixedit","Repair services"],["command","Command centre"],["projects","Projects"],["ideas","Shape JR"],["ads","Advertising centre"],["jrsettings","JR settings"]];
 const PRESETS=[
 {name:"Midnight",a:"#42f5ff",b:"#07345b",wall:"aurora"},
@@ -85,12 +85,60 @@ settings.innerHTML=`
  <article class="card jp-settings-card"><span class="jp-settings-icon">👤</span><h2>Profile & account</h2><p class="jp-theme-note">Update your name, email, location and personal profile details.</p><button class="primary" type="button" data-settings-go="profile">OPEN PROFILE</button></article>
  <article class="card jp-settings-card"><span class="jp-settings-icon">🔐</span><h2>Security & sign-in</h2><p class="jp-theme-note">Manage available sign-in methods and review account security options.</p><button class="primary" type="button" data-settings-go="profile" data-settings-focus="security">SECURITY SETTINGS</button></article>
  <article class="card jp-settings-card"><span class="jp-settings-icon">🎨</span><h2>Appearance</h2><p class="jp-theme-note">Choose themes, wallpapers, workspace colours and display preferences.</p><button class="primary" type="button" data-settings-go="themes">CUSTOMIZE APPEARANCE</button></article>
- <article class="card jp-settings-card"><span class="jp-settings-icon">🧭</span><h2>App preferences</h2><p class="jp-theme-note">Adjust your JR PHEEF experience. More controls will appear here as they become available.</p><span class="jp-settings-status">Additional preferences are being prepared.</span></article>
- <article class="card jp-settings-card"><span class="jp-settings-icon">🛡️</span><h2>Privacy & data</h2><p class="jp-theme-note">Review privacy controls and how your information is used. Sensitive account actions remain protected.</p><span class="jp-settings-status">Privacy controls are being expanded.</span></article>
- <article class="card jp-settings-card"><span class="jp-settings-icon">❔</span><h2>Help & support</h2><p class="jp-theme-note">Get help using JR PHEEF and report a problem.</p><span class="jp-settings-status">Support centre integration is pending.</span></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🧭</span><h2>App preferences</h2><p class="jp-theme-note">Manage saved shortcuts and discovery topics stored on this device, and open display controls.</p><button class="primary" type="button" data-settings-go="jrpreferences">MANAGE PREFERENCES</button></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">🛡️</span><h2>Privacy & data</h2><p class="jp-theme-note">Understand what stays in this browser, what is stored in your account and which local data you can clear.</p><button class="primary" type="button" data-settings-go="jrprivacy">OPEN PRIVACY CENTRE</button></article>
+ <article class="card jp-settings-card"><span class="jp-settings-icon">❔</span><h2>Help & support</h2><p class="jp-theme-note">Read quick answers and copy a diagnostic summary when reporting a problem.</p><button class="primary" type="button" data-settings-go="jrhelp">OPEN HELP CENTRE</button></article>
 </div>`;
-settings.addEventListener("click",e=>{const b=e.target.closest("[data-settings-go]");if(!b)return;const target=b.dataset.settingsGo;window.show(target);if(b.dataset.settingsFocus==="security"){setTimeout(()=>{const panel=document.querySelector("#profile h2:nth-of-type(2)");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});},80);}});
+app.addEventListener("click",e=>{const b=e.target.closest("[data-settings-go]");if(!b)return;const target=b.dataset.settingsGo;window.show(target);if(b.dataset.settingsFocus==="security"){setTimeout(()=>{const panel=document.querySelector("#profile h2:nth-of-type(2)");if(panel)panel.scrollIntoView({behavior:"smooth",block:"start"});},80);}});
 app.appendChild(settings);
+addSettingsUtilityPages(app);
+}
+function addSettingsUtilityPages(app){
+const pages=[
+{id:"jrpreferences",title:"App preferences",kicker:"YOUR JR PHEEF EXPERIENCE",intro:"Manage the saved items that stay in this browser. These controls do not delete your JR PHEEF account or server-stored content.",html:`
+<div class="card jp-settings-card"><h2>Saved App Hub shortcuts</h2><p class="jp-theme-note">Your app links, categories and favourites are saved in this browser only.</p><button class="danger" type="button" id="jpClearAppHub">CLEAR SAVED APP SHORTCUTS</button><p class="jp-settings-status" id="jpAppHubStatus" aria-live="polite"></p></div>
+<div class="card jp-settings-card"><h2>Saved Discover topics</h2><p class="jp-theme-note">Your saved search subjects are stored locally on this device only.</p><button class="danger" type="button" id="jpClearDiscover">CLEAR SAVED DISCOVER TOPICS</button><p class="jp-settings-status" id="jpDiscoverStatus" aria-live="polite"></p></div>
+<div class="card jp-settings-card"><h2>Display preferences</h2><p class="jp-theme-note">Themes, wallpapers, contrast, compact cards and reduced motion are managed in Appearance Studio.</p><button class="primary" type="button" data-settings-go="themes">OPEN APPEARANCE STUDIO</button></div>`},
+{id:"jrprivacy",title:"Privacy & data",kicker:"CONTROL YOUR INFORMATION",intro:"A clear distinction between information saved in this browser and information held by JR PHEEF services.",html:`
+<div class="card jp-settings-card"><h2>Saved on this device</h2><ul><li>App Hub shortcuts and favourites.</li><li>Discover saved topics.</li><li>Appearance settings and uploaded wallpaper.</li></ul><p class="jp-theme-note">These items are browser-local. Clearing site data in your browser may also remove them.</p><button class="danger" type="button" id="jpClearLocalData">CLEAR JR PHEEF BROWSER-LOCAL DATA</button><p class="jp-settings-status" id="jpLocalDataStatus" aria-live="polite"></p></div>
+<div class="card jp-settings-card"><h2>Stored by JR PHEEF</h2><p class="jp-theme-note">Account details, profile information, listings, conversations and other account features are handled by JR PHEEF services. Clearing browser-local data does not delete server-side account data.</p><p class="jp-theme-note"><b>Profile photos:</b> the current profile-photo upload uses a publicly retrievable media URL. Do not upload an image you expect to remain private.</p><button class="primary" type="button" data-settings-go="profile">REVIEW PROFILE</button></div>
+<div class="card jp-settings-card"><h2>Account data requests</h2><p class="jp-theme-note">Self-service account export and account deletion are not currently available in this centre. No deletion is performed by the controls on this page.</p><p class="jp-settings-status">Account-level data requests require a verified support process.</p></div>`},
+{id:"jrhelp",title:"Help & support",kicker:"JR PHEEF HELP CENTRE",intro:"Quick guidance for the main parts of the platform.",html:`
+<div class="card jp-settings-card"><h2>Getting around</h2><p class="jp-theme-note">Use the dashboard tiles and navigation bar to open modules. The ← and → controls move through the pages you have visited.</p><button class="primary" type="button" data-settings-go="home">GO TO DASHBOARD</button></div>
+<div class="card jp-settings-card"><h2>App Hub & Discover</h2><p class="jp-theme-note">App Hub organises web-app shortcuts; it does not install native apps or integrate their accounts. Discover sends searches to the selected external provider. Saved shortcuts and topics currently stay in this browser.</p><button class="primary" type="button" data-settings-go="apphub">OPEN APP HUB</button><button class="dark" type="button" data-settings-go="discover">OPEN DISCOVER</button></div>
+<div class="card jp-settings-card"><h2>JR PHEEF Browser</h2><p class="jp-theme-note">Some websites block embedded viewing. Use the external-open control when a page cannot display inside JR PHEEF.</p><button class="primary" type="button" data-settings-go="browser">OPEN BROWSER</button></div>
+<div class="card jp-settings-card"><h2>Copy diagnostic summary</h2><p class="jp-theme-note">This summary contains technical environment details only; review it before sharing. It does not include your account details or private content.</p><button class="primary" type="button" id="jpCopyDiagnostics">COPY DIAGNOSTIC SUMMARY</button><pre id="jpDiagnostics" class="jp-settings-status" aria-live="polite"></pre></div>`}
+];
+for(const item of pages){
+ if(document.getElementById(item.id))continue;
+ const page=document.createElement("section");page.id=item.id;page.className="page hidden jp-settings-page";
+ const heading=document.createElement("div");heading.className="card jp-settings-hero";
+ heading.innerHTML='<p class="jp-kicker">'+item.kicker+'</p><h1>'+item.title+'</h1><p class="muted">'+item.intro+'</p>';
+ page.appendChild(heading);
+ const content=document.createElement("div");content.className="jp-settings-grid";content.innerHTML=item.html;
+ page.appendChild(content);app.appendChild(page);
+}
+const clear=(key,statusId,label)=>{
+ const status=$(statusId);if(!confirm("Clear "+label+" from this browser? This cannot be undone."))return;
+ try{localStorage.removeItem(key);status.textContent=label+" cleared from this browser.";}catch(e){status.textContent="This browser did not allow the saved data to be cleared.";}
+};
+$("jpClearAppHub")?.addEventListener("click",()=>clear("jr-pheef-app-hub-v1","jpAppHubStatus","App Hub shortcuts"));
+$("jpClearDiscover")?.addEventListener("click",()=>clear("jr-pheef-discover-saved-v1","jpDiscoverStatus","Discover saved topics"));
+$("jpClearLocalData")?.addEventListener("click",async()=>{
+ const status=$("jpLocalDataStatus");if(!confirm("Clear JR PHEEF appearance settings, uploaded wallpaper, App Hub shortcuts and Discover saved topics from this browser? Your account and server data will not be deleted."))return;
+ try{
+  ["jr-pheef-visual-settings-v1","jr-pheef-app-hub-v1","jr-pheef-discover-saved-v1"].forEach(k=>localStorage.removeItem(k));
+  await new Promise(resolve=>{const req=indexedDB.deleteDatabase("jr-pheef-visual-assets");req.onsuccess=req.onerror=req.onblocked=()=>resolve();});
+  status.textContent="Browser-local JR PHEEF data cleared. Reloading to restore the default appearance.";
+  setTimeout(()=>window.location.reload(),900);
+ }catch(e){status.textContent="Could not clear all browser-local data. Use your browser's site-data controls to finish.";}
+});
+$("jpCopyDiagnostics")?.addEventListener("click",async()=>{
+ const summary=["JR PHEEF diagnostic summary","Page: "+location.pathname,"Browser: "+navigator.userAgent,"Platform: "+(navigator.platform||"Not reported"),"Language: "+(navigator.language||"Not reported"),"Online: "+String(navigator.onLine),"Time: "+new Date().toISOString()].join("\\n");
+ const out=$("jpDiagnostics");out.textContent=summary;
+ try{await navigator.clipboard.writeText(summary);out.textContent="Diagnostic summary copied. Review it before sharing.\\n\\n"+summary;}
+ catch(e){out.textContent="Clipboard access unavailable. You can select and copy this summary manually.\\n\\n"+summary;}
+});
 }
 function render(){
 const host=$("jpThemePresets");if(!host)return;
