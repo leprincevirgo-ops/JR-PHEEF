@@ -42,13 +42,18 @@ document.body.dataset.jpSection=section;
 function hexRgba(hex,a){const m=/^#([0-9a-f]{6})$/i.exec(hex||"");if(!m)return "rgba(66,245,255,"+a+")";const n=parseInt(m[1],16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
 function ensurePage(){
 const app=$("app");if(!app||$("themes"))return;
-const nav=app.querySelector(".nav");if(nav){
-const back=document.createElement("button");back.type="button";back.className="jp-nav-arrow";back.textContent="←";back.setAttribute("aria-label","Go back");back.title="Back";
-const forward=document.createElement("button");forward.type="button";forward.className="jp-nav-arrow";forward.textContent="→";forward.setAttribute("aria-label","Go forward");forward.title="Forward";
-nav.append(back,forward);
-const b=document.createElement("button");b.type="button";b.textContent="APPEARANCE";b.onclick=()=>window.show("themes");nav.appendChild(b);
-back.onclick=()=>{if(window.jpPheefGoBack)window.jpPheefGoBack();};
-forward.onclick=()=>{if(window.jpPheefGoForward)window.jpPheefGoForward();};
+const nav=app.querySelector(".nav");
+const header=document.querySelector("body > header");
+if(header){
+ let controls=document.getElementById("jpHeaderNavigation");
+ if(!controls){
+  controls=document.createElement("div");controls.id="jpHeaderNavigation";controls.className="jp-header-navigation";controls.setAttribute("aria-label","Page navigation");
+  const back=document.createElement("button");back.type="button";back.className="jp-nav-arrow";back.textContent="←";back.setAttribute("aria-label","Go back");back.title="Back";
+  const forward=document.createElement("button");forward.type="button";forward.className="jp-nav-arrow";forward.textContent="→";forward.setAttribute("aria-label","Go forward");forward.title="Forward";
+  back.onclick=()=>{if(window.jpPheefGoBack)window.jpPheefGoBack();};
+  forward.onclick=()=>{if(window.jpPheefGoForward)window.jpPheefGoForward();};
+  controls.append(back,forward);header.appendChild(controls);
+ }
 }
 const page=document.createElement("section");page.id="themes";page.className="page hidden jp-theme-page";
 page.innerHTML=`
