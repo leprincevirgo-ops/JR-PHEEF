@@ -304,9 +304,16 @@ placeholder="Password">
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
 <button onclick="show('points')">POINTS</button>
 <button onclick="show('flex')">FLEX</button>
-<button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
+<button onclick="show('messages');jrMessagesLoad()">MESSAGES</button><button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
 </div>
 
+<div id="messages" class="page hidden">
+ <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF CONNECT</div><h2>Messages</h2><p>Private conversations and groups across your JR PHEEF ecosystem.</p></div></div>
+ <div class="grid" style="grid-template-columns: minmax(220px,1fr) minmax(0,2fr);gap:14px">
+  <div class="card"><h3>Your conversations</h3><button class="primary" onclick="jrNewChat()">＋ New chat</button><div id="jrConversations" style="margin-top:12px"></div></div>
+  <div class="card"><div id="jrChatHeader"><h3>JR PHEEF Connect</h3><p class="muted">Choose a conversation or start a new one.</p></div><div id="jrChatMessages" style="height: min(48vh,520px);overflow:auto;border:1px solid var(--line,#234);border-radius:12px;padding:12px;margin:12px 0"></div><div style="display:flex;gap:8px;align-items:end"><textarea id="jrChatInput" rows="2" maxlength="4000" placeholder="Write a message…" style="flex:1"></textarea><button class="primary" onclick="jrSendMessage()">Send</button></div><p id="jrChatStatus" class="muted" aria-live="polite"></p></div>
+ </div>
+</div>
 <div id="home" class="page">
 <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">FIND · MATCH · TRADE</span></div>
 <div class="jp-dashboard-grid" aria-label="JR PHEEF quick access">
@@ -1613,6 +1620,7 @@ async function jrTeacherAsk(){
 }
 </script>
 <script src="/market-ui.js"></script>
+<script src="/messages-ui.js"></script>
 <script src="/extras-ui.js"></script>
 <script src="/ecosystem-ui.js"></script>
 <script src="/family-ui.js"></script>

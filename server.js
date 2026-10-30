@@ -1281,6 +1281,7 @@ const routeCtx = {
   requireMember, checkRequestRate, contactBlocked, logActivity
 };
 require("./routes/market")(routeCtx);
+require("./routes/messages")({ app, db, requireMember, checkRequestRate, clean });
 /* DELIVERY, POWER SALE and M-PESA PAYMENTS (payments stay off until configured in Render) */
 require("./routes/delivery")(routeCtx);
 require("./routes/powersale")(routeCtx);
