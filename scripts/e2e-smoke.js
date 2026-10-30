@@ -73,6 +73,8 @@ async function main() {
     assert.match(html, /Cosmic Signature/i, "Cosmic Signature preview missing");
     assert.match(html, /href="\/themes\.css"/i, "Appearance Studio stylesheet is not linked");
     assert.match(html, /src="\/themes\.js"/i, "Appearance Studio script is not linked");
+    assert.match(html, /href="\\/apphub\\.css"/i, "App Hub stylesheet is not linked");
+    assert.match(html, /src="\\/apphub-ui\\.js"/i, "App Hub script is not linked");
   });
 
   await check("health endpoint reports service identity and version", async () => {
