@@ -42,7 +42,14 @@ document.body.dataset.jpSection=section;
 function hexRgba(hex,a){const m=/^#([0-9a-f]{6})$/i.exec(hex||"");if(!m)return "rgba(66,245,255,"+a+")";const n=parseInt(m[1],16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
 function ensurePage(){
 const app=$("app");if(!app||$("themes"))return;
-const nav=app.querySelector(".nav");if(nav){const b=document.createElement("button");b.type="button";b.textContent="APPEARANCE";b.onclick=()=>window.show("themes");nav.appendChild(b);}
+const nav=app.querySelector(".nav");if(nav){
+const back=document.createElement("button");back.type="button";back.className="jp-nav-arrow";back.textContent="←";back.setAttribute("aria-label","Go back");back.title="Back";
+const forward=document.createElement("button");forward.type="button";forward.className="jp-nav-arrow";forward.textContent="→";forward.setAttribute("aria-label","Go forward");forward.title="Forward";
+nav.append(back,forward);
+const b=document.createElement("button");b.type="button";b.textContent="APPEARANCE";b.onclick=()=>window.show("themes");nav.appendChild(b);
+back.onclick=()=>{if(window.jpPheefGoBack)window.jpPheefGoBack();};
+forward.onclick=()=>{if(window.jpPheefGoForward)window.jpPheefGoForward();};
+}
 const page=document.createElement("section");page.id="themes";page.className="page hidden jp-theme-page";
 page.innerHTML=`
 <div class="card jp-theme-hero"><p class="jp-kicker">JR PHEEF · YOUR SPACE, YOUR STYLE</p><h1>Appearance studio</h1><p class="muted">Personalize the command centre and give each JR PHEEF area its own visual identity. Changes are saved in this browser and do not alter account permissions or shared content.</p><span class="jp-theme-chip">Global themes</span><span class="jp-theme-chip">Workspace colours</span><span class="jp-theme-chip">Wallpapers</span></div>
@@ -127,7 +134,24 @@ async function loadStoredImage(){const blob=await getImage();if(blob){if(storedI
 function wrapShow(){
 if(typeof window.show!=="function")return;
 const original=window.show;
-window.show=function(id){original(id);if(SECTION_IDS.includes(id)){document.body.dataset.jpSection=id;apply();}if(id==="themes"){render();}};
+let stack=[],index=-1,restoring=false;
+function syncArrows(){
+const nav=document.querySelector(".nav");
+const back=nav&&nav.querySelector('[aria-label="Go back"]');
+const forward=nav&&nav.querySelector('[aria-label="Go forward"]');
+if(back)back.disabled=index<=0;
+if(forward)forward.disabled=index<0||index>=stack.length-1;
+}
+window.jpPheefGoBack=function(){if(index<=0)return;index--;restoring=true;window.show(stack[index]);restoring=false;syncArrows();};
+window.jpPheefGoForward=function(){if(index>=stack.length-1)return;index++;restoring=true;window.show(stack[index]);restoring=false;syncArrows();};
+window.show=function(id){
+if(!restoring&&id&&stack[index]!==id){stack=stack.slice(0,index+1);stack.push(id);index=stack.length-1;}
+original(id);
+if(SECTION_IDS.includes(id)){document.body.dataset.jpSection=id;apply();}
+if(id==="themes")render();
+syncArrows();
+};
+syncArrows();
 }
 function init(){
 read();ensurePage();wrapShow();bind();applyDisplay();apply();
