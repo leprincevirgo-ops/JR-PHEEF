@@ -936,7 +936,14 @@ async function login(){
       $("loginMsg").textContent=data.error||"Could not sign in. Please check your details and try again.";
       return;
     }
-    me=data.member;
+    // Confirm that the browser accepted the session cookie before opening private UI.
+    const session=await api("/api/me");
+    if(!session.ok||!session.logged_in||!session.member){
+      me=null;
+      $("loginMsg").textContent="Sign-in succeeded, but this browser could not confirm your session. Enable cookies for JR PHEEF and try again.";
+      return;
+    }
+    me=session.member;
     $("loginMsg").textContent="";
     await openApp();
   }catch(e){
@@ -979,13 +986,25 @@ async function register(){
 }
 
 async function openApp(){
-  $("auth").classList.add("hidden");
-  $("app").classList.remove("hidden");
-  $("logoutBtn").classList.remove("hidden");
+  // Never reveal the dashboard until the server confirms the current session.
+  let session;
+  try{ session=await api("/api/me"); }catch(e){ session=null; }
+  if(!session||!session.ok||!session.logged_in||!session.member){
+    me=null;
+    $("auth").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
+    $("loginMsg").textContent="Your session could not be verified. Check that cookies are enabled, then sign in again.";
+    return;
+  }
+  me=session.member;
   $("welcome").textContent="Hello, "+(me.full_name||"Member");
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
   fillProfile();
   show("home");
+  $("auth").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
   try{
     await refresh();
   }catch(e){
