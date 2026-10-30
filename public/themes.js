@@ -123,6 +123,7 @@ $("jpResetAll").onclick=()=>{if(!confirm("Reset all JR PHEEF appearance settings
 $("jpRemoveWallpaper").onclick=async()=>{await removeImage();state.customImage=false;save();apply();$("jpWallpaperStatus").textContent="Uploaded wallpaper removed. Your selected built-in background is active.";};
 $("jpWallpaperFile").onchange=handleUpload;
 }
+window.JRPheefSetWallpaper=function(name){const allowed=["aurora","nebula","sunset","waves","geometry","none"];if(!allowed.includes(name))return false;state.wallpaper=name;state.customImage=false;save();apply();const picker=$("jpWallpaper");if(picker)picker.value=name;const status=$("jpWallpaperStatus");if(status)status.textContent="Explore wallpaper applied. Saved in this browser.";return true;};
 function applyDisplay(){document.body.classList.toggle("jp-theme-high-contrast",!!state.highContrast);document.body.classList.toggle("jp-theme-compact",!!state.compact);document.body.classList.toggle("jp-theme-reduce-motion",!!state.reduceMotion);}
 function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB,1);req.onupgradeneeded=()=>req.result.createObjectStore("assets");req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
 async function storeImage(blob){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction("assets","readwrite");tx.objectStore("assets").put(blob,"wallpaper");tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>{db.close();reject(tx.error);};});}
