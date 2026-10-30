@@ -38,7 +38,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     send("ready",{ok:true});await tick();
     const timer=setInterval(tick,5000);
     const heartbeat=setInterval(()=>send("ping",{at:Date.now()}),20000);
-    req.on("close",()=>{closed=true;clearInterval(timer);clearInterval(heartbeat);});
+    // IncomingMessage "close" can fire after the request body is consumed; only
+    // the response close event reliably indicates that the SSE client disconnected.
     res.on("close",()=>{closed=true;clearInterval(timer);clearInterval(heartbeat);});
   }));
   app.get("/api/messages/conversations",wrap(async(req,res)=>{
