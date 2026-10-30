@@ -114,3 +114,11 @@ body.jp-theme-active .page>.card,body.jp-theme-active .jp-theme-page>.card{trans
 .jp-profile-photo-actions input[type=file]{display:block;max-width:100%;margin:8px 0}
 .jp-profile-photo-actions button{margin-top:4px}
 @media(max-width:520px){.jp-profile-photo-row{align-items:flex-start;gap:12px}.jp-profile-photo{width:82px;height:82px;flex-basis:82px}.jp-nav-arrow{min-width:36px!important;width:36px;height:36px}}
+
+
+/* Global page history belongs in the application header, never in destination tabs. */
+.jp-header-navigation{display:flex;align-items:center;gap:6px;margin-left:auto}
+.jp-header-navigation .jp-nav-arrow{min-width:42px;min-height:38px;padding:7px 12px;border:1px solid var(--jp-theme-border);border-radius:10px;background:rgba(7,25,48,.94);color:var(--jp-theme-ink);font-size:19px;line-height:1}
+.jp-header-navigation .jp-nav-arrow:disabled{opacity:.35;cursor:not-allowed}
+body.jp-theme-active>header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:520px){.jp-header-navigation{margin-left:auto}.jp-header-navigation .jp-nav-arrow{min-width:38px;min-height:36px}}
