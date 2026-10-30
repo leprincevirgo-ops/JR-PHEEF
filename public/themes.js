@@ -212,5 +212,6 @@ read();ensurePage();wrapShow();bind();applyDisplay();apply();
 if(state.customImage)loadStoredImage().then(apply);
 if(!document.body.dataset.jpSection)document.body.dataset.jpSection="home";
 }
+document.addEventListener("jr:preferences-restored",()=>{read();applyDisplay();apply();render();});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
