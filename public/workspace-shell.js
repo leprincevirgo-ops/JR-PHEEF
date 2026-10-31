@@ -125,8 +125,16 @@ function go(id,replace=false){
 }
 function updateNav(id){document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===id;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});}
 function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor],p=ensure(id);document.querySelectorAll("#app .page").forEach(x=>x.classList.add("hidden"));p.classList.remove("hidden");updateNav(id);window.scrollTo({top:0,behavior:"instant"});}
+function concealInternalOrchestration(){
+ const architecture=$("connectedArchitecture");if(architecture)architecture.hidden=true;
+ const directory=$("aiAgentDirectory");if(directory){const card=directory.closest(".card");if(card)card.hidden=true;}
+ const mode=$("aiMode"),modeLabel=document.querySelector('label[for="aiMode"]');if(mode)mode.hidden=true;if(modeLabel)modeLabel.hidden=true;
+ document.querySelectorAll(".page h2,.page h3").forEach(node=>{if(/specialist ai agents|jr pheef intelligence capabilities|intelligence · command · operations · control/i.test(node.textContent||"")){const card=node.closest(".card");if(card)card.hidden=true;}});
+}
 function mount(){
  const app=$("app");if(!app||wrapped)return;
+ concealInternalOrchestration();
+ const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
  // Add Connections to the main navigation without duplicating entries.
  const nav=app.querySelector(":scope > .nav");
  if(nav&&!nav.querySelector('[data-page="connections"]')){const b=el("button","","⇄  Connections");b.dataset.page="connections";b.addEventListener("click",()=>go("connections"));nav.append(b);}
