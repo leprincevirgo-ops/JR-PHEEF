@@ -26,7 +26,7 @@ const MODULES=[
  ["messages","Messages","Private and group conversations","✉"],
  ["jpconnect","JP Connect","Find and connect with JP identities","⌁"],
  ["social","Social","Community posts and connections","◉"],
- ["assistant","AI assistant","Research, plan and coordinate with AI","✦"],
+ ["assistant","JR Assistant","Get help, plan and coordinate your next steps","✦"],
  ["projects","Projects","Organise work, tasks and milestones","▤"],
  ["family","Family","Private family coordination space","⌂"],
  ["profile","Profile","Your member profile and account details","👤"],
