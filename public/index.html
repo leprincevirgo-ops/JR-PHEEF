@@ -304,19 +304,18 @@ placeholder="Password">
 <section id="app" class="hidden">
 
 <div class="nav" aria-label="Main navigation">
-  <button class="jp-nav-active" onclick="show('home')"><span>⌂</span> Home</button>
-  <button onclick="show('discover')"><span>⌕</span> Discover</button>
-  <button onclick="show('explore')"><span>✧</span> Explore</button>
-  <button onclick="show('browser')"><span>◎</span> Browser</button>
-  <button onclick="show('apphub')"><span>▦</span> App Hub</button>
-  <button onclick="show('messages');jrMessagesLoad()"><span>▤</span> Messages</button>
-  <button onclick="show('social')"><span>◉</span> Social</button>
-  <button onclick="show('ecosystem')"><span>◈</span> DGBO</button>
-  <button onclick="show('family');loadFamily()"><span>⌂</span> FAMILY</button>
-  <button onclick="show('businessgrowth')"><span>♙</span> Business</button>
-  <button onclick="show('find')"><span>🛒</span> Marketplace</button>
-  <button onclick="show('economy')"><span>▥</span> Economy</button>
-  <button onclick="show('projects')"><span>▤</span> Projects</button>
+  <button class="jp-nav-active" data-page="home" onclick="show('home')"><span>⌂</span> Home</button>
+  <button data-page="discover" onclick="show('discover')"><span>⌕</span> Discover</button>
+  <button data-page="explore" onclick="show('explore')"><span>✧</span> Explore</button>
+  <button data-page="browser" onclick="show('browser')"><span>◎</span> Browser</button>
+  <button data-page="apphub" onclick="show('apphub')"><span>▦</span> App Hub</button>
+  <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Messages</button>
+  <button data-page="social" onclick="show('social')"><span>◉</span> Social</button>
+  <button data-page="ecosystem" onclick="show('ecosystem')"><span>◈</span> DGBO</button>
+  <button data-page="family" onclick="show('family');loadFamily()"><span>⌂</span> FAMILY</button>
+  <button data-page="ecosystem" onclick="show('ecosystem')"><span>♙</span> Business</button>
+  <button data-page="find" onclick="show('find')"><span>🛒</span> Marketplace</button>
+  <button data-page="economy" onclick="show('economy')"><span>▥</span> Economy</button>
   <button class="jp-nav-settings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
 </div>
 
@@ -962,6 +961,7 @@ function show(id){
     .forEach(x=>x.classList.add("hidden"));
 
   target.classList.remove("hidden");
+  document.querySelectorAll("#app>.nav [data-page]").forEach(button=>{const active=button.dataset.page===id;button.classList.toggle("jp-nav-active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
   document.querySelectorAll("#app>.nav button").forEach(button=>{
     const route=button.getAttribute("onclick")||"";
     if(route.includes("show('"+id+"'")||route.includes('show("'+id+'"')) button.setAttribute("aria-current","page");
