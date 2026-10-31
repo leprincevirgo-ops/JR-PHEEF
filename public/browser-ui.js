@@ -5,7 +5,8 @@ let history=[],index=-1;
 function parseAddress(raw){
  const value=String(raw||"").trim();if(!value)return {kind:"empty"};
  let candidate=value;
- if(/^(localhost|[\w-]+(?:\.[\w-]+)+)(:\d+)?([/?#].*)?$/i.test(value)&&!/^https?:\/\//i.test(value))candidate="https://"+value;
+ const lower=value.toLowerCase();
+ if(!lower.startsWith("http://")&&!lower.startsWith("https://")&&value.indexOf(" ")<0&&(value==="localhost"||value.includes(".")))candidate="https://"+value;
  try{
   const u=new URL(candidate);
   if(!["http:","https:"].includes(u.protocol)||u.username||u.password)return {kind:"invalid"};
