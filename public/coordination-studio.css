@@ -1,0 +1,16 @@
+/* JR PHEEF universal coordination studio */
+#jrCoordinationStudio{border-color:rgba(66,245,255,.34)}
+#jrCoordinationStudio .jr-coord-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 16px}
+#jrCoordinationStudio .jr-coord-role-grid label{display:flex;align-items:center;gap:9px;min-height:46px;padding:10px;border:1px solid rgba(66,245,255,.18);border-radius:12px;background:rgba(2,15,31,.68);font-size:13px}
+#jrCoordinationStudio .jr-coord-role-grid input{width:18px;min-width:18px;margin:0;accent-color:#16c7e6}
+#jrCoordinationStudio .jr-coord-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#jrCoordinationStudio .jr-coord-visual{min-height:240px;padding:14px;border:1px solid rgba(66,245,255,.18);border-radius:16px;background:radial-gradient(circle at 50% 45%,rgba(0,179,222,.09),transparent 55%),rgba(1,10,23,.6);overflow:hidden}
+#jrCoordinationStudio .jr-coord-empty{display:grid;place-items:center;min-height:200px;color:#8fb2cd;text-align:center}
+#jrCoordinationStudio .jr-coord-summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#jrCoordinationStudio .jr-coord-summary span{padding:7px 10px;border:1px solid rgba(66,245,255,.2);border-radius:99px;background:#06213a;color:#c9faff;font-size:12px}
+#jrCoordinationStudio .jr-coord-map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:stretch}
+#jrCoordinationStudio .jr-coord-node{display:flex;flex-direction:column;justify-content:center;min-height:70px;padding:9px 6px;text-align:center;border:1px solid rgba(66,245,255,.23);border-radius:13px;background:linear-gradient(145deg,#0b3152,#04162b);font-size:11px;overflow-wrap:anywhere}
+#jrCoordinationStudio .jr-coord-node strong{display:block;color:#e9fcff;font-size:15px;margin-bottom:4px}
+#jrCoordinationStudio .jr-coord-hub{grid-column:1/-1;min-height:58px;border-color:rgba(66,245,255,.6);background:linear-gradient(100deg,#064b70,#07304d);font-weight:800;letter-spacing:1px}
+#jrCoordinationStudio .jr-coord-foot{margin-top:10px;color:#93b7ce;font-size:12px;line-height:1.5}
+@media(max-width:520px){#jrCoordinationStudio .jr-coord-role-grid{grid-template-columns:1fr}#jrCoordinationStudio .jr-coord-map{grid-template-columns:repeat(2,minmax(0,1fr))}}
