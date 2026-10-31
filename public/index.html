@@ -240,7 +240,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
   <form class="jp-global-search" role="search" onsubmit="event.preventDefault();show('find');const q=document.getElementById('globalCommandSearch')?.value||'';const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
     <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything… products, people, services, ideas, opportunities" aria-label="Search JR PHEEF"><button type="submit">SEARCH</button>
   </form>
-  <div class="jp-header-actions"><button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button><button type="button" class="jp-header-icon" onclick="show('jrsettings')" aria-label="Settings">⚙</button></div>
+  <div class="jp-header-actions"><button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button><button type="button" class="jp-header-icon" onclick="show('jrsettings')" aria-label="Settings">⚙</button><button type="button" class="jp-header-icon" onclick="show('profile')" aria-label="Profile">◉</button></div>
 </header>
 
 <main>
@@ -983,6 +983,11 @@ function show(id){
     .forEach(x=>x.classList.add("hidden"));
 
   $(id).classList.remove("hidden");
+  document.querySelectorAll("#app>.nav button").forEach(button=>{
+    const route=button.getAttribute("onclick")||"";
+    if(route.includes("show('"+id+"'")||route.includes('show("'+id+'"')) button.setAttribute("aria-current","page");
+    else button.removeAttribute("aria-current");
+  });
 
   if(id==="points") refresh();
   if(id==="home") refresh();
