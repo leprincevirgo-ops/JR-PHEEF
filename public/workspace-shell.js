@@ -133,6 +133,8 @@ function concealInternalOrchestration(){
 }
 function mount(){
  const app=$("app");if(!app||wrapped)return;
+ if(!$("jrEverywhereStyles")){const l=document.createElement("link");l.id="jrEverywhereStyles";l.rel="stylesheet";l.href="/jr-everywhere.css";document.head.append(l);}
+ if(!$("jrEverywhereScript")){const sc=document.createElement("script");sc.id="jrEverywhereScript";sc.src="/jr-everywhere.js";sc.defer=true;document.body.append(sc);}
  concealInternalOrchestration();
  const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
  // Add Connections to the main navigation without duplicating entries.
