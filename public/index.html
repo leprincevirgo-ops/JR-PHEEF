@@ -231,6 +231,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
   <link rel="stylesheet" href="/browser.css?v=1">
 <link rel="stylesheet" href="/command-center.css">
 <link rel="stylesheet" href="/notifications.css">\n<link rel="stylesheet" href="/command-centre-theme.css?v=1">
+<link rel="stylesheet" href="/workspace-shell.css?v=1">
 </head>
 
 <body>
@@ -318,6 +319,7 @@ placeholder="Password">
   <button data-page="economy" onclick="show('economy')"><span>▥</span> Economy</button>
   <button class="jp-nav-settings" data-page="jrsettings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
   <button data-page="projects" onclick="show('projects')"><span>▤</span> Projects</button>
+  <button data-page="connections" onclick="window.jrWorkspaceNavigate('connections')"><span>⇄</span> Connections</button>
 </div>
 
 <div id="messages" class="page hidden">
@@ -1671,7 +1673,7 @@ function jrStartHeaderVoice(){
 <script src="/command-center.js"></script>
 <script src="/notifications-ui.js"></script>
 
-<script src="/ai-agents.js" defer></script>
 <script src="/projects-ui.js"></script>
+<script src="/workspace-shell.js"></script>
 </body>
 </html>
