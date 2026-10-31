@@ -230,13 +230,17 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/discover.css">
   <link rel="stylesheet" href="/browser.css?v=1">
 <link rel="stylesheet" href="/command-center.css">
-<link rel="stylesheet" href="/notifications.css">
+<link rel="stylesheet" href="/notifications.css">\n<link rel="stylesheet" href="/command-centre-theme.css?v=1">
 </head>
 
 <body>
 
-<header>
-  <div><div class="logo">JR <span>PHEEF</span></div><div style="font-size:9px;letter-spacing:1.5px;color:#8fb8d4;margin-top:3px">YOUR CONNECTED WORLD <span style="color:#42f5ff">·</span> POWERED BY DGBO</div></div>
+<header class="jp-global-header">
+  <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>YOUR CONNECTED WORLD</small></span></a>
+  <form class="jp-global-search" role="search" onsubmit="event.preventDefault();show('find');const q=document.getElementById('globalCommandSearch')?.value||'';const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
+    <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything… products, people, services, ideas, opportunities" aria-label="Search JR PHEEF"><button type="submit">SEARCH</button>
+  </form>
+  <div class="jp-header-actions"><button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button><button type="button" class="jp-header-icon" onclick="show('jrsettings')" aria-label="Settings">⚙</button></div>
 </header>
 
 <main>
