@@ -32,8 +32,10 @@ body{color:var(--jp-ink);background:
 .jp-header-actions{display:flex;gap:8px;margin-left:auto}
 .jp-header-icon{width:39px;height:39px;padding:0;border:1px solid var(--jp-line);
  border-radius:11px;background:#092343;color:#c8f7ff;font-size:17px}
-main{max-width:none!important;width:auto;margin:0 0 0 218px!important;padding:94px clamp(14px,2.1vw,30px) 34px!important}
-#app{min-height:calc(100vh - 95px)}
+main{max-width:none!important;width:calc(100% - 218px)!important;margin:0 0 0 218px!important;padding:94px clamp(14px,2.1vw,30px) 34px!important;min-height:100vh}
+#app{min-height:calc(100vh - 95px);width:100%;max-width:none}
+#app>.page{width:100%;max-width:1600px;margin-left:auto;margin-right:auto}
+html,body{max-width:100%;overflow-x:hidden}
 #app>.nav{
  position:fixed;z-index:900;left:0;top:76px;bottom:0;width:204px;padding:15px 10px 24px;
  display:flex;flex-direction:column;align-items:stretch;gap:5px;overflow-y:auto;overflow-x:hidden;
@@ -109,7 +111,7 @@ button.danger{background:linear-gradient(110deg,#71334c,#9b3f58)!important}
  .jp-global-search input{font-size:11px}
  .jp-global-search button{padding:8px;font-size:8px}
  .jp-header-actions{margin-left:0}
- main{margin:0!important;padding:118px 10px 25px!important}
+ main{width:100%!important;margin:0!important;padding:118px 10px 25px!important;min-height:100vh}
  #app>.nav{position:sticky;top:111px;left:auto;bottom:auto;width:auto;height:auto;
   flex-direction:row;align-items:center;gap:6px;padding:8px;margin:0 -10px 13px;
   overflow-x:auto;overflow-y:hidden;border:0;border-bottom:1px solid var(--jp-line);
