@@ -175,6 +175,85 @@ async function accessStatus(id) {
   };
 }
 
+/* PROJECTS — authenticated owner-scoped project and task management. */
+app.get("/api/projects", async (req,res)=>{
+  try {
+    const member=await requireMember(req,res); if(!member)return;
+    const {data:projects,error}=await db.from("jr_projects")
+      .select("id,title,goal,budget_ksh,status,summary,created_at,updated_at")
+      .eq("member_id",member.id).order("updated_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const ids=(projects||[]).map(p=>p.id);
+    let tasks=[];
+    if(ids.length){const result=await db.from("jr_project_tasks").select("id,project_id,status").in("project_id",ids);if(result.error)throw result.error;tasks=result.data||[];}
+    const counts=new Map();
+    for(const t of tasks){const c=counts.get(t.project_id)||{tasks_total:0,tasks_done:0};c.tasks_total++;if(t.status==="done")c.tasks_done++;counts.set(t.project_id,c);}
+    res.json({ok:true,projects:(projects||[]).map(p=>({...p,...(counts.get(p.id)||{tasks_total:0,tasks_done:0})}))});
+  }catch(e){console.error("Projects list:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load your projects."});}
+});
+app.post("/api/projects",async(req,res)=>{
+  try{
+    const member=await requireMember(req,res);if(!member)return;
+    const title=clean(req.body.title).slice(0,140),goal=clean(req.body.goal).slice(0,3000);
+    const budget=req.body.budget_ksh===""||req.body.budget_ksh==null?null:Number(req.body.budget_ksh);
+    if(!title||!goal)return res.status(400).json({ok:false,error:"A project name and goal are required."});
+    if(budget!==null&&(!Number.isFinite(budget)||budget<0||budget>1000000000000))return res.status(400).json({ok:false,error:"Enter a valid non-negative project budget."});
+    const {data,error}=await db.from("jr_projects").insert({member_id:member.id,title,goal,budget_ksh:budget,status:"planning"}).select("id,title,goal,budget_ksh,status,summary,created_at,updated_at").single();
+    if(error)throw error;
+    await logActivity(member.id,"PROJECT_CREATED",{project_id:data.id});
+    res.status(201).json({ok:true,project:data});
+  }catch(e){console.error("Project create:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not create the project."});}
+});
+app.get("/api/projects/:id",async(req,res)=>{
+  try{
+    const member=await requireMember(req,res);if(!member)return;
+    const {data:project,error}=await db.from("jr_projects").select("id,title,goal,budget_ksh,status,summary,risks,created_at,updated_at").eq("id",req.params.id).eq("member_id",member.id).maybeSingle();
+    if(error)throw error;if(!project)return res.status(404).json({ok:false,error:"Project not found."});
+    const {data:tasks,error:taskError}=await db.from("jr_project_tasks").select("id,title,detail,category,status,est_cost_ksh,sort_order,created_at").eq("project_id",project.id).order("sort_order").order("created_at");
+    if(taskError)throw taskError;
+    res.json({ok:true,project,tasks:tasks||[]});
+  }catch(e){console.error("Project detail:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not load this project."});}
+});
+app.patch("/api/projects/:id",async(req,res)=>{
+  try{
+    const member=await requireMember(req,res);if(!member)return;
+    const update={updated_at:new Date().toISOString()};
+    if(req.body.status!==undefined){const v=clean(req.body.status);if(!["planning","active","paused","done"].includes(v))return res.status(400).json({ok:false,error:"Invalid project status."});update.status=v;}
+    if(req.body.title!==undefined){const v=clean(req.body.title).slice(0,140);if(!v)return res.status(400).json({ok:false,error:"Project name cannot be empty."});update.title=v;}
+    if(req.body.goal!==undefined){const v=clean(req.body.goal).slice(0,3000);if(!v)return res.status(400).json({ok:false,error:"Project goal cannot be empty."});update.goal=v;}
+    if(Object.keys(update).length===1)return res.status(400).json({ok:false,error:"No project changes supplied."});
+    const {data,error}=await db.from("jr_projects").update(update).eq("id",req.params.id).eq("member_id",member.id).select("id,title,goal,budget_ksh,status,updated_at").maybeSingle();
+    if(error)throw error;if(!data)return res.status(404).json({ok:false,error:"Project not found."});
+    res.json({ok:true,project:data});
+  }catch(e){console.error("Project update:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update this project."});}
+});
+app.post("/api/projects/:id/tasks",async(req,res)=>{
+  try{
+    const member=await requireMember(req,res);if(!member)return;
+    const title=clean(req.body.title).slice(0,160);if(!title)return res.status(400).json({ok:false,error:"Enter a task title."});
+    const {data:project,error:projectError}=await db.from("jr_projects").select("id").eq("id",req.params.id).eq("member_id",member.id).maybeSingle();
+    if(projectError)throw projectError;if(!project)return res.status(404).json({ok:false,error:"Project not found."});
+    const {count,error:countError}=await db.from("jr_project_tasks").select("id",{count:"exact",head:true}).eq("project_id",project.id);
+    if(countError)throw countError;
+    const {data,error}=await db.from("jr_project_tasks").insert({project_id:project.id,title,detail:clean(req.body.detail).slice(0,1500)||null,sort_order:count||0}).select("id,title,status,created_at").single();
+    if(error)throw error;
+    await db.from("jr_projects").update({updated_at:new Date().toISOString()}).eq("id",project.id).eq("member_id",member.id);
+    res.status(201).json({ok:true,task:data});
+  }catch(e){console.error("Project task create:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not add the task."});}
+});
+app.patch("/api/projects/:id/tasks/:taskId",async(req,res)=>{
+  try{
+    const member=await requireMember(req,res);if(!member)return;
+    const {data:project,error:projectError}=await db.from("jr_projects").select("id").eq("id",req.params.id).eq("member_id",member.id).maybeSingle();
+    if(projectError)throw projectError;if(!project)return res.status(404).json({ok:false,error:"Project not found."});
+    const status=clean(req.body.status);if(!["todo","done","doing"].includes(status))return res.status(400).json({ok:false,error:"Invalid task status."});
+    const {data,error}=await db.from("jr_project_tasks").update({status}).eq("id",req.params.taskId).eq("project_id",project.id).select("id,status").maybeSingle();
+    if(error)throw error;if(!data)return res.status(404).json({ok:false,error:"Task not found."});
+    await db.from("jr_projects").update({updated_at:new Date().toISOString()}).eq("id",project.id).eq("member_id",member.id);
+    res.json({ok:true,task:data});
+  }catch(e){console.error("Project task update:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not update the task."});}
+});
+
 // Read-only ecosystem overview used by the member dashboard. This reports the
 // architecture baseline only; it does not imply that external integrations are live.
 app.get("/api/ecosystem", async (req, res) => {
