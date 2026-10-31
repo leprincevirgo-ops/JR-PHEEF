@@ -10,7 +10,8 @@ const catalog=[
 ["apphub","App Hub","Keep your favourite apps and services together.","Organise shortcuts to services you already use. External apps open on their own official websites."],
 ["messages","Messages & Status","Private chats, group conversations and 24-hour updates.","Connect with people through your JR PHEEF account. Calls and media features are added only when secure and supported."],
 ["social","Social","Share updates and discover your community.","Community tools for posts, connections and conversations."],
-["ecosystem","DGBO","Business development, governance and ecosystem oversight.","A dedicated environment for protecting ideas, developing ventures and coordinating opportunities."],
+["dgbo","DGBO","Business development, governance and opportunity development.","Explore DGBO services and open the tools available to develop your ideas and ventures."],
+["ecosystem","Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY connect.","A shared overview of the ecosystem, its permissions and operating status."],
 ["family","FAMILY","Private family coordination and long-term planning.","A separate family space. Financial services require regulated partners and explicit authorisation."],
 ["create","Business","Create and manage a business listing.","Publish an offer, product or service and coordinate the next steps."],
 ["find","Marketplace","Discover products, services and opportunities.","Browse listings. Availability, seller identity and fulfilment must be independently confirmed."],
@@ -145,7 +146,7 @@ function mount(){
    ["YOUR WORLD",["home","discover","explore","browser","apphub"]],
    ["CONNECT",["messages","social","jpconnect","connections"]],
    ["CREATE & GROW",["create","find","opportunities","projects","economy","businessgrowth","ads","mylistings","deals","delivery","powersale"]],
-   ["ECOSYSTEM",["ecosystem","family","command","accessgov","jpidentity"]],
+   ["ECOSYSTEM",["dgbo","family","ecosystem","command","accessgov","jpidentity"]],
    ["PERSONAL",["profile","vault","library","teacher","universe","assistant","voice","lab","points","flex","rooms","devices","referrals","membership","scifi","fixedit","ideas","alerts","themes","jrsettings"]]
   ];
   const buttons=[...nav.querySelectorAll(":scope > button")],used=new Set();
