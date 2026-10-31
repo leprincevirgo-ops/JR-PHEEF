@@ -132,3 +132,57 @@ button.danger{background:linear-gradient(110deg,#71334c,#9b3f58)!important}
  .jp-global-search>span{display:none}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* JR PHEEF visual upgrade: immersive wallpaper, one settings hub, reliable navigation layers */
+body{background-color:#020817;background-image:
+ radial-gradient(ellipse at 78% 18%,rgba(0,196,255,.19),transparent 28%),
+ radial-gradient(ellipse at 18% 55%,rgba(81,55,190,.14),transparent 32%),
+ radial-gradient(ellipse at 90% 88%,rgba(0,117,202,.14),transparent 30%),
+ linear-gradient(145deg,#020611 0%,#061a35 48%,#020817 100%)!important;background-attachment:fixed}
+main{position:relative;z-index:1;isolation:isolate}
+#app>.nav{z-index:950;overscroll-behavior:contain}
+#app>.page{position:relative;z-index:1;isolation:isolate}
+#home{position:relative}
+#home:before{content:"";position:absolute;inset:-16px -12px auto;height:clamp(360px,52vw,650px);z-index:-1;pointer-events:none;border-radius:30px;
+ background:
+ radial-gradient(ellipse at 76% 20%,rgba(0,225,255,.24),transparent 25%),
+ radial-gradient(ellipse at 72% 48%,rgba(48,111,255,.20),transparent 34%),
+ radial-gradient(ellipse at 12% 88%,rgba(111,57,211,.16),transparent 32%),
+ repeating-linear-gradient(125deg,transparent 0 54px,rgba(84,191,255,.035) 55px 56px,transparent 57px 112px);
+ filter:drop-shadow(0 0 32px rgba(0,174,255,.08))}
+#universeHero{isolation:isolate;overflow:hidden;min-height:clamp(300px,34vw,450px)!important;
+ background:
+ radial-gradient(ellipse at 78% 35%,rgba(0,224,255,.34),transparent 23%),
+ radial-gradient(ellipse at 80% 75%,rgba(28,101,255,.25),transparent 36%),
+ radial-gradient(ellipse at 18% 100%,rgba(114,64,255,.20),transparent 35%),
+ linear-gradient(112deg,rgba(5,25,59,.98),rgba(3,14,37,.94) 58%,rgba(5,43,76,.95))!important;
+ box-shadow:0 20px 60px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.07)!important}
+#universeHero:before{content:"";position:absolute;z-index:-1;right:5%;top:8%;width:min(40vw,390px);aspect-ratio:1;border-radius:50%;
+ border:1px solid rgba(85,226,255,.30);box-shadow:0 0 0 18px rgba(66,245,255,.035),0 0 0 48px rgba(66,245,255,.025),inset 0 0 75px rgba(0,174,255,.22),0 0 85px rgba(0,177,255,.18);
+ background:radial-gradient(circle at 36% 32%,rgba(79,221,255,.35),rgba(16,81,151,.12) 38%,transparent 68%)}
+#universeHero:after{content:"";position:absolute;z-index:-1;right:-8%;bottom:-35%;width:70%;height:60%;transform:rotate(-13deg);
+ border-top:2px solid rgba(72,224,255,.36);border-radius:50%;box-shadow:0 -14px 45px rgba(0,176,255,.12)}
+#home .jp-section-head{padding:12px 4px}
+#home .jp-dash-tile{backdrop-filter:blur(12px);background:linear-gradient(145deg,rgba(12,48,91,.88),rgba(3,15,34,.94))!important}
+#home .jp-status-item{backdrop-filter:blur(12px)}
+/* At tablet width, replace the fixed left rail with a horizontal workspace bar.
+   This prevents content from being squeezed beneath or behind the sidebar. */
+@media(max-width:900px){
+ main{width:100%!important;margin:0!important;padding:94px 14px 30px!important}
+ #app>.nav{position:sticky;top:76px;left:auto;right:auto;bottom:auto;width:auto;height:auto;max-height:none;
+  flex-direction:row;align-items:center;gap:7px;padding:9px 10px;margin:0 -14px 14px;
+  overflow-x:auto;overflow-y:hidden;border:0;border-bottom:1px solid var(--jp-line);
+  background:rgba(2,10,25,.97);box-shadow:0 8px 24px rgba(0,0,0,.22);scrollbar-width:thin}
+ #app>.nav:before{display:none}
+ #app>.nav button{width:auto;min-width:max-content;min-height:38px;white-space:nowrap;padding:9px 12px}
+ #app>.nav button[aria-current="page"]{box-shadow:0 4px 18px rgba(0,150,255,.2)}
+ .jp-quick-launch{position:relative;z-index:4;max-width:100%;overflow-x:auto}
+ #home:before{inset:-8px -5px auto}
+}
+@media(max-width:620px){
+ main{padding:120px 10px 24px!important}
+ #app>.nav{top:112px;margin-left:-10px;margin-right:-10px}
+ #universeHero:before{right:-10%;width:64vw;opacity:.8}
+}
+@media(prefers-reduced-motion:reduce){#home:before{filter:none}}

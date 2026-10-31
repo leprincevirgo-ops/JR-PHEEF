@@ -59,7 +59,8 @@ function mount(){
  const headerActions=el("div","jp-command-header-actions");
  const search=el("button","jp-command-open","⌕  SEARCH JR PHEEF");search.type="button";search.setAttribute("aria-haspopup","dialog");search.setAttribute("aria-controls","jpCommandPalette");search.addEventListener("click",open);
  headerActions.append(search);
- const settings=el("button","jp-command-settings","⚙");settings.type="button";settings.title="Settings";settings.setAttribute("aria-label","Open Settings");settings.addEventListener("click",()=>openModule("jrsettings"));headerActions.append(settings);header.append(headerActions);
+ // Settings has one global entry point in the main JR PHEEF header.
+ header.append(headerActions);
  const quick=el("div","jp-quick-launch");quick.setAttribute("aria-label","Quick launch");
  [["discover","DISCOVER"],["apphub","APP HUB"],["browser","BROWSER"],["explore","EXPLORE"],["messages","MESSAGES"],["projects","PROJECTS"]].forEach(([id,label])=>{const b=el("button","",label);b.type="button";b.addEventListener("click",()=>openModule(id));quick.append(b)});
  nav.insertAdjacentElement("afterend",quick);
