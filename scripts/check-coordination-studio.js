@@ -12,7 +12,7 @@ const checks=[
 ["project save uses authenticated project API",js.includes('fetch("/api/projects"')],
 ["answer depth selector is connected",html.includes('id="aiAnswerDepth"')&&html.includes('answer_depth:$(')],
 ["AI right-sizing instructions exist",server.includes("Right-size every answer")],
-["AI visual explanation instructions exist",server.includes("Make information experiential")],
+["AI visual explanation instructions exist",server.includes("visual descriptions")],
 ["AI multi-party coordination instructions exist",server.includes("many-to-many")],
 ["responsive network styles exist",css.includes("@media(max-width:520px)")],
 ["limitations are disclosed",html.includes("invitations, shared assignments and live multi-party execution require further connected workflows")]
