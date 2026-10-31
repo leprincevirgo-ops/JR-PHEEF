@@ -20,6 +20,7 @@ const MODULES=[
  ["discover","Universal Discover","Explore subjects, categories, web, images, video and places","✧"],
  ["explore","Explore","Visual discovery and inspiration","◎"],
  ["apphub","App Hub","Organise and open your other apps","▦"],
+ ["connections","Connections","Organise and connect approved external services","⇄"],
  ["browser","JR PHEEF Browser","Search the web and open websites","↗"],
  ["create","Create listing","Publish a product, service or offer","＋"],
  ["opportunities","Opportunities","Find, post and coordinate opportunities","◇"],
