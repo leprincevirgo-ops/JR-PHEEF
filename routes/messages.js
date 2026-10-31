@@ -118,13 +118,14 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:follows,error:fe}=await db.from("social_follows").select("followee_id").eq("follower_id",m.id).limit(1000);
     if(fe)throw fe;
     const followed=(follows||[]).map(x=>x.followee_id);
-    const ids=[m.id,...followed];
-    const {data:rows,error}=await db.from("jr_status_updates").select("id,member_id,body,background,visibility,created_at,expires_at").in("member_id",ids).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(200);
+    const {data:rows,error}=await db.from("jr_status_updates").select("id,member_id,body,background,visibility,created_at,expires_at").gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(200);
     if(error)throw error;
-    const visible=(rows||[]).filter(x=>String(x.member_id)===String(m.id)||x.visibility==="everyone"||followed.some(id=>String(id)===String(x.member_id)));
-    const owners=[...new Set(visible.map(x=>x.member_id))];
+    const owners=[...new Set((rows||[]).map(x=>x.member_id))];
     const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,jp_number,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
     if(pe)throw pe;
+    const peopleMap=new Map((people||[]).map(p=>[String(p.id),p]));
+    const followedSet=new Set(followed.map(String));
+    const visible=(rows||[]).filter(x=>{const owner=peopleMap.get(String(x.member_id));const mine=String(x.member_id)===String(m.id);const connected=followedSet.has(String(x.member_id));return mine||connected||(x.visibility==="everyone"&&owner?.profile_visibility!=="private");});
     const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||p.jp_number||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
     const idsToView=visible.filter(x=>String(x.member_id)!==String(m.id)).map(x=>x.id);
     if(idsToView.length){const {error:ve}=await db.from("jr_status_views").upsert(idsToView.map(status_id=>({status_id,viewer_id:m.id})),{onConflict:"status_id,viewer_id",ignoreDuplicates:true});if(ve)throw ve;}
