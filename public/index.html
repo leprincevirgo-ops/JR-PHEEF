@@ -896,6 +896,24 @@ SAVE PROFILE
   <p id="aiStatus" class="muted" aria-live="polite"></p>
   <p class="muted" style="font-size:12px">Privacy: this assistant sends the question and recent chat context to the configured AI provider. Don't include passwords, verification codes, or sensitive personal details. It cannot move files, make payments, or contact people unless a separate verified integration is built and authorized.</p>
  </div>
+ <section class="card" id="jrCoordinationStudio" aria-labelledby="jrCoordinationTitle">
+  <p class="jp-kicker">JR PHEEF · UNIVERSAL COORDINATION</p>
+  <h2 id="jrCoordinationTitle">Coordinate people around one purpose</h2>
+  <p class="muted">Plan one-to-one, one-to-many, many-to-one and many-to-many work. Model groups from 2 to 1,000 participants. This creates a coordination brief; invitations, shared assignments and live multi-party execution require further connected workflows.</p>
+  <label for="jrCoordPurpose">What should everyone coordinate?</label>
+  <textarea id="jrCoordPurpose" rows="2" maxlength="1200" placeholder="Example: Design and develop a sustainable futuristic city."></textarea>
+  <div class="grid"><div><label for="jrCoordScale">People or organisations involved</label><input id="jrCoordScale" type="number" min="2" max="1000" step="1" value="12"></div>
+  <div><label for="jrCoordPattern">Coordination pattern</label><select id="jrCoordPattern"><option value="many-to-many">Many-to-many · shared network</option><option value="one-to-many">One-to-many · one coordinator serves a group</option><option value="many-to-one">Many-to-one · a group serves one goal</option><option value="one-to-one">One-to-one · direct connection</option></select></div></div>
+  <label>What kinds of participants are needed?</label><div class="jr-coord-role-grid" id="jrCoordRoles">
+   <label><input type="checkbox" value="Project leadership" checked> Project leadership</label><label><input type="checkbox" value="Specialists and professionals" checked> Specialists and professionals</label>
+   <label><input type="checkbox" value="Suppliers and service providers"> Suppliers and service providers</label><label><input type="checkbox" value="Customers or community"> Customers or community</label>
+   <label><input type="checkbox" value="Partners and institutions"> Partners and institutions</label><label><input type="checkbox" value="Investors and funders"> Investors and funders</label>
+   <label><input type="checkbox" value="Volunteers and contributors"> Volunteers and contributors</label><label><input type="checkbox" value="Other participants"> Other participants</label></div>
+  <div class="jr-coord-actions"><button class="primary" type="button" id="jrCoordBuild">BUILD NETWORK VIEW</button><button class="dark" type="button" id="jrCoordSend">SEND BRIEF TO JR</button><button class="dark" type="button" id="jrCoordSave">SAVE AS PROJECT</button></div>
+  <p class="muted" id="jrCoordStatus" aria-live="polite">Choose a purpose and participant scale to create a visual coordination brief.</p>
+  <div class="jr-coord-visual" id="jrCoordVisual" aria-live="polite"><div class="jr-coord-empty">Your coordination network will appear here.</div></div>
+  <p class="muted" style="font-size:12px">This planner does not invite people or disclose their details. Actual connections, role permissions, shared records and consequential decisions must be authorised and verified.</p>
+ </section>
  <div class="card">
   <h3>Specialist AI Agents Across the Ecosystem</h3>
   <p class="muted">Choose a specialist for the field you are working in. The Ecosystem Coordinator can combine multiple specialists into one plan. Agents advise and prepare work; they do not independently approve payments, legal commitments, account changes or succession transfers.</p>
@@ -1693,6 +1711,8 @@ function jrStartHeaderVoice(){
 <link rel="stylesheet" href="/lab-ui.css">
 <script src="/lab-ui.js"></script>
 <script src="/projects-ui.js"></script>
+<link rel="stylesheet" href="/coordination-studio.css">
+<script src="/coordination-studio.js"></script>
 <script src="/workspace-shell.js"></script>
 </body>
 </html>
