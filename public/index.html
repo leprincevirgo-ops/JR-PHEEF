@@ -1018,7 +1018,7 @@ async function login(){
       $("loginMsg").textContent="Sign-in succeeded, but this browser could not confirm your session. Enable cookies for JR PHEEF and try again.";
       return;
     }
-    me=session.member;
+    me=session.member;window.jrCurrentMemberId=me.id;
     $("loginMsg").textContent="";
     await openApp();
   }catch(e){
@@ -1072,7 +1072,7 @@ async function openApp(){
     $("loginMsg").textContent="Your session could not be verified. Check that cookies are enabled, then sign in again.";
     return;
   }
-  me=session.member;
+  me=session.member;window.jrCurrentMemberId=me.id;
   $("welcome").textContent=me.full_name||"Your JR PHEEF space";
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
   const headerName=$("jpHeaderMemberName"),headerNumber=$("jpHeaderMemberNumber"),homeIdentity=$("jpHomeIdentity"),homeAvatar=$("jpHomeAvatar");
@@ -1672,5 +1672,6 @@ function jrStartHeaderVoice(){
 <script src="/notifications-ui.js"></script>
 
 <script src="/ai-agents.js" defer></script>
+<script src="/projects-ui.js"></script>
 </body>
 </html>
