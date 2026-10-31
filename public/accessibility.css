@@ -1,0 +1,8 @@
+/* JR PHEEF accessibility defaults */
+html{scroll-behavior:smooth}
+:focus-visible{outline:3px solid #8af8ff!important;outline-offset:3px!important}
+button,a,input,textarea,select,[tabindex]:not([tabindex="-1"]){touch-action:manipulation}
+button,a{min-height:40px}
+input,textarea,select{font:inherit}
+img{max-width:100%}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
