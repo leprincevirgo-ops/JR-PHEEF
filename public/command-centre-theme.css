@@ -186,3 +186,24 @@ main{position:relative;z-index:1;isolation:isolate}
  #universeHero:before{right:-10%;width:64vw;opacity:.8}
 }
 @media(prefers-reduced-motion:reduce){#home:before{filter:none}}
+
+
+/* Navigation recovery: keep the workspace rail out of the content hit-area on tablets. */
+@media (max-width: 900px) {
+  main { width:100%!important; max-width:none!important; margin:0!important; padding:94px 14px 30px!important; }
+  #app > .nav {
+    position:relative!important; inset:auto!important; z-index:20!important;
+    display:flex!important; flex-direction:row!important; align-items:center!important;
+    width:calc(100% + 28px)!important; height:auto!important; max-height:none!important;
+    margin:0 -14px 16px!important; padding:9px 10px!important;
+    overflow-x:auto!important; overflow-y:hidden!important; white-space:nowrap!important;
+    background:rgba(2,10,25,.98)!important; border:0!important;
+    border-bottom:1px solid var(--jp-line)!important;
+  }
+  #app > .nav button { width:auto!important; min-width:max-content!important; flex:0 0 auto!important; white-space:nowrap!important; }
+  #app > .page { position:relative!important; z-index:1!important; width:100%!important; }
+}
+@media (max-width: 680px) {
+  main { padding:118px 10px 24px!important; }
+  #app > .nav { width:calc(100% + 20px)!important; margin-left:-10px!important; margin-right:-10px!important; }
+}
