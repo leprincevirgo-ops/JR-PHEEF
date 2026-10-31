@@ -111,4 +111,44 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).eq("id",room.id);
     res.status(201).json({ok:true,message:{...data,sender_name:"You"}});
   }));
+
+  // Status / Stories: authenticated, expiring updates with connection-aware visibility.
+  app.get("/api/messages/status",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    const {data:follows,error:fe}=await db.from("social_follows").select("followee_id").eq("follower_id",m.id).limit(1000);
+    if(fe)throw fe;
+    const followed=(follows||[]).map(x=>x.followee_id);
+    const ids=[m.id,...followed];
+    const {data:rows,error}=await db.from("jr_status_updates").select("id,member_id,body,background,visibility,created_at,expires_at").in("member_id",ids).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(200);
+    if(error)throw error;
+    const visible=(rows||[]).filter(x=>String(x.member_id)===String(m.id)||x.visibility==="everyone"||followed.some(id=>String(id)===String(x.member_id)));
+    const owners=[...new Set(visible.map(x=>x.member_id))];
+    const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,jp_number,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
+    if(pe)throw pe;
+    const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||p.jp_number||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
+    const idsToView=visible.filter(x=>String(x.member_id)!==String(m.id)).map(x=>x.id);
+    if(idsToView.length){const {error:ve}=await db.from("jr_status_views").upsert(idsToView.map(status_id=>({status_id,viewer_id:m.id})),{onConflict:"status_id,viewer_id",ignoreDuplicates:true});if(ve)throw ve;}
+    const {data:views,error:vie}=visible.length?await db.from("jr_status_views").select("status_id,viewer_id").in("status_id",visible.map(x=>x.id)):{data:[],error:null};
+    if(vie)throw vie;
+    const viewCounts=new Map();for(const v of views||[])viewCounts.set(v.status_id,(viewCounts.get(v.status_id)||0)+1);
+    res.json({ok:true,statuses:visible.map(x=>({...x,owner:names.get(String(x.member_id))||{name:"Member",photo:null},view_count:String(x.member_id)===String(m.id)?(viewCounts.get(x.id)||0):undefined,viewed_by_me:String(x.member_id)!==String(m.id)}))});
+  }));
+  app.post("/api/messages/status",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    const rate=checkRequestRate(req,"connect-status",20,3600000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"Too many status updates. Try again later.",429);}
+    const body=clean(typeof req.body.body==="string"?req.body.body:"");
+    const background=["ocean","violet","sunset","emerald","midnight","rose"].includes(req.body.background)?req.body.background:"ocean";
+    const visibility=req.body.visibility==="everyone"?"everyone":"connections";
+    if(!body||body.length>700)return fail(res,"A status must contain 1–700 characters.");
+    const {data,error}=await db.from("jr_status_updates").insert({member_id:m.id,body,background,visibility}).select("id,member_id,body,background,visibility,created_at,expires_at").single();
+    if(error)throw error;
+    res.status(201).json({ok:true,status:data});
+  }));
+  app.delete("/api/messages/status/:id",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    if(!UUID.test(req.params.id))return fail(res,"Status not found.",404);
+    const {data,error}=await db.from("jr_status_updates").delete().eq("id",req.params.id).eq("member_id",m.id).select("id").maybeSingle();
+    if(error)throw error;if(!data)return fail(res,"Status not found or you do not own it.",404);
+    res.json({ok:true});
+  }));
 };
