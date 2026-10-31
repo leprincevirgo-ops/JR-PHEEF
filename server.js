@@ -38,7 +38,7 @@ app.use((req,res,next)=>{
   res.setHeader("X-Content-Type-Options","nosniff");
   res.setHeader("X-Frame-Options","DENY");
   res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
-  res.setHeader("Permissions-Policy","microphone=(self), camera=(), geolocation=()");
+  res.setHeader("Permissions-Policy","microphone=(self), camera=(self), geolocation=()");
   if(req.path.startsWith("/api/"))res.setHeader("Cache-Control","no-store");
   const origin=req.get("origin");
   if(origin && req.path.startsWith("/api/")){

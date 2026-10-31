@@ -10,11 +10,11 @@
 .jp-explore-card h3{margin:6px 0 8px;font-size:16px}
 .jp-explore-card p{min-height:38px;color:#9bb7cf;font-size:12px;line-height:1.5}
 .jp-explore-card button{width:100%;margin:5px 0 0}
-.jp-explore-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}
+.jp-explore-search{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px}
 .jp-explore-search label{grid-column:1/-1;font-size:12px;color:#c6d9ed}
 .jp-explore-search input{margin:0}
 @media(max-width:800px){.jp-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){.jp-explore-hero{grid-template-columns:1fr}.jp-explore-orbit{width:120px;margin:auto}.jp-explore-grid{grid-template-columns:1fr}.jp-explore-card img{height:205px}.jp-explore-search{grid-template-columns:1fr}.jp-explore-search label{grid-column:auto}}
+@media(max-width:520px){.jp-explore-search{grid-template-columns:1fr}.jp-explore-hero{grid-template-columns:1fr}.jp-explore-orbit{width:120px;margin:auto}.jp-explore-grid{grid-template-columns:1fr}.jp-explore-card img{height:205px}.jp-explore-search{grid-template-columns:1fr}.jp-explore-search label{grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.jp-explore-card{scroll-behavior:auto}}
 
 /* Explore-to-Appearance integration */
