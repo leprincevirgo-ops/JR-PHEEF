@@ -1,0 +1,14 @@
+const fs = require("fs");
+const html = fs.readFileSync("public/index.html", "utf8");
+const shell = fs.readFileSync("public/workspace-shell.js", "utf8");
+const assert = require("assert");
+assert.match(html, /data-page="dgbo"[^>]*show\('dgbo'\)/, "DGBO navigation must open its own page");
+assert.match(html, /<div id="dgbo" class="page hidden">/, "DGBO member portal missing");
+assert.match(html, /<div id="family" class="page hidden">/, "FAMILY member portal missing");
+assert.match(html, /What you can access/, "DGBO access catalogue missing");
+assert.match(html, /FAMILY · FINANCIAL ACCESS &amp; FAMILY COORDINATION/, "FAMILY introduction missing");
+assert.match(html, /Idea records &amp; protection[\s\S]*IN DEVELOPMENT/, "DGBO idea-vault readiness must be disclosed");
+assert.match(html, /Banking, payments &amp; lending[\s\S]*NOT ACTIVE/, "FAMILY financial-service readiness must be disclosed");
+assert.match(shell, /\["dgbo","DGBO"/, "DGBO workspace metadata missing");
+assert.match(shell, /\["dgbo","family","ecosystem"/, "DGBO/FAMILY navigation grouping missing");
+console.log("DGBO and FAMILY member portal checks passed.");

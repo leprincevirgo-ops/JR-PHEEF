@@ -312,7 +312,7 @@ placeholder="Password">
   <button data-page="apphub" onclick="show('apphub')"><span>▦</span> App Hub</button>
   <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Messages</button>
   <button data-page="social" onclick="show('social')"><span>◉</span> Social</button>
-  <button data-page="ecosystem" onclick="show('ecosystem')"><span>◈</span> DGBO</button>
+  <button data-page="dgbo" onclick="show('dgbo')"><span>◈</span> DGBO</button>
   <button data-page="family" onclick="show('family');loadFamily()"><span>⌂</span> FAMILY</button>
   <button data-page="create" onclick="show('create')"><span>♙</span> Business</button>
   <button data-page="find" onclick="show('find')"><span>🛒</span> Marketplace</button>
@@ -397,7 +397,22 @@ placeholder="Password">
 <select id="ecosystemType"><option value="business">Start or grow a business</option><option value="find">Find a product, service or supplier</option><option value="work">Find work or workers</option><option value="learn">Learn a skill or research an idea</option><option value="general">Other goal</option></select><button class="primary" onclick="coordinateGoal()">BUILD MY ACTION PLAN</button><div id="ecosystemPlan" aria-live="polite"></div></div>
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 
-<div id="teacher" class="page hidden">
+<div id="dgbo" class="page hidden">
+<section class="card"><p class="jp-kicker">DGBO · BUSINESS DEVELOPMENT &amp; GOVERNANCE</p><h1>Turn ideas into real opportunities.</h1><p class="muted">DGBO helps people organise ideas, develop ventures and connect with the people and resources needed to move forward.</p></section>
+<section class="card"><h2>What you can access</h2><div class="jp-dashboard-grid">
+<button class="jp-dash-tile" onclick="show('projects')"><span class="jp-dash-icon">▤</span><span class="jp-dash-title">Projects</span><span class="jp-dash-sub">Create projects, organise tasks and track progress.</span></button>
+<button class="jp-dash-tile" onclick="show('lab')"><span class="jp-dash-icon">⚗</span><span class="jp-dash-title">JR Labs</span><span class="jp-dash-sub">Research, test concepts and document experiments.</span></button>
+<button class="jp-dash-tile" onclick="show('create')"><span class="jp-dash-icon">＋</span><span class="jp-dash-title">Business &amp; listings</span><span class="jp-dash-sub">Create offers, products and services.</span></button>
+<button class="jp-dash-tile" onclick="show('opportunities')"><span class="jp-dash-icon">✧</span><span class="jp-dash-title">Opportunities</span><span class="jp-dash-sub">Discover opportunities and prepare next steps.</span></button>
+<button class="jp-dash-tile" onclick="show('connections')"><span class="jp-dash-icon">⇄</span><span class="jp-dash-title">Connections</span><span class="jp-dash-sub">Discover external services and integrations.</span></button>
+<button class="jp-dash-tile" onclick="show('assistant')"><span class="jp-dash-icon">✦</span><span class="jp-dash-title">Work with JR</span><span class="jp-dash-sub">Describe your goal and coordinate the work.</span></button>
+</div></section>
+<section class="card"><h2>DGBO services and safeguards</h2><div class="grid">
+<div class="listing"><b>Idea records &amp; protection</b><p class="muted">A confidential idea vault and legal-grade ownership workflow are not yet active. Avoid submitting trade secrets until released.</p><span class="badge">IN DEVELOPMENT</span></div>
+<div class="listing"><b>Business development</b><p class="muted">Use Projects, JR Labs and JR Assistant today to structure and develop an idea.</p><span class="badge">TOOLS AVAILABLE</span></div>
+<div class="listing"><b>Investor introductions</b><p class="muted">Planned consent-based introductions; no investment or funding is guaranteed.</p><span class="badge">IN DEVELOPMENT</span></div>
+<div class="listing"><b>Governance &amp; continuity</b><p class="muted">Restricted controls are available only to authorised ecosystem owners.</p><span class="badge">RESTRICTED ACCESS</span></div>
+</div><button class="primary" onclick="show('family')">OPEN FAMILY</button><button class="dark" onclick="show('ecosystem')">ECOSYSTEM OVERVIEW</button></section></div><div id="teacher" class="page hidden">
 <div class="card" id="teacherHero"><p class="jp-kicker">JR TEACHER · LEARN AT YOUR PACE</p><h2>Understand it. Practise it. Own it.</h2><p class="muted">Choose a subject and level. JR can explain, simplify, quiz you, or help plan a study week. Answers depend on AI availability and may need fact-checking.</p>
 <label for="teacherSubject">Subject</label><select id="teacherSubject"><option>Mathematics</option><option>English & Writing</option><option>Science</option><option>Business & Entrepreneurship</option><option>Computing & Technology</option><option>Financial Literacy</option><option>History & Geography</option><option>Languages</option><option>Exam Preparation</option><option>Other</option></select>
 <label for="teacherLevel">Level</label><select id="teacherLevel"><option>Beginner</option><option>Primary</option><option>Secondary</option><option>College / University</option><option>Professional</option><option>Advanced</option></select>
@@ -405,7 +420,7 @@ placeholder="Password">
 <label for="teacherQuestion">What do you want to learn?</label><textarea id="teacherQuestion" rows="4" maxlength="3000" placeholder="Ask a question, paste a problem, or name a topic…"></textarea>
 <button class="primary" onclick="jrTeacherAsk()">ASK JR TEACHER</button><button class="dark" onclick="document.getElementById('teacherQuestion').value='';document.getElementById('teacherAnswer').textContent=''">CLEAR</button><p id="teacherMsg" class="muted" aria-live="polite"></p><div id="teacherAnswer" class="listing" aria-live="polite"></div>
 </div></div>
-<div id="family" class="page hidden">
+<div id="family" class="page hidden"><section class="card"><p class="jp-kicker">FAMILY · FINANCIAL ACCESS &amp; FAMILY COORDINATION</p><h1>Your goals. Your people. Your future.</h1><p class="muted">FAMILY helps organise personal and family goals, track savings plans, record service requests and prepare access to authorised financial providers.</p><div class="grid"><div class="listing"><b>Family planning</b><p class="muted">Organise shared priorities and milestones.</p></div><div class="listing"><b>Savings tracker</b><p class="muted">Track your own reported progress.</p></div><div class="listing"><b>Service access</b><p class="muted">Record requests and explore partner referrals.</p></div></div><p class="muted">FAMILY is currently a coordination and preparation service—not a licensed bank. It does not hold deposits, issue loans or move money.</p></section><section class="card"><h2>What members can access</h2><div class="grid"><div class="listing"><b>Savings goal tracker</b><p class="muted">Create targets and update your self-reported saved amount.</p><span class="badge">AVAILABLE · TRACKER ONLY</span></div><div class="listing"><b>Financial education &amp; enquiries</b><p class="muted">Send a request and follow its recorded status.</p><span class="badge">AVAILABLE</span></div><div class="listing"><b>Banking, payments &amp; lending</b><p class="muted">Future services require regulated partners and verified integrations.</p><span class="badge">NOT ACTIVE</span></div></div></section>
   <div class="card" style="border:1px solid #20d9ee;background:linear-gradient(135deg,#06162b,#0a2d50)">
     <p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">FAMILY · FINANCIAL ACCESS TO MONEY FOR INVESTMENTS &amp; LOVING YOURSELF</p>
     <h1>Your goals. Your future.</h1>
