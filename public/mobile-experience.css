@@ -10,12 +10,12 @@
  .jp-global-search{order:3;flex:1 0 100%;width:100%;max-width:none;min-width:0}
  .jp-global-search input{min-width:0;font-size:16px}
  main{width:100%;max-width:100%;padding:10px 10px calc(24px + env(safe-area-inset-bottom))}
- #app>.nav{position:sticky;top:0;display:flex;flex-direction:row;align-items:stretch;gap:7px;overflow-x:auto;overflow-y:hidden;max-width:100%;margin:0 -10px 12px;padding:8px 10px;background:rgba(2,10,25,.97);scrollbar-width:none;z-index:140;overscroll-behavior-x:contain}
+ #app>.nav{position:sticky;top:112px;display:flex;flex-direction:row;align-items:stretch;gap:7px;overflow-x:auto;overflow-y:hidden;max-width:100%;margin:0 -10px 12px;padding:8px 10px;background:rgba(2,10,25,.97);scrollbar-width:none;z-index:140;overscroll-behavior-x:contain}
  #app>.nav::-webkit-scrollbar,.jp-quick-launch::-webkit-scrollbar{display:none}
  #app>.nav .jr-nav-group{display:flex;flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;margin:0}
  #app>.nav .jr-nav-group-label{display:none}
  #app>.nav button{flex:0 0 auto;width:auto;min-height:42px;padding:9px 12px;font-size:11px;white-space:nowrap}
- .jr-page-chrome{position:sticky;top:58px;z-index:130;min-height:44px;gap:6px;margin-bottom:10px}
+ .jr-page-chrome{position:sticky;top:164px;z-index:130;min-height:44px;gap:6px;margin-bottom:10px}
  .jr-page-crumbs{min-width:0;flex:1}
  .jr-page-brand{font-size:9px}
  .jr-page-current{max-width:35vw}
