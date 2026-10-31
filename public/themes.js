@@ -70,12 +70,6 @@ page.innerHTML=`
  <div class="card"><div class="jp-kicker">05 · RESET</div><h2>Restore JR PHEEF appearance</h2><p class="jp-theme-note">Reset all colours, wallpaper and display preferences to the JR PHEEF default. This does not affect your account, listings or data.</p><button class="danger" id="jpResetAll">RESET ALL APPEARANCE</button><p id="jpResetStatus" class="jp-theme-note" aria-live="polite"></p></div>
 </div></div>`;
 app.appendChild(page);
-const settingsNav=document.createElement("button");
-settingsNav.type="button";
-settingsNav.textContent="SETTINGS";
-settingsNav.setAttribute("aria-label","Open JR PHEEF settings");
-settingsNav.onclick=()=>window.show("jrsettings");
-if(nav)nav.appendChild(settingsNav);
 const settings=document.createElement("section");
 settings.id="jrsettings";
 settings.className="page hidden jp-settings-page";
