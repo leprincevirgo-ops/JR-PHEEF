@@ -979,10 +979,26 @@ function showLogin(){
 }
 
 function show(id){
+  const target=$(id);
+  if(!target){
+    let fallback=$("jrModuleUnavailable");
+    if(!fallback){
+      fallback=document.createElement("section");
+      fallback.id="jrModuleUnavailable";
+      fallback.className="page hidden";
+      fallback.innerHTML='<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · WORKSPACE</div><h2 id="jrUnavailableTitle">Workspace</h2><p class="muted">This destination is registered in JR PHEEF, but its full workspace is not available in this release yet. Your other workspaces remain accessible.</p></div></div><div class="card"><p id="jrUnavailableMessage">This module is being prepared.</p><button class="primary" type="button" onclick="show(\'home\')">RETURN TO HOME</button></div>';
+      $("app").append(fallback);
+    }
+    $("jrUnavailableTitle").textContent=String(id||"Workspace").replace(/[-_]/g," ").replace(/\\b\\w/g,ch=>ch.toUpperCase());
+    $("jrUnavailableMessage").textContent="The "+String(id||"selected")+" workspace is not enabled in this release. It will not interrupt the rest of JR PHEEF.";
+    document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
+    fallback.classList.remove("hidden");
+    return;
+  }
   document.querySelectorAll(".page")
     .forEach(x=>x.classList.add("hidden"));
 
-  $(id).classList.remove("hidden");
+  target.classList.remove("hidden");
   document.querySelectorAll("#app>.nav button").forEach(button=>{
     const route=button.getAttribute("onclick")||"";
     if(route.includes("show('"+id+"'")||route.includes('show("'+id+'"')) button.setAttribute("aria-current","page");
