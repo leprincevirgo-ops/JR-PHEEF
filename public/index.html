@@ -241,7 +241,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
     <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything in JR PHEEF…" aria-label="Search JR PHEEF"><button class="jp-mic-button" type="button" onclick="jrStartHeaderVoice()" aria-label="Voice search">🎙</button><button type="submit" class="jp-search-submit">SEARCH</button>
   </form>
   <div class="jp-header-actions">
-    <button type="button" class="jp-header-icon" onclick="show('alerts')" aria-label="Notifications">♧</button>
+    <button type="button" class="jp-header-icon" onclick="document.querySelector('.jp-notification-bell')?.click()" aria-label="Notifications">♧</button>
     <button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button>
     <button type="button" class="jp-header-icon" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Profile menu">▦</button>
     <button type="button" class="jp-profile-trigger" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Open account menu"><span class="jp-avatar-small">JR</span><span>⌄</span></button>
