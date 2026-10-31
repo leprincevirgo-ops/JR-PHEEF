@@ -338,7 +338,7 @@ placeholder="Password">
     <div class="jp-stat-card jp-stat-cyan"><span class="jp-stat-icon">✦</span><div><strong id="pointsValue">0</strong><small>JR PHEEF Points</small></div></div>
     <div class="jp-stat-card jp-stat-violet"><span class="jp-stat-icon">◉</span><div><strong>33</strong><small>Discovery categories</small></div></div>
     <div class="jp-stat-card jp-stat-green"><span class="jp-stat-icon">↗</span><div><strong>FREE</strong><small>Discovery &amp; listings</small></div></div>
-    <div class="jp-stat-card jp-stat-gold"><span class="jp-stat-icon">♧</span><div><strong>JP-01</strong><small>Your connected identity</small></div></div>
+    <div class="jp-stat-card jp-stat-gold"><span class="jp-stat-icon">♧</span><div><strong id="jpHomeIdentity">JP identity</strong><small>Your connected identity</small></div></div>
   </div>
   <div class="jp-home-columns">
     <section class="jp-home-main-column">
@@ -1068,8 +1068,13 @@ async function openApp(){
     return;
   }
   me=session.member;
-  $("welcome").textContent="Hello, "+(me.full_name||"Member");
+  $("welcome").textContent=me.full_name||"Your JR PHEEF space";
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
+  const headerName=$("jpHeaderMemberName"),headerNumber=$("jpHeaderMemberNumber"),homeIdentity=$("jpHomeIdentity"),homeAvatar=$("jpHomeAvatar");
+  if(headerName)headerName.textContent=me.full_name||"JR PHEEF Member";
+  if(headerNumber)headerNumber.textContent=me.jp_number||"JP identity";
+  if(homeIdentity)homeIdentity.textContent=me.jp_number||"Pending";
+  if(homeAvatar){const photo=me.profile_photo||me.avatar_url||"";if(photo){const img=document.createElement("img");img.src=photo;img.alt="Your profile photo";img.referrerPolicy="no-referrer";img.onerror=()=>{homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase()};homeAvatar.replaceChildren(img);}else homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase();}
   fillProfile();
   show("home");
   $("auth").classList.add("hidden");
@@ -1626,6 +1631,19 @@ async function jrTeacherAsk(){
   const d=await r.json(); if(!r.ok||!d.ok){msg.textContent=d.message||d.error||"JR Teacher could not answer. Try again later.";return;}
   out.textContent=d.answer||d.reply||"No answer was returned.";msg.textContent="Lesson ready. Ask a follow-up by editing your question.";
  }catch(e){msg.textContent="Connection failed. Please try again.";}
+}
+</script>
+<script>
+function jrStartHeaderVoice(){
+ const input=document.getElementById("globalCommandSearch");
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){if(input)input.placeholder="Voice search is not supported in this browser";return;}
+ const recognition=new Speech();recognition.lang=navigator.language||"en-US";recognition.interimResults=false;recognition.maxAlternatives=1;
+ const mic=document.querySelector(".jp-mic-button");if(mic){mic.disabled=true;mic.textContent="Listening…";}
+ recognition.onresult=e=>{const phrase=e.results&&e.results[0]&&e.results[0][0]?e.results[0][0].transcript:"";if(input){input.value=phrase;if(phrase){const form=input.closest("form");if(form)form.requestSubmit();}}};
+ recognition.onerror=()=>{if(input)input.placeholder="Voice search unavailable. Type to search instead.";};
+ recognition.onend=()=>{if(mic){mic.disabled=false;mic.textContent="🎙";}};
+ try{recognition.start();}catch(e){if(mic){mic.disabled=false;mic.textContent="🎙";}}
 }
 </script>
 <script src="/market-ui.js"></script>
