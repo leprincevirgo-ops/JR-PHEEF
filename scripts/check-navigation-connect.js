@@ -1,7 +1,7 @@
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 const root=path.resolve(__dirname,".."),html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
 const modules=["public/discover-ui.js","public/explore-ui.js","public/browser-ui.js","public/apphub-ui.js","public/themes.js","public/projects-ui.js"].map(p=>fs.readFileSync(path.join(root,p),"utf8"));
-const ids=new Set([...html,...modules].flatMap(s=>[...s.matchAll(/(?:id=["']|\.id\s*=\s*["'])([a-zA-Z][\w-]*)/g)].map(m=>m[1])));
+const ids=new Set([html,...modules].flatMap(s=>[...s.matchAll(/(?:id=["']|\.id\s*=\s*["'])([a-zA-Z][\w-]*)/g)].map(m=>m[1])));
 const nav=html.slice(html.indexOf('<div class="nav"'),html.indexOf("</div>",html.indexOf('<div class="nav"')));
 const buttons=[...nav.matchAll(/<button([^>]*)onclick=["']show\(['"]([^'"]+)['"]\)([^"']*)["'][^>]*>([\s\S]*?)<\/button>/g)];
 const dynamic=new Set(["discover","explore","browser","apphub","jrsettings","projects"]);
