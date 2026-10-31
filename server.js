@@ -1252,7 +1252,7 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
   try {
     const message = clean(req.body.Body).toUpperCase();
     const phone = phoneOf(req.body.From);
-    let answer = "Welcome to JR PHEEF — Find. Match. Trade. Send HELP for options.";
+    let answer = "Welcome to JR PHEEF — Discover, Connect and Coordinate. Send HELP for options.";
 
     if (message === "POINTS") {
       const { data } = await db.from("members").select("reward_points")
@@ -1263,7 +1263,7 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
     } else if (["FLEX", "OKOA", "PAY LATER"].includes(message)) {
       answer = "PHEEF FLEX is being prepared. Credit is not active.";
     } else if (message === "HELP") {
-      answer = "JR PHEEF: FIND, CREATE, CONNECT, POINTS, ACCESS, FLEX. You can also send a natural-language message.";
+      answer = "JR PHEEF: DISCOVER, CONNECT, COORDINATE, CREATE, POINTS, ACCESS, FLEX. You can also send a natural-language message.";
     }
 
     const xml = answer.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
