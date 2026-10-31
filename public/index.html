@@ -235,12 +235,18 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 
 <body>
 
-<header class="jp-global-header">
-  <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>YOUR CONNECTED WORLD</small></span></a>
-  <form class="jp-global-search" role="search" onsubmit="event.preventDefault();show('find');const q=document.getElementById('globalCommandSearch')?.value||'';const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
-    <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything… products, people, services, ideas, opportunities" aria-label="Search JR PHEEF"><button type="submit">SEARCH</button>
+<header class="jp-global-header jp-reference-header">
+  <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>Your Connected World</small></span></a>
+  <form class="jp-global-search" role="search" onsubmit="event.preventDefault();const q=document.getElementById('globalCommandSearch')?.value||'';show('find');const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
+    <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything in JR PHEEF…" aria-label="Search JR PHEEF"><button class="jp-mic-button" type="button" onclick="jrStartHeaderVoice()" aria-label="Voice search">🎙</button><button type="submit" class="jp-search-submit">SEARCH</button>
   </form>
-  <div class="jp-header-actions"><button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button><button type="button" class="jp-header-icon" onclick="show('jrsettings')" aria-label="Settings">⚙</button><button type="button" class="jp-header-icon" onclick="show('profile')" aria-label="Profile">◉</button></div>
+  <div class="jp-header-actions">
+    <button type="button" class="jp-header-icon" onclick="show('alerts')" aria-label="Notifications">♧</button>
+    <button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button>
+    <button type="button" class="jp-header-icon" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Profile menu">▦</button>
+    <button type="button" class="jp-profile-trigger" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Open account menu"><span class="jp-avatar-small">JR</span><span>⌄</span></button>
+    <div id="jpProfileMenu" class="jp-profile-menu" hidden><div class="jp-profile-menu-head"><strong id="jpHeaderMemberName">Your JR PHEEF account</strong><small id="jpHeaderMemberNumber">Member workspace</small></div><button onclick="show('profile');document.getElementById('jpProfileMenu').hidden=true">My Profile</button><button onclick="show('jrsettings');document.getElementById('jpProfileMenu').hidden=true">Account &amp; Security</button><button onclick="show('themes');document.getElementById('jpProfileMenu').hidden=true">Appearance</button><button onclick="show('alerts');document.getElementById('jpProfileMenu').hidden=true">Notifications</button><button onclick="show('jrsettings');document.getElementById('jpProfileMenu').hidden=true">Help &amp; Support</button><button class="jp-signout" onclick="logout()">Sign Out</button></div>
+  </div>
 </header>
 
 <main>
@@ -297,21 +303,21 @@ placeholder="Password">
 
 <section id="app" class="hidden">
 
-<div class="nav">
-<button onclick="show('home')">HOME</button>
-<button onclick="show('ecosystem')">ECOSYSTEM</button>
-<button onclick="show('jpidentity');loadJpIdentity()">JP IDENTITY</button>
-<button onclick="show('family');loadFamily()">FAMILY</button><button onclick="show('teacher')">JR TEACHER</button>
-<button onclick="show('referrals');loadReferralCenter()">INVITE &amp; GROW</button>
-<button onclick="show('universe')">UNIVERSE</button>
-<button onclick="show('lab')">LAB</button>
-<button onclick="show('library')">LIBRARY</button>
-<button onclick="show('create')">CREATE</button>
-<button onclick="show('opportunities');loadOpportunities()">POST OPPORTUNITY</button>
-<button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
-<button onclick="show('points')">POINTS</button>
-<button onclick="show('flex')">FLEX</button>
-<button onclick="show('messages');jrMessagesLoad()">MESSAGES</button><button onclick="show('profile')">PROFILE</button><button onclick="show('assistant')">AI ASSISTANT</button><button onclick="show('jpconnect')">JP CONNECT</button><button onclick="show('social')">SOCIAL</button><button onclick="show('economy')">ECONOMY</button><button onclick="show('vault')">MY FILES</button><button onclick="show('devices')">DEVICES</button><button onclick="show('voice')">VOICE / TYPE</button><button onclick="show(&quot;scifi&quot;)">SCI-FI &amp; FUTURES</button><button onclick="show(&quot;fixedit&quot;)">REPAIR SERVICES</button>
+<div class="nav" aria-label="Main navigation">
+  <button class="jp-nav-active" data-page="home" onclick="show('home')"><span>⌂</span> Home</button>
+  <button data-page="discover" onclick="show('discover')"><span>⌕</span> Discover</button>
+  <button data-page="explore" onclick="show('explore')"><span>✧</span> Explore</button>
+  <button data-page="browser" onclick="show('browser')"><span>◎</span> Browser</button>
+  <button data-page="apphub" onclick="show('apphub')"><span>▦</span> App Hub</button>
+  <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Messages</button>
+  <button data-page="social" onclick="show('social')"><span>◉</span> Social</button>
+  <button data-page="ecosystem" onclick="show('ecosystem')"><span>◈</span> DGBO</button>
+  <button data-page="family" onclick="show('family');loadFamily()"><span>⌂</span> FAMILY</button>
+  <button data-page="ecosystem" onclick="show('create')"><span>♙</span> Business</button>
+  <button data-page="find" onclick="show('find')"><span>🛒</span> Marketplace</button>
+  <button data-page="economy" onclick="show('economy')"><span>▥</span> Economy</button>
+  <button class="jp-nav-settings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
+  <button data-page="projects" onclick="show('projects')"><span>▤</span> Projects</button>
 </div>
 
 <div id="messages" class="page hidden">
@@ -321,96 +327,53 @@ placeholder="Password">
   <div class="card"><div id="jrChatHeader"><h3>JR PHEEF Connect</h3><p class="muted">Choose a conversation or start a new one.</p></div><div id="jrChatMessages" style="height: min(48vh,520px);overflow:auto;border:1px solid var(--line,#234);border-radius:12px;padding:12px;margin:12px 0"></div><div style="display:flex;gap:8px;align-items:end"><textarea id="jrChatInput" rows="2" maxlength="4000" placeholder="Write a message…" style="flex:1"></textarea><button class="primary" onclick="jrSendMessage()">Send</button></div><p id="jrChatStatus" class="muted" aria-live="polite"></p></div>
  </div>
 </div>
-<div id="home" class="page">
-<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">DISCOVER · CONNECT · COORDINATE</span></div>
-<div class="jp-dashboard-grid" aria-label="JR PHEEF quick access">
-<button class="jp-dash-tile" onclick="show('discover')"><span class="jp-dash-icon">⌕</span><span><span class="jp-dash-title">DISCOVER</span><br><span class="jp-dash-sub">Explore subjects, products, services and opportunities</span></span></button>
-<button class="jp-dash-tile" onclick="show('social')"><span class="jp-dash-icon">◎</span><span><span class="jp-dash-title">JR SOCIAL</span><br><span class="jp-dash-sub">Community, posts and connections</span></span></button>
-<button class="jp-dash-tile" onclick="show('assistant')"><span class="jp-dash-icon">✧</span><span><span class="jp-dash-title">JR ASSISTANT</span><br><span class="jp-dash-sub">Plan, research and coordinate</span></span></button>
-<button class="jp-dash-tile" onclick="show('family');loadFamily()"><span class="jp-dash-icon">⌂</span><span><span class="jp-dash-title">FAMILY</span><br><span class="jp-dash-sub">Personal goals and requests</span></span></button>
-<button class="jp-dash-tile" onclick="show('teacher')"><span class="jp-dash-icon">✎</span><span><span class="jp-dash-title">JR TEACHER</span><br><span class="jp-dash-sub">Learn, practice and plan your study</span></span></button>
-<button class="jp-dash-tile" onclick="show('voice')"><span class="jp-dash-icon">◖))</span><span><span class="jp-dash-title">VOICE / TYPE</span><br><span class="jp-dash-sub">Speak naturally or type to JR</span></span></button>
-<button class="jp-dash-tile" onclick="show('vault')"><span class="jp-dash-icon">▣</span><span><span class="jp-dash-title">MY FILES</span><br><span class="jp-dash-sub">Manage your JR PHEEF files</span></span></button>
-<button class="jp-dash-tile" onclick="show('ecosystem')"><span class="jp-dash-icon">◈</span><span><span class="jp-dash-title">OPEN DGBO</span><br><span class="jp-dash-sub">Parent company and ventures</span></span></button>
-<button class="jp-dash-tile" onclick="show('referrals');loadReferralCenter()"><span class="jp-dash-icon">↗</span><span><span class="jp-dash-title">INVITE & GROW</span><br><span class="jp-dash-sub">Referral code and activity</span></span></button>
-</div>
-<div class="jp-status-strip" aria-label="Service availability">
-<div class="jp-status-item"><strong>MEMBER SPACE</strong><span>Account features depend on successful sign-in and permissions.</span></div>
-<div class="jp-status-item"><strong>FAMILY TRACKER</strong><span>Goals and service requests; no money is held or transferred here.</span></div>
-<div class="jp-status-item"><strong>PAYMENTS</strong><span>Disabled for this release until payment integrations are approved and tested.</span></div>
-</div>
-<div class="card" id="universeHero"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">JR PHEEF · PERSONAL OPPORTUNITY SYSTEM</p><h1 style="font-size:clamp(30px,6vw,46px);line-height:1.05">Your world.<br><span style="color:#42f5ff">More possibilities.</span></h1><p class="muted">One connected space to discover opportunities, meet people, explore knowledge, and move ideas forward.</p><p style="color:#a7faff;font-size:11px">● YOUR PERSONAL SPACE</p><button class="primary" onclick="show('discover')">DISCOVER OPPORTUNITIES</button><button onclick="show('create')">CREATE LISTING</button><button class="dark" onclick="show('universe')">UNIVERSE ASSISTANT</button><p class="muted" style="margin-top:18px">DISCOVER <span style="color:#42f5ff">→</span> CONNECT <span style="color:#42f5ff">→</span> COORDINATE</p></div>
-<div class="card" id="coordination">
-<h2>What would you like to do?</h2>
-<p class="muted">One JR PHEEF ecosystem. Explore a category, find an opportunity, and connect with the people or services that can help. Availability depends on providers and active integrations.</p>
-<input id="categorySearch" type="search" placeholder="Search the 33 JR PHEEF categories" oninput="filterCategories(this.value)" aria-label="Search categories">
-<div id="categoryGrid" class="category-grid">
-<button class="category-tile" type="button" data-category="Entertainment" onclick="openCategory('Entertainment')">Entertainment</button>
-<button class="category-tile" type="button" data-category="Tools" onclick="openCategory('Tools')">Tools</button>
-<button class="category-tile" type="button" data-category="Photography" onclick="openCategory('Photography')">Photography</button>
-<button class="category-tile" type="button" data-category="Business" onclick="openCategory('Business')">Business</button>
-<button class="category-tile" type="button" data-category="Shopping" onclick="openCategory('Shopping')">Shopping</button>
-<button class="category-tile" type="button" data-category="Education" onclick="openCategory('Education')">Education</button>
-<button class="category-tile" type="button" data-category="Religion" onclick="openCategory('Religion')">Religion</button>
-<button class="category-tile" type="button" data-category="Finance" onclick="openCategory('Finance')">Finance</button>
-<button class="category-tile" type="button" data-category="Fashion" onclick="openCategory('Fashion')">Fashion</button>
-<button class="category-tile" type="button" data-category="Travel" onclick="openCategory('Travel')">Travel</button>
-<button class="category-tile" type="button" data-category="Food" onclick="openCategory('Food')">Food</button>
-<button class="category-tile" type="button" data-category="Books" onclick="openCategory('Books')">Books</button>
-<button class="category-tile" type="button" data-category="Health" onclick="openCategory('Health')">Health</button>
-<button class="category-tile" type="button" data-category="Parenting" onclick="openCategory('Parenting')">Parenting</button>
-<button class="category-tile" type="button" data-category="Reference" onclick="openCategory('Reference')">Reference</button>
-<button class="category-tile" type="button" data-category="Communication" onclick="openCategory('Communication')">Communication</button>
-<button class="category-tile" type="button" data-category="Productivity" onclick="openCategory('Productivity')">Productivity</button>
-<button class="category-tile" type="button" data-category="Scientific Research" onclick="openCategory('Scientific Research')">Scientific Research</button>
-<button class="category-tile" type="button" data-category="Security" onclick="openCategory('Security')">Security</button>
-<button class="category-tile" type="button" data-category="Data & Analytics" onclick="openCategory('Data & Analytics')">Data & Analytics</button>
-<button class="category-tile" type="button" data-category="Popular" onclick="openCategory('Popular')">Popular</button>
-<button class="category-tile" type="button" data-category="Creativity" onclick="openCategory('Creativity')">Creativity</button>
-<button class="category-tile" type="button" data-category="Development Tools" onclick="openCategory('Development Tools')">Development Tools</button>
-<button class="category-tile" type="button" data-category="New & Noteworthy" onclick="openCategory('New & Noteworthy')">New & Noteworthy</button>
-<button class="category-tile" type="button" data-category="Small Business" onclick="openCategory('Small Business')">Small Business</button>
-<button class="category-tile" type="button" data-category="Business & Operations" onclick="openCategory('Business & Operations')">Business & Operations</button>
-<button class="category-tile" type="button" data-category="Social" onclick="openCategory('Social')">Social</button>
-<button class="category-tile" type="button" data-category="Download" onclick="openCategory('Download')">Download</button>
-<button class="category-tile" type="button" data-category="Sports" onclick="openCategory('Sports')">Sports</button>
-<button class="category-tile" type="button" data-category="Job" onclick="openCategory('Job')">Job</button>
-<button class="category-tile" type="button" data-category="News" onclick="openCategory('News')">News</button>
-<button class="category-tile" type="button" data-category="Music/Video" onclick="openCategory('Music/Video')">Music/Video</button>
-<button class="category-tile" type="button" data-category="Other" onclick="openCategory('Other')">Other</button>
-</div>
-</div>
-
-<div class="card">
-<h1 id="welcome"></h1>
-<p class="muted" id="dgbo"></p>
-</div>
-
-<div class="grid">
-
-<div class="card">
-<div class="big" id="pointsValue">0</div>
-<div>JR PHEEF Points</div>
-</div>
-
-<div class="card">
-<div class="big">FREE</div>
-<div>Discovery & listings</div>
-</div>
-
-</div>
-
-<div class="card">
-<h2>Access</h2>
-<p id="accessText">Checking...</p>
-
-<button class="dark" disabled title="Rewards redemption is not active yet">REWARDS REDEMPTION NOT ACTIVE</button>
-
-<button onclick="show('flex')">
-💙 PHEEF FLEX
-</button>
-</div>
-
+<div id="home" class="page jp-reference-home">
+  <section class="jp-home-hero">
+    <div class="jp-hero-copy"><div class="jp-hero-brand"><span class="jp-hero-mark">JR</span><div><div class="jp-hero-wordmark">JR PHEEF</div><div class="jp-hero-motto">Discover <i>•</i> Connect <i>•</i> Coordinate</div></div></div>
+      <h1>Your world. <span>More possibilities.</span></h1><p>Your connected world—discover opportunities, explore knowledge, connect with people and coordinate what matters.</p>
+      <button class="jp-hero-cta" onclick="show('explore')">🚀 Explore the Universe <b>→</b></button>
+    </div><div class="jp-hero-orb" aria-hidden="true"><div class="jp-orb-ring"></div><div class="jp-cityline"></div></div>
+  </section>
+  <div class="jp-home-stat-row">
+    <div class="jp-stat-card jp-stat-cyan"><span class="jp-stat-icon">✦</span><div><strong id="pointsValue">0</strong><small>JR PHEEF Points</small></div></div>
+    <div class="jp-stat-card jp-stat-violet"><span class="jp-stat-icon">◉</span><div><strong>33</strong><small>Discovery categories</small></div></div>
+    <div class="jp-stat-card jp-stat-green"><span class="jp-stat-icon">↗</span><div><strong>FREE</strong><small>Discovery &amp; listings</small></div></div>
+    <div class="jp-stat-card jp-stat-gold"><span class="jp-stat-icon">♧</span><div><strong id="jpHomeIdentity">JP identity</strong><small>Your connected identity</small></div></div>
+  </div>
+  <div class="jp-home-columns">
+    <section class="jp-home-main-column">
+      <div class="jp-home-panel jp-quick-panel"><div class="jp-panel-heading"><h2>⭐ Quick Access</h2><button onclick="show('apphub')">View all →</button></div>
+        <div class="jp-quick-grid">
+          <button class="jp-quick-card q-discover" onclick="show('discover')"><span>⌕</span><b>Discover</b><small>Explore more</small></button>
+          <button class="jp-quick-card q-browser" onclick="show('browser')"><span>◎</span><b>Browser</b><small>Browse the web</small></button>
+          <button class="jp-quick-card q-apps" onclick="show('apphub')"><span>▦</span><b>App Hub</b><small>Your apps</small></button>
+          <button class="jp-quick-card q-messages" onclick="show('messages');jrMessagesLoad()"><span>☏</span><b>Messages</b><small>Chat &amp; connect</small></button>
+          <button class="jp-quick-card q-dgbo" onclick="show('ecosystem')"><span>♧</span><b>DGBO</b><small>Business ideas</small></button>
+          <button class="jp-quick-card q-family" onclick="show('family');loadFamily()"><span>♙</span><b>FAMILY</b><small>Family matters</small></button>
+          <button class="jp-quick-card q-market" onclick="show('find')"><span>🛒</span><b>Marketplace</b><small>Shop &amp; sell</small></button>
+          <button class="jp-quick-card q-settings" onclick="show('jrsettings')"><span>⚙</span><b>Settings</b><small>Manage your account</small></button>
+        </div>
+      </div>
+      <div class="jp-home-lower-grid">
+        <section class="jp-home-panel"><div class="jp-panel-heading"><h2>⚡ Your Activity</h2><button onclick="show('alerts')">View all →</button></div><div class="jp-activity-empty"><span>✧</span><p>Your recent JR PHEEF activity will appear here as you explore, connect and use services.</p></div><p id="accessText" class="jp-access-status">Checking your account access…</p></section>
+        <section class="jp-home-panel"><div class="jp-panel-heading"><h2>🌐 Explore the World</h2><button onclick="show('explore')">View more →</button></div><div class="jp-world-grid">
+          <button onclick="show('explore')" style="--world-image:url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&amp;fit=crop&amp;w=520&amp;q=85')"><b>Places &amp; Cities</b></button>
+          <button onclick="show('explore')" style="--world-image:url('https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&amp;fit=crop&amp;w=520&amp;q=85')"><b>Nature</b></button>
+          <button onclick="show('explore')" style="--world-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&amp;fit=crop&amp;w=520&amp;q=85')"><b>Space</b></button>
+        </div></section>
+      </div>
+    </section>
+    <aside class="jp-home-account-column">
+      <section class="jp-home-panel jp-account-panel"><div class="jp-panel-heading"><h2>👑 Your Account</h2></div><div class="jp-account-avatar" id="jpHomeAvatar">JR</div><h3 id="welcome">Your JR PHEEF space</h3><p id="dgbo" class="jp-account-id">JP identity loading…</p><div class="jp-online-indicator"><i></i> Signed-in workspace</div><div class="jp-account-actions"><button class="primary" onclick="show('profile')">View Profile</button><button onclick="show('jrsettings')">Manage Account</button></div></section>
+      <section class="jp-home-assistant"><div class="jp-assistant-art">✧</div><div><small>YOUR DIGITAL COORDINATOR</small><h2>Meet JR Assistant</h2><p>Your AI helper, ready to plan and organise with you.</p><button onclick="show('assistant')">Chat Now →</button></div></section>
+    </aside>
+  </div>
+  <div class="jp-home-legacy" aria-hidden="true">
+    <div id="welcomeLegacy"></div><div id="dgboLegacy"></div>
+    <div id="categorySearchWrap"><input id="categorySearch" type="search" placeholder="Search categories" oninput="filterCategories(this.value)"><div id="categoryGrid" class="category-grid">
+      <button class="category-tile" type="button" data-category="Entertainment" onclick="openCategory('Entertainment')">Entertainment</button><button class="category-tile" type="button" data-category="Tools" onclick="openCategory('Tools')">Tools</button><button class="category-tile" type="button" data-category="Photography" onclick="openCategory('Photography')">Photography</button><button class="category-tile" type="button" data-category="Business" onclick="openCategory('Business')">Business</button><button class="category-tile" type="button" data-category="Shopping" onclick="openCategory('Shopping')">Shopping</button><button class="category-tile" type="button" data-category="Education" onclick="openCategory('Education')">Education</button><button class="category-tile" type="button" data-category="Religion" onclick="openCategory('Religion')">Religion</button><button class="category-tile" type="button" data-category="Finance" onclick="openCategory('Finance')">Finance</button><button class="category-tile" type="button" data-category="Fashion" onclick="openCategory('Fashion')">Fashion</button><button class="category-tile" type="button" data-category="Travel" onclick="openCategory('Travel')">Travel</button><button class="category-tile" type="button" data-category="Food" onclick="openCategory('Food')">Food</button><button class="category-tile" type="button" data-category="Books" onclick="openCategory('Books')">Books</button><button class="category-tile" type="button" data-category="Health" onclick="openCategory('Health')">Health</button><button class="category-tile" type="button" data-category="Parenting" onclick="openCategory('Parenting')">Parenting</button><button class="category-tile" type="button" data-category="Reference" onclick="openCategory('Reference')">Reference</button><button class="category-tile" type="button" data-category="Communication" onclick="openCategory('Communication')">Communication</button><button class="category-tile" type="button" data-category="Productivity" onclick="openCategory('Productivity')">Productivity</button><button class="category-tile" type="button" data-category="Scientific Research" onclick="openCategory('Scientific Research')">Scientific Research</button><button class="category-tile" type="button" data-category="Security" onclick="openCategory('Security')">Security</button><button class="category-tile" type="button" data-category="Data & Analytics" onclick="openCategory('Data & Analytics')">Data & Analytics</button><button class="category-tile" type="button" data-category="Popular" onclick="openCategory('Popular')">Popular</button><button class="category-tile" type="button" data-category="Creativity" onclick="openCategory('Creativity')">Creativity</button><button class="category-tile" type="button" data-category="Development Tools" onclick="openCategory('Development Tools')">Development Tools</button><button class="category-tile" type="button" data-category="New & Noteworthy" onclick="openCategory('New & Noteworthy')">New & Noteworthy</button><button class="category-tile" type="button" data-category="Small Business" onclick="openCategory('Small Business')">Small Business</button><button class="category-tile" type="button" data-category="Business & Operations" onclick="openCategory('Business & Operations')">Business & Operations</button><button class="category-tile" type="button" data-category="Social" onclick="openCategory('Social')">Social</button><button class="category-tile" type="button" data-category="Download" onclick="openCategory('Download')">Download</button><button class="category-tile" type="button" data-category="Sports" onclick="openCategory('Sports')">Sports</button><button class="category-tile" type="button" data-category="Job" onclick="openCategory('Job')">Job</button><button class="category-tile" type="button" data-category="News" onclick="openCategory('News')">News</button><button class="category-tile" type="button" data-category="Music/Video" onclick="openCategory('Music/Video')">Music/Video</button><button class="category-tile" type="button" data-category="Other" onclick="openCategory('Other')">Other</button>
+    </div></div><div id="accessLegacy"></div><div id="dgboLegacyId"></div>
+  </div>
 </div>
 
 <div id="ecosystem" class="page hidden">
@@ -999,6 +962,7 @@ function show(id){
     .forEach(x=>x.classList.add("hidden"));
 
   target.classList.remove("hidden");
+  document.querySelectorAll("#app>.nav [data-page]").forEach(button=>{const active=button.dataset.page===id;button.classList.toggle("jp-nav-active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
   document.querySelectorAll("#app>.nav button").forEach(button=>{
     const route=button.getAttribute("onclick")||"";
     if(route.includes("show('"+id+"'")||route.includes('show("'+id+'"')) button.setAttribute("aria-current","page");
@@ -1105,8 +1069,13 @@ async function openApp(){
     return;
   }
   me=session.member;
-  $("welcome").textContent="Hello, "+(me.full_name||"Member");
+  $("welcome").textContent=me.full_name||"Your JR PHEEF space";
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
+  const headerName=$("jpHeaderMemberName"),headerNumber=$("jpHeaderMemberNumber"),homeIdentity=$("jpHomeIdentity"),homeAvatar=$("jpHomeAvatar");
+  if(headerName)headerName.textContent=me.full_name||"JR PHEEF Member";
+  if(headerNumber)headerNumber.textContent=me.jp_number||"JP identity";
+  if(homeIdentity)homeIdentity.textContent=me.jp_number||"Pending";
+  if(homeAvatar){const photo=me.profile_photo||me.avatar_url||"";if(photo){const img=document.createElement("img");img.src=photo;img.alt="Your profile photo";img.referrerPolicy="no-referrer";img.onerror=()=>{homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase()};homeAvatar.replaceChildren(img);}else homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase();}
   fillProfile();
   show("home");
   $("auth").classList.add("hidden");
@@ -1663,6 +1632,19 @@ async function jrTeacherAsk(){
   const d=await r.json(); if(!r.ok||!d.ok){msg.textContent=d.message||d.error||"JR Teacher could not answer. Try again later.";return;}
   out.textContent=d.answer||d.reply||"No answer was returned.";msg.textContent="Lesson ready. Ask a follow-up by editing your question.";
  }catch(e){msg.textContent="Connection failed. Please try again.";}
+}
+</script>
+<script>
+function jrStartHeaderVoice(){
+ const input=document.getElementById("globalCommandSearch");
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){if(input)input.placeholder="Voice search is not supported in this browser";return;}
+ const recognition=new Speech();recognition.lang=navigator.language||"en-US";recognition.interimResults=false;recognition.maxAlternatives=1;
+ const mic=document.querySelector(".jp-mic-button");if(mic){mic.disabled=true;mic.textContent="Listening…";}
+ recognition.onresult=e=>{const phrase=e.results&&e.results[0]&&e.results[0][0]?e.results[0][0].transcript:"";if(input){input.value=phrase;if(phrase){const form=input.closest("form");if(form)form.requestSubmit();}}};
+ recognition.onerror=()=>{if(input)input.placeholder="Voice search unavailable. Type to search instead.";};
+ recognition.onend=()=>{if(mic){mic.disabled=false;mic.textContent="🎙";}};
+ try{recognition.start();}catch(e){if(mic){mic.disabled=false;mic.textContent="🎙";}}
 }
 </script>
 <script src="/market-ui.js"></script>
