@@ -1,0 +1,132 @@
+/* JR PHEEF — unified command-centre design system
+   Inspired by the user-provided dashboard reference. Responsive and data-neutral. */
+:root{
+ --jp-ink:#eaf6ff;--jp-muted:#91acc8;--jp-bg:#030916;--jp-panel:#071a33;
+ --jp-panel-2:#0a2546;--jp-cyan:#35eaff;--jp-blue:#168fe0;--jp-violet:#7456db;
+ --jp-line:rgba(70,177,255,.27);--jp-shadow:0 14px 38px rgba(0,0,0,.34);
+}
+html{scroll-behavior:smooth}
+body{color:var(--jp-ink);background:
+ radial-gradient(ellipse at 58% -15%,rgba(15,111,211,.3),transparent 42%),
+ radial-gradient(ellipse at 100% 55%,rgba(0,222,255,.07),transparent 34%),
+ linear-gradient(145deg,#020713,#061832 54%,#020713);background-attachment:fixed}
+.jp-global-header{
+ position:fixed;inset:0 0 auto 0;z-index:1000;height:76px;padding:10px 22px;
+ display:flex;align-items:center;gap:24px;background:rgba(2,8,20,.94);
+ border-bottom:1px solid var(--jp-line);backdrop-filter:blur(18px);
+ box-shadow:0 8px 28px rgba(0,0,0,.25)
+}
+.jp-brand-lockup{display:flex;align-items:center;gap:10px;min-width:205px;color:inherit;text-decoration:none}
+.jp-brand-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;
+ font-weight:1000;font-size:21px;font-style:italic;color:#001522;
+ background:linear-gradient(135deg,#a1fbff,#16a8e8 60%,#1467cb);box-shadow:0 0 22px #19b8ed55}
+.jp-brand-lockup .logo{font-size:20px;line-height:1.05;letter-spacing:1.3px}
+.jp-brand-lockup small{display:block;margin-top:4px;color:#8fb8d4;font-size:8px;letter-spacing:1.5px}
+.jp-global-search{height:42px;max-width:720px;flex:1;display:flex;align-items:center;gap:9px;
+ padding:0 9px 0 14px;border:1px solid var(--jp-line);border-radius:11px;
+ background:rgba(5,26,51,.94);color:var(--jp-cyan)}
+.jp-global-search>span{font-size:25px;line-height:1}
+.jp-global-search input{margin:0!important;padding:8px 0!important;min-width:0;border:0!important;
+ outline:0;background:transparent!important;box-shadow:none!important;font-size:12px}
+.jp-global-search button{margin:0;padding:9px 12px;border-radius:8px;font-size:9px;letter-spacing:.7px}
+.jp-header-actions{display:flex;gap:8px;margin-left:auto}
+.jp-header-icon{width:39px;height:39px;padding:0;border:1px solid var(--jp-line);
+ border-radius:11px;background:#092343;color:#c8f7ff;font-size:17px}
+main{max-width:none!important;width:auto;margin:0 0 0 218px!important;padding:94px clamp(14px,2.1vw,30px) 34px!important}
+#app{min-height:calc(100vh - 95px)}
+#app>.nav{
+ position:fixed;z-index:900;left:0;top:76px;bottom:0;width:204px;padding:15px 10px 24px;
+ display:flex;flex-direction:column;align-items:stretch;gap:5px;overflow-y:auto;overflow-x:hidden;
+ background:linear-gradient(180deg,rgba(3,15,33,.98),rgba(2,10,24,.98));
+ border-right:1px solid var(--jp-line);scrollbar-width:thin;scrollbar-color:#15517b transparent
+}
+#app>.nav:before{content:"YOUR WORKSPACES";display:block;padding:7px 10px 10px;
+ color:#6f9ab9;font-size:9px;font-weight:900;letter-spacing:1.6px}
+#app>.nav button{width:100%;min-height:38px;flex:0 0 auto;margin:0;padding:9px 11px;
+ text-align:left;white-space:normal;border:1px solid transparent;border-radius:9px;
+ background:transparent;color:#bfd4e8;font-size:10px;font-weight:700;letter-spacing:.35px}
+#app>.nav button:hover,#app>.nav button:focus-visible{outline:0;border-color:var(--jp-line);
+ background:linear-gradient(100deg,#0b3761,#09213e);color:#fff}
+#app>.nav button[aria-current="page"]{background:linear-gradient(100deg,#087fc4,#07578e);
+ color:white;border-color:#42dfff;box-shadow:0 5px 18px #008bd333}
+.page{width:100%;max-width:1600px;margin:0 auto 24px}
+.page>.card,.page>.jp-section-head{margin-bottom:15px}
+.card{border:1px solid var(--jp-line)!important;border-radius:15px!important;
+ background:linear-gradient(145deg,rgba(8,30,59,.96),rgba(3,14,31,.97))!important;
+ box-shadow:var(--jp-shadow),inset 0 1px rgba(255,255,255,.025)!important}
+.page h1,.page h2,.page h3{color:#f1f9ff;letter-spacing:.1px}
+.page h1{font-size:clamp(23px,3vw,34px)}
+.page h2{font-size:clamp(17px,2vw,22px)}
+.page p,.page li{line-height:1.55}
+.muted,.jp-theme-note{color:var(--jp-muted)!important}
+.jp-kicker,.jp-command-label{color:var(--jp-cyan)!important;letter-spacing:1.6px}
+input,textarea,select{border:1px solid var(--jp-line)!important;border-radius:9px!important;
+ background:rgba(2,13,29,.95)!important;color:#f4fbff!important}
+input:focus,textarea:focus,select:focus{outline:2px solid rgba(53,234,255,.32);border-color:var(--jp-cyan)!important}
+button{transition:transform .16s ease,border-color .16s ease,filter .16s ease}
+button:hover{filter:brightness(1.12)}
+button.primary{background:linear-gradient(110deg,#087fc5,#08b8d2)!important;color:#001522!important}
+button.dark{background:linear-gradient(110deg,#0b2a4b,#103c61)!important;border:1px solid var(--jp-line)}
+button.danger{background:linear-gradient(110deg,#71334c,#9b3f58)!important}
+.badge{border:1px solid var(--jp-line);background:#0a3153;color:#baf7ff}
+.jp-dashboard-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important}
+.jp-dash-tile{min-height:102px!important;background:linear-gradient(145deg,#0b3159,#06172e)!important;
+ border:1px solid var(--jp-line)!important;box-shadow:0 8px 20px #0003}
+.jp-dash-icon{color:var(--jp-cyan)!important}
+.jp-status-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+.jp-status-item{border:1px solid var(--jp-line);border-radius:12px;background:rgba(6,27,52,.8);padding:13px}
+#universeHero{min-height:220px;border:1px solid rgba(53,234,255,.4)!important;
+ background:linear-gradient(110deg,rgba(5,38,75,.98),rgba(3,17,38,.96) 68%,rgba(5,55,83,.9))!important}
+#home{display:flex;flex-direction:column;gap:4px}
+#home>.jp-section-head{order:0}
+#home>#universeHero{order:1}
+#home>.jp-dashboard-grid{order:2}
+#home>#coordination{order:3}
+#home>.jp-status-strip{order:4}
+#home>.card:not(#universeHero):not(#coordination){order:5}
+.grid{gap:12px}
+.listing{border:1px solid var(--jp-line);border-radius:12px;background:rgba(4,20,40,.7)}
+.jp-settings-grid,.jp-theme-layout{gap:14px}
+.jp-settings-card{background:linear-gradient(145deg,#0a2748,#04162d)!important}
+.jp-settings-icon{color:var(--jp-cyan)}
+.jp-notification-drawer,.jp-notifications-drawer{background:#061a32!important;border-color:var(--jp-line)!important}
+#auth{max-width:580px;margin:7vh auto 0}
+#auth .card{padding:clamp(20px,4vw,34px)}
+#auth h1{font-size:clamp(27px,4vw,39px)}
+@media(min-width:1500px){main{padding-left:34px!important;padding-right:34px!important}.jp-dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:900px){
+ .jp-global-header{gap:12px;padding:9px 13px}.jp-brand-lockup{min-width:155px}
+ .jp-brand-mark{width:36px;height:36px}.jp-brand-lockup .logo{font-size:17px}
+ main{margin-left:190px!important;padding-left:13px!important;padding-right:13px!important}
+ #app>.nav{width:178px}
+ .jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:680px){
+ .jp-global-header{height:auto;min-height:66px;flex-wrap:wrap;gap:8px;padding:8px 10px}
+ .jp-brand-lockup{min-width:0;flex:1}.jp-brand-mark{width:33px;height:33px;font-size:17px}
+ .jp-brand-lockup .logo{font-size:16px}.jp-brand-lockup small{font-size:7px}
+ .jp-global-search{order:3;flex-basis:100%;max-width:none;height:38px}
+ .jp-global-search input{font-size:11px}
+ .jp-global-search button{padding:8px;font-size:8px}
+ .jp-header-actions{margin-left:0}
+ main{margin:0!important;padding:118px 10px 25px!important}
+ #app>.nav{position:sticky;top:111px;left:auto;bottom:auto;width:auto;height:auto;
+  flex-direction:row;align-items:center;gap:6px;padding:8px;margin:0 -10px 13px;
+  overflow-x:auto;overflow-y:hidden;border:0;border-bottom:1px solid var(--jp-line);
+  background:rgba(3,13,29,.97);scrollbar-width:none}
+ #app>.nav::-webkit-scrollbar{display:none}
+ #app>.nav:before{display:none}
+ #app>.nav button{width:auto;min-height:35px;white-space:nowrap;padding:8px 11px;font-size:9px}
+ .page{margin-bottom:15px}
+ .jp-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .jp-status-strip{grid-template-columns:1fr}
+ #universeHero{min-height:0;padding:20px!important}
+ .card{padding:15px!important}
+ .grid{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+ .jp-header-actions .jp-header-icon{width:33px;height:33px}
+ .jp-dashboard-grid{grid-template-columns:1fr!important}
+ .jp-global-search>span{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
