@@ -316,12 +316,16 @@ placeholder="Password">
   <button data-page="ecosystem" onclick="show('create')"><span>♙</span> Business</button>
   <button data-page="find" onclick="show('find')"><span>🛒</span> Marketplace</button>
   <button data-page="economy" onclick="show('economy')"><span>▥</span> Economy</button>
-  <button class="jp-nav-settings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
+  <button class="jp-nav-settings" data-page="jrsettings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
   <button data-page="projects" onclick="show('projects')"><span>▤</span> Projects</button>
 </div>
 
 <div id="messages" class="page hidden">
- <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF CONNECT</div><h2>Messages</h2><p>Private conversations and groups across your JR PHEEF ecosystem.</p></div></div>
+ <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF CONNECT</div><h2>Messages & Calls</h2><p>Your communication centre for conversations, groups and daily updates.</p></div></div>
+ <section class="jr-status-section card"><div class="jp-section-head"><div><div class="jp-kicker">24-HOUR STORIES</div><h3>Status</h3><p>Share a moment with your connections. Updates expire automatically after 24 hours.</p></div><button class="dark" type="button" onclick="jrLoadStatuses()">↻ Refresh</button></div>
+  <div id="jrStatusStories" class="jr-status-stories" aria-live="polite"></div>
+  <div id="jrStatusComposer" class="jr-status-composer"><textarea id="jrStatusInput" maxlength="700" rows="3" placeholder="What's happening? Share a status…"></textarea><div class="jr-status-options"><select id="jrStatusBackground" aria-label="Status background"><option value="ocean">Ocean</option><option value="violet">Violet</option><option value="sunset">Sunset</option><option value="emerald">Emerald</option><option value="midnight">Midnight</option><option value="rose">Rose</option></select><select id="jrStatusVisibility" aria-label="Status audience"><option value="connections">My connections</option><option value="everyone">Everyone</option></select><button id="jrStatusPublish" class="primary" type="button" onclick="jrPostStatus()">SHARE STATUS</button></div><p id="jrStatusMessage" class="muted" aria-live="polite"></p>
+ </div></section>
  <div class="grid" style="grid-template-columns: minmax(220px,1fr) minmax(0,2fr);gap:14px">
   <div class="card"><h3>Your conversations</h3><button class="primary" onclick="jrNewChat()">＋ New chat</button><div id="jrConversations" style="margin-top:12px"></div></div>
   <div class="card"><div id="jrChatHeader"><h3>JR PHEEF Connect</h3><p class="muted">Choose a conversation or start a new one.</p></div><div id="jrChatMessages" style="height: min(48vh,520px);overflow:auto;border:1px solid var(--line,#234);border-radius:12px;padding:12px;margin:12px 0"></div><div style="display:flex;gap:8px;align-items:end"><textarea id="jrChatInput" rows="2" maxlength="4000" placeholder="Write a message…" style="flex:1"></textarea><button class="primary" onclick="jrSendMessage()">Send</button></div><p id="jrChatStatus" class="muted" aria-live="polite"></p></div>
@@ -1014,7 +1018,7 @@ async function login(){
       $("loginMsg").textContent="Sign-in succeeded, but this browser could not confirm your session. Enable cookies for JR PHEEF and try again.";
       return;
     }
-    me=session.member;
+    me=session.member;window.jrCurrentMemberId=me.id;
     $("loginMsg").textContent="";
     await openApp();
   }catch(e){
@@ -1068,7 +1072,7 @@ async function openApp(){
     $("loginMsg").textContent="Your session could not be verified. Check that cookies are enabled, then sign in again.";
     return;
   }
-  me=session.member;
+  me=session.member;window.jrCurrentMemberId=me.id;
   $("welcome").textContent=me.full_name||"Your JR PHEEF space";
   $("dgbo").textContent="DGBO ID: "+(me.dgbo_id||"MEMBER")+" · YOUR JP NUMBER: "+(me.jp_number||"Loading…");
   const headerName=$("jpHeaderMemberName"),headerNumber=$("jpHeaderMemberNumber"),homeIdentity=$("jpHomeIdentity"),homeAvatar=$("jpHomeAvatar");
@@ -1668,5 +1672,6 @@ function jrStartHeaderVoice(){
 <script src="/notifications-ui.js"></script>
 
 <script src="/ai-agents.js" defer></script>
+<script src="/projects-ui.js"></script>
 </body>
 </html>
