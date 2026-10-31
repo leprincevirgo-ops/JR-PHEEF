@@ -130,6 +130,19 @@ function mount(){
  // Add Connections to the main navigation without duplicating entries.
  const nav=app.querySelector(":scope > .nav");
  if(nav&&!nav.querySelector('[data-page="connections"]')){const b=el("button","","⇄  Connections");b.dataset.page="connections";b.addEventListener("click",()=>go("connections"));nav.append(b);}
+ if(nav&&!nav.querySelector(".jr-nav-group")){
+  const groups=[
+   ["YOUR WORLD",["home","discover","explore","browser","apphub"]],
+   ["CONNECT",["messages","social","jpconnect","connections"]],
+   ["CREATE & GROW",["create","find","opportunities","projects","economy","businessgrowth","ads","mylistings","deals","delivery","powersale"]],
+   ["ECOSYSTEM",["ecosystem","family","command","accessgov","jpidentity"]],
+   ["PERSONAL",["profile","vault","library","teacher","universe","assistant","voice","lab","points","flex","rooms","devices","referrals","membership","scifi","fixedit","ideas","alerts","themes","jrsettings"]]
+  ];
+  const buttons=[...nav.querySelectorAll(":scope > button")],used=new Set();
+  nav.replaceChildren();
+  groups.forEach(([label,ids])=>{const group=el("div","jr-nav-group"),heading=el("div","jr-nav-group-label",label);group.append(heading);ids.forEach(id=>{const b=buttons.find(x=>x.dataset.page===id);if(b){group.append(b);used.add(b);}});if(group.querySelector("button"))nav.append(group);});
+  const rest=buttons.filter(b=>!used.has(b));if(rest.length){const group=el("div","jr-nav-group");group.append(el("div","jr-nav-group-label","MORE"));rest.forEach(b=>group.append(b));nav.append(group);}
+ }
  const original=window.show;
  if(typeof original==="function"){
   window.show=function(id){const p=ensure(id);if(original)original(id);if(!$(id)&&p.id!==id)return;go(id);};
