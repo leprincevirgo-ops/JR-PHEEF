@@ -888,6 +888,8 @@ SAVE PROFILE
    <option value="opportunity">Opportunity Matcher</option>
    <option value="manager">AI Manager — prepare decisions for approval</option>
   </select>
+  <label for="aiAnswerDepth">How much detail would help?</label>
+  <select id="aiAnswerDepth"><option value="quick">Quick answer · just enough</option><option value="standard" selected>Standard · useful context and next steps</option><option value="deep">Deep dive · thorough explanation</option></select>
   <label for="aiQuestion">What would you like help with?</label>
   <textarea id="aiQuestion" rows="4" maxlength="4000" placeholder="Example: Compare the risks and monthly costs of three small businesses in Nairobi."></textarea>
   <label style="display:flex;gap:8px;align-items:center"><input id="aiWebResearch" type="checkbox" style="width:auto;margin:0"> Use web research for this question (may take longer)</label>
@@ -1529,7 +1531,7 @@ async function askJRAI(){
  if(!q){status.textContent="Write a question first.";return;}
  button.disabled=true;status.textContent="JR PHEEF is working through your question…";
  try{
-  const d=await api("/api/ai/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:aiHistory.slice(-6),use_web:$("aiWebResearch").checked,mode:$("aiMode").value})});
+  const d=await api("/api/ai/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:aiHistory.slice(-6),use_web:$("aiWebResearch").checked,mode:$("aiMode").value,answer_depth:$("aiAnswerDepth").value})});
   if(!d.ok){status.textContent=d.message||d.error||"The assistant could not answer. Please retry.";return;}
   aiHistory.push({role:"user",content:q},{role:"assistant",content:d.answer});
   aiHistory=aiHistory.slice(-12);renderJRAI();$("aiQuestion").value="";
