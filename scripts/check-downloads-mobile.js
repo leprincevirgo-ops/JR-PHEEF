@@ -1,0 +1,13 @@
+"use strict";
+const fs=require("node:fs"),vm=require("node:vm");
+const ui=fs.readFileSync("public/downloads-ui.js","utf8");
+const css=fs.readFileSync("public/downloads-play.css","utf8");
+const mobile=fs.readFileSync("public/mobile-experience.css","utf8");
+const launcher=fs.readFileSync("public/command-center.js","utf8");
+new vm.Script(ui,{filename:"public/downloads-ui.js"});
+new vm.Script(launcher,{filename:"public/command-center.js"});
+for(const token of ["MUSIC","VIDEO","GAMES","Bandcamp","YouTube","Steam","itch.io","commons.wikimedia.org","OPEN MY FILES"])if(!ui.includes(token))throw new Error("Missing Downloads & Play capability/source: "+token);
+for(const token of ["downloads","/downloads-ui.js","/mobile-experience.css"])if(!launcher.includes(token))throw new Error("Missing launcher integration: "+token);
+for(const token of ["@media(max-width:620px)",".jr-download-grid","grid-template-columns:1fr"])if(!css.includes(token))throw new Error("Missing responsive downloads style: "+token);
+for(const token of ["@media(max-width:680px)","overflow-x:hidden","#app>.nav","safe-area-inset-bottom","min-height:42px"])if(!mobile.includes(token))throw new Error("Missing mobile usability rule: "+token);
+console.log("PASS: Downloads & Play syntax, authorised-source directory, launcher integration and mobile responsive rules.");

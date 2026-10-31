@@ -22,6 +22,7 @@ const MODULES=[
  ["apphub","App Hub","Organise and open your other apps","▦"],
  ["connections","Connections","Organise and connect approved external services","⇄"],
  ["browser","JR PHEEF Browser","Search the web and open websites","↗"],
+ ["downloads","Downloads & Play","Discover authorised music, videos, games and downloads","⇩"],
  ["create","Create listing","Publish a product, service or offer","＋"],
  ["opportunities","Opportunities","Find, post and coordinate opportunities","◇"],
  ["messages","Messages","Private and group conversations","✉"],
@@ -62,6 +63,8 @@ function openApp(url){const safe=safeUrl(url);if(!safe)return;close();window.ope
 function mount(){
  const app=$("app"),header=document.querySelector("body > header"),nav=app?.querySelector(".nav");
  if(!app||!header||!nav||$("jpCommandPalette"))return;
+ if(!$("jpMobileExperienceCss")){const l=document.createElement("link");l.id="jpMobileExperienceCss";l.rel="stylesheet";l.href="/mobile-experience.css";document.head.append(l);}
+ if(!$("jpDownloadsScript")){const sc=document.createElement("script");sc.id="jpDownloadsScript";sc.src="/downloads-ui.js";sc.defer=true;document.body.append(sc);}
  const headerActions=el("div","jp-command-header-actions");
  const search=el("button","jp-command-open","⌕  SEARCH JR PHEEF");search.type="button";search.setAttribute("aria-haspopup","dialog");search.setAttribute("aria-controls","jpCommandPalette");search.addEventListener("click",open);
  headerActions.append(search);
