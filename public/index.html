@@ -236,8 +236,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <body>
 
 <header>
-  <div><div class="logo">JR <span>PHEEF</span></div><div style="font-size:9px;letter-spacing:1.5px;color:#8fb8d4;margin-top:3px">FIND. MATCH. TRADE. <span style="color:#42f5ff">·</span> POWERED BY DGBO</div></div>
-  <button id="logoutBtn" class="hidden" onclick="logout()">LOGOUT</button>
+  <div><div class="logo">JR <span>PHEEF</span></div><div style="font-size:9px;letter-spacing:1.5px;color:#8fb8d4;margin-top:3px">YOUR CONNECTED WORLD <span style="color:#42f5ff">·</span> POWERED BY DGBO</div></div>
 </header>
 
 <main>
@@ -245,7 +244,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <section id="auth">
 
 <div class="card">
-<h1>Find. Match. Connect.</h1>
+<h1>One connected world.</h1>
 <p class="muted">
 Your universal opportunity center.
 </p>
@@ -303,7 +302,6 @@ placeholder="Password">
 <button onclick="show('universe')">UNIVERSE</button>
 <button onclick="show('lab')">LAB</button>
 <button onclick="show('library')">LIBRARY</button>
-<button onclick="show('find')">FIND</button>
 <button onclick="show('create')">CREATE</button>
 <button onclick="show('opportunities');loadOpportunities()">POST OPPORTUNITY</button>
 <button onclick="show('rooms');loadRooms()">ROOMS NEAR ME</button>
@@ -320,9 +318,9 @@ placeholder="Password">
  </div>
 </div>
 <div id="home" class="page">
-<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">FIND · MATCH · TRADE</span></div>
+<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · GLOBAL COMMAND CENTRE</div><p>Your connected world, organized in one place.</p></div><span class="badge">DISCOVER · CONNECT · COORDINATE</span></div>
 <div class="jp-dashboard-grid" aria-label="JR PHEEF quick access">
-<button class="jp-dash-tile" onclick="show('find')"><span class="jp-dash-icon">⌕</span><span><span class="jp-dash-title">DISCOVER</span><br><span class="jp-dash-sub">Find goods, work and opportunities</span></span></button>
+<button class="jp-dash-tile" onclick="show('discover')"><span class="jp-dash-icon">⌕</span><span><span class="jp-dash-title">DISCOVER</span><br><span class="jp-dash-sub">Explore subjects, products, services and opportunities</span></span></button>
 <button class="jp-dash-tile" onclick="show('social')"><span class="jp-dash-icon">◎</span><span><span class="jp-dash-title">JR SOCIAL</span><br><span class="jp-dash-sub">Community, posts and connections</span></span></button>
 <button class="jp-dash-tile" onclick="show('assistant')"><span class="jp-dash-icon">✧</span><span><span class="jp-dash-title">JR ASSISTANT</span><br><span class="jp-dash-sub">Plan, research and coordinate</span></span></button>
 <button class="jp-dash-tile" onclick="show('family');loadFamily()"><span class="jp-dash-icon">⌂</span><span><span class="jp-dash-title">FAMILY</span><br><span class="jp-dash-sub">Personal goals and requests</span></span></button>
@@ -643,9 +641,9 @@ placeholder="Password">
 <div id="find" class="page hidden">
 
 <div class="card">
-<h2>🔎 FIND</h2>
+<h2>DISCOVER &amp; MARKETPLACE</h2>
 
-<input id="searchQ" placeholder="What opportunity are you looking for?">
+<input id="searchQ" placeholder="Search products, services, listings or opportunities">
 
 <button class="primary" onclick="searchListings()">
 FIND
@@ -831,7 +829,7 @@ SAVE PROFILE
 
 <div id="jpconnect" class="page hidden"><div class="card"><p class="eyebrow">DIRECT MEMBER CONNECTION</p><h2>Connect by JP Number</h2><p class="muted">Send a connection request by JP number. Phone and email remain private until shared by their owner.</p><input id="jpNumberInput" maxlength="24" placeholder="JP-12AB34CD56"><button class="primary" onclick="connectByJP()">FIND & REQUEST CONNECTION</button><p id="jpConnectMsg" aria-live="polite"></p><div id="jpConnectResult"></div></div><div class="card"><h3>Your connection requests</h3><button class="dark" onclick="loadConnections()">REFRESH</button><div id="connectionList"></div></div></div>
 <div id="social" class="page hidden"><div class="card"><p class="eyebrow">SOCIAL SIDE</p><h2>People & Community</h2><p class="muted">Share ideas and updates with visibility you choose.</p><textarea id="socialBody" maxlength="2000" rows="4" placeholder="What would you like to share?"></textarea><select id="socialVisibility"><option value="connections">My connections</option><option value="private">Only me</option><option value="public">Public</option></select><button class="primary" onclick="publishSocialPost()">SHARE POST</button><p id="socialMsg" aria-live="polite"></p></div><div class="card"><h3>My posts</h3><button class="dark" onclick="loadSocialPosts()">REFRESH</button><div id="socialPosts"></div></div></div>
-<div id="economy" class="page hidden"><div class="card"><p class="eyebrow">ECONOMIC SIDE</p><h2>Opportunities & Trade</h2><p class="muted">Goods, services, jobs, property, transport, delivery, business offers and paid tools.</p><div class="grid"><div class="listing"><b>Find & Match</b><p class="muted">Discover opportunities. Show any fee before confirmation.</p><button onclick="show('find')">FIND</button></div><div class="listing"><b>Sell & Offer</b><p class="muted">Publish a genuine offer.</p><button onclick="show('create')">CREATE</button></div><div class="listing"><b>Optional business tools</b><p class="muted">Featured listings, business profiles and analytics.</p></div><div class="listing"><b>Transparent fees</b><p class="muted">No hidden fees. Billing is active only when integrated and verified.</p></div></div><h3>Revenue streams</h3><ul><li>Optional business promotions.</li><li>Voluntary PRO / PRIME memberships.</li><li>Clearly disclosed connection or completed-service fees.</li><li>Delivery and organization tools when integrated.</li><li>Opt-in aggregated market insights with privacy safeguards.</li></ul><p class="muted">This is an interface for the proposed model; it does not activate billing.</p></div></div>
+<div id="economy" class="page hidden"><div class="card"><p class="eyebrow">ECONOMIC SIDE</p><h2>Opportunities & Trade</h2><p class="muted">Goods, services, jobs, property, transport, delivery, business offers and paid tools.</p><div class="grid"><div class="listing"><b>Discover opportunities</b><p class="muted">Explore goods, services, jobs and business opportunities. Any fee must be shown before confirmation.</p><button onclick="show('discover')">DISCOVER</button></div><div class="listing"><b>Sell & Offer</b><p class="muted">Publish a genuine offer.</p><button onclick="show('create')">CREATE</button></div><div class="listing"><b>Optional business tools</b><p class="muted">Featured listings, business profiles and analytics.</p></div><div class="listing"><b>Transparent fees</b><p class="muted">No hidden fees. Billing is active only when integrated and verified.</p></div></div><h3>Revenue streams</h3><ul><li>Optional business promotions.</li><li>Voluntary PRO / PRIME memberships.</li><li>Clearly disclosed connection or completed-service fees.</li><li>Delivery and organization tools when integrated.</li><li>Opt-in aggregated market insights with privacy safeguards.</li></ul><p class="muted">This is an interface for the proposed model; it does not activate billing.</p></div></div>
 <div id="rooms" class="page hidden">
   <div class="card">
     <p class="eyebrow">ROOMS NEAR ME · RENTAL DISCOVERY</p>
@@ -1077,7 +1075,7 @@ async function openApp(){
     me=null;
     $("auth").classList.remove("hidden");
     $("app").classList.add("hidden");
-    $("logoutBtn").classList.add("hidden");
+    
     $("loginMsg").textContent="Your session could not be verified. Check that cookies are enabled, then sign in again.";
     return;
   }
@@ -1088,7 +1086,7 @@ async function openApp(){
   show("home");
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
-  $("logoutBtn").classList.remove("hidden");
+  
   try{
     await refresh();
   }catch(e){
