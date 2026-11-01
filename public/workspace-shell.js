@@ -116,16 +116,34 @@ function ensure(id){
  makeChrome(p,id);
  return p;
 }
+function activateOnlyWorkspace(id){
+ const pages=Array.from(document.querySelectorAll("#app .page"));
+ pages.forEach(page=>{
+  const active=page.id===id;
+  page.classList.toggle("hidden",!active);
+  page.hidden=!active;
+  page.setAttribute("aria-hidden",String(!active));
+  if("inert" in page)page.inert=!active;
+ });
+ const activePage=$(id);
+ if(activePage){
+  activePage.hidden=false;
+  activePage.classList.remove("hidden");
+  activePage.setAttribute("aria-hidden","false");
+  if("inert" in activePage)activePage.inert=false;
+ }
+ return activePage;
+}
 function go(id,replace=false){
  if(!id)return;
  const p=ensure(id);
  if(cursor<0||history[cursor]!==id){history=history.slice(0,cursor+1);history.push(id);cursor=history.length-1;}
- document.querySelectorAll("#app .page").forEach(x=>x.classList.add("hidden"));
- p.classList.remove("hidden");
+ activateOnlyWorkspace(id);
  updateNav(id);window.scrollTo({top:0,behavior:"instant"});
+ document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
 function updateNav(id){document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===id;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});}
-function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor],p=ensure(id);document.querySelectorAll("#app .page").forEach(x=>x.classList.add("hidden"));p.classList.remove("hidden");updateNav(id);window.scrollTo({top:0,behavior:"instant"});}
+function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor];ensure(id);activateOnlyWorkspace(id);updateNav(id);window.scrollTo({top:0,behavior:"instant"});document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));}
 function concealInternalOrchestration(){
  const architecture=$("connectedArchitecture");if(architecture)architecture.hidden=true;
  const directory=$("aiAgentDirectory");if(directory){const card=directory.closest(".card");if(card)card.hidden=true;}
