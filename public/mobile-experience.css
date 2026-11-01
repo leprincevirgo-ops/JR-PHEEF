@@ -82,3 +82,8 @@
  .jp-discover-category{min-height:120px!important}
 }
 @media(prefers-reduced-motion:reduce){.jp-discover-category,.jp-universe-card{transition:none!important}}
+
+
+/* Workspace visibility is an invariant, not a theme preference. */
+#app .page[hidden],#app .page.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#jr-accessibility-panel[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
