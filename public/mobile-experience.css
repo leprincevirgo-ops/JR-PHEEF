@@ -86,5 +86,4 @@
 
 /* Workspace visibility is an invariant, not a theme preference. */
 #app .page[hidden],#app .page.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
-#app .page:not([hidden]):not(.hidden){display:block;visibility:visible;pointer-events:auto}
 #jr-accessibility-panel[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
