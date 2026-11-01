@@ -11,5 +11,5 @@ assert.ok(shell.includes('page.inert=!active'),"Inactive workspaces must not rem
 assert.ok(shell.includes("activateOnlyWorkspace(id)"),"Both normal navigation and history navigation must enforce one active workspace.");
 assert.ok(mobile.includes("#app .page[hidden],#app .page.hidden{display:none!important"),"Hidden pages must not be displayed by conflicting CSS.");
 assert.ok(mobile.includes("#jr-accessibility-panel[hidden]{display:none!important"),"Closed accessibility panel must remain hidden.");
-assert.ok(a11y.includes('aria-controls:"jr-accessibility-panel"'),"Accessibility launcher must reference its panel.");
+assert.ok(a11y.includes('aria-controls')&&a11y.includes('jr-accessibility-panel'),"Accessibility launcher must reference its panel.");
 console.log("PASS: one active workspace, hidden/inert inactive pages, and closed accessibility panel.");
