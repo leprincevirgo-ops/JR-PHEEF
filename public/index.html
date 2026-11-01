@@ -306,23 +306,33 @@ placeholder="Password">
 
 <section id="app" class="hidden">
 
-<div class="nav" aria-label="Main navigation">
-  <button class="jp-nav-active" data-page="home" onclick="show('home')"><span>⌂</span> Home</button>
-  <button data-page="discover" onclick="show('discover')"><span>⌕</span> Discover</button>
-  <button data-page="explore" onclick="show('explore')"><span>✧</span> Explore</button>
-  <button data-page="browser" onclick="show('browser')"><span>◎</span> Browser</button>
-  <button data-page="apphub" onclick="show('apphub')"><span>▦</span> App Hub</button>
-  <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Messages</button>
-  <button data-page="social" onclick="show('social')"><span>◉</span> Social</button>
-  <button data-page="dgbo" onclick="show('dgbo')"><span>◈</span> DGBO</button>
-  <button data-page="family" onclick="show('family');loadFamily()"><span>⌂</span> FAMILY</button>
-  <button data-page="create" onclick="show('create')"><span>♙</span> Business</button>
-  <button data-page="find" onclick="show('find')"><span>🛒</span> Marketplace</button>
-  <button data-page="economy" onclick="show('economy')"><span>▥</span> Economy</button>
-  <button class="jp-nav-settings" data-page="jrsettings" onclick="show('jrsettings')"><span>⚙</span> Settings <b>›</b></button>
-  <button data-page="projects" onclick="show('projects')"><span>▤</span> Projects</button>
-  <button data-page="connections" onclick="window.jrWorkspaceNavigate('connections')"><span>⇄</span> Connections</button>
+<nav class="nav jp-primary-nav" aria-label="Main navigation">
+<button class="jp-nav-active" data-page="home" onclick="show('home')"><span>⌂</span> Home</button>
+<button data-page="discover" onclick="show('discover')"><span>⌕</span> Discover</button>
+<button data-page="explore" onclick="show('explore')"><span>✧</span> Explore</button>
+<button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Connect</button>
+<button data-page="create" onclick="show('create')"><span>✧</span> Business</button>
+<button data-page="projects" onclick="show('projects')"><span>⚒</span> Projects</button>
+<div class="jp-more-wrap">
+<button type="button" class="jp-more-trigger" id="jpMoreTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="jpMoreMenu" onclick="jrToggleMoreMenu(event)"><span>☷</span> More <b>⌄</b></button>
+<div class="jp-more-menu" id="jpMoreMenu" role="menu" hidden>
+<div class="jp-more-heading">YOUR JR PHEEF WORLDS</div>
+<div class="jp-more-group">
+<button role="menuitem" data-page="social" onclick="show('social');jrCloseMoreMenu()">Social &amp; community</button>
+<button role="menuitem" data-page="find" onclick="show('find');jrCloseMoreMenu()">Shopping &amp; marketplace</button>
+<button role="menuitem" data-page="teacher" onclick="show('teacher');jrCloseMoreMenu()">Learning &amp; knowledge</button>
+<button role="menuitem" data-page="browser" onclick="show('browser');jrCloseMoreMenu()">Web browser</button>
+<button role="menuitem" data-page="apphub" onclick="show('apphub');jrCloseMoreMenu()">My apps</button>
 </div>
+<div class="jp-more-heading">ECOSYSTEM</div>
+<div class="jp-more-group">
+<button role="menuitem" data-page="dgbo" onclick="show('dgbo');jrCloseMoreMenu()">DGBO</button>
+<button role="menuitem" data-page="family" onclick="show('family');loadFamily();jrCloseMoreMenu()">FAMILY</button>
+<button role="menuitem" data-page="economy" onclick="show('economy');jrCloseMoreMenu()">Economy</button>
+<button role="menuitem" data-page="ecosystem" onclick="show('ecosystem');jrCloseMoreMenu()">Ecosystem overview</button>
+<button role="menuitem" data-page="connections" onclick="window.jrWorkspaceNavigate('connections');jrCloseMoreMenu()">Connections</button>
+</div>
+</div></div></nav>
 
 <div id="messages" class="page hidden">
  <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF CONNECT</div><h2>Messages & Calls</h2><p>Your communication centre for conversations, groups and daily updates.</p></div></div>
@@ -339,7 +349,7 @@ placeholder="Password">
   <section class="jp-home-hero">
     <div class="jp-hero-copy"><div class="jp-hero-brand"><span class="jp-hero-mark">JR</span><div><div class="jp-hero-wordmark">JR PHEEF</div><div class="jp-hero-motto">Discover <i>•</i> Connect <i>•</i> Coordinate</div></div></div>
       <h1>Your world. <span>More possibilities.</span></h1><p>Your connected world—discover opportunities, explore knowledge, connect with people and coordinate what matters.</p>
-      <button class="jp-hero-cta" onclick="show('explore')">🚀 Explore the Universe <b>→</b></button>
+      <button class="jp-hero-cta" type="button" onclick="document.getElementById('jpUniversalRequest')?.focus()">✧ Tell JR what you need <b>→</b></button>
     </div><div class="jp-hero-orb" aria-hidden="true"><div class="jp-orb-ring"></div><div class="jp-cityline"></div></div>
   </section>
   <section class="jp-universe-start" aria-labelledby="jpUniverseStartTitle">
@@ -359,19 +369,7 @@ placeholder="Password">
       <button type="button" data-jr-prompt="Help me connect the right people around one goal.">🤝 Connect people</button>
     </div>
   </section>
-  <section aria-label="Explore JR PHEEF worlds">
-    <div class="jp-universe-grid">
-      <button class="jp-universe-card" type="button" data-jr-open="messages"><span class="jp-universe-card-icon">☏</span><span><strong>People &amp; Social</strong><small>Messages, connections and community spaces.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="find"><span class="jp-universe-card-icon">🛍</span><span><strong>Shopping &amp; Services</strong><small>Explore listings, products and services.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="teacher"><span class="jp-universe-card-icon">✎</span><span><strong>Learning &amp; Knowledge</strong><small>Understand, practise and develop new skills.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="projects"><span class="jp-universe-card-icon">⚒</span><span><strong>Create &amp; Build</strong><small>Projects, experiments and new ideas.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="ecosystem"><span class="jp-universe-card-icon">◈</span><span><strong>Business &amp; DGBO</strong><small>Develop ventures and coordinate work.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="family"><span class="jp-universe-card-icon">♧</span><span><strong>FAMILY</strong><small>Family goals and financial coordination.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="explore"><span class="jp-universe-card-icon">◎</span><span><strong>Explore the Universe</strong><small>Places, science, nature, culture and futures.</small></span></button>
-      <button class="jp-universe-card" type="button" data-jr-open="browser"><span class="jp-universe-card-icon">↗</span><span><strong>Web &amp; Apps</strong><small>Browse the web and organise external apps.</small></span></button>
-    </div>
-    <div class="jp-universe-principle"><b>One connected experience.</b><span>Discover · Imagine · Create · Connect · Coordinate · Grow</span></div>
-  </section>
+  
   <div class="jp-home-stat-row">
     <div class="jp-stat-card jp-stat-cyan"><span class="jp-stat-icon">✦</span><div><strong id="pointsValue">0</strong><small>JR PHEEF Points</small></div></div>
     <div class="jp-stat-card jp-stat-violet"><span class="jp-stat-icon">◉</span><div><strong>33</strong><small>Discovery categories</small></div></div>
@@ -380,19 +378,7 @@ placeholder="Password">
   </div>
   <div class="jp-home-columns">
     <section class="jp-home-main-column">
-      <div class="jp-home-panel jp-quick-panel"><div class="jp-panel-heading"><h2>⭐ Quick Access</h2><button onclick="show('apphub')">View all →</button></div>
-        <div class="jp-quick-grid">
-          <button class="jp-quick-card q-discover" onclick="show('discover')"><span>⌕</span><b>Discover</b><small>Explore more</small></button>
-          <button class="jp-quick-card q-browser" onclick="show('browser')"><span>◎</span><b>Browser</b><small>Browse the web</small></button>
-          <button class="jp-quick-card q-apps" onclick="show('apphub')"><span>▦</span><b>App Hub</b><small>Your apps</small></button>
-          <button class="jp-quick-card q-messages" onclick="show('messages');jrMessagesLoad()"><span>☏</span><b>Messages</b><small>Chat &amp; connect</small></button>
-          <button class="jp-quick-card q-dgbo" onclick="show('ecosystem')"><span>♧</span><b>DGBO</b><small>Business ideas</small></button>
-          <button class="jp-quick-card q-family" onclick="show('family');loadFamily()"><span>♙</span><b>FAMILY</b><small>Family matters</small></button>
-          <button class="jp-quick-card q-market" onclick="show('find')"><span>🛒</span><b>Marketplace</b><small>Shop &amp; sell</small></button>
-          <button class="jp-quick-card q-settings" onclick="show('jrsettings')"><span>⚙</span><b>Settings</b><small>Manage your account</small></button>
-        </div>
-      </div>
-      <div class="jp-home-lower-grid">
+            <div class="jp-home-lower-grid">
         <section class="jp-home-panel"><div class="jp-panel-heading"><h2>⚡ Your Activity</h2><button onclick="show('alerts')">View all →</button></div><div class="jp-activity-empty"><span>✧</span><p>Your recent JR PHEEF activity will appear here as you explore, connect and use services.</p></div><p id="accessText" class="jp-access-status">Checking your account access…</p></section>
         <section class="jp-home-panel"><div class="jp-panel-heading"><h2>🌐 Explore the World</h2><button onclick="show('explore')">View more →</button></div><div class="jp-world-grid">
           <button onclick="show('explore')" style="--world-image:url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&amp;fit=crop&amp;w=520&amp;q=85')"><b>Places &amp; Cities</b></button>
@@ -1035,7 +1021,8 @@ function show(id){
     .forEach(x=>x.classList.add("hidden"));
 
   target.classList.remove("hidden");
-  document.querySelectorAll("#app>.nav [data-page]").forEach(button=>{const active=button.dataset.page===id;button.classList.toggle("jp-nav-active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
+  document.querySelectorAll("#app>.jp-primary-nav [data-page]").forEach(button=>{const active=button.dataset.page===id;button.classList.toggle("jp-nav-active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current","page");});
+  if(typeof jrUpdateMoreActive==="function")jrUpdateMoreActive(id);
   document.querySelectorAll("#app>.nav button").forEach(button=>{
     const route=button.getAttribute("onclick")||"";
     if(route.includes("show('"+id+"'")||route.includes('show("'+id+'"')) button.setAttribute("aria-current","page");
