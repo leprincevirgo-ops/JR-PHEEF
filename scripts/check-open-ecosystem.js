@@ -1,0 +1,14 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const js=fs.readFileSync("public/open-ecosystem.js","utf8");
+const css=fs.readFileSync("public/open-ecosystem.css","utf8");
+for(const asset of ['href="/open-ecosystem.css"','src="/open-ecosystem.js"'])assert.ok(html.includes(asset),"Open Ecosystem asset missing: "+asset);
+for(const id of ["partners","developers"])assert.ok(shell.includes('["'+id+'"'),"Workspace route missing: "+id);
+for(const label of ["Partner Centre","Developer Centre","sandbox","signed webhooks","production partner connections are not enabled","not been implemented"])assert.ok(js.includes(label),"Open Ecosystem disclosure missing: "+label);
+for(const name of ["Safaricom","Airtel","Stripe","PayPal","Shopify","Google Maps Platform","OpenStreetMap","Twilio"])assert.ok(js.includes(name),"Integration candidate missing: "+name);
+for(const marker of [".jr-open-hero",".jr-open-grid",".jr-open-steps","@media"])assert.ok(css.includes(marker),"Open Ecosystem styling missing: "+marker);
+new Function(js);
+console.log("PASS: Partner Centre and Developer Centre routes, integration disclosures, candidate directory and responsive styles.");
