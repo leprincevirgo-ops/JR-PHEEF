@@ -70,7 +70,7 @@ function open(){
  const p=$("founder-command");if(p)p.classList.remove("hidden");
  const m=$("jpMoreMenu");if(m)m.hidden=true;
  document.querySelectorAll("#app .jp-primary-nav [data-page]").forEach(b=>b.classList.remove("jp-nav-active"));
- const trigger=$("jpMoreTrigger");if(trigger)trigger.classList.classList?.remove("jp-nav-active");
+ const trigger=$("jpMoreTrigger");if(trigger)trigger.classList.remove("jp-nav-active");
  render();window.scrollTo({top:0,behavior:"instant"});
 }
 function install(member){
