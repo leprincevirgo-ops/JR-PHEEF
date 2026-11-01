@@ -14,7 +14,7 @@ assert.ok(html.includes("Tell JR what you need"),"hero CTA should focus the univ
 assert.ok(html.includes("jrUpdateMoreActive(id)"),"secondary route active state must be reflected on More");
 assert.ok(html.includes("/universe-home.css")&&html.includes("/universe-home.js"),"universe home assets not loaded");
 assert.ok(js.includes("jrToggleMoreMenu")&&js.includes("jrCloseMoreMenu")&&js.includes("Escape"),"More menu open/close keyboard behaviour missing");
-assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js.includes("ASK JR PHEEF"),"voice or assistant handoff missing");
+assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js.includes("window.askJRAI()"),"voice or automatic assistant submission missing");
 assert.ok(css.includes("jp-primary-nav")&&css.includes(".jp-more-menu[hidden]")&&css.includes("@media(max-width:600px)")&&css.includes("prefers-reduced-motion"),"responsive/accessibility navigation styles missing");
 for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption","humanitarian","offline"])assert.ok(doc.toLowerCase().includes(phrase.toLowerCase()),"vision requirement missing: "+phrase);
 console.log("JR PHEEF universe home and consolidated navigation checks passed.");
