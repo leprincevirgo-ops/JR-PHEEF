@@ -233,6 +233,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/notifications.css">\n<link rel="stylesheet" href="/command-centre-theme.css?v=1">
 <link rel="stylesheet" href="/workspace-shell.css?v=1">
   <link rel="stylesheet" href="/accessibility.css">
+<link rel="stylesheet" href="/universe-home.css">
 </head>
 
 <body>
@@ -340,6 +341,36 @@ placeholder="Password">
       <h1>Your world. <span>More possibilities.</span></h1><p>Your connected world—discover opportunities, explore knowledge, connect with people and coordinate what matters.</p>
       <button class="jp-hero-cta" onclick="show('explore')">🚀 Explore the Universe <b>→</b></button>
     </div><div class="jp-hero-orb" aria-hidden="true"><div class="jp-orb-ring"></div><div class="jp-cityline"></div></div>
+  </section>
+  <section class="jp-universe-start" aria-labelledby="jpUniverseStartTitle">
+    <div class="jp-universe-kicker">Your connected universe · 1 November 2026</div>
+    <h2 id="jpUniverseStartTitle">What would you like to make happen?</h2>
+    <p>Ask JR to help you find something, learn something, create something, connect people or coordinate a real-world task. Start with your goal; JR helps map the next steps.</p>
+    <form class="jp-universe-compose" id="jpUniversalForm">
+      <textarea id="jpUniversalRequest" rows="2" maxlength="4000" aria-label="Describe what you want JR PHEEF to help you do" placeholder="For example: Help me start a supermarket in Nairobi, plan a trip, learn coding, or create a future city…"></textarea>
+      <button class="jp-universe-voice" type="button" id="jpUniversalVoice" aria-label="Speak your request">🎙</button>
+      <button class="jp-universe-submit" type="submit">LET'S GO →</button>
+    </form>
+    <div id="jpUniversalStatus" class="jp-universe-kicker" role="status" aria-live="polite" style="margin-top:9px;letter-spacing:.5px;text-transform:none"></div>
+    <div class="jp-universe-hints" aria-label="Example requests">
+      <button type="button" data-jr-prompt="Help me find and compare something I want to buy.">🛍 Find something</button>
+      <button type="button" data-jr-prompt="Teach me something step by step, starting at my level.">📚 Learn something</button>
+      <button type="button" data-jr-prompt="Help me turn a new idea into a real project.">✨ Create something</button>
+      <button type="button" data-jr-prompt="Help me connect the right people around one goal.">🤝 Connect people</button>
+    </div>
+  </section>
+  <section aria-label="Explore JR PHEEF worlds">
+    <div class="jp-universe-grid">
+      <button class="jp-universe-card" type="button" data-jr-open="messages"><span class="jp-universe-card-icon">☏</span><span><strong>People &amp; Social</strong><small>Messages, connections and community spaces.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="find"><span class="jp-universe-card-icon">🛍</span><span><strong>Shopping &amp; Services</strong><small>Explore listings, products and services.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="teacher"><span class="jp-universe-card-icon">✎</span><span><strong>Learning &amp; Knowledge</strong><small>Understand, practise and develop new skills.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="projects"><span class="jp-universe-card-icon">⚒</span><span><strong>Create &amp; Build</strong><small>Projects, experiments and new ideas.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="ecosystem"><span class="jp-universe-card-icon">◈</span><span><strong>Business &amp; DGBO</strong><small>Develop ventures and coordinate work.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="family"><span class="jp-universe-card-icon">♧</span><span><strong>FAMILY</strong><small>Family goals and financial coordination.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="explore"><span class="jp-universe-card-icon">◎</span><span><strong>Explore the Universe</strong><small>Places, science, nature, culture and futures.</small></span></button>
+      <button class="jp-universe-card" type="button" data-jr-open="browser"><span class="jp-universe-card-icon">↗</span><span><strong>Web &amp; Apps</strong><small>Browse the web and organise external apps.</small></span></button>
+    </div>
+    <div class="jp-universe-principle"><b>One connected experience.</b><span>Discover · Imagine · Create · Connect · Coordinate · Grow</span></div>
   </section>
   <div class="jp-home-stat-row">
     <div class="jp-stat-card jp-stat-cyan"><span class="jp-stat-icon">✦</span><div><strong id="pointsValue">0</strong><small>JR PHEEF Points</small></div></div>
@@ -1718,5 +1749,6 @@ function jrStartHeaderVoice(){
 <script src="/coordination-studio.js"></script>
 <script src="/workspace-shell.js"></script>
   <script src="/accessibility.js"></script>
+<script src="/universe-home.js"></script>
 </body>
 </html>
