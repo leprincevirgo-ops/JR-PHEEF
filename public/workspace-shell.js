@@ -141,18 +141,33 @@ function mount(){
  // Add Connections to the main navigation without duplicating entries.
  const nav=app.querySelector(":scope > .nav");
  if(nav&&!nav.querySelector('[data-page="connections"]')){const b=el("button","","⇄  Connections");b.dataset.page="connections";b.addEventListener("click",()=>go("connections"));nav.append(b);}
- if(nav&&!nav.querySelector(".jr-nav-group")){
-  const groups=[
-   ["YOUR WORLD",["home","discover","explore","browser","apphub"]],
-   ["CONNECT",["messages","social","jpconnect","connections"]],
-   ["CREATE & GROW",["create","find","opportunities","projects","economy","businessgrowth","ads","mylistings","deals","delivery","powersale"]],
-   ["ECOSYSTEM",["dgbo","family","ecosystem","command","accessgov","jpidentity"]],
-   ["PERSONAL",["profile","vault","library","teacher","universe","assistant","voice","lab","points","flex","rooms","devices","referrals","membership","scifi","fixedit","ideas","alerts","themes","jrsettings"]]
-  ];
-  const buttons=[...nav.querySelectorAll(":scope > button")],used=new Set();
-  nav.replaceChildren();
-  groups.forEach(([label,ids])=>{const group=el("div","jr-nav-group"),heading=el("div","jr-nav-group-label",label);group.append(heading);ids.forEach(id=>{const b=buttons.find(x=>x.dataset.page===id);if(b){group.append(b);used.add(b);}});if(group.querySelector("button"))nav.append(group);});
-  const rest=buttons.filter(b=>!used.has(b));if(rest.length){const group=el("div","jr-nav-group");group.append(el("div","jr-nav-group-label","MORE"));rest.forEach(b=>group.append(b));nav.append(group);}
+ // Keep one compact primary navigation. All secondary destinations live in the real More menu.
+ if(nav){
+  const wrap=nav.querySelector(".jp-more-wrap");
+  const menu=wrap?.querySelector("#jpMoreMenu");
+  if(wrap&&menu){
+   const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
+   const sections=[
+    ["DISCOVER & LEARN",["teacher","universe","library","lab","scifi"]],
+    ["PEOPLE & CONNECTIONS",["jpconnect","connections","referrals","membership"]],
+    ["CREATE & GROW",["opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
+    ["YOUR PERSONAL SPACE",["profile","jpidentity","vault","devices","voice","points","flex","rooms","fixedit","alerts","themes","jrsettings"]],
+    ["CONTROL & GOVERNANCE",["command","accessgov","ecosystem"]]
+   ];
+   sections.forEach(([label,ids])=>{
+    const missing=ids.map(id=>catalog.find(item=>item[0]===id)).filter(item=>item&&!existing.has(item[0]));
+    if(!missing.length)return;
+    const heading=el("div","jp-more-heading",label);
+    const group=el("div","jp-more-group");
+    missing.forEach(item=>{
+     const b=el("button","","");
+     b.type="button";b.dataset.page=item[0];b.setAttribute("role","menuitem");b.textContent=item[1];
+     b.addEventListener("click",()=>{go(item[0]);jrCloseMoreMenu();});
+     group.append(b);existing.add(item[0]);
+    });
+    menu.append(heading,group);
+   });
+  }
  }
  const original=window.show;
  if(typeof original==="function"){
