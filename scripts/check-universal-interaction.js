@@ -1,0 +1,10 @@
+"use strict";
+const assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm");
+const js=fs.readFileSync("public/universal-interaction.js","utf8"),css=fs.readFileSync("public/universal-interaction.css","utf8"),html=fs.readFileSync("public/index.html","utf8");
+new vm.Script(js,{filename:"public/universal-interaction.js"});
+for(const action of ["ASK JR","LEARN","EXPLORE","CREATE","CONNECT","OPEN IN JR BROWSER"])assert.ok(js.includes(action),"Missing contextual action: "+action);
+for(const guard of ["button,input,textarea,select","contextmenu","pointerdown","pointerup","dblclick","jrWorkspaceNavigate","requestSubmit","aria-modal"])assert.ok(js.includes(guard),"Missing interaction safeguard: "+guard);
+for(const style of [".jr-ui-panel",".jr-ui-actions","prefers-reduced-motion","safe-area-inset-bottom"])assert.ok(css.includes(style),"Missing interaction style: "+style);
+assert.ok(html.includes("/universal-interaction.js"),"Universal Interaction Layer script not loaded");
+assert.ok(html.includes("/universal-interaction.css"),"Universal Interaction Layer styles not loaded");
+console.log("PASS: Universal Interaction Layer syntax, actions, navigation, native-control safeguards and responsive accessible panel.");
