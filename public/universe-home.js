@@ -7,9 +7,14 @@ function jrUpdateMoreActive(id){const menu=document.getElementById("jpMoreMenu")
 function goToAssistant(prompt){
  const field=document.getElementById("aiQuestion");
  if(typeof window.show==="function")window.show("assistant");
- if(field){field.value=prompt;field.focus();}
+ if(field)field.value=prompt;
  const status=document.getElementById("aiStatus");
- if(status)status.textContent="Your request is ready. Review it, then choose ASK JR PHEEF.";
+ if(status)status.textContent="JR is understanding your request…";
+ // The home composer is the user instruction to begin. Do not make them repeat it.
+ window.setTimeout(function(){
+  if(typeof window.askJRAI==="function")window.askJRAI();
+  else if(status)status.textContent="JR could not start this request. Please try again.";
+ },80);
 }
 function submitUniversalRequest(){
  const field=document.getElementById("jpUniversalRequest");

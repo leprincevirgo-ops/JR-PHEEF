@@ -1,0 +1,12 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const home=fs.readFileSync("public/universe-home.js","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+assert.ok(home.includes("function goToAssistant(prompt)"),"Universal request handler is missing.");
+assert.ok(home.includes("window.askJRAI()"),"Home requests must be submitted to JR automatically.");
+assert.ok(home.includes("JR is understanding your request"),"The user must receive immediate progress feedback.");
+assert.ok(!home.includes("Review it, then choose ASK JR PHEEF"),"Do not force users to repeat the submit action.");
+assert.ok(html.includes("YOUR JR PHEEF ASSISTANT"),"Assistant should use user-facing language.");
+assert.ok(html.includes("Tell JR what you want to accomplish."),"Assistant should describe the outcome-led experience.");
+console.log("PASS: one home request opens JR Assistant and submits automatically with clear user-facing language.");
