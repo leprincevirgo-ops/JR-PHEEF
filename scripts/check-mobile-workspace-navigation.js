@@ -1,0 +1,15 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const js=fs.readFileSync("public/universe-home.js","utf8");
+const css=fs.readFileSync("public/universe-home.css","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+assert.ok(js.includes("window.jrToggleMoreMenu=jrToggleMoreMenu"),"More trigger must be globally callable from navigation markup.");
+assert.ok(js.includes("window.jrCloseMoreMenu=jrCloseMoreMenu"),"Workspace navigation must be able to close More.");
+assert.ok(js.includes("document.body.appendChild(menu)"),"More must be portalled outside the horizontally scrolling nav.");
+assert.ok(js.includes('event.target.closest("#jpMoreMenu")'),"Clicks inside the portalled menu must not trigger outside-click dismissal.");
+assert.ok(css.includes(".jp-more-menu.jp-menu-portal[hidden]{display:none!important}"),"Hidden portal must stay hidden.");
+assert.ok(css.includes("z-index:99999!important"),"Menu must layer above workspace panels.");
+assert.ok(css.includes("#assistant #jrCoordinationStudio{display:none!important}"),"Assistant screen must not expose the secondary coordination studio panel.");
+assert.ok(html.includes('id="jpMoreMenu"')&&html.includes('aria-controls="jpMoreMenu"'),"Accessible More menu markup must exist.");
+console.log("PASS: More menu portal, click handling, layering and clean assistant workspace.");

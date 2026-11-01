@@ -40,3 +40,66 @@
 .jp-home-columns{margin-top:16px}
 @media(max-width:600px){#app>.jp-primary-nav{top:104px;gap:5px;padding:7px 6px;margin-left:-8px;margin-right:-8px}#app>.jp-primary-nav>button,#app>.jp-primary-nav .jp-more-trigger{min-height:40px;padding:8px 10px;font-size:11px}.jp-more-menu{right:-4px}.jp-more-group{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.jp-more-menu{scroll-behavior:auto}}
+
+
+/* JR PHEEF immersive navigation + assistant refinement */
+.jp-more-menu.jp-menu-portal{
+ position:fixed!important;z-index:99999!important;display:block;overflow:auto;
+ border:1px solid rgba(77,224,255,.48);
+ background:linear-gradient(145deg,rgba(5,25,53,.99),rgba(2,10,26,.995));
+ box-shadow:0 28px 90px rgba(0,0,0,.72),0 0 34px rgba(0,190,255,.14);
+ backdrop-filter:blur(22px);
+ overscroll-behavior:contain;
+}
+.jp-more-menu.jp-menu-portal[hidden]{display:none!important}
+.jp-more-menu.jp-menu-portal .jp-more-heading{font-size:10px;padding:13px 9px 7px}
+.jp-more-menu.jp-menu-portal .jp-more-group button{min-height:48px;font-size:12px}
+html{scroll-behavior:smooth}
+body{
+ font-family:Inter,"Aptos",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+ background-image:
+  radial-gradient(ellipse at 82% 8%,rgba(0,218,255,.16),transparent 32%),
+  radial-gradient(ellipse at 8% 42%,rgba(47,91,255,.13),transparent 38%),
+  linear-gradient(rgba(75,185,255,.025) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(75,185,255,.025) 1px,transparent 1px),
+  linear-gradient(145deg,#020714 0%,#071a35 48%,#020817 100%);
+ background-size:auto,auto,44px 44px,44px 44px,auto;
+ background-attachment:fixed;
+}
+#app>.page:not(.hidden){animation:jrWorkspaceArrive .24s ease-out both}
+@keyframes jrWorkspaceArrive{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#assistant #jrAiCard{
+ position:relative;isolation:isolate;overflow:hidden;
+ padding:clamp(20px,4vw,38px);
+ border:1px solid rgba(66,220,255,.34);
+ border-radius:24px;
+ background:
+  radial-gradient(ellipse at 92% 0%,rgba(0,204,255,.17),transparent 38%),
+  linear-gradient(145deg,rgba(8,34,68,.98),rgba(2,13,31,.985));
+ box-shadow:0 24px 70px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.055);
+}
+#assistant #jrAiCard:after{
+ content:"";position:absolute;z-index:-1;right:-92px;top:-135px;width:300px;height:300px;
+ border:1px solid rgba(66,245,255,.22);border-radius:50%;
+ box-shadow:0 0 0 22px rgba(66,245,255,.025),0 0 0 50px rgba(66,245,255,.018),0 0 90px rgba(0,190,255,.1);
+ pointer-events:none;
+}
+#assistant #jrAiCard h2{font-size:clamp(25px,4vw,36px);letter-spacing:-.7px}
+#assistant #jrAiCard>p.muted:first-of-type{max-width:720px;font-size:15px;line-height:1.7}
+#assistant #aiTranscript{min-height:110px!important;padding:18px;border-radius:16px;background:rgba(1,11,27,.8);border-color:rgba(93,197,255,.26);line-height:1.65}
+#assistant #aiQuestion{min-height:116px;padding:17px;border-radius:15px;background:rgba(1,10,25,.94);border-color:rgba(66,220,255,.36);font-size:16px;line-height:1.55}
+#assistant #aiAskButton{min-height:50px;padding:13px 22px;border-radius:13px;box-shadow:0 8px 24px rgba(0,164,220,.2)}
+#assistant #aiAnswerDepth{max-width:100%;min-height:46px}
+#assistant #aiMode,#assistant label[for="aiMode"],#assistant #jrCoordinationStudio{display:none!important}
+#assistant #aiWebResearch+*{margin-top:8px}
+#assistant #aiStatus{min-height:22px}
+#assistant .jr-page-chrome{margin-bottom:4px}
+@media(max-width:680px){
+ #assistant #jrAiCard{padding:21px 16px;border-radius:19px}
+ #assistant #aiTranscript{min-height:92px!important}
+ #assistant #aiQuestion{min-height:126px}
+ #assistant #aiAskButton,#assistant #jrAiCard button{min-height:48px}
+ .jp-more-menu.jp-menu-portal{border-radius:18px;padding:14px}
+ .jp-more-menu.jp-menu-portal .jp-more-group{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){#app>.page:not(.hidden){animation:none}html{scroll-behavior:auto}}
