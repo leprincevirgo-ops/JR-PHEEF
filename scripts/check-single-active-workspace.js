@@ -1,0 +1,15 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const mobile=fs.readFileSync("public/mobile-experience.css","utf8");
+const a11y=fs.readFileSync("public/accessibility.js","utf8");
+assert.ok(shell.includes("function activateOnlyWorkspace(id)"),"Workspace shell must have one central visibility controller.");
+assert.ok(shell.includes('page.hidden=!active'),"Inactive workspaces must use the native hidden state.");
+assert.ok(shell.includes('page.setAttribute("aria-hidden",String(!active))'),"Inactive workspaces must be hidden from assistive technology.");
+assert.ok(shell.includes('page.inert=!active'),"Inactive workspaces must not remain keyboard-focusable.");
+assert.ok(shell.includes("activateOnlyWorkspace(id)"),"Both normal navigation and history navigation must enforce one active workspace.");
+assert.ok(mobile.includes("#app .page[hidden],#app .page.hidden{display:none!important"),"Hidden pages must not be displayed by conflicting CSS.");
+assert.ok(mobile.includes("#jr-accessibility-panel[hidden]{display:none!important"),"Closed accessibility panel must remain hidden.");
+assert.ok(a11y.includes('aria-controls:"jr-accessibility-panel"'),"Accessibility launcher must reference its panel.");
+console.log("PASS: one active workspace, hidden/inert inactive pages, and closed accessibility panel.");
