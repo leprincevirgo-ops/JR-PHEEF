@@ -23,3 +23,20 @@
 @media(max-width:760px){.jp-universe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.jp-universe-compose{display:grid;grid-template-columns:1fr 52px}.jp-universe-compose textarea{grid-column:1/-1}.jp-universe-submit{min-height:48px}.jp-universe-card{min-height:112px;padding:13px}.jp-universe-start{border-radius:18px}}
 @media(prefers-reduced-motion:reduce){.jp-universe-card{transition:none}.jp-universe-card:hover{transform:none}}
+
+/* One navigation source: primary destinations plus a grouped More menu. */
+#app>.jp-primary-nav{position:sticky;top:112px;z-index:140;display:flex;align-items:center;gap:7px;overflow:visible;max-width:100%;margin:0 -10px 14px;padding:8px 10px;background:rgba(2,10,25,.97);border-bottom:1px solid rgba(66,245,255,.16);scrollbar-width:none}
+#app>.jp-primary-nav>button,#app>.jp-primary-nav .jp-more-trigger{flex:0 0 auto;min-height:42px;padding:9px 13px;border:1px solid rgba(66,245,255,.17);border-radius:12px;background:#082641;color:#dff8ff;font-size:12px;font-weight:700;white-space:nowrap}
+#app>.jp-primary-nav>button.jp-nav-active,#app>.jp-primary-nav .jp-more-trigger.jp-nav-active{background:linear-gradient(115deg,#087fc5,#00aebe);color:#001522;border-color:transparent}
+#app>.jp-primary-nav button:focus-visible{outline:2px solid #42f5ff;outline-offset:2px}
+.jp-more-wrap{position:relative;flex:0 0 auto}
+.jp-more-trigger{display:flex;align-items:center;gap:8px}
+.jp-more-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(330px,calc(100vw - 28px));max-height:min(72vh,560px);overflow:auto;padding:12px;border:1px solid rgba(66,245,255,.3);border-radius:17px;background:rgba(3,17,37,.99);box-shadow:0 22px 60px rgba(0,0,0,.5);z-index:300}
+.jp-more-menu[hidden]{display:none}
+.jp-more-heading{padding:8px 8px 5px;color:#69eaff;font-size:9px;font-weight:900;letter-spacing:1.5px}
+.jp-more-group{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-bottom:9px}
+.jp-more-group button{min-height:42px;padding:9px;text-align:left;border:1px solid rgba(104,185,255,.15);border-radius:10px;background:rgba(9,39,69,.88);color:#e3f5ff;font-size:11px}
+.jp-more-group button:hover,.jp-more-group button[aria-current="page"]{border-color:#42f5ff;background:rgba(10,75,105,.8)}
+.jp-home-columns{margin-top:16px}
+@media(max-width:600px){#app>.jp-primary-nav{top:104px;gap:5px;padding:7px 6px;margin-left:-8px;margin-right:-8px}#app>.jp-primary-nav>button,#app>.jp-primary-nav .jp-more-trigger{min-height:40px;padding:8px 10px;font-size:11px}.jp-more-menu{right:-4px}.jp-more-group{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.jp-more-menu{scroll-behavior:auto}}

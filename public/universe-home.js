@@ -1,5 +1,9 @@
 (function(){
 "use strict";
+function jrToggleMoreMenu(event){if(event)event.stopPropagation();const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(!menu||!trigger)return;const open=menu.hidden;menu.hidden=!open;trigger.setAttribute("aria-expanded",String(open));}
+function jrCloseMoreMenu(){const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false");}
+function jrUpdateMoreActive(id){const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(!menu||!trigger)return;const active=Array.from(menu.querySelectorAll("[data-page]")).some(button=>button.dataset.page===id);trigger.classList.toggle("jp-nav-active",active);if(active)trigger.setAttribute("aria-current","page");else trigger.removeAttribute("aria-current");}
+
 function goToAssistant(prompt){
  const field=document.getElementById("aiQuestion");
  if(typeof window.show==="function")window.show("assistant");
@@ -25,6 +29,8 @@ function startUniversalVoice(){
  try{recognition.start();}catch(error){if(status)status.textContent="Voice input could not start. Type your request instead.";}
 }
 document.addEventListener("DOMContentLoaded",function(){
+ document.addEventListener("click",function(event){if(!event.target.closest(".jp-more-wrap"))jrCloseMoreMenu();});
+ document.addEventListener("keydown",function(event){if(event.key==="Escape")jrCloseMoreMenu();});
  const form=document.getElementById("jpUniversalForm");
  if(form)form.addEventListener("submit",function(event){event.preventDefault();submitUniversalRequest();});
  document.querySelectorAll("[data-jr-prompt]").forEach(function(button){button.addEventListener("click",function(){const field=document.getElementById("jpUniversalRequest");if(field)field.value=button.getAttribute("data-jr-prompt")||"";if(field)field.focus();});});
