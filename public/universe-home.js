@@ -1,8 +1,38 @@
 (function(){
 "use strict";
-function jrToggleMoreMenu(event){if(event)event.stopPropagation();const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(!menu||!trigger)return;const open=menu.hidden;menu.hidden=!open;trigger.setAttribute("aria-expanded",String(open));}
-function jrCloseMoreMenu(){const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(menu)menu.hidden=true;if(trigger)trigger.setAttribute("aria-expanded","false");}
-function jrUpdateMoreActive(id){const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");if(!menu||!trigger)return;const active=Array.from(menu.querySelectorAll("[data-page]")).some(button=>button.dataset.page===id);trigger.classList.toggle("jp-nav-active",active);if(active)trigger.setAttribute("aria-current","page");else trigger.removeAttribute("aria-current");}
+function jrToggleMoreMenu(event){
+ if(event)event.stopPropagation();
+ const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger"),nav=document.querySelector("#app>.jp-primary-nav");
+ if(!menu||!trigger||!nav)return;
+ if(!menu.hidden){jrCloseMoreMenu();return;}
+ // Portal the menu outside the horizontally scrolling navigation so mobile
+ // overflow and stacking contexts cannot clip it behind workspace content.
+ if(menu.parentElement!==document.body)document.body.appendChild(menu);
+ const rect=nav.getBoundingClientRect();
+ menu.hidden=false;
+ menu.classList.add("jp-menu-portal");
+ menu.style.top=Math.min(rect.bottom+8,window.innerHeight-120)+"px";
+ menu.style.left="10px";
+ menu.style.right="10px";
+ menu.style.width="auto";
+ menu.style.maxHeight="min(72vh,560px)";
+ trigger.setAttribute("aria-expanded","true");
+}
+function jrCloseMoreMenu(){
+ const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger"),wrap=document.querySelector(".jp-more-wrap");
+ if(menu){menu.hidden=true;menu.classList.remove("jp-menu-portal");menu.removeAttribute("style");if(wrap&&menu.parentElement!==wrap)wrap.appendChild(menu);}
+ if(trigger)trigger.setAttribute("aria-expanded","false");
+}
+function jrUpdateMoreActive(id){
+ const menu=document.getElementById("jpMoreMenu"),trigger=document.getElementById("jpMoreTrigger");
+ if(!menu||!trigger)return;
+ const active=Array.from(menu.querySelectorAll("[data-page]")).some(button=>button.dataset.page===id);
+ trigger.classList.toggle("jp-nav-active",active);
+ if(active)trigger.setAttribute("aria-current","page");else trigger.removeAttribute("aria-current");
+}
+window.jrToggleMoreMenu=jrToggleMoreMenu;
+window.jrCloseMoreMenu=jrCloseMoreMenu;
+window.jrUpdateMoreActive=jrUpdateMoreActive;
 
 function goToAssistant(prompt){
  const field=document.getElementById("aiQuestion");
