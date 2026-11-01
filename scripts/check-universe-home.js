@@ -1,0 +1,14 @@
+"use strict";
+const fs=require("node:fs");
+const assert=require("node:assert/strict");
+const html=fs.readFileSync("public/index.html","utf8");
+const js=fs.readFileSync("public/universe-home.js","utf8");
+const css=fs.readFileSync("public/universe-home.css","utf8");
+const doc=fs.readFileSync("docs/JR-UNIVERSE-ARCHITECTURE.md","utf8");
+for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus"])assert.ok(html.includes('id="'+id+'"'),"home composer element missing: "+id);
+for(const id of ["messages","find","teacher","projects","ecosystem","family","explore","browser"])assert.ok(html.includes('data-jr-open="'+id+'"'),"home world destination missing: "+id);
+assert.ok(html.includes("/universe-home.css")&&html.includes("/universe-home.js"),"universe home assets not loaded");
+assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js.includes("ASK JR PHEEF"),"voice or assistant handoff missing");
+assert.ok(css.includes("@media(max-width:760px)")&&css.includes("@media(max-width:520px)")&&css.includes("prefers-reduced-motion"),"responsive/accessibility styles missing");
+for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption","humanitarian","offline"])assert.ok(doc.toLowerCase().includes(phrase.toLowerCase()),"vision requirement missing: "+phrase);
+console.log("JR PHEEF universe-first home checks passed.");
