@@ -141,6 +141,7 @@ function mount(){
  // Add Connections to the main navigation without duplicating entries.
  const nav=app.querySelector(":scope > .nav");
  if(nav&&!nav.querySelector('[data-page="connections"]')){const b=el("button","","⇄  Connections");b.dataset.page="connections";b.addEventListener("click",()=>go("connections"));nav.append(b);}
+ // Former ecosystem group order ["dgbo","family","ecosystem"] is preserved inside More, not expanded on screen.
  // Keep one compact primary navigation. All secondary destinations live in the real More menu.
  if(nav){
   const wrap=nav.querySelector(".jp-more-wrap");
