@@ -54,7 +54,7 @@
  #app>.jp-primary-nav{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;overflow-x:auto!important;overflow-y:visible!important;gap:6px!important;padding:8px 10px!important;margin:0 -10px 12px!important;scrollbar-width:none;overscroll-behavior-x:contain}
  #app>.jp-primary-nav::-webkit-scrollbar{display:none}
  #app>.jp-primary-nav>.jp-more-wrap{display:block!important;flex:0 0 auto!important}
- #app>.jp-primary-nav>.jp-more-wrap>.jp-more-menu{position:fixed;top:auto;right:10px;left:10px;width:auto;max-height:70vh;overflow:auto;z-index:500}
+ #app>.jp-primary-nav>.jp-more-wrap>.jp-more-menu{position:fixed;top:148px!important;bottom:calc(24px + env(safe-area-inset-bottom))!important;right:10px;left:10px;width:auto;max-height:70vh;overflow:auto;z-index:500}
  #app>.jp-primary-nav>.jp-more-wrap>.jp-more-menu[hidden]{display:none!important}
  #app>.jp-primary-nav>.jp-more-wrap .jp-more-group{grid-template-columns:repeat(2,minmax(0,1fr))}
  .jp-quick-launch{display:none!important}
