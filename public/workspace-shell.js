@@ -47,7 +47,9 @@ const catalog=[
 ["accessgov","Access Governance","Review permissions and governance.","Sensitive access and ownership changes require verification, audit and appropriate approvals."],
 ["businessgrowth","Business Growth","Organise business goals and operating plans.","Plan growth activities, track tasks and coordinate business support."],
 ["jrsettings","Settings","One place for account, security, privacy, appearance and help.","Manage your JR PHEEF experience and account controls."],
-["connections","Connections","Bring your external services into one organised place.","Browse official services and manage approved integrations when provider authorisation becomes available."]
+["connections","Connections","Bring your external services into one organised place.","Browse official services and manage approved integrations when provider authorisation becomes available."],
+["partners","Partner Centre","Connect companies, institutions and service providers with JR PHEEF.","Review the partner onboarding and integration pathway. Partner registration is not enabled in this release."],
+["developers","Developer Centre","Build services and integrations for JR PHEEF.","Review the planned API, SDK, sandbox and publishing capabilities. Developer access is not open yet."]
 ];
 const providers=[
 ["Google","Search, maps, email and productivity","https://www.google.com"],
@@ -169,6 +171,7 @@ function mount(){
    const sections=[
     ["DISCOVER & LEARN",["teacher","universe","library","lab","scifi"]],
     ["PEOPLE & CONNECTIONS",["jpconnect","connections","referrals","membership"]],
+    ["PARTNERS & DEVELOPERS",["partners","developers"]],
     ["CREATE & GROW",["opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
     ["YOUR PERSONAL SPACE",["profile","jpidentity","vault","devices","voice","points","flex","rooms","fixedit","alerts","themes","jrsettings"]],
     ["CONTROL & GOVERNANCE",["command","accessgov","ecosystem"]]
