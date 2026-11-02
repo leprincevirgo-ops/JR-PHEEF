@@ -3,7 +3,7 @@ const fs=require("node:fs");
 const html=fs.readFileSync("public/index.html","utf8");
 const css=fs.readFileSync("public/mobile-experience.css","utf8");
 const nav=html.match(/<nav class="nav jp-primary-nav"[\s\S]*?<\/nav>/)?.[0]||"";
-const expected=["Business","Social","Access","Settings","More"];
+const expected=["More","Business","Social","Access","Settings"];
 let last=-1;
 for(const label of expected){
  const at=nav.indexOf(">"+label+"<");
