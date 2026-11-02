@@ -3,7 +3,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const catalog=[
-["home","Home","Your connected world, organised in one place.","Your command centre for the things you want to discover, organise and move forward."],
+["home","Home","Your connected world, organised in one place.","Your Command Centre for the things you want to discover, organise and move forward."],
 ["discover","Discover","Find knowledge, products, services, opportunities and people.","Search across JR PHEEF and explore useful information from connected sources."],
 ["explore","Explore","Visual inspiration from places, nature, cities, architecture and ideas.","Browse visual collections and use supported images as your workspace wallpaper."],
 ["browser","Browser","Search the web, visit websites and move between pages.","Use the JR PHEEF web workspace. Some websites may open in a separate browser when they do not allow embedding."],
@@ -27,7 +27,7 @@ const catalog=[
 ["vault","My Files","Keep your documents and personal files organised.","Manage supported files and review access and privacy before sharing."],
 ["library","Library","Knowledge and learning resources.","Search saved resources and learning materials."],
 ["lab","Research & Ideas","Explore experiments, research and concepts.","Organise research notes, experiments and early ideas."],
-["command","Control Centre","Review ecosystem operations and coordination.","A controlled oversight workspace. Access depends on your account role."],
+["command","Command Centre","Your overview for operations, intelligence, connections and decisions.","A controlled oversight workspace. Access depends on your account role."],
 ["referrals","Invite & Grow","Invite people and review referral activity.","Share your invitation and track activity where referral features are enabled."],
 ["points","Points","Review your JR PHEEF points.","See your points balance and eligible activity. Points are not cash unless a programme explicitly says so."],
 ["flex","PHEEF Flex","Review Flex requests and supported services.","Availability depends on active service partners and programme rules."],
@@ -122,7 +122,7 @@ function renderConnections(p){
 }
 function renderCommandCentre(p){
  p.innerHTML="";
- const hero=el("section","jr-workspace-hero");hero.append(el("div","jp-kicker","JR PHEEF · CONTROL CENTRE"),el("h1","","Your command centre"),el("p","","One place to move between your work, services, research and account spaces."),el("p","jr-workspace-intro","Live operational indicators will appear only when verified data sources are connected."));
+ const hero=el("section","jr-workspace-hero");hero.append(el("div","jp-kicker","JR PHEEF · COMMAND CENTRE"),el("h1","","Your command centre"),el("p","","One place to move between your work, services, research and account spaces."),el("p","jr-workspace-intro","Live operational indicators will appear only when verified data sources are connected."));
  const grid=el("div","jr-workspace-grid");
  [["JR Assistant","Research, analyse, plan and coordinate.","assistant"],["Projects","Organise work, tasks and milestones.","projects"],["Browser","Research and browse the wider web.","browser"],["Discover","Find knowledge, products, services and opportunities.","discover"],["Connections","Review external services and integration status.","connections"],["Research & Ideas","Organise research, experiments and concepts.","lab"],["DGBO","Develop business ideas and ventures.","dgbo"],["FAMILY","Open the separate family coordination space.","family"],["Settings & Security","Manage account, privacy and preferences.","jrsettings"]].forEach(([t,d,id])=>{const card=el("article","card jr-workspace-card");card.append(el("h3","",t),el("p","",d));const b=el("button","dark","OPEN "+t.toUpperCase());b.type="button";b.addEventListener("click",()=>go(id));card.append(b);grid.append(card)});
  p.append(hero,grid);
