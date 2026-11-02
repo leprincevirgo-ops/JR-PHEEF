@@ -1,0 +1,36 @@
+name: JR PHEEF daily business plans
+
+on:
+  schedule:
+    # 05:30 Africa/Nairobi (UTC+3)
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jr-pheef-daily-business-plans
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate and deliver daily business plans
+        env:
+          DAILY_PLAN_CRON_SECRET: ${{ secrets.DAILY_PLAN_CRON_SECRET }}
+          JR_PHEEF_BASE_URL: https://jr-pheef-marketplace.onrender.com
+        run: |
+          if [ -z "$DAILY_PLAN_CRON_SECRET" ]; then
+            echo "::warning::Daily plans were not sent. Add DAILY_PLAN_CRON_SECRET to GitHub Actions secrets and set the same value in Render."
+            exit 0
+          fi
+          npm run business:daily-plans
