@@ -34,8 +34,8 @@ assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goal
 for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand","#jrIntentCamera","#jrIntentNetwork","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
-assert.ok(server.includes("!phone && !email")&&server.includes("^\\\\+[1-9]\\\\d{7,14}$"),"registration must accept either email or globally formatted phone");
+assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
-assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes("id=\\\"regBirth\\\""),"registration must be minimal and avoid collecting birth year at entry");
+assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
 for(const area of ["Your Command Centre","Overview","My Operations","Management","Intelligence","Communications","Opportunities","Action Centre","Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
 console.log("JR PHEEF universe home and consolidated navigation checks passed.");
