@@ -11,7 +11,14 @@ function jrToggleMoreMenu(event){
  const rect=nav.getBoundingClientRect();
  menu.hidden=false;
  menu.classList.add("jp-menu-portal");
- menu.style.top=Math.min(rect.bottom+8,window.innerHeight-120)+"px";
+ const mobileNav=window.matchMedia("(max-width: 900px)").matches;
+ if(mobileNav){
+  menu.style.top="auto";
+  menu.style.bottom=(window.innerHeight-rect.top+8)+"px";
+ }else{
+  menu.style.top=Math.min(rect.bottom+8,window.innerHeight-120)+"px";
+  menu.style.bottom="auto";
+ }
  menu.style.left="10px";
  menu.style.right="10px";
  menu.style.width="auto";
