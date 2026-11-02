@@ -11,7 +11,7 @@ const makeHelpers = require("./helpers");
 
 const PAGES = ["home", "ecosystem", "universe", "lab", "library", "find", "create", "rooms", "points", "flex", "profile", "assistant", "discover", "explore", "apphub", "browser", "messages", "businessgrowth",
   "jpconnect", "social", "economy", "vault", "devices", "voice", "scifi", "fixedit", "mylistings", "deals", "alerts", "delivery",
-  "powersale", "membership", "accessgov", "command", "projects", "ideas", "ads", "jrsettings"];
+  "powersale", "membership", "accessgov", "command", "projects", "ideas", "ads", "jrsettings", "teacher", "family", "dgbo", "connections"];
 
 const TEMPLATE_TASKS = [
   ["Define the goal in numbers", "Write what success looks like: customers, monthly sales, profit and the date you want it by.", "Plan"],
@@ -284,15 +284,25 @@ module.exports = function mountJr(ctx) {
     { page: "command", patterns: [/\b(show|open|manage)\b.{0,25}\b(my )?(companies|businesses|company operations)\b/i] },
     { page: "businessgrowth", patterns: [/\b(open|show|manage|review)\b.{0,30}\b(my )?(business growth|business plans|daily business plan|business operations)\b/i] },
     { page: "browser", patterns: [/\b(open|show|launch)\b.{0,25}\b(my )?(browser|web browser)\b/i] },
-    { page: "library", patterns: [/\b(open|show|browse)\b.{0,25}\b(jr )?(library|knowledge library)\b/i] }
+    { page: "library", patterns: [/\b(open|show|browse)\b.{0,25}\b(jr )?(library|knowledge library)\b/i] },
+    { page: "teacher", patterns: [/\b(teach|learn|study|explain|help me understand)\b.{0,35}\b(topic|subject|course|lesson|math|science|language)\b/i, /\b(open|start)\b.{0,20}\b(learning|teacher|lessons|courses)\b/i] },
+    { page: "lab", patterns: [/\b(open|start|run)\b.{0,25}\b(research|lab|experiment|investigation)\b/i] },
+    { page: "projects", patterns: [/\b(open|show|manage|continue)\b.{0,25}\b(my )?(projects|project plans)\b/i] },
+    { page: "find", patterns: [/\b(find|search|shop for|look for)\b.{0,30}\b(products|services|opportunities|jobs|items|marketplace)\b/i, /\b(open|show)\b.{0,20}\b(marketplace|shopping)\b/i] },
+    { page: "rooms", patterns: [/\b(find|show|search|open)\b.{0,25}\b(rooms|rentals|houses|apartments|bedsitters)\b/i] },
+    { page: "deals", patterns: [/\b(open|show|check|view)\b.{0,25}\b(my )?(deals|matches|offers)\b/i] },
+    { page: "alerts", patterns: [/\b(open|show|check|read)\b.{0,25}\b(my )?(notifications|alerts|updates)\b/i] },
+    { page: "profile", patterns: [/\b(open|show|edit|update)\b.{0,25}\b(my )?(profile|account details)\b/i] },
+    { page: "devices", patterns: [/\b(open|show|manage|connect)\b.{0,25}\b(my )?(devices|connected devices)\b/i] },
+    { page: "family", patterns: [/\b(open|show|manage)\b.{0,25}\b(family|family space|family goals)\b/i] },
+    { page: "dgbo", patterns: [/\b(open|show|manage)\b.{0,25}\b(dgbo|dime global business operators)\b/i] },
+    { page: "economy", patterns: [/\b(open|show|check)\b.{0,25}\b(my )?(wallet|points|rewards|economy|balance)\b/i] },
+    { page: "fixedit", patterns: [/\b(open|find|request)\b.{0,25}\b(fix it|fixedit|repair|repairs|technician)\b/i] },
+    { page: "powersale", patterns: [/\b(open|show|find)\b.{0,25}\b(power sale|discounts|special offers)\b/i] },
+    { page: "membership", patterns: [/\b(open|show|manage)\b.{0,25}\b(my )?(membership|subscription|plan)\b/i] },
+    { page: "accessgov", patterns: [/\b(open|find|access)\b.{0,25}\b(government|government services|access gov)\b/i] },
+    { page: "connections", patterns: [/\b(open|show|manage)\b.{0,25}\b(my )?(connections|contacts|network)\b/i] }
   ];
-  function routeByIntent(text) {
-    const value = String(text || "");
-    for (const route of INTENT_ROUTES) {
-      if (PAGES.includes(route.page) && route.patterns.some(pattern => pattern.test(value))) return route.page;
-    }
-    return null;
-  }
 
   function ruleParse(text) {
     const t = text.toLowerCase(), actions = [];

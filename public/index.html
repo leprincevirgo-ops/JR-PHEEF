@@ -328,36 +328,7 @@ placeholder="Password">
 <button data-page="explore" onclick="show('explore')"><span aria-hidden="true">✧</span><span>Explore</span></button>
 <button class="jp-nav-assistant" data-page="assistant" onclick="show('assistant')"><span aria-hidden="true">✦</span><span>JR</span></button>
 <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span aria-hidden="true">▤</span><span>Connect</span></button>
-<div class="jp-more-wrap">
-<button type="button" class="jp-more-trigger" id="jpMoreTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="jpMoreMenu" onclick="jrToggleMoreMenu(event)"><span aria-hidden="true">☷</span><span>More</span><b aria-hidden="true">⌄</b></button>
-<div class="jp-more-menu" id="jpMoreMenu" role="menu" hidden>
-<div class="jp-more-heading">START HERE</div>
-<div class="jp-more-group">
-<button role="menuitem" data-page="discover" onclick="show('discover');jrCloseMoreMenu()">Discover</button>
-<button role="menuitem" data-page="browser" onclick="show('browser');jrCloseMoreMenu()">Web browser</button>
-<button role="menuitem" data-page="apphub" onclick="show('apphub');jrCloseMoreMenu()">My apps</button>
-<button role="menuitem" data-page="teacher" onclick="show('teacher');jrCloseMoreMenu()">Learning &amp; knowledge</button>
-<button role="menuitem" data-page="assistant" onclick="show('assistant');jrCloseMoreMenu()">JR Assistant</button>
-</div>
-<div class="jp-more-heading">WORK &amp; CREATE</div>
-<div class="jp-more-group">
-<button role="menuitem" data-page="projects" onclick="show('projects');jrCloseMoreMenu()">Projects</button>
-<button role="menuitem" data-page="create" onclick="show('create');jrCloseMoreMenu()">Business</button>
-<button role="menuitem" data-page="lab" onclick="show('lab');jrCloseMoreMenu()">Research &amp; Ideas</button>
-<button role="menuitem" data-page="find" onclick="show('find');jrCloseMoreMenu()">Shopping &amp; marketplace</button>
-</div>
-<div class="jp-more-heading">PEOPLE &amp; ECOSYSTEM</div>
-<div class="jp-more-group">
-<button role="menuitem" data-page="social" onclick="show('social');jrCloseMoreMenu()">Social &amp; community</button>
-<button role="menuitem" data-page="jpconnect" onclick="show('jpconnect');jrCloseMoreMenu()">JP Connect</button>
-<button role="menuitem" data-page="dgbo" onclick="show('dgbo');jrCloseMoreMenu()">DGBO</button>
-<button role="menuitem" data-page="family" onclick="show('family');loadFamily();jrCloseMoreMenu()">FAMILY</button>
-<button role="menuitem" data-page="economy" onclick="show('economy');jrCloseMoreMenu()">Economy</button>
-<button role="menuitem" data-page="ecosystem" onclick="show('ecosystem');jrCloseMoreMenu()">Ecosystem overview</button>
-<button role="menuitem" data-page="connections" onclick="window.jrWorkspaceNavigate('connections');jrCloseMoreMenu()">Connections</button>
-</div>
-</div>
-</div>
+
 </nav>
 
 <div id="messages" class="page hidden">
@@ -397,6 +368,15 @@ placeholder="Password">
         <button class="jp-universe-submit" type="submit" aria-label="Send request to JR">➜</button>
       </form>
       <div id="jpUniversalStatus" class="jr-intent-status" role="status" aria-live="polite"></div>
+<div class="jr-capability-hints" aria-label="Examples of things JR can help with" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+<span class="muted" style="width:100%;font-size:12px">ONE INTELLIGENCE. MANY POSSIBILITIES.</span>
+<button type="button" class="dark" onclick="jrUseExample('Plan and coordinate my business today')">Grow my business</button>
+<button type="button" class="dark" onclick="jrUseExample('Find a rider and track my parcel')">Move a parcel</button>
+<button type="button" class="dark" onclick="jrUseExample('Teach me something new about space')">Learn anything</button>
+<button type="button" class="dark" onclick="jrUseExample('Find opportunities that match my skills')">Find opportunities</button>
+<button type="button" class="dark" onclick="jrUseExample('Help me organise my day and appointments')">Organise my day</button>
+<button type="button" class="dark" onclick="jrUseExample('Help me research a new idea and build a plan')">Explore an idea</button>
+</div>
 <div class="jr-access-entry"><button type="button" id="jrAccessToggle" aria-expanded="false" aria-controls="jrAccessPanel">Accessibility &amp; communication</button></div>
 <section id="jrAccessPanel" class="jr-access-panel" hidden aria-label="Choose how to communicate with JR">
 <p class="jr-access-intro">Use whichever way works for you. Change these settings whenever you need.</p>
@@ -1044,6 +1024,14 @@ function showRegister(){
 function showLogin(){
   $("registerBox").classList.add("hidden");
   $("loginBox").classList.remove("hidden");
+}
+
+function jrUseExample(value){
+  const input=$("jpUniversalRequest");
+  if(!input)return;
+  input.value=value;
+  input.focus();
+  input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 
 function show(id){

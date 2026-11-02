@@ -7,7 +7,7 @@ const start = source.indexOf("  const INTENT_ROUTES = [");
 const end = source.indexOf("\n\n  function ruleParse", start);
 assert.ok(start >= 0 && end > start, "Natural intent route registry must exist.");
 const snippet = source.slice(start, end) + "\nglobalThis.routeByIntent = routeByIntent;";
-const context = { PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages","businessgrowth","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings"] };
+const context = { PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages","businessgrowth","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","teacher","family","dgbo","connections","rooms"]] };
 vm.createContext(context);
 vm.runInContext(snippet, context);
 const cases = [
@@ -24,7 +24,14 @@ const cases = [
   ["Let's see my gallery", "vault"],
   ["Share my documents", "vault"],
   ["Show my companies", "command"],
-  ["Explain the meaning of life", null]
+  ["Explain the meaning of life", null],
+  ["Teach me science", "teacher"],
+  ["Open my projects", "projects"],
+  ["Find me a bedsitter", "rooms"],
+  ["Show my notifications", "alerts"],
+  ["Open FAMILY", "family"],
+  ["Show my rewards", "economy"],
+  ["Find a repair technician", "fixedit"]
 ];
 for (const [input, expected] of cases) assert.equal(context.routeByIntent(input), expected, input);
 console.log("PASS: JR natural-language examples route only to existing workspaces; unrelated questions remain with JR Assistant.");
