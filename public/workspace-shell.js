@@ -172,7 +172,7 @@ function mount(){
     ["PARTNERS & DEVELOPERS",["partners","developers"]],
     ["CREATE & GROW",["create","projects","opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
     ["YOUR PERSONAL SPACE",["profile","jpidentity","vault","devices","voice","points","flex","rooms","fixedit","alerts","themes","jrsettings"]],
-    ["CONTROL & GOVERNANCE",["command","accessgov","ecosystem"]]
+    ["CONTROL & GOVERNANCE",["accessgov","ecosystem"]]
    ];
    sections.forEach(([label,ids])=>{
     const missing=ids.map(id=>catalog.find(item=>item[0]===id)).filter(item=>item&&!existing.has(item[0]));
