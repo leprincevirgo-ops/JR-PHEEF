@@ -146,11 +146,11 @@ const hubGroups={
  personalhub:[
   ["YOUR IDENTITY",[["Profile","Personal profile and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership","Membership and access","membership"],["Points","Points and eligible activity","points"]]],
   ["YOUR PERSONAL TOOLS",[["My Files","Documents and files","vault"],["Library","Saved resources","library"],["Voice & Type","Speak or type to JR","voice"],["Devices","Device and session controls","devices"]]],
-  ["PREFERENCES & PROTECTION",[["Settings","Account and app preferences","jrsettings"],["Privacy Centre","Personal data and privacy","jrprivacy"],["Access Governance","Permissions and security","accessgov"],["Appearance Studio","Themes and display","themes"],["Notifications","Alerts and preferences","alerts"]]]
+  ["PREFERENCES & PROTECTION",[["Settings","Account and app preferences","jrsettings"],["Privacy & Security","Privacy, permissions and account protection","jrsettings"],["Access Governance","Permissions and security","accessgov"],["Appearance Studio","Themes and display","themes"],["Notifications","Alerts and preferences","alerts"]]]
  ],
  morehub:[
   ["ECOSYSTEM SPACES",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem Overview","How the ecosystem connects","ecosystem"],["Economy","Business and economic coordination","economy"],["Control Centre","Restricted operational oversight","command"]]],
-  ["SERVICES & SUPPORT",[["Repair Services","Repair and maintenance","fixedit"],["Advertising Centre","Advertising services","ads"],["Downloads & Play","Authorised media and downloads","downloads"],["Shape JR","Suggest features and improvements","ideas"],["Help & Support","Help and guidance","jrhelp"]]],
+  ["SERVICES & SUPPORT",[["Repair Services","Repair and maintenance","fixedit"],["Advertising Centre","Advertising services","ads"],["Library","Authorised learning and media resources","library"],["Shape JR","Suggest features and improvements","ideas"],["Settings & Help","Account controls and support","jrsettings"]]],
   ["BUILD & CONNECT",[["Connections","External services","connections"],["Partner Centre","Partner onboarding information","partners"],["Developer Centre","Developer resources","developers"],["App Hub","Your external app shortcuts","apphub"]]]
  ]
 };
