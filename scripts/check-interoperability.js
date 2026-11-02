@@ -12,7 +12,7 @@ assert.ok(html.includes('id="jpActionRail"'),"upper action rail is present");
 for(const action of ["Search","Discover","Explore","Learn","Create","Browser","Devices"]) assert.ok(html.includes(">"+action+"</button>"),"quick access includes "+action);
 assert.ok(html.includes('/device-bridge.js'),"device bridge script is loaded");
 assert.ok(html.includes('/device-bridge.css'),"device bridge styles are loaded");
-assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services"),"settings consolidates personal controls");
+assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services")&&settings.includes("Your JR PHEEF defaults"),"settings consolidates personal controls");
 assert.ok(shell.includes('["accessgov","ecosystem"]')&&!shell.includes('["command","accessgov","ecosystem"]'),"founder command is excluded from member More menu");
 assert.ok(founder.includes('member.is_owner!==true')&&founder.includes("Private Founder Command Centre"),"founder control is only installed for verified owner account");
 for(const api of ["requestDevice","requestPort","Notification.requestPermission"]) assert.ok(bridge.includes(api),"user-triggered browser permission flow exists: "+api);
