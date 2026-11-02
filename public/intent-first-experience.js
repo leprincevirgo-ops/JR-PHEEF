@@ -40,7 +40,7 @@ function navigate(id){
  else if(typeof window.show==="function")window.show(id);
 }
 function submit(value){
- const text=String(value||"").trim();if(!text)return;
+ const text=String(value||"").trim();if(!text&&!window.jrIntentCameraFile)return;
  const route=routeCommand(text);
  if(route){navigate(route);setStatus("Opening "+(route==="command"?"your Command Centre":route.replace(/([a-z])([A-Z])/g,"$1 $2"))+".");return;}
  const field=$("aiQuestion");
