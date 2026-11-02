@@ -1,0 +1,34 @@
+/* Conversation-first shell: JR coordinates the hidden workspaces. */
+#app>.nav,#app>.jp-primary-nav,.jp-primary-nav,#jpMoreMenu,.jp-more-wrap{display:none!important}
+#home>*:not(.jr-world-home){display:none!important}
+.jr-world-header,.jr-world-link,.jr-world-ground,.jr-orbit{display:none!important}
+.jr-world-home{min-height:min(78vh,850px);display:flex;flex-direction:column;justify-content:center;padding:clamp(14px,3vw,36px)}
+.jr-world-universe{height:clamp(220px,36vh,390px);max-width:760px}
+.jr-earth{width:clamp(155px,25vw,275px);top:43%}
+.jr-world-assistant{top:75%;width:clamp(74px,11vw,116px);height:clamp(76px,11vw,118px)}
+.jr-world-greeting{margin:0 auto 18px;width:min(100%,780px)}
+.jr-world-greeting small{line-height:1.6}
+.jr-intent-console{width:min(100%,850px)}
+.jr-intent-compose{min-height:76px;padding:9px}
+.jr-intent-compose textarea{font-size:16px;line-height:1.55;min-height:54px}
+.jr-intent-compose button{min-width:50px;min-height:50px}
+.jr-intent-status{min-height:28px;font-size:13px;line-height:1.5}
+.jr-access-entry{display:flex;justify-content:center;margin:10px 0}
+#jrAccessToggle{background:transparent;border:1px solid #64dfff66;color:#c8efff;border-radius:99px;padding:10px 16px;font-size:12px}
+.jr-access-panel{margin:12px auto 0;padding:16px;width:min(100%,850px);border:1px solid #54dfff66;border-radius:18px;background:#03152af5;color:#e9faff}
+.jr-access-panel[hidden]{display:none}
+.jr-access-intro,.jr-access-note{font-size:12px;line-height:1.6;color:#b7d7e9}
+.jr-access-options{display:flex;flex-wrap:wrap;gap:10px}
+.jr-access-options label{display:flex;align-items:center;gap:8px;min-height:44px;padding:9px 12px;border:1px solid #57cfff44;border-radius:12px}
+.jr-access-options input{width:20px;height:20px;margin:0;accent-color:#00d9ff}
+.jr-aac-board{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.jr-aac-board strong{width:100%;font-size:13px}
+.jr-aac-board button{min-height:44px;margin:0;padding:10px 13px;border:1px solid #58dfff55;border-radius:12px;background:#07345a;color:#effbff}
+.jr-access-note{margin-bottom:0}
+body.jr-access-large .jr-world-greeting strong,body.jr-access-large .jr-intent-compose textarea,body.jr-access-large .jr-access-panel{font-size:1.25rem}
+body.jr-access-contrast .jr-world-home,body.jr-access-contrast .jr-access-panel{background:#000!important;border:2px solid #fff!important;color:#fff!important}
+body.jr-access-contrast .jr-world-greeting,body.jr-access-contrast .jr-intent-compose{background:#000!important;border:2px solid #fff!important}
+body.jr-access-motion *,body.jr-access-motion *:before,body.jr-access-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+#jrAccessToggle:focus-visible,.jr-aac-board button:focus-visible,.jr-access-options input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:620px){.jr-world-home{min-height:calc(100svh - 100px);padding:12px 9px}.jr-world-universe{height:clamp(200px,30vh,280px)}.jr-earth{width:clamp(145px,43vw,205px)}.jr-world-assistant{width:76px;height:80px}.jr-world-greeting{padding:12px;border-radius:15px}.jr-intent-compose{gap:5px}.jr-access-options{display:grid;grid-template-columns:1fr 1fr}.jr-access-options label{font-size:12px}.jr-aac-board button{flex:1 1 42%;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.jr-world-home *{animation:none!important;transition:none!important}}
