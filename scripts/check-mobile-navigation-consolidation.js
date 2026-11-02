@@ -9,7 +9,7 @@ const start=html.indexOf('<nav class="nav jp-primary-nav"');
 const end=html.indexOf("</nav>",start);
 assert.ok(start>=0&&end>start,"Primary navigation must exist.");
 const nav=html.slice(start,end);
-const primary=[...nav.matchAll(/<button[^>]*data-page="([^"]+)"/g)].map(m=>m[1]);
+const primary=[...nav.matchAll(/<button([^>]*)data-page="([^"]+)"/g)].filter(m=>!m[1].includes("role=\"menuitem\"")).map(m=>m[2]);
 assert.deepEqual(primary,["home","explore","assistant","messages"],"Only four direct buttons plus More wrapper should remain in the primary nav.");
 assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,1,"Exactly one More destination must exist.");
 assert.ok(nav.includes('data-page="discover"')&&nav.includes('data-page="browser"')&&nav.includes('data-page="projects"')&&nav.includes('data-page="create"'),"Secondary destinations must remain in More.");
