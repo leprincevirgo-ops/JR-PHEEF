@@ -8,7 +8,7 @@ const required = [
   ['sales use a bounded 14-day window', /gte\("created_at", since\)/],
   ['active inventory is scoped to the selected business', /from\("pos_products"\)[\s\S]{0,220}eq\("business_id", businessId\)[\s\S]{0,100}eq\("active", true\)/],
   ['sale items are linked only to the selected business sales', /from\("pos_sale_items"\)[\s\S]{0,180}in\("sale_id", saleIds\)/],
-  ['low stock is measured against configured reorder levels', /stock_qty\) <= Number\(p\.reorder_level/],
+  ['low stock is measured against configured reorder levels', /stock_qty \\|\\| 0\\) <= Number\\(p\\.reorder_level/],
   ['sales are explicitly not represented as profit', /Sales are not profit/],
   ['AI recommendations require owner approval for external actions', /without owner approval/],
   ['the fallback plan includes a POS data snapshot', /data_snapshot: signals/],
