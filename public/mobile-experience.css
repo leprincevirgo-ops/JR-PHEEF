@@ -87,3 +87,56 @@
 /* Workspace visibility is an invariant, not a theme preference. */
 #app .page[hidden],#app .page.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
 #jr-accessibility-panel[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
+
+/* JR PHEEF mobile navigation v3: five fixed destinations, no competing tab strip. */
+@media(max-width:900px){
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important}
+  header.jp-global-header{position:sticky;top:0;z-index:160;display:flex;flex-wrap:nowrap;gap:8px;padding:9px 10px;min-height:58px}
+  .jp-brand-lockup{flex:1 1 auto;min-width:0}
+  .jp-global-search{display:none!important}
+  .jp-command-header-actions{order:2;flex:0 0 auto;margin:0}
+  .jp-command-open{min-height:38px!important;padding:8px 10px!important;font-size:10px!important;white-space:nowrap}
+  .jp-header-actions{order:3;gap:4px}
+  .jp-header-icon[aria-label="Messages"],.jp-header-icon[aria-label="Profile menu"]{display:none!important}
+  .jp-header-icon{width:36px;height:36px;min-width:36px}
+  .jp-profile-trigger{min-height:38px;padding:6px 8px}
+  main{padding:8px 10px calc(86px + env(safe-area-inset-bottom))!important}
+  #app>.jp-primary-nav{
+    position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;
+    z-index:1000!important;width:100%!important;max-width:none!important;height:calc(66px + env(safe-area-inset-bottom))!important;
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;
+    gap:2px!important;margin:0!important;padding:6px 7px calc(6px + env(safe-area-inset-bottom))!important;
+    overflow:visible!important;border:0!important;border-top:1px solid rgba(91,190,255,.24)!important;border-radius:16px 16px 0 0!important;
+    background:rgba(2,10,25,.97)!important;box-shadow:0 -12px 36px rgba(0,0,0,.38)!important;
+    backdrop-filter:blur(22px)!important;scrollbar-width:none!important;
+  }
+  #app>.jp-primary-nav>button,#app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger{
+    width:100%!important;min-width:0!important;min-height:48px!important;height:100%!important;margin:0!important;padding:5px 2px!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;
+    border:1px solid transparent!important;border-radius:12px!important;background:transparent!important;color:#a9c7dc!important;
+    font-size:10px!important;line-height:1.1!important;letter-spacing:0!important;white-space:nowrap!important;
+  }
+  #app>.jp-primary-nav>button>span:first-child,#app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger>span:first-child{font-size:19px!important;line-height:1!important}
+  #app>.jp-primary-nav>button.jp-nav-active,#app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger.jp-nav-active{
+    color:#eaffff!important;background:linear-gradient(145deg,rgba(0,170,220,.23),rgba(20,76,125,.22))!important;border-color:rgba(66,245,255,.24)!important;
+  }
+  #app>.jp-primary-nav>.jp-nav-assistant{position:relative!important;color:#001522!important;background:linear-gradient(145deg,#6af4ff,#078dcc)!important;border:2px solid rgba(205,252,255,.55)!important;box-shadow:0 0 22px rgba(0,190,255,.26)!important;transform:translateY(-9px)!important;border-radius:16px!important}
+  #app>.jp-primary-nav>.jp-nav-assistant span:first-child{font-size:22px!important}
+  #app>.jp-primary-nav>.jp-more-wrap{display:block!important;min-width:0!important;width:100%!important;height:100%!important;margin:0!important}
+  #app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger{display:flex!important}
+  #app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger b{display:none!important}
+  #app>.jp-primary-nav>.jp-more-wrap>.jp-more-menu{display:none}
+  #app>.jp-primary-nav>.jp-more-wrap>.jp-more-menu[hidden]{display:none!important}
+  .jr-page-chrome{position:relative!important;top:auto!important;margin:4px 0 10px!important}
+  #app>.page{min-height:calc(100dvh - 150px)!important}
+}
+@media(max-width:380px){
+  #app>.jp-primary-nav{padding-left:4px!important;padding-right:4px!important}
+  #app>.jp-primary-nav>button,#app>.jp-primary-nav>.jp-more-wrap>.jp-more-trigger{font-size:9px!important}
+  .jp-command-open{font-size:0!important;width:38px!important;padding:7px!important}
+  .jp-command-open::first-letter{font-size:18px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #app>.jp-primary-nav>.jp-nav-assistant{transform:none!important}
+}

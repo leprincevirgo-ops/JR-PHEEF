@@ -157,21 +157,20 @@ function mount(){
  if(!$("jrEverywhereScript")){const sc=document.createElement("script");sc.id="jrEverywhereScript";sc.src="/jr-everywhere.js";sc.defer=true;document.body.append(sc);}
  concealInternalOrchestration();
  const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
- // Add Connections to the main navigation without duplicating entries.
+ // Keep the primary navigation limited to Home, Explore, JR Assistant, Connect and More.
+ // The ecosystem group order ["dgbo","family","ecosystem"] stays together inside More.
+ // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(":scope > .nav");
- if(nav&&!nav.querySelector('[data-page="connections"]')){const b=el("button","","⇄  Connections");b.dataset.page="connections";b.addEventListener("click",()=>go("connections"));nav.append(b);}
- // Former ecosystem group order ["dgbo","family","ecosystem"] is preserved inside More, not expanded on screen.
- // Keep one compact primary navigation. All secondary destinations live in the real More menu.
  if(nav){
   const wrap=nav.querySelector(".jp-more-wrap");
   const menu=wrap?.querySelector("#jpMoreMenu");
   if(wrap&&menu){
    const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
    const sections=[
-    ["DISCOVER & LEARN",["teacher","universe","library","lab","scifi"]],
+    ["DISCOVER & LEARN",["discover","teacher","universe","library","lab","scifi"]],
     ["PEOPLE & CONNECTIONS",["jpconnect","connections","referrals","membership"]],
     ["PARTNERS & DEVELOPERS",["partners","developers"]],
-    ["CREATE & GROW",["opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
+    ["CREATE & GROW",["create","projects","opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
     ["YOUR PERSONAL SPACE",["profile","jpidentity","vault","devices","voice","points","flex","rooms","fixedit","alerts","themes","jrsettings"]],
     ["CONTROL & GOVERNANCE",["command","accessgov","ecosystem"]]
    ];
