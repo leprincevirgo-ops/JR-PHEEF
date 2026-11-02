@@ -158,6 +158,7 @@ function mount(){
  concealInternalOrchestration();
  const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
  // Keep the primary navigation limited to Home, Explore, JR Assistant, Connect and More.
+ // The ecosystem group order ["dgbo","family","ecosystem"] stays together inside More.
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(":scope > .nav");
  if(nav){
