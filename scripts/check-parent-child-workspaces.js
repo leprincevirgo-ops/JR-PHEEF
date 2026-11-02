@@ -12,5 +12,9 @@ for(const id of ["discoverhub","workhub","connecthub","personalhub"])assert.ok(h
 assert.ok(shell.includes("menu.replaceChildren()"),"legacy individual More destinations are cleared");
 assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MY SPACE & SETTINGS",["personalhub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
 assert.ok(shell.includes('addEventListener("click",()=>go(target))'),"child sections open their existing workspace");
+assert.ok(shell.includes("catalogSeen.has(catalog[i][0])"),"duplicate workspace IDs are removed from the canonical catalog");
+for(const group of ["SEARCH & BROWSE","EXPLORE & LEARN","RESEARCH & KNOWLEDGE","PLAN & CREATE","BUY & SELL","RUN & GROW","COMMUNICATE","PEOPLE & NETWORK","YOUR IDENTITY","YOUR PERSONAL TOOLS","PREFERENCES & PROTECTION","ECOSYSTEM SPACES","SERVICES & SUPPORT","BUILD & CONNECT"])assert.ok(shell.includes(group),"familiar app category exists: "+group);
+assert.ok(shell.includes("jr-hub-category-heading")&&shell.includes("jr-hub-category-count"),"parent workspaces render clear category headings and destination counts");
+assert.ok(css.includes(".jr-hub-categories")&&css.includes(".jr-hub-category-heading"),"grouped workspace categories are styled responsively");
 assert.ok(css.includes(".jr-child-workspace-grid")&&css.includes("@media(max-width:760px)"),"parent-child layout responsive");
 console.log("PASS: parent-child workspace consolidation, retained child destinations and mobile layout.");
