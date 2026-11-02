@@ -7,7 +7,7 @@ const start = source.indexOf("  const INTENT_ROUTES = [");
 const end = source.indexOf("\n\n  function ruleParse", start);
 assert.ok(start >= 0 && end > start, "Natural intent route registry must exist.");
 const snippet = source.slice(start, end) + "\nglobalThis.routeByIntent = routeByIntent;";
-const context = { PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings"] };
+const context = { PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages","businessgrowth","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings"] };
 vm.createContext(context);
 vm.runInContext(snippet, context);
 const cases = [
@@ -16,7 +16,11 @@ const cases = [
   ["Track my delivery", "delivery"],
   ["I want to join the ecosystem", "ecosystem"],
   ["Open my status", "social"],
-  ["Show my chats", "social"],
+  ["Show my chats", "messages"],
+  ["Open my messages", "messages"],
+  ["Open my browser", "browser"],
+  ["Review my daily business plan", "businessgrowth"],
+  ["Open JR Library", "library"],
   ["Let's see my gallery", "vault"],
   ["Share my documents", "vault"],
   ["Show my companies", "command"],
