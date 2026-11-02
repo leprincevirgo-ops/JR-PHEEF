@@ -82,7 +82,8 @@ function phoneOf(v) {
 
 function phoneVariants(v) {
   const p = phoneOf(v);
-  if (!/^\+254\d{9}$/.test(p)) return [clean(v)];
+  if (!p) return [];
+  if (!/^\+254\d{9}$/.test(p)) return [p];
   return [...new Set([p, p.slice(1), "0" + p.slice(4)])];
 }
 
@@ -300,21 +301,18 @@ app.post("/api/register", async (req, res) => {
     const phone = phoneOf(req.body.phone);
     const email = emailOf(req.body.email);
     const password = String(req.body.password || "");
-    const yearText = clean(req.body.birth_year);
-    const birth_year = yearText ? Number(yearText) : null;
-
     if (!full_name || full_name.length > 100)
       return res.status(400).json({ ok: false, error: "Enter your full name." });
-    if (!/^\+254\d{9}$/.test(phone))
-      return res.status(400).json({ ok: false, error: "Enter a valid Kenyan phone number." });
+    if (!phone && !email)
+      return res.status(400).json({ ok: false, error: "Enter a phone number or email address." });
+    if (phone && !/^\+[1-9]\d{7,14}$/.test(phone))
+      return res.status(400).json({ ok: false, error: "Enter a valid international phone number with country code, such as +254…" });
     if (password.length < 8)
       return res.status(400).json({ ok: false, error: "Password must be at least 8 characters." });
     if (password.length > 72)
       return res.status(400).json({ ok: false, error: "Password must be 72 characters or fewer." });
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ ok: false, error: "Enter a valid email address." });
-    if (birth_year !== null && (!Number.isInteger(birth_year) || birth_year < 1900 || birth_year > new Date().getFullYear()))
-      return res.status(400).json({ ok: false, error: "Enter a valid birth year." });
 
     if (phone) {
       for (const p of phoneVariants(phone)) {
@@ -341,7 +339,7 @@ app.post("/api/register", async (req, res) => {
 
     const { data: member, error } = await db.from("members").insert({
       dgbo_id: memberCode,
-      full_name, phone, email: email || null, birth_year,
+      full_name, phone: phone || null, email: email || null,
       password_hash: await bcrypt.hash(password, 12),
       verified: false, status: "active", plan: "FREE",
       reward_points: 0, credits: 0, rewards: 0, referrals: 0,
