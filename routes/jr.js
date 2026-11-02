@@ -276,7 +276,7 @@ module.exports = function mountJr(ctx) {
   // Natural-language aliases route common intentions into existing, permissioned workspaces.
   // This is navigation only: it never dispatches a parcel, sends a message, changes money or controls a device.
   const INTENT_ROUTES = [
-    { page: "delivery", patterns: [/\b(become|join as|register as|apply as)\b.{0,35}\b(rider|courier|driver)\b/i, /\b(rider application|delivery rider|my deliveries|track my parcel|track delivery)\b/i, /\bwhere\b.{0,35}\b(rider|parcel|package)\b/i] },
+    { page: "delivery", patterns: [/\b(become|join as|register as|apply as)\b.{0,35}\b(rider|courier|driver)\b/i, /\b(rider application|delivery rider|my deliveries|track my parcel|track my delivery|track delivery)\b/i, /\bwhere\b.{0,35}\b(rider|parcel|package)\b/i] },
     { page: "ecosystem", patterns: [/\b(join|enter|be part of)\b.{0,30}\b(ecosystem|jr pheef)\b/i, /\b(join ecosystem|become a member)\b/i] },
     { page: "social", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(status|statuses|chats|conversations)\b/i, /\b(my status|my chats|open chats)\b/i] },
     { page: "vault", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(gallery|photos|files|documents)\b/i, /\b(my gallery|my photos)\b/i] },
