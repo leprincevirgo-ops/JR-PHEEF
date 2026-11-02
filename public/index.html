@@ -394,13 +394,23 @@ placeholder="Password">
         <button class="jp-universe-submit" type="submit" aria-label="Send request to JR">➜</button>
       </form>
       <div id="jpUniversalStatus" class="jr-intent-status" role="status" aria-live="polite"></div>
-      <div class="jp-universe-hints jr-intent-hints" aria-label="Things you can ask JR">
-        <button type="button" data-jr-prompt="Help me find something I need and compare the options.">⌕ Find something</button>
-        <button type="button" data-jr-prompt="Help me learn something step by step.">◈ Learn something</button>
-        <button type="button" data-jr-prompt="Help me create and launch a new idea.">✧ Create something</button>
-        <button type="button" data-jr-prompt="Help me connect with the right people.">♧ Connect people</button>
-        <button type="button" data-jr-prompt="Help me organise what I am working on and decide the next step.">⌘ Organise my work</button>
-      </div>
+<div class="jr-access-entry"><button type="button" id="jrAccessToggle" aria-expanded="false" aria-controls="jrAccessPanel">Accessibility &amp; communication</button></div>
+<section id="jrAccessPanel" class="jr-access-panel" hidden aria-label="Choose how to communicate with JR">
+<p class="jr-access-intro">Use whichever way works for you. Change these settings whenever you need.</p>
+<div class="jr-access-options">
+<label><input type="checkbox" id="jrVoiceInput"> Voice input</label>
+<label><input type="checkbox" id="jrSpeakReplies"> JR reads replies aloud</label>
+<label><input type="checkbox" id="jrLargeText"> Larger text</label>
+<label><input type="checkbox" id="jrHighContrast"> Higher contrast</label>
+<label><input type="checkbox" id="jrReduceMotion" checked> Reduce motion</label>
+</div>
+<div class="jr-aac-board" aria-label="Quick communication phrases"><strong>Quick phrases</strong>
+<button type="button" data-jr-aac="I need help.">I need help</button><button type="button" data-jr-aac="Please explain that more simply.">Explain simply</button>
+<button type="button" data-jr-aac="I communicate by text.">I communicate by text</button><button type="button" data-jr-aac="Please wait while I respond.">Please wait</button>
+<button type="button" data-jr-aac="I did not understand. Try another way.">I do not understand</button><button type="button" data-jr-aac="Please guide me one step at a time.">One step at a time</button>
+</div>
+<p class="jr-access-note">Screen readers, keyboard navigation, switch controls and compatible Braille displays use your device accessibility settings. Voice features depend on browser and device support.</p>
+</section>
     </section>
   </section>
   <div class="jp-home-stat-row">
@@ -1789,5 +1799,7 @@ function jrStartHeaderVoice(){
 <script src="/founder-command.js"></script>
 <script src="/device-bridge.js?v=1"></script>
 <script src="/mobile-phone-shell.js?v=1" defer></script>\n<script src="/screen-studio.js?v=1" defer></script>
-<script src="/immersive-world-home.js?v=1" defer></script>\n</body>
+<script src="/immersive-world-home.js?v=1" defer></script>
+<script src="/conversation-first-access.js?v=1" defer></script>
+<link rel="stylesheet" href="/conversation-first-access.css?v=1">\n</body>
 </html>
