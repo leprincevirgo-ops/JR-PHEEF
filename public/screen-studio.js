@@ -49,7 +49,7 @@ function listItem(label,key,hidden,rename,up,down,dragKind){
  row.addEventListener("drop",e=>{e.preventDefault();row.classList.remove("drag-over");if(dragged&&dragged.kind===dragKind){reorder(dragged.key,key,dragKind);dragged=null;render()}});
  return row;
 }
-function toggleHidden(key,kind){const prop=kind==="home"?"homeHidden":kind==="dock"?"dockHidden":"railHidden";const a=state[prop];state[prop]=a.includes(key)?a.filter(x=>x!==key):[...a,key];save()}
+function toggleHidden(key,kind){const prop=kind==="home"?"homeHidden":kind==="dock"?"dockHidden":"railHidden";const value=kind==="rail"?Number(key):key;const a=state[prop];state[prop]=a.includes(value)?a.filter(x=>x!==value):[...a,value];save()}
 function move(key,kind,delta){const prop=kind==="home"?"homeOrder":kind==="dock"?"dockOrder":"railOrder";const a=state[prop],i=a.indexOf(kind==="rail"?Number(key):key),j=Math.max(0,Math.min(a.length-1,i+delta));if(i<0||i===j)return;[a[i],a[j]]=[a[j],a[i]];save();render()}
 function reorder(from,to,kind){const prop=kind==="home"?"homeOrder":kind==="dock"?"dockOrder":"railOrder",a=state[prop],f=a.indexOf(kind==="rail"?Number(from):from),t=a.indexOf(kind==="rail"?Number(to):to);if(f<0||t<0)return;a.splice(t,0,a.splice(f,1)[0]);save()}
 function render(){
