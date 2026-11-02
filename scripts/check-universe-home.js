@@ -32,7 +32,7 @@ assert.equal(intentWindow.jrIntentRoute("JR, open my clothing shop"),"businessgr
 assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goals must remain with JR Assistant");
 
 for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
-for(const selector of [".jr-intent-bar","#jrIntentCommand","#jrIntentCamera","#jrIntentNetwork","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
+for(const selector of [".jr-intent-bar","#jrIntentCommand",".jr-intent-action",".jr-intent-network","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
 assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
