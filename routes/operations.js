@@ -173,18 +173,16 @@ module.exports = function mountOperations(ctx) {
     if (salesError) throw salesError;
     if (productsError) throw productsError;
     const saleRows = sales || [], productRows = products || [];
-    const saleIds = saleRows.map(s => s.id).filter(Boolean);
-    let itemRows = [];
-    if (saleIds.length) {
-      const { data, error } = await db.from("pos_sale_items")
-        .select("sale_id,name,qty,line_total_ksh").in("sale_id", saleIds).limit(12000);
-      if (error) throw error;
-      itemRows = data || [];
-    }
+    const { data: itemRowsResult, error: itemError } = await db.from("pos_sale_items")
+      .select("sale_id,name,qty,line_total_ksh,pos_sales!inner(business_id,status,created_at)")
+      .eq("pos_sales.business_id", businessId).eq("pos_sales.status", "completed")
+      .gte("pos_sales.created_at", since).limit(12000);
+    if (itemError) throw itemError;
+    const itemRows = itemRowsResult || [];
     const current = saleRows.filter(s => new Date(s.created_at).getTime() >= cutoff);
     const previous = saleRows.filter(s => new Date(s.created_at).getTime() < cutoff);
     const sum = rows => Math.round(rows.reduce((n, s) => n + Number(s.total_ksh || 0), 0) * 100) / 100;
-    const units = itemRows.reduce((n, item) => n + (saleIds.includes(item.sale_id) ? Number(item.qty || 0) : 0), 0);
+    const units = itemRows.reduce((n, item) => n + Number(item.qty || 0), 0);
     const top = new Map();
     for (const item of itemRows) {
       const name = clean(item.name).slice(0, 100);
