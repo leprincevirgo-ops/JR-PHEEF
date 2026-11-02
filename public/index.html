@@ -244,7 +244,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <body>
 
 <header class="jp-global-header jp-reference-header">
-  <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>Your Connected World</small></span></a>
+  <a class="jp-brand-lockup" data-page="home" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>Your Connected World</small></span></a>
   <form class="jp-global-search" role="search" onsubmit="event.preventDefault();const q=document.getElementById('globalCommandSearch')?.value||'';show('find');const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
     <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything in JR PHEEF…" aria-label="Search JR PHEEF"><button class="jp-mic-button" type="button" onclick="jrStartHeaderVoice()" aria-label="Voice search">🎙</button><button type="submit" class="jp-search-submit">SEARCH</button>
   </form>
