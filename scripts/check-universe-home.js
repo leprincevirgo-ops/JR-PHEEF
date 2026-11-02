@@ -7,6 +7,7 @@ const js=fs.readFileSync("public/universe-home.js","utf8");
 const css=fs.readFileSync("public/universe-home.css","utf8");
 const doc=fs.readFileSync("docs/JR-UNIVERSE-ARCHITECTURE.md","utf8");
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
+const server=fs.readFileSync("server.js","utf8");
 for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus"])assert.ok(html.includes('id="'+id+'"'),"home composer element missing: "+id);
 assert.ok(html.includes('class="nav jp-primary-nav"'),"single primary navigation missing");
 for(const id of ["home","discover","explore","messages","create","projects","social","find","teacher","browser","apphub","dgbo","family","economy","ecosystem","connections"])assert.ok(html.includes('data-page="'+id+'"'),"navigation destination missing: "+id);
@@ -33,5 +34,8 @@ assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goal
 for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand","#jrIntentCamera","#jrIntentNetwork","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
+assert.ok(server.includes("!phone && !email")&&server.includes("^\\\\+[1-9]\\\\d{7,14}$"),"registration must accept either email or globally formatted phone");
+assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
+assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes("id=\\\"regBirth\\\""),"registration must be minimal and avoid collecting birth year at entry");
 for(const area of ["Your Command Centre","Overview","My Operations","Management","Intelligence","Communications","Opportunities","Action Centre","Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
 console.log("JR PHEEF universe home and consolidated navigation checks passed.");
