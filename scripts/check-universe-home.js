@@ -22,7 +22,6 @@ assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js
 assert.ok(css.includes("jp-primary-nav")&&css.includes(".jp-more-menu[hidden]")&&css.includes("@media(max-width:600px)")&&css.includes("prefers-reduced-motion"),"responsive/accessibility navigation styles missing");
 for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption","humanitarian","offline"])assert.ok(doc.toLowerCase().includes(phrase.toLowerCase()),"vision requirement missing: "+phrase);
 
-const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 const intentCss=fs.readFileSync("public/intent-first-experience.css","utf8");
 new vm.Script(intent,{filename:"public/intent-first-experience.js"});
 const intentWindow={};
