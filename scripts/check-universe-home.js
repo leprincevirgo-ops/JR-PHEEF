@@ -8,6 +8,7 @@ const css=fs.readFileSync("public/universe-home.css","utf8");
 const doc=fs.readFileSync("docs/JR-UNIVERSE-ARCHITECTURE.md","utf8");
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
 const server=fs.readFileSync("server.js","utf8");
+const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus"])assert.ok(html.includes('id="'+id+'"'),"home composer element missing: "+id);
 assert.ok(html.includes('class="nav jp-primary-nav"'),"single primary navigation missing");
 for(const id of ["home","discover","explore","messages","create","projects","social","find","teacher","browser","apphub","dgbo","family","economy","ecosystem","connections"])assert.ok(html.includes('data-page="'+id+'"'),"navigation destination missing: "+id);
@@ -21,7 +22,6 @@ assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js
 assert.ok(css.includes("jp-primary-nav")&&css.includes(".jp-more-menu[hidden]")&&css.includes("@media(max-width:600px)")&&css.includes("prefers-reduced-motion"),"responsive/accessibility navigation styles missing");
 for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption","humanitarian","offline"])assert.ok(doc.toLowerCase().includes(phrase.toLowerCase()),"vision requirement missing: "+phrase);
 
-const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 const intentCss=fs.readFileSync("public/intent-first-experience.css","utf8");
 new vm.Script(intent,{filename:"public/intent-first-experience.js"});
 const intentWindow={};
@@ -35,6 +35,9 @@ for(const phrase of ["Command Centre","universal command","camera","navigator.on
 for(const selector of [".jr-intent-bar","#jrIntentCommand",".jr-intent-action",".jr-intent-network","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
 assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
+assert.ok(server.includes('app.post("/api/ai/chat", authenticateMemberBeforeUpload, aiImageUpload')&&server.includes('type:"input_image"')&&server.includes("validAiImage"),"camera images must be authenticated, validated and sent as vision input");
+assert.ok(html.includes("new FormData()")&&html.includes('form.append("image",image')&&html.includes("Photo analysed for this request."),"JR Assistant must submit camera photos to the vision endpoint");
+assert.ok(intent.includes("window.jrIntentCameraFile=photo||null")&&intent.includes("only when you submit your request"),"camera selection must be explicit and user-controlled");
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
 assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
 for(const area of ["Your Command Centre","Overview","My Operations","Management","Intelligence","Communications","Opportunities","Action Centre","Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
