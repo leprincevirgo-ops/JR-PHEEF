@@ -237,7 +237,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/mobile-experience.css?v=2">
 <link rel="stylesheet" href="/mobile-phone-shell.css?v=1">\n<link rel="stylesheet" href="/screen-studio.css?v=1">
   <link rel="stylesheet" href="/accessibility.css">
-<link rel="stylesheet" href="/universe-home.css">
+<link rel="stylesheet" href="/universe-home.css">\n<link rel="stylesheet" href="/connected-world-entrance.css?v=1">
 <link rel="stylesheet" href="/founder-command.css">
 <link rel="stylesheet" href="/device-bridge.css?v=1">
 </head>
@@ -369,11 +369,20 @@ placeholder="Password">
  </div>
 </div>
 <div id="home" class="page jp-reference-home">
-  <section class="jp-home-hero">
-    <div class="jp-hero-copy"><div class="jp-hero-brand"><span class="jp-hero-mark">JR</span><div><div class="jp-hero-wordmark">JR PHEEF</div><div class="jp-hero-motto">Discover <i>•</i> Connect <i>•</i> Coordinate</div></div></div>
-      <h1>Your world. <span>More possibilities.</span></h1><p>Your connected world—discover opportunities, explore knowledge, connect with people and coordinate what matters.</p>
-      <button class="jp-hero-cta" type="button" onclick="document.getElementById('jpUniversalRequest')?.focus()">✧ Tell JR what you need <b>→</b></button>
-    </div><div class="jp-hero-orb" aria-hidden="true"><div class="jp-orb-ring"></div><div class="jp-cityline"></div></div>
+  <section class="jp-connected-world" aria-labelledby="jpConnectedTitle">
+    <div class="jp-connected-top"><div><span class="jp-universe-kicker">THE CONNECTED WORLD</span><h1 id="jpConnectedTitle">One world. <span>Connected by JR.</span></h1><p>People, ideas, businesses and opportunities—brought together in one intelligent space.</p></div><div class="jp-world-state"><i></i><span>YOUR JR PHEEF SPACE</span></div></div>
+    <div class="jp-world-stage">
+      <div class="jp-world-orbit jp-world-orbit-a"></div><div class="jp-world-orbit jp-world-orbit-b"></div>
+      <div class="jp-world-globe" aria-hidden="true"><div class="jp-globe-grid"></div><div class="jp-globe-land jp-land-one"></div><div class="jp-globe-land jp-land-two"></div><div class="jp-globe-land jp-land-three"></div><div class="jp-globe-shine"></div><div class="jp-globe-core">JR</div></div>
+      <button class="jp-world-node jp-node-people" type="button" data-world-open="messages"><span>♙</span><b>PEOPLE</b><small>Connect</small></button>
+      <button class="jp-world-node jp-node-business" type="button" data-world-open="create"><span>▦</span><b>BUSINESSES</b><small>Build &amp; grow</small></button>
+      <button class="jp-world-node jp-node-opportunities" type="button" data-world-open="find"><span>✧</span><b>OPPORTUNITIES</b><small>Find &amp; match</small></button>
+      <button class="jp-world-node jp-node-knowledge" type="button" data-world-open="discoverhub"><span>◉</span><b>KNOWLEDGE</b><small>Discover &amp; learn</small></button>
+      <button class="jp-world-node jp-node-services" type="button" data-world-open="connecthub"><span>⌘</span><b>SERVICES</b><small>Access what you need</small></button>
+      <button class="jp-world-node jp-node-ai" type="button" data-world-open="assistant"><span>✦</span><b>JR INTELLIGENCE</b><small>Think · plan · coordinate</small></button>
+      <div class="jp-world-caption">A WORLD OF POSSIBILITIES <span>•</span> ONE CONNECTED EXPERIENCE</div>
+    </div>
+    <div class="jp-world-actions"><button type="button" class="jp-world-primary" onclick="document.getElementById('jpUniversalRequest')?.focus()">✧ Tell JR what you want to make happen <b>→</b></button><button type="button" class="jp-world-secondary" onclick="show('explore')">Explore the world</button></div>
   </section>
   <section class="jp-universe-start" aria-labelledby="jpUniverseStartTitle">
     <div class="jp-universe-kicker">Your connected universe · 1 November 2026</div>
@@ -1779,5 +1788,5 @@ function jrStartHeaderVoice(){
 <script src="/founder-command.js"></script>
 <script src="/device-bridge.js?v=1"></script>
 <script src="/mobile-phone-shell.js?v=1" defer></script>\n<script src="/screen-studio.js?v=1" defer></script>
-</body>
+<script src="/connected-world-entrance.js" defer></script>\n</body>
 </html>
