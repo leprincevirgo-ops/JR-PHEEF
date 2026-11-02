@@ -155,4 +155,3 @@ body:has(#app:not(.hidden)) .jp-action-rail{display:flex}
  .jp-action-rail-label{display:none}
  .jp-action-rail button{min-height:35px;padding:7px 10px;font-size:11px}
 }
-.jp-founder-top-access{display:none!important}
