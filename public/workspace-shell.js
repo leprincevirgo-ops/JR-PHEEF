@@ -144,24 +144,8 @@ function renderHub(p,id){
  });
  p.append(hero,grid);
 }
-const hubGroups={
-discoverhub:[["Search & Discover","Search","find"],["Universal Discover","Discover","discover"],["Explore the world","Explore","explore"],["Learn & study","JR Teacher","teacher"],["Knowledge library","Library","library"],["Research & ideas","Research & Ideas","lab"],["Future worlds","Future Worlds","scifi"],["Web browser","Browser","browser"]],
-workhub:[["Business","Business","create"],["Projects","Projects","projects"],["Research","Research & Ideas","lab"],["Opportunities","Opportunities","opportunities"],["Shopping","Marketplace","find"],["My listings","My Listings","mylistings"],["Deals","Deals","deals"],["Business growth","Business Growth","businessgrowth"],["Delivery","Delivery","delivery"],["Advertising","Advertising Centre","ads"],["Shape JR","Feature requests","ideas"]],
-connecthub:[["Messages & status","Messages","messages"],["Social & community","Social","social"],["JP Connect","JP Connect","jpconnect"],["Opportunities","Opportunities","opportunities"],["Rooms","Rooms","rooms"],["Referrals","Invite & Grow","referrals"]],
-personalhub:[["Profile & identity","Profile","profile"],["Settings","Settings","jrsettings"],["Privacy & data","Privacy Centre","jrprivacy"],["Security","Access Governance","accessgov"],["My files","My Files","vault"],["Devices","Devices","devices"],["Voice & accessibility","Voice & Type","voice"],["Appearance","Appearance Studio","themes"],["Notifications","Notifications","alerts"],["Membership","Membership","membership"]],
-morehub:[["DGBO","Business development","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem","Ecosystem overview","ecosystem"],["Economy","Economy","economy"],["Partner Centre","Partners","partners"],["Developer Centre","Developers","developers"],["Connections","External services","connections"],["App Hub","My apps","apphub"],["PHEEF Flex","PHEEF Flex","flex"],["Repair Services","Repair Services","fixedit"],["JR Labs","Research laboratory","lab"],["Help","Help & Support","jrhelp"]]
-};
-function renderHub(p,id){
- const meta=catalog.find(x=>x[0]===id);p.innerHTML="";
- const hero=el("section","jr-workspace-hero jr-parent-hub");
- hero.append(el("div","jp-kicker","JR PHEEF · ORGANIZED WORKSPACE"),el("h1","",meta?.[1]||"Workspace"),el("p","",meta?.[2]||""),el("p","jr-workspace-intro",meta?.[3]||""));
- const grid=el("div","jr-workspace-grid jr-child-workspace-grid");
- hubGroups[id].forEach(([title,desc,target])=>{const card=el("article","card jr-workspace-card jr-child-workspace-card");card.append(el("span","jp-kicker","OPEN SECTION"),el("h3","",title),el("p","",desc));const b=el("button","dark","OPEN "+title.toUpperCase());b.type="button";b.addEventListener("click",()=>go(target));card.append(b);grid.append(card);});
- p.append(hero,grid);
-}
 function ensure(id){
  let p=pageFor(id);
- if(hubGroups[id]){renderHub(p,id);return p;}
  if(hubGroups[id]){renderHub(p,id);return p;}
  if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
  else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
