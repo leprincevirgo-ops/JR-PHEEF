@@ -311,32 +311,40 @@ placeholder="Password">
 <section id="app" class="hidden">
 
 <nav class="nav jp-primary-nav" aria-label="Main navigation">
-<button class="jp-nav-active" data-page="home" onclick="show('home')"><span>⌂</span> Home</button>
-<button data-page="discover" onclick="show('discover')"><span>⌕</span> Discover</button>
-<button data-page="explore" onclick="show('explore')"><span>✧</span> Explore</button>
-<button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span>▤</span> Connect</button>
-<button data-page="create" onclick="show('create')"><span>✧</span> Business</button>
-<button data-page="projects" onclick="show('projects')"><span>⚒</span> Projects</button>
+<button class="jp-nav-active" data-page="home" onclick="show('home')"><span aria-hidden="true">⌂</span><span>Home</span></button>
+<button data-page="explore" onclick="show('explore')"><span aria-hidden="true">✧</span><span>Explore</span></button>
+<button class="jp-nav-assistant" data-page="assistant" onclick="show('assistant')"><span aria-hidden="true">✦</span><span>JR</span></button>
+<button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span aria-hidden="true">▤</span><span>Connect</span></button>
 <div class="jp-more-wrap">
-<button type="button" class="jp-more-trigger" id="jpMoreTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="jpMoreMenu" onclick="jrToggleMoreMenu(event)"><span>☷</span> More <b>⌄</b></button>
+<button type="button" class="jp-more-trigger" id="jpMoreTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="jpMoreMenu" onclick="jrToggleMoreMenu(event)"><span aria-hidden="true">☷</span><span>More</span><b aria-hidden="true">⌄</b></button>
 <div class="jp-more-menu" id="jpMoreMenu" role="menu" hidden>
-<div class="jp-more-heading">YOUR JR PHEEF WORLDS</div>
+<div class="jp-more-heading">START HERE</div>
 <div class="jp-more-group">
-<button role="menuitem" data-page="social" onclick="show('social');jrCloseMoreMenu()">Social &amp; community</button>
-<button role="menuitem" data-page="find" onclick="show('find');jrCloseMoreMenu()">Shopping &amp; marketplace</button>
-<button role="menuitem" data-page="teacher" onclick="show('teacher');jrCloseMoreMenu()">Learning &amp; knowledge</button>
+<button role="menuitem" data-page="discover" onclick="show('discover');jrCloseMoreMenu()">Discover</button>
 <button role="menuitem" data-page="browser" onclick="show('browser');jrCloseMoreMenu()">Web browser</button>
 <button role="menuitem" data-page="apphub" onclick="show('apphub');jrCloseMoreMenu()">My apps</button>
+<button role="menuitem" data-page="assistant" onclick="show('assistant');jrCloseMoreMenu()">JR Assistant</button>
 </div>
-<div class="jp-more-heading">ECOSYSTEM</div>
+<div class="jp-more-heading">WORK &amp; CREATE</div>
 <div class="jp-more-group">
+<button role="menuitem" data-page="projects" onclick="show('projects');jrCloseMoreMenu()">Projects</button>
+<button role="menuitem" data-page="create" onclick="show('create');jrCloseMoreMenu()">Business</button>
+<button role="menuitem" data-page="lab" onclick="show('lab');jrCloseMoreMenu()">Research &amp; Ideas</button>
+<button role="menuitem" data-page="find" onclick="show('find');jrCloseMoreMenu()">Shopping &amp; marketplace</button>
+</div>
+<div class="jp-more-heading">PEOPLE &amp; ECOSYSTEM</div>
+<div class="jp-more-group">
+<button role="menuitem" data-page="social" onclick="show('social');jrCloseMoreMenu()">Social &amp; community</button>
+<button role="menuitem" data-page="jpconnect" onclick="show('jpconnect');jrCloseMoreMenu()">JP Connect</button>
 <button role="menuitem" data-page="dgbo" onclick="show('dgbo');jrCloseMoreMenu()">DGBO</button>
 <button role="menuitem" data-page="family" onclick="show('family');loadFamily();jrCloseMoreMenu()">FAMILY</button>
 <button role="menuitem" data-page="economy" onclick="show('economy');jrCloseMoreMenu()">Economy</button>
 <button role="menuitem" data-page="ecosystem" onclick="show('ecosystem');jrCloseMoreMenu()">Ecosystem overview</button>
 <button role="menuitem" data-page="connections" onclick="window.jrWorkspaceNavigate('connections');jrCloseMoreMenu()">Connections</button>
 </div>
-</div></div></nav>
+</div>
+</div>
+</nav>
 
 <div id="messages" class="page hidden">
  <div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF CONNECT</div><h2>Messages & Calls</h2><p>Your communication centre for conversations, groups and daily updates.</p></div></div>
