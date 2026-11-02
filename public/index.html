@@ -238,6 +238,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
   <link rel="stylesheet" href="/accessibility.css">
 <link rel="stylesheet" href="/universe-home.css">
 <link rel="stylesheet" href="/founder-command.css">
+<link rel="stylesheet" href="/device-bridge.css?v=1">
 </head>
 
 <body>
@@ -255,6 +256,16 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
     <div id="jpProfileMenu" class="jp-profile-menu" hidden><div class="jp-profile-menu-head"><strong id="jpHeaderMemberName">Your JR PHEEF account</strong><small id="jpHeaderMemberNumber">Member workspace</small></div><button onclick="show('profile');document.getElementById('jpProfileMenu').hidden=true">My Profile</button><button onclick="show('jrsettings');document.getElementById('jpProfileMenu').hidden=true">Account &amp; Security</button><button onclick="show('themes');document.getElementById('jpProfileMenu').hidden=true">Appearance</button><button onclick="show('alerts');document.getElementById('jpProfileMenu').hidden=true">Notifications</button><button onclick="show('jrsettings');document.getElementById('jpProfileMenu').hidden=true">Help &amp; Support</button><button class="jp-signout" onclick="logout()">Sign Out</button></div>
   </div>
 </header>
+
+<div class="jp-action-rail" id="jpActionRail" aria-label="Quick access">
+  <div class="jp-action-rail-label">QUICK ACCESS</div>
+  <button type="button" onclick="show('discover')"><span>⌕</span>Discover</button>
+  <button type="button" onclick="show('explore')"><span>✧</span>Explore</button>
+  <button type="button" onclick="show('teacher')"><span>▤</span>Learn</button>
+  <button type="button" onclick="show('create')"><span>＋</span>Create</button>
+  <button type="button" onclick="show('browser')"><span>◎</span>Browser</button>
+  <button type="button" onclick="show('devices')"><span>⌘</span>Devices</button>
+</div>
 
 <main>
 
@@ -1753,5 +1764,6 @@ function jrStartHeaderVoice(){
   <script src="/accessibility.js"></script>
 <script src="/universe-home.js"></script>
 <script src="/founder-command.js"></script>
+<script src="/device-bridge.js?v=1"></script>
 </body>
 </html>
