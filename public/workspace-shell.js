@@ -200,6 +200,7 @@ function mount(){
   const wrap=nav.querySelector(".jp-more-wrap");
   const menu=wrap?.querySelector("#jpMoreMenu");
   if(wrap&&menu){
+   menu.replaceChildren();
    const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
    const sections=[
     ["DISCOVER & LEARN",["discoverhub"]],
