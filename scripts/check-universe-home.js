@@ -21,7 +21,7 @@ for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption"
 const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 const intentCss=fs.readFileSync("public/intent-first-experience.css","utf8");
 new vm.Script(intent,{filename:"public/intent-first-experience.js"});
-for(const phrase of ["Command Centre","Universal Connect","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
+for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand","#jrIntentCamera","#jrIntentNetwork","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
 console.log("JR PHEEF universe home and consolidated navigation checks passed.");
