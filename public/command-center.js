@@ -70,9 +70,6 @@ function mount(){
  headerActions.append(search);
  // Settings has one global entry point in the main JR PHEEF header.
  header.append(headerActions);
- const quick=el("div","jp-quick-launch");quick.setAttribute("aria-label","Quick launch");
- [["discover","DISCOVER"],["apphub","APP HUB"],["browser","BROWSER"],["explore","EXPLORE"],["messages","MESSAGES"],["projects","PROJECTS"]].forEach(([id,label])=>{const b=el("button","",label);b.type="button";b.addEventListener("click",()=>openModule(id));quick.append(b)});
- nav.insertAdjacentElement("afterend",quick);
  overlay=el("div","jp-command-overlay");overlay.id="jpCommandPalette";overlay.hidden=true;
  const dialog=el("section","jp-command-dialog");dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");dialog.setAttribute("aria-labelledby","jpCommandTitle");
  const top=el("div","jp-command-top");const title=el("div","");title.append(el("div","jp-kicker","JR PHEEF · UNIVERSAL LAUNCHER"),el("h2","","What would you like to do?"));title.id="jpCommandTitle";const esc=el("button","jp-command-close","ESC");esc.type="button";esc.addEventListener("click",close);top.append(title,esc);

@@ -75,15 +75,7 @@ let history=[],cursor=-1,wrapped=false;
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section");p.id=id;p.className="page hidden jr-generated-workspace";$("app")?.append(p);return p;}
-function makeChrome(p,id){
- if(p.querySelector(":scope > .jr-page-chrome"))return;
- const meta=catalog.find(x=>x[0]===id)||[id,id.replace(/[-_]/g," "), "JR PHEEF workspace","Organise this area and continue with the relevant next step."];
- const chrome=el("div","jr-page-chrome");
- const left=el("div","jr-page-crumbs");left.append(el("span","jr-page-brand","JR PHEEF"),el("span","jr-page-separator","/"),el("span","jr-page-current",meta[1]));
- const actions=el("div","jr-page-actions");
- [["←","Back",()=>navigate(-1)],["→","Forward",()=>navigate(1)],["⌂","Home",()=>go("home",true)]].forEach(([icon,label,fn])=>{const b=el("button","jr-page-nav",icon+" "+label);b.type="button";b.addEventListener("click",fn);actions.append(b);});
- chrome.append(left,actions);p.prepend(chrome);
-}
+function makeChrome(p,id){return;}
 function renderGenerated(p,id){
  const meta=catalog.find(x=>x[0]===id)||[id,id.replace(/[-_]/g," "),"JR PHEEF workspace","Organise this area and continue with the relevant next step."];
  p.innerHTML="";
@@ -111,11 +103,18 @@ function renderConnections(p){
  search.addEventListener("input",()=>draw(search.value));draw();p.append(grid);
  const note=el("div","card jr-integration-note");note.append(el("h3","","How connections become active"),el("p","","When a provider offers an approved integration, JR PHEEF will request the minimum permissions needed, explain what data is shared, and let you revoke access. Passwords are never requested or stored by JR PHEEF for another company's account."));p.append(note);
 }
+function renderCommandCentre(p){
+ p.innerHTML="";
+ const hero=el("section","jr-workspace-hero");hero.append(el("div","jp-kicker","JR PHEEF · CONTROL CENTRE"),el("h1","","Your command centre"),el("p","","One place to move between your work, services, research and account spaces."),el("p","jr-workspace-intro","Live operational indicators will appear only when verified data sources are connected."));
+ const grid=el("div","jr-workspace-grid");
+ [["JR Assistant","Research, analyse, plan and coordinate.","assistant"],["Projects","Organise work, tasks and milestones.","projects"],["Browser","Research and browse the wider web.","browser"],["Discover","Find knowledge, products, services and opportunities.","discover"],["Connections","Review external services and integration status.","connections"],["Research & Ideas","Organise research, experiments and concepts.","lab"],["DGBO","Develop business ideas and ventures.","dgbo"],["FAMILY","Open the separate family coordination space.","family"],["Settings & Security","Manage account, privacy and preferences.","jrsettings"]].forEach(([t,d,id])=>{const card=el("article","card jr-workspace-card");card.append(el("h3","",t),el("p","",d));const b=el("button","dark","OPEN "+t.toUpperCase());b.type="button";b.addEventListener("click",()=>go(id));card.append(b);grid.append(card)});
+ p.append(hero,grid);
+}
 function ensure(id){
  let p=pageFor(id);
- if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
+ if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
+ else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
  if(id==="connections")renderConnections(p);
- makeChrome(p,id);
  return p;
 }
 function activateOnlyWorkspace(id){
@@ -196,8 +195,7 @@ function mount(){
   window.show=function(id){const p=ensure(id);if(original)original(id);if(!$(id)&&p.id!==id)return;go(id);};
   wrapped=true;
  }
- // Make every existing page a true workspace and apply page-level chrome.
- document.querySelectorAll("#app .page").forEach(p=>makeChrome(p,p.id));
+ // One global navigation only; duplicate page-level navigation bars are disabled.
  const active=document.querySelector("#app .page:not(.hidden)")||$("home");
  if(active){const id=active.id||"home";history=[id];cursor=0;ensure(id);updateNav(id);}
 }
