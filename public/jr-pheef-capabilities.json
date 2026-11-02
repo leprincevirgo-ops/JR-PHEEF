@@ -1,0 +1,40 @@
+{
+  "name": "JR PHEEF Interoperability Capability Manifest",
+  "version": "0.1.0",
+  "status": "PUBLIC_DISCOVERY_ONLY",
+  "summary": "Describes current browser capabilities and the planned two-way integration model. It does not grant API access.",
+  "inbound": {
+    "description": "Devices, applications and organisations may eventually send authorised requests/events into JR PHEEF.",
+    "api_status": "NOT_OPEN",
+    "planned_auth": "OAuth 2.1 / PKCE for user-delegated access; signed service credentials for approved partners",
+    "planned_controls": [
+      "scoped permissions",
+      "consent records",
+      "rate limits",
+      "signed webhooks",
+      "audit logs",
+      "revocation"
+    ]
+  },
+  "outbound": {
+    "description": "JR PHEEF may eventually coordinate permitted actions on connected devices and services.",
+    "api_status": "NOT_OPEN",
+    "controls": [
+      "user initiated pairing",
+      "least privilege",
+      "per-action approval for consequential actions",
+      "disconnect and revoke",
+      "no background discovery"
+    ]
+  },
+  "browser_capabilities": [
+    "Bluetooth Web API where supported",
+    "USB Web API where supported",
+    "Serial Web API where supported",
+    "Camera and microphone APIs with permission",
+    "Notifications API",
+    "Web Share API",
+    "File picker APIs where supported"
+  ],
+  "integration_status": "DESIGN BLUEPRINT; NO GENERAL PUBLIC API OR DEVICE CLOUD CONNECTION IS ACTIVE"
+}

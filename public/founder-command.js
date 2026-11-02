@@ -75,10 +75,8 @@ function open(){
 }
 function install(member){
  if(!member||member.is_owner!==true)return;
- const app=$("app"),menu=$("jpMoreMenu");if(!app||!menu||$("founder-command"))return;
- const heading=document.createElement("div");heading.className="jp-more-heading";heading.textContent="PRIVATE FOUNDER ACCESS";
- const btn=document.createElement("button");btn.type="button";btn.role="menuitem";btn.textContent="Founder Command Centre";btn.dataset.page="founder-command";btn.addEventListener("click",open);
- const group=document.createElement("div");group.className="jp-more-group";group.append(btn);menu.append(heading,group);
+ const app=$("app"),headerActions=document.querySelector(".jp-header-actions");if(!app||!headerActions||$("founder-command"))return;
+ const btn=document.createElement("button");btn.type="button";btn.className="jp-header-icon jp-founder-top-access";btn.textContent="⌘";btn.title="PRIVATE FOUNDER ACCESS · Private Founder Command Centre";btn.dataset.accessLabel="PRIVATE FOUNDER ACCESS";btn.setAttribute("aria-label","Open private Founder Command Centre");btn.addEventListener("click",open);btn.style.display="inline-flex";headerActions.prepend(btn);
  const page=document.createElement("section");page.id="founder-command";page.className="page hidden jpf-page";
  page.innerHTML='<div class="jpf-top"><div><span class="jpf-eyebrow">PRIVATE · OWNER ACCESS ONLY</span><h1>Founder Command Structure</h1><p>Three companies. One founder-led group. Distinct mandates, teams, records and accountability.</p></div><span class="jpf-private">🔒 PRIVATE</span></div><div class="jpf-tabs" role="group" aria-label="Choose company command centre">'+GROUPS.map(g=>'<button type="button" data-jpf-group="'+g.key+'" aria-pressed="false">'+g.name+'</button>').join("")+'</div><div id="jpFounderContent" aria-live="polite"></div>';
  app.append(page);
