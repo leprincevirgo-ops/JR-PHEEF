@@ -9,7 +9,7 @@ const bridge=fs.readFileSync("public/device-bridge.js","utf8");
 const manifest=JSON.parse(fs.readFileSync("public/jr-pheef-capabilities.json","utf8"));
 const docs=fs.readFileSync("docs/interoperability-architecture.md","utf8");
 assert.ok(html.includes('id="jpActionRail"'),"upper action rail is present");
-for(const action of ["Search","Discover","Explore","Learn","Create","Browser","Devices"]) assert.ok(html.includes(">"+action+"</button>"),"quick access includes "+action);
+for(const action of ["Discover &amp; Learn","Create &amp; Work","Connect","My Space"]) assert.ok(html.includes(">"+action+"</button>"),"quick access includes "+action);
 assert.ok(html.includes('/device-bridge.js'),"device bridge script is loaded");
 assert.ok(html.includes('/device-bridge.css'),"device bridge styles are loaded");
 assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services")&&settings.includes("Your JR PHEEF defaults"),"settings consolidates personal controls");
@@ -20,4 +20,5 @@ assert.ok(bridge.includes("does not scan nearby devices in the background"),"no 
 assert.equal(manifest.inbound.api_status,"NOT_OPEN");
 assert.equal(manifest.outbound.api_status,"NOT_OPEN");
 assert.ok(docs.includes("OAuth 2.1 Authorization Code + PKCE")&&docs.includes("revocation"),"two-way interoperability security architecture documented");
-console.log("PASS: upper quick actions, unified settings, owner-only command access and consent-based device bridge.");
+assert.ok(shell.includes("discoverhub")&&shell.includes("workhub")&&shell.includes("personalhub"),"parent workspace navigation retains child destinations");
+console.log("PASS: grouped quick access, unified settings, owner-only command access and consent-based device bridge.");
