@@ -13,7 +13,7 @@ const routeAliases={
  "browser":"browser","web browser":"browser","internet":"browser",
  "messages":"messages","message":"messages","chat":"messages","connect":"connecthub","communication":"messages",
  "dgbo":"dgbo","family":"family","ecosystem":"ecosystem",
- "business":"businessgrowth","my business":"businessgrowth","my shop":"businessgrowth","clothing shop":"businessgrowth","shop":"find",
+ "business":"businessgrowth","my business":"businessgrowth","my shop":"businessgrowth","my clothing shop":"businessgrowth","clothing shop":"businessgrowth","my clothing store":"businessgrowth","shop":"find",
  "marketplace":"find","shopping":"find","buy":"find","sell":"create",
  "projects":"projects","project":"projects","research":"lab","ideas":"lab",
  "opportunities":"opportunities","people":"jpconnect","jp connect":"jpconnect",
