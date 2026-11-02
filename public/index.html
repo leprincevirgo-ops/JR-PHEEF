@@ -368,6 +368,15 @@ placeholder="Password">
         <button class="jp-universe-submit" type="submit" aria-label="Send request to JR">➜</button>
       </form>
       <div id="jpUniversalStatus" class="jr-intent-status" role="status" aria-live="polite"></div>
+<div class="jr-capability-hints" aria-label="Examples of things JR can help with" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+<span class="muted" style="width:100%;font-size:12px">ONE INTELLIGENCE. MANY POSSIBILITIES.</span>
+<button type="button" class="dark" onclick="jrUseExample('Plan and coordinate my business today')">Grow my business</button>
+<button type="button" class="dark" onclick="jrUseExample('Find a rider and track my parcel')">Move a parcel</button>
+<button type="button" class="dark" onclick="jrUseExample('Teach me something new about space')">Learn anything</button>
+<button type="button" class="dark" onclick="jrUseExample('Find opportunities that match my skills')">Find opportunities</button>
+<button type="button" class="dark" onclick="jrUseExample('Help me organise my day and appointments')">Organise my day</button>
+<button type="button" class="dark" onclick="jrUseExample('Help me research a new idea and build a plan')">Explore an idea</button>
+</div>
 <div class="jr-access-entry"><button type="button" id="jrAccessToggle" aria-expanded="false" aria-controls="jrAccessPanel">Accessibility &amp; communication</button></div>
 <section id="jrAccessPanel" class="jr-access-panel" hidden aria-label="Choose how to communicate with JR">
 <p class="jr-access-intro">Use whichever way works for you. Change these settings whenever you need.</p>
@@ -1015,6 +1024,14 @@ function showRegister(){
 function showLogin(){
   $("registerBox").classList.add("hidden");
   $("loginBox").classList.remove("hidden");
+}
+
+function jrUseExample(value){
+  const input=$("jpUniversalRequest");
+  if(!input)return;
+  input.value=value;
+  input.focus();
+  input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 
 function show(id){
