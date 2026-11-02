@@ -1,0 +1,16 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+const css=fs.readFileSync("public/workspace-shell.css","utf8");
+assert.equal((shell.match(/const hubGroups=/g)||[]).length,1,"one parent workspace registry");
+assert.equal((shell.match(/function renderHub\(/g)||[]).length,1,"one parent workspace renderer");
+for(const id of ["discoverhub","workhub","connecthub","personalhub","morehub"])assert.ok(shell.includes('"'+id+'"'),"registered parent "+id);
+for(const id of ["find","discover","explore","teacher","library","lab","browser","create","projects","opportunities","messages","social","jpconnect","profile","jrsettings","devices","themes","alerts","dgbo","family","developers","partners"])assert.ok(shell.includes('"'+id+'"'),"child destination retained: "+id);
+for(const id of ["discoverhub","workhub","connecthub","personalhub"])assert.ok(html.includes("show('"+id+"')"),"upper quick access opens "+id);
+assert.ok(shell.includes("menu.replaceChildren()"),"legacy individual More destinations are cleared");
+assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MY SPACE & SETTINGS",["personalhub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
+assert.ok(shell.includes('addEventListener("click",()=>go(target))'),"child sections open their existing workspace");
+assert.ok(css.includes(".jr-child-workspace-grid")&&css.includes("@media(max-width:760px)"),"parent-child layout responsive");
+console.log("PASS: parent-child workspace consolidation, retained child destinations and mobile layout.");
