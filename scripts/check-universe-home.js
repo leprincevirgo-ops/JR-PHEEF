@@ -14,7 +14,7 @@ assert.ok(html.includes('class="nav jp-primary-nav"'),"single primary navigation
 for(const id of ["home","discover","explore","messages","create","projects","social","find","teacher","browser","apphub","dgbo","family","economy","ecosystem","connections"])assert.ok(html.includes('data-page="'+id+'"'),"navigation destination missing: "+id);
 assert.ok(html.includes('id="jpMoreMenu"')&&html.includes('aria-controls="jpMoreMenu"'),"grouped More menu missing");
 assert.ok(!html.includes("jp-quick-panel")&&!html.includes("Explore JR PHEEF worlds"),"duplicate dashboard shortcut grids remain");
-assert.ok(html.includes("Tell JR what you need"),"hero CTA should focus the universal request field");
+assert.ok(html.includes("jr-world-greeting")&&html.includes("jr-intent-console"),"conversation-first home greeting and request composer must be present");
 assert.ok(html.includes("jrUpdateMoreActive(id)"),"secondary route active state must be reflected on More");
 assert.ok(html.includes("/universe-home.css")&&html.includes("/universe-home.js"),"universe home assets not loaded");
 assert.ok(js.includes("jrToggleMoreMenu")&&js.includes("jrCloseMoreMenu")&&js.includes("Escape"),"More menu open/close keyboard behaviour missing");
