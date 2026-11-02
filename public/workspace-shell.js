@@ -62,6 +62,12 @@ const catalog=[
 ["morehub","More Services","Additional JR PHEEF services, ecosystem areas and support.","Open specialist services when you need them without crowding your main navigation."]
 
 ];
+// Keep one canonical destination record for each workspace ID.
+const catalogSeen=new Set();
+for(let i=catalog.length-1;i>=0;i--){
+ if(catalogSeen.has(catalog[i][0]))catalog.splice(i,1);
+ else catalogSeen.add(catalog[i][0]);
+}
 const providers=[
 ["Google","Search, maps, email and productivity","https://www.google.com"],
 ["Microsoft","Work, productivity and cloud services","https://www.microsoft.com"],
@@ -123,11 +129,30 @@ function renderCommandCentre(p){
 }
 
 const hubGroups={
- discoverhub:[["Search & Discover","Search","find"],["Universal Discover","Discover","discover"],["Explore the world","Explore","explore"],["Learn & study","JR Teacher","teacher"],["Knowledge library","Library","library"],["Research & ideas","Research & Ideas","lab"],["Future worlds","Future Worlds","scifi"],["Web browser","Browser","browser"]],
- workhub:[["Business","Business","create"],["Projects","Projects","projects"],["Research","Research & Ideas","lab"],["Opportunities","Opportunities","opportunities"],["Shopping & marketplace","Marketplace","find"],["My listings","My Listings","mylistings"],["Deals","Deals","deals"],["Business growth","Business Growth","businessgrowth"],["Delivery","Delivery","delivery"],["Advertising","Advertising Centre","ads"],["Shape JR","Feature requests","ideas"]],
- connecthub:[["Messages & status","Messages","messages"],["Social & community","Social","social"],["JP Connect","JP Connect","jpconnect"],["Opportunities","Opportunities","opportunities"],["Rooms & accommodation","Rooms","rooms"],["Referrals","Invite & Grow","referrals"]],
- personalhub:[["Profile & identity","Profile","profile"],["Settings","Settings","jrsettings"],["Privacy & data","Privacy Centre","jrprivacy"],["Security & governance","Access Governance","accessgov"],["My files","My Files","vault"],["Devices","Devices","devices"],["Voice & accessibility","Voice & Type","voice"],["Appearance","Appearance Studio","themes"],["Notifications","Notifications","alerts"],["Membership & points","Membership","membership"]],
- morehub:[["DGBO","Business development","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem","Ecosystem overview","ecosystem"],["Economy","Economy","economy"],["Partner Centre","Partners","partners"],["Developer Centre","Developers","developers"],["Connections","External services","connections"],["App Hub","My apps","apphub"],["PHEEF Flex","PHEEF Flex","flex"],["Repair Services","Repair Services","fixedit"],["JR Labs","Research laboratory","lab"],["Help & Support","Help","jrhelp"]]
+ discoverhub:[
+  ["SEARCH & BROWSE",[["Search","Search JR PHEEF","find"],["Discover","Find products, services and information","discover"],["Browser","Browse the wider web","browser"],["App Hub","Open your other apps","apphub"]]],
+  ["EXPLORE & LEARN",[["Explore","Places, nature, cities and inspiration","explore"],["JR Teacher","Lessons and study plans","teacher"],["Library","Saved learning resources","library"],["Future Worlds","Ideas and future concepts","scifi"]]],
+  ["RESEARCH & KNOWLEDGE",[["Research & Ideas","Experiments, notes and concepts","lab"],["Universe","Explore subjects and knowledge","universe"]]]
+ ],
+ workhub:[
+  ["PLAN & CREATE",[["JR Assistant","Plan and coordinate a goal","assistant"],["Projects","Tasks, milestones and progress","projects"],["Business","Create a business listing","create"],["Business Growth","Business plans and operations","businessgrowth"]]],
+  ["BUY & SELL",[["Marketplace","Find products and services","find"],["My Listings","Manage your offers","mylistings"],["Deals","Negotiations and deal rooms","deals"],["PowerSale","Supported sales workflows","powersale"]]],
+  ["RUN & GROW",[["Opportunities","Find and coordinate opportunities","opportunities"],["Delivery","Delivery and fulfilment coordination","delivery"],["Advertising Centre","Promotions and campaigns","ads"],["PHEEF Flex","Supported Flex services","flex"]]]
+ ],
+ connecthub:[
+  ["COMMUNICATE",[["Messages & Status","Private and group conversations","messages"],["Social","Community posts and updates","social"],["Rooms","Accommodation and rooms","rooms"]]],
+  ["PEOPLE & NETWORK",[["JP Connect","JP identity connections","jpconnect"],["Opportunities","People, work and opportunities","opportunities"],["Invite & Grow","Referrals and invitations","referrals"]]]
+ ],
+ personalhub:[
+  ["YOUR IDENTITY",[["Profile","Personal profile and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership","Membership and access","membership"],["Points","Points and eligible activity","points"]]],
+  ["YOUR PERSONAL TOOLS",[["My Files","Documents and files","vault"],["Library","Saved resources","library"],["Voice & Type","Speak or type to JR","voice"],["Devices","Device and session controls","devices"]]],
+  ["PREFERENCES & PROTECTION",[["Settings","Account and app preferences","jrsettings"],["Privacy & Security","Privacy, permissions and account protection","jrsettings"],["Access Governance","Permissions and security","accessgov"],["Appearance Studio","Themes and display","themes"],["Notifications","Alerts and preferences","alerts"]]]
+ ],
+ morehub:[
+  ["ECOSYSTEM SPACES",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem Overview","How the ecosystem connects","ecosystem"],["Economy","Business and economic coordination","economy"],["Control Centre","Restricted operational oversight","command"]]],
+  ["SERVICES & SUPPORT",[["Repair Services","Repair and maintenance","fixedit"],["Advertising Centre","Advertising services","ads"],["Library","Authorised learning and media resources","library"],["Shape JR","Suggest features and improvements","ideas"],["Settings & Help","Account controls and support","jrsettings"]]],
+  ["BUILD & CONNECT",[["Connections","External services","connections"],["Partner Centre","Partner onboarding information","partners"],["Developer Centre","Developer resources","developers"],["App Hub","Your external app shortcuts","apphub"]]]
+ ]
 };
 function renderHub(p,id){
  const meta=catalog.find(x=>x[0]===id);
@@ -135,14 +160,21 @@ function renderHub(p,id){
  p.innerHTML="";
  const hero=el("section","jr-workspace-hero jr-parent-hub");
  hero.append(el("div","jp-kicker","JR PHEEF · ORGANIZED WORKSPACE"),el("h1","",meta?.[1]||"Workspace"),el("p","",meta?.[2]||""),el("p","jr-workspace-intro",meta?.[3]||""));
- const grid=el("div","jr-workspace-grid jr-child-workspace-grid");
- groups.forEach(([title,desc,target])=>{
-  const card=el("article","card jr-workspace-card jr-child-workspace-card");
-  card.append(el("span","jp-kicker","OPEN SECTION"),el("h3","",title),el("p","",desc));
-  const b=el("button","dark","OPEN "+title.toUpperCase());b.type="button";b.addEventListener("click",()=>go(target));
-  card.append(b);grid.append(card);
+ const content=el("div","jr-hub-categories");
+ groups.forEach(([heading,items])=>{
+  const section=el("section","jr-hub-category");
+  const title=el("div","jr-hub-category-heading");
+  title.append(el("span","jp-kicker",heading),el("span","jr-hub-category-count",String(items.length)+" destinations"));
+  const grid=el("div","jr-workspace-grid jr-child-workspace-grid");
+  items.forEach(([name,desc,target])=>{
+   const card=el("article","card jr-workspace-card jr-child-workspace-card");
+   card.append(el("span","jp-kicker","JR PHEEF · SECTION"),el("h3","",name),el("p","",desc));
+   const b=el("button","dark","OPEN "+name.toUpperCase());b.type="button";b.addEventListener("click",()=>go(target));
+   card.append(b);grid.append(card);
+  });
+  section.append(title,grid);content.append(section);
  });
- p.append(hero,grid);
+ p.append(hero,content);
 }
 function ensure(id){
  let p=pageFor(id);
