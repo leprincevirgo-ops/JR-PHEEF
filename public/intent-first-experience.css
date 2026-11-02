@@ -1,0 +1,47 @@
+/* JR PHEEF — minimal, intent-first welcome and persistent command surface. */
+body.jr-intent-first header .jp-global-search,
+body.jr-intent-first header .jp-header-actions,
+body.jr-intent-first #jpActionRail,
+body.jr-intent-first #app>.nav{display:none!important}
+body.jr-intent-first header{min-height:62px;padding:10px clamp(14px,3vw,30px)}
+body.jr-intent-first header .jp-brand-lockup small{display:none}
+body.jr-intent-first main{padding-top:10px}
+.jr-intent-bar{position:sticky;top:62px;z-index:500;display:grid;grid-template-columns:42px minmax(0,1fr);gap:10px;align-items:center;margin:0 0 18px;padding:10px 0;background:rgba(2,9,22,.96);backdrop-filter:blur(18px)}
+.jr-intent-home{width:42px;height:42px;margin:0;border:1px solid rgba(66,245,255,.28);border-radius:13px;background:linear-gradient(140deg,#087fc5,#063653);font-weight:900;color:#eaffff}
+.jr-intent-form{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 44px auto;gap:7px;align-items:center;min-width:0}
+#jrIntentCommand{width:100%;min-width:0;height:46px;margin:0;padding:0 15px;border:1px solid rgba(66,220,255,.34);border-radius:14px;background:rgba(1,12,28,.98);font:inherit;color:#fff}
+.jr-intent-action{width:44px;height:44px;margin:0;padding:0;border:1px solid rgba(66,245,255,.23);border-radius:13px;background:#082b49;color:#dffaff;font-size:19px}
+.jr-intent-search{font-size:26px;background:linear-gradient(120deg,#087fc5,#00b8c8);color:#001522}
+.jr-intent-network{display:inline-flex;align-items:center;justify-content:center;min-width:76px;padding:8px 9px;border:1px solid rgba(66,245,255,.18);border-radius:999px;color:#7df5cf;font-size:9px;font-weight:900;letter-spacing:.6px;white-space:nowrap}
+.jr-intent-network.is-offline{color:#ffc48a;border-color:rgba(255,196,138,.3)}
+.jr-intent-status{grid-column:2;margin:0;min-height:15px;color:#8eb8d2;font-size:11px}
+body.jr-intent-first #home>.jp-home-hero,
+body.jr-intent-first #home>.jp-home-stat-row,
+body.jr-intent-first #home>.jp-home-columns,
+body.jr-intent-first #home>.jp-home-legacy,
+body.jr-intent-first #home .jp-universe-compose,
+body.jr-intent-first #home .jp-universe-hints{display:none!important}
+body.jr-intent-first #home>.jp-universe-start{min-height:min(58vh,540px);display:flex;flex-direction:column;justify-content:center;align-items:center;margin:clamp(18px,7vh,76px) auto 0;padding:clamp(24px,6vw,68px);text-align:center;border:0;background:transparent;box-shadow:none}
+body.jr-intent-first #home .jp-universe-start:after{right:calc(50% - 150px);top:8%;width:300px;height:300px;opacity:.45}
+body.jr-intent-first #home .jp-universe-kicker{font-size:10px;letter-spacing:2.4px}
+body.jr-intent-first #home .jp-universe-start h2{max-width:760px;font-size:clamp(32px,6vw,58px);line-height:1.08;letter-spacing:-1.5px}
+body.jr-intent-first #home .jp-universe-start p{max-width:610px;font-size:clamp(14px,2vw,17px);line-height:1.75}
+body.jr-intent-first #home .jp-universe-start p:not(.jp-universe-kicker){color:#a8c6dc}
+body.jr-intent-first #home .jp-universe-start .jp-universe-kicker:first-child{margin-bottom:8px}
+body.jr-intent-first #home .jp-universe-start h2:after{content:"";display:block;width:76px;height:2px;margin:22px auto 0;border-radius:3px;background:linear-gradient(90deg,transparent,#42f5ff,transparent)}
+body.jr-intent-first #home .jp-universe-start:before{content:"One human. One intelligent environment.";display:block;margin-bottom:14px;color:#68eaff;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase}
+body.jr-intent-first #home .jp-universe-start{position:relative;isolation:isolate}
+body.jr-intent-first #home .jp-universe-start:after{pointer-events:none}
+body.jr-intent-first #app>.page:not(#home){scroll-margin-top:130px}
+@media(max-width:620px){
+ .jr-intent-bar{top:56px;grid-template-columns:36px minmax(0,1fr);gap:7px;padding:8px 0;margin-bottom:12px}
+ .jr-intent-home{width:36px;height:40px}
+ .jr-intent-form{grid-template-columns:minmax(0,1fr) 40px 40px 40px;gap:5px}
+ #jrIntentCommand{height:42px;padding:0 10px;font-size:13px}
+ .jr-intent-action{width:40px;height:40px;font-size:17px}
+ .jr-intent-network{grid-column:1/-1;justify-self:end;min-width:0;padding:5px 8px}
+ .jr-intent-status{grid-column:2;font-size:10px}
+ body.jr-intent-first #home>.jp-universe-start{min-height:56vh;margin-top:4vh;padding:20px 12px}
+ body.jr-intent-first #home .jp-universe-start h2{font-size:clamp(29px,9vw,42px)}
+}
+@media(prefers-reduced-motion:reduce){.jr-intent-bar{scroll-behavior:auto}}
