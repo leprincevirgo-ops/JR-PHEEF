@@ -279,7 +279,7 @@ module.exports = function mountJr(ctx) {
     { page: "delivery", patterns: [/\b(become|join as|register as|apply as)\b.{0,35}\b(rider|courier|driver)\b/i, /\b(rider application|delivery rider|my deliveries|track my parcel|track my delivery|track delivery)\b/i, /\bwhere\b.{0,35}\b(rider|parcel|package)\b/i] },
     { page: "ecosystem", patterns: [/\b(join|enter|be part of)\b.{0,30}\b(ecosystem|jr pheef)\b/i, /\b(join ecosystem|become a member)\b/i] },
     { page: "social", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(status|statuses|chats|conversations)\b/i, /\b(my status|my chats|open chats)\b/i] },
-    { page: "vault", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(gallery|photos|files|documents)\b/i, /\b(my gallery|my photos)\b/i] },
+    { page: "vault", patterns: [/\b(open|show|view|share|let'?s see|see)\b.{0,25}\b(my )?(gallery|photos|files|documents)\b/i, /\b(my gallery|my photos)\b/i] },
     { page: "command", patterns: [/\b(show|open|manage)\b.{0,25}\b(my )?(companies|businesses|company operations)\b/i] }
   ];
   function routeByIntent(text) {
