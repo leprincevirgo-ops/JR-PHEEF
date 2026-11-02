@@ -1326,9 +1326,9 @@ app.post("/api/ai/chat", authenticateMemberBeforeUpload, aiImageUpload, async (r
       if (response.status === 401 || response.status === 403) return res.status(503).json({ok:false,error:"AI_PROVIDER_AUTH: JR AI configuration needs administrator attention."});
       return res.status(502).json({ok:false,error:"AI_PROVIDER_ERROR: JR AI could not complete the request. Please retry shortly."});
     }
-    const answer=clean(result.output_text || (result.output||[]).flatMap(o=>(o.content||[]).filter(x=>x.type==="output_text").map(x=>x.text)).join("\\n"));
+    const answer=clean(result.output_text || (result.output||[]).flatMap(o=>(o.content||[]).filter(x=>x.type==="output_text").map(x=>x.text)).join(String.fromCharCode(10)));
     if(!answer)return res.status(502).json({ok:false,error:"The AI returned no text. Please retry."});
-    const webSources=(result.output||[]).flatMap(item=>(item.content||[]).flatMap(part=>(part.annotations||[]).filter(a=>a.type==="url_citation"&&/^https?:\\/\\//i.test(clean(a.url))).map(a=>({title:clean(a.title)||clean(a.url),url:a.url}))));
+    const webSources=(result.output||[]).flatMap(item=>(item.content||[]).flatMap(part=>(part.annotations||[]).filter(a=>a.type==="url_citation"&&(clean(a.url).startsWith("https://")||clean(a.url).startsWith("http://"))).map(a=>({title:clean(a.title)||clean(a.url),url:a.url}))));
     await logActivity(member.id,"AI_ASSISTANT_QUERY",{mode,web_research:useWeb,image_attached:!!file});
     res.json({ok:true,answer,model:payload.model,mode,used_web_research:useWeb,image_attached:!!file,web_sources:webSources,knowledge_sources:knowledge.map(a=>({title:a.title,domain:a.domain,source_name:a.source_name,source_url:a.source_url,evidence_status:a.evidence_status,updated_at:a.updated_at}))});
   } catch(e) {
