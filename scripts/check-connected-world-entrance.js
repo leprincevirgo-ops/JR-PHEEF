@@ -1,0 +1,12 @@
+"use strict";
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const css=fs.readFileSync("public/connected-world-entrance.css","utf8");
+const js=fs.readFileSync("public/connected-world-entrance.js","utf8");
+const required=["jp-connected-world","jp-world-globe","jp-globe-core","jp-node-people","jp-node-business","jp-node-opportunities","jp-node-knowledge","jp-node-services","jp-node-ai","jpUniversalRequest","jpHomeIdentity","pointsValue"];
+for(const item of required)if(!html.includes(item))throw new Error("Connected world entrance missing "+item);
+for(const page of ["messages","create","find","discoverhub","connecthub","assistant"])if(!html.includes('data-world-open="'+page+'"'))throw new Error("Missing globe destination "+page);
+for(const token of ["@media(max-width:760px)","@media(max-width:430px)","prefers-reduced-motion","focus-visible"])if(!css.includes(token))throw new Error("Missing responsive/accessibility styling: "+token);
+if(!js.includes('window.show(page)'))throw new Error("Globe destinations are not connected to JR PHEEF workspaces");
+if(html.includes("5.2M+")||html.includes("142+")||html.includes("1.1K+"))throw new Error("Unverified global statistics must not be displayed");
+console.log("PASS: connected-world entrance, six real workspace destinations, responsive globe, accessibility and truthful metrics.");
