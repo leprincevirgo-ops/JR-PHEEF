@@ -97,6 +97,9 @@ A provider is marked connected only after authorised credentials/scopes, success
 - AI outputs expose evidence, assumptions and uncertainty; no coercive matching or manipulative engagement.
 - User data remains user-controlled with consent, retention, export and deletion pathways.
 
+## Existing production foundations discovered on 2 November 2026
+The connected Supabase project already contains `members`, `jr_organizations`, `dgbo_businesses`, `jr_business_workspaces`, `ecosystem_links` and other domain tables. `members` and `jr_organizations` have RLS enabled and forced with client access denied; business workspace and ecosystem-link tables also deny direct anon/authenticated access. The `members` table already carries a generated JP member number. These are existing foundations, not proof of a unified registry. The new architecture must reconcile and extend them rather than create duplicate parallel member or organisation systems. Existing `jr_business_workspaces` currently represents a member-owned workspace; `jr_organizations` is a distinct organisation record. Their ownership and relationship semantics need a deliberate additive migration.
+
 ## Implementation and migration discipline
 The architecture is a target, not a statement that all capabilities exist today. Implement additively:
 1. Intent-first entry and stable navigation over existing routes.
