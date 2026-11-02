@@ -273,8 +273,27 @@ module.exports = function mountJr(ctx) {
   const SERVER_KINDS = new Set(["plan_project", "feature_request"]);
   const RISK = { navigate: "none", search: "none", plan_project: "low", feature_request: "low", open_deal: "high" };
 
+  // Natural-language aliases route common intentions into existing, permissioned workspaces.
+  // This is navigation only: it never dispatches a parcel, sends a message, changes money or controls a device.
+  const INTENT_ROUTES = [
+    { page: "delivery", patterns: [/\b(become|join as|register as|apply as)\b.{0,35}\b(rider|courier|driver)\b/i, /\b(rider application|delivery rider|my deliveries|track my parcel|track delivery)\b/i, /\bwhere\b.{0,35}\b(rider|parcel|package)\b/i] },
+    { page: "ecosystem", patterns: [/\b(join|enter|be part of)\b.{0,30}\b(ecosystem|jr pheef)\b/i, /\b(join ecosystem|become a member)\b/i] },
+    { page: "social", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(status|statuses|chats|conversations)\b/i, /\b(my status|my chats|open chats)\b/i] },
+    { page: "vault", patterns: [/\b(open|show|view)\b.{0,25}\b(my )?(gallery|photos|files|documents)\b/i, /\b(my gallery|my photos)\b/i] },
+    { page: "command", patterns: [/\b(show|open|manage)\b.{0,25}\b(my )?(companies|businesses|company operations)\b/i] }
+  ];
+  function routeByIntent(text) {
+    const value = String(text || "");
+    for (const route of INTENT_ROUTES) {
+      if (PAGES.includes(route.page) && route.patterns.some(pattern => pattern.test(value))) return route.page;
+    }
+    return null;
+  }
+
   function ruleParse(text) {
     const t = text.toLowerCase(), actions = [];
+    const intentPage = routeByIntent(text);
+    if (intentPage) return { reply: "Opening your " + intentPage + " workspace. You can tell me what you want to do next.", actions: [{ type: "navigate", args: { page: intentPage } }] };
     const page = PAGES.find(p => new RegExp("\\b(open|go to|show|take me to)\\b.*\\b" + p.replace(/([a-z])$/, "$1") + "\\b").test(t));
     if (page) return { reply: "Opening " + page + ".", actions: [{ type: "navigate", args: { page } }] };
     if (/\b(i want to|help me|how (do|can) i)\b.*\b(open|start|build|launch|set up|create)\b/.test(t) || /\bbudget\b/.test(t) && /\b(business|shop|supermarket|store|farm)\b/.test(t)) {
