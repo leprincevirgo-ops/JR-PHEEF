@@ -22,6 +22,13 @@ for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption"
 const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 const intentCss=fs.readFileSync("public/intent-first-experience.css","utf8");
 new vm.Script(intent,{filename:"public/intent-first-experience.js"});
+const intentWindow={};
+vm.runInNewContext(intent,{window:intentWindow,document:{readyState:"loading",addEventListener(){}}});
+assert.equal(intentWindow.jrIntentRoute("JR, open Command Centre"),"command","natural-language Command Centre command must route directly");
+assert.equal(intentWindow.jrIntentRoute("open command center"),"command","US spelling of Command Center must route directly");
+assert.equal(intentWindow.jrIntentRoute("JR, open my clothing shop"),"create","business workspace command must route directly");
+assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goals must remain with JR Assistant");
+
 for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand","#jrIntentCamera","#jrIntentNetwork","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
