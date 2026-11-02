@@ -1,6 +1,7 @@
 "use strict";
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
+const vm=require("node:vm");
 const html=fs.readFileSync("public/index.html","utf8");
 const js=fs.readFileSync("public/universe-home.js","utf8");
 const css=fs.readFileSync("public/universe-home.css","utf8");
