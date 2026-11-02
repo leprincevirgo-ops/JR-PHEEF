@@ -1,59 +1,34 @@
-(function(){
-"use strict";
-const $=id=>document.getElementById(id);
-let history=[],index=-1;
-function parseAddress(raw){
- const value=String(raw||"").trim();if(!value)return {kind:"empty"};
- let candidate=value;
- const lower=value.toLowerCase();
- if(!lower.startsWith("http://")&&!lower.startsWith("https://")&&value.indexOf(" ")<0&&(value==="localhost"||value.includes(".")))candidate="https://"+value;
- try{
-  const u=new URL(candidate);
-  if(!["http:","https:"].includes(u.protocol)||u.username||u.password)return {kind:"invalid"};
-  return {kind:"url",url:u.href};
- }catch{return {kind:"search",query:value};}
-}
-function status(message){const n=$("jpBrowserStatus");if(n)n.textContent=message;}
-function buttons(){const b=$("jpBrowserBack"),f=$("jpBrowserForward");if(b)b.disabled=index<=0;if(f)f.disabled=index<0||index>=history.length-1;}
-function load(url,add=true){
- const frame=$("jpBrowserFrame"),address=$("jpBrowserAddress"),options=$("jpBrowserSearchOptions");
- if(!frame||!address)return;
- if(add){history=history.slice(0,index+1);history.push(url);index=history.length-1;}
- address.value=url;frame.hidden=false;if(options)options.hidden=true;frame.src=url;
- status("Opening "+new URL(url).hostname+". If the website blocks embedded viewing, choose Open externally.");
- buttons();
-}
-function showSearch(query){
- const frame=$("jpBrowserFrame"),options=$("jpBrowserSearchOptions");
- if(frame){frame.hidden=true;frame.removeAttribute("src");}
- if(options)options.hidden=false;
- const q=$("jpBrowserQuery");if(q)q.textContent=query;
- const web=$("jpBrowserWebSearch");if(web)web.onclick=()=>load("https://www.bing.com/search?q="+encodeURIComponent(query));
- const internal=$("jpBrowserJrSearch");if(internal)internal.onclick=()=>{
-  if(typeof window.show==="function")window.show("find");
-  const input=$("searchQ");if(input){input.value=query;if(typeof window.searchListings==="function")window.searchListings();}
- };
- status("Choose where to search. JR PHEEF does not silently send your search to an external search engine.");
-}
-function navigate(raw){
- const parsed=parseAddress(raw);
- if(parsed.kind==="url"){load(parsed.url);return;}
- if(parsed.kind==="search"){showSearch(parsed.query);return;}
- status(parsed.kind==="empty"?"Enter a website address or something you want to find.":"That address is not supported. Use a normal HTTP or HTTPS website.");
-}
-function mount(){
- const app=$("app"),home=$("home");if(!app||!home||$("browser"))return;
- const tile=document.createElement("button");tile.type="button";tile.className="jp-dash-tile";
- tile.innerHTML='<span class="jp-dash-icon" aria-hidden="true">◎</span><span><span class="jp-dash-title">JR PHEEF BROWSER</span><br><span class="jp-dash-sub">Explore the web from one connected space</span></span>';
- tile.addEventListener("click",()=>window.show&&window.show("browser"));home.querySelector(".jp-dashboard-grid")?.append(tile);
- const page=document.createElement("section");page.id="browser";page.className="page hidden";page.setAttribute("aria-label","JR PHEEF Browser");
- page.innerHTML='<div class="jp-section-head"><div><div class="jp-kicker">JR PHEEF · UNIVERSAL BROWSER</div><h2>Your window to the web</h2><p class="muted">Search within JR PHEEF, explore the wider web, or enter a website address. You choose where your search goes.</p></div></div><div class="card"><form class="jp-browser-toolbar" id="jpBrowserForm"><input id="jpBrowserAddress" type="text" inputmode="url" autocomplete="url" placeholder="What are you looking for? Or enter a website…" aria-label="Search or website address"><button class="primary" type="submit">GO</button><button class="dark" type="button" id="jpBrowserExternal">OPEN EXTERNALLY ↗</button></form><div class="jp-browser-controls"><button class="dark" type="button" id="jpBrowserBack" disabled>← Back</button><button class="dark" type="button" id="jpBrowserForward" disabled>Forward →</button><button class="dark" type="button" id="jpBrowserReload">↻ Reload</button><span id="jpBrowserStatus" class="jp-browser-status" aria-live="polite">JR PHEEF Browser ready. Search or enter a website address.</span></div><div id="jpBrowserSearchOptions" class="jp-browser-search-options" hidden><div class="jp-browser-search-card"><span class="jp-kicker">YOUR SEARCH</span><h3 id="jpBrowserQuery"></h3><p class="muted">Choose how JR PHEEF should help you find it.</p><button class="primary" type="button" id="jpBrowserJrSearch">SEARCH JR PHEEF</button><button class="dark" type="button" id="jpBrowserWebSearch">SEARCH THE WEB</button></div></div><iframe id="jpBrowserFrame" class="jp-browser-frame" title="JR PHEEF external website" sandbox="allow-forms allow-scripts allow-popups" referrerpolicy="no-referrer" loading="lazy" hidden></iframe><p class="jp-browser-note">External websites may block embedded viewing. Open externally is available when needed. JR PHEEF does not read passwords or private content from other websites.</p></div>';
- app.append(page);
- $("jpBrowserForm").addEventListener("submit",e=>{e.preventDefault();navigate($("jpBrowserAddress").value);});
- $("jpBrowserExternal").addEventListener("click",()=>{const p=parseAddress($("jpBrowserAddress").value);if(p.kind==="url")window.open(p.url,"_blank","noopener,noreferrer");else if(p.kind==="search")window.open("https://www.bing.com/search?q="+encodeURIComponent(p.query),"_blank","noopener,noreferrer");else status("Enter a website or search term first.");});
- $("jpBrowserBack").addEventListener("click",()=>{if(index>0){index--;load(history[index],false);}});
- $("jpBrowserForward").addEventListener("click",()=>{if(index<history.length-1){index++;load(history[index],false);}});
- $("jpBrowserReload").addEventListener("click",()=>{const f=$("jpBrowserFrame");if(f&&!f.hidden&&f.src)f.src=f.src;});
-}
+/* JR PHEEF Browser: multi-tab workspace with local bookmarks/history. */
+(()=>{"use strict";
+const $=id=>document.getElementById(id),K={tabs:"jr-browser-tabs-v2",marks:"jr-browser-bookmarks-v2",history:"jr-browser-history-v2"},eng={bing:"https://www.bing.com/search?q=",google:"https://www.google.com/search?q=",duckduckgo:"https://duckduckgo.com/?q="};
+let tabs=[],active="",marks=[],visits=[],engine="bing",e={};
+const uid=()=>Math.random().toString(36).slice(2,10),read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||"null")??d}catch{return d}},save=()=>{try{localStorage.setItem(K.tabs,JSON.stringify(tabs));localStorage.setItem(K.marks,JSON.stringify(marks));localStorage.setItem(K.history,JSON.stringify(visits.slice(0,200)))}catch{}};
+function safe(s){try{const u=new URL(String(s||""));return ["http:","https:"].includes(u.protocol)&&!u.username&&!u.password?u.href:null}catch{return null}}
+function parse(s){s=String(s||"").trim();if(!s)return null;if(/^(javascript|data|file|intent|chrome|about):/i.test(s))return false;let u=safe(s);if(u)return u;if(!/\s/.test(s)&&/^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(s))u=safe("https://"+s);return u||eng[engine]+encodeURIComponent(s)}
+const cur=()=>tabs.find(t=>t.id===active)||tabs[0],say=s=>{if(e.status)e.status.textContent=s};
+function showStart(){e.frame.hidden=true;e.frame.removeAttribute("src");e.start.hidden=false;e.address.value="";say("New tab · Search the web or enter a website address.")}
+function display(){const t=cur();if(!t)return;if(!t.url){showStart();return}e.start.hidden=true;e.frame.hidden=false;if(e.frame.src!==t.url)e.frame.src=t.url;e.address.value=t.url;e.back.disabled=t.i<=0;e.forward.disabled=t.i<0||t.i>=t.h.length-1;e.mark.textContent=marks.some(x=>x.url===t.url)?"★ Saved":"☆ Save";say("Viewing "+t.title+". Some sites block embedded viewing; use Open externally.")}
+function draw(){e.tabs.replaceChildren();tabs.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="jp-browser-tab"+(t.id===active?" active":"");b.setAttribute("role","tab");b.setAttribute("aria-selected",String(t.id===active));const n=document.createElement("span");n.textContent=t.title;const x=document.createElement("span");x.className="jp-browser-tab-close";x.textContent="×";b.append(n,x);b.onclick=ev=>{if(ev.target===x)close(t.id);else{active=t.id;draw()}};e.tabs.append(b)});e.add.disabled=tabs.length>=12;display()}
+function fresh(){if(tabs.length>=12){say("Up to 12 tabs are supported. Close one to continue.");return}const t={id:uid(),url:"",title:"New tab",h:[],i:-1};tabs.push(t);active=t.id;draw();save()}
+function close(id){if(tabs.length===1){Object.assign(tabs[0],{url:"",title:"New tab",h:[],i:-1});draw();save();return}const i=tabs.findIndex(t=>t.id===id);if(i<0)return;tabs.splice(i,1);if(active===id)active=tabs[Math.max(0,i-1)].id;draw();save()}
+function go(raw){const t=cur(),url=parse(raw);if(url===false){say("Only HTTP and HTTPS websites can be opened.");return}if(!url){showStart();return}t.h=t.h.slice(0,t.i+1);t.h.push(url);t.i=t.h.length-1;t.url=url;try{t.title=new URL(url).hostname.replace(/^www\./,"")}catch{t.title="Search"}visits.unshift({url,title:t.title});visits=visits.slice(0,200);draw();save()}
+function drawPanel(which){const host=which==="marks"?e.marksList:e.historyList,arr=which==="marks"?marks:visits;host.replaceChildren();if(!arr.length){host.textContent="Nothing saved here yet.";return}arr.forEach(x=>{const row=document.createElement("div");row.className="jp-browser-list-row";const b=document.createElement("button");b.type="button";b.className="jp-browser-list-open";b.textContent=x.title||x.url;b.onclick=()=>{go(x.url);panel(which)};const small=document.createElement("small");small.textContent=x.url;row.append(b,small);if(which==="marks"){const d=document.createElement("button");d.type="button";d.className="jp-browser-list-delete";d.textContent="Remove";d.onclick=()=>{marks=marks.filter(y=>y.url!==x.url);save();drawPanel(which);display()};row.append(d)}host.append(row)})}
+function panel(which){const p=which==="marks"?e.marksPanel:e.historyPanel,other=which==="marks"?e.historyPanel:e.marksPanel;other.hidden=true;p.hidden=!p.hidden;if(!p.hidden)drawPanel(which)}
+function bookmark(){const t=cur();if(!t?.url)return;const i=marks.findIndex(x=>x.url===t.url);if(i>=0)marks.splice(i,1);else marks.unshift({url:t.url,title:t.title});save();display();if(!e.marksPanel.hidden)drawPanel("marks")}
+function mount(){const app=$("app"),home=$("home");if(!app||!home||$("browser"))return;
+const tile=document.createElement("button");tile.type="button";tile.className="jp-dash-tile";tile.innerHTML='<span class="jp-dash-icon">◎</span><span><span class="jp-dash-title">JR PHEEF BROWSER</span><br><span class="jp-dash-sub">Multiple tabs, bookmarks and web search</span></span>';tile.onclick=()=>window.show&&window.show("browser");home.querySelector(".jp-dashboard-grid")?.append(tile);
+const p=document.createElement("section");p.id="browser";p.className="page hidden";p.setAttribute("aria-label","JR PHEEF Browser");p.innerHTML='<div class="jp-browser-heading"><div><span class="jp-kicker">JR PHEEF · WEB WORKSPACE</span><h2>Browser</h2><p class="muted">Browse, organise and research from one place.</p></div><button class="dark" type="button" id="jpBrowserDownloads">↓ Downloads</button></div><div class="jp-browser-shell"><div class="jp-browser-tabbar" role="tablist" aria-label="Open tabs"><div id="jpBrowserTabs" class="jp-browser-tabs"></div><button id="jpBrowserAddTab" class="jp-browser-add" type="button" aria-label="New tab">＋</button></div><form id="jpBrowserForm" class="jp-browser-toolbar"><button id="jpBrowserBack" class="jp-browser-icon" type="button" aria-label="Back">←</button><button id="jpBrowserForward" class="jp-browser-icon" type="button" aria-label="Forward">→</button><button id="jpBrowserReload" class="jp-browser-icon" type="button" aria-label="Reload">↻</button><button id="jpBrowserHome" class="jp-browser-icon" type="button" aria-label="New tab page">⌂</button><input id="jpBrowserAddress" inputmode="url" autocomplete="url" placeholder="Search or enter website address" aria-label="Search or enter website address"><button id="jpBrowserBookmark" class="jp-browser-icon" type="button">☆ Save</button><button class="primary" type="submit">GO</button></form><div class="jp-browser-tools"><label class="jp-browser-engine">Search <select id="jpBrowserEngine"><option value="bing">Bing</option><option value="google">Google</option><option value="duckduckgo">DuckDuckGo</option></select></label><button class="dark" id="jpBrowserBookmarks" type="button">★ Bookmarks</button><button class="dark" id="jpBrowserHistory" type="button">◷ History</button><button class="dark" id="jpBrowserExternal" type="button">Open externally ↗</button><label class="jp-browser-find"><input id="jpBrowserFindInput" type="search" placeholder="Find on page" aria-label="Find text on current page"><button class="dark" id="jpBrowserFind" type="button">Find</button></label></div><div id="jpBrowserBookmarksPanel" class="jp-browser-panel" hidden><div class="jp-browser-panel-head"><b>Bookmarks</b><button type="button" data-close-browser-panel>Close</button></div><div id="jpBrowserBookmarksList"></div></div><div id="jpBrowserHistoryPanel" class="jp-browser-panel" hidden><div class="jp-browser-panel-head"><b>History · This device</b><button type="button" id="jpBrowserClearHistory">Clear history</button><button type="button" data-close-browser-panel>Close</button></div><div id="jpBrowserHistoryList"></div></div><div id="jpBrowserStart" class="jp-browser-start"><div class="jp-browser-start-mark">JR</div><h3>What would you like to explore?</h3><p>Search the web, open a site, or return to a saved page.</p><button id="jpBrowserStartSearch" class="primary" type="button">SEARCH THE WEB</button></div><iframe id="jpBrowserFrame" class="jp-browser-frame" title="JR PHEEF external website" sandbox="allow-forms allow-scripts allow-popups" referrerpolicy="no-referrer" loading="lazy" hidden></iframe><div class="jp-browser-foot"><span id="jpBrowserStatus" role="status" aria-live="polite">Ready.</span><span>Website compatibility varies.</span></div></div><p class="jp-browser-note">Bookmarks and history stay on this device. This web-based browser does not provide Chromium extensions, password management, private browsing or full browser sync. Sites that block embedded viewing must open in your device browser.</p>';app.append(p);
+e={tabs:$("jpBrowserTabs"),add:$("jpBrowserAddTab"),frame:$("jpBrowserFrame"),start:$("jpBrowserStart"),address:$("jpBrowserAddress"),status:$("jpBrowserStatus"),back:$("jpBrowserBack"),forward:$("jpBrowserForward"),mark:$("jpBrowserBookmark"),marksPanel:$("jpBrowserBookmarksPanel"),historyPanel:$("jpBrowserHistoryPanel"),marksList:$("jpBrowserBookmarksList"),historyList:$("jpBrowserHistoryList"),find:$("jpBrowserFindInput")};
+tabs=read(K.tabs,[]);tabs=Array.isArray(tabs)?tabs.filter(t=>t&&typeof t.id==="string").slice(0,12):[];tabs=tabs.map(t=>({id:t.id,url:safe(t.url)||"",title:String(t.title||"New tab").slice(0,80),h:Array.isArray(t.h)?t.h.filter(safe).slice(-50):[],i:Number.isInteger(t.i)?t.i:-1}));marks=read(K.marks,[]);marks=Array.isArray(marks)?marks.filter(x=>x&&safe(x.url)).slice(0,200):[];visits=read(K.history,[]);visits=Array.isArray(visits)?visits.filter(x=>x&&safe(x.url)).slice(0,200):[];active=tabs[0]?.id||"";engine=read("jr-browser-search-engine","bing");if(!eng[engine])engine="bing";$("jpBrowserEngine").value=engine;
+if(!tabs.length)fresh();else draw();
+$("jpBrowserForm").onsubmit=ev=>{ev.preventDefault();go(e.address.value)};e.add.onclick=fresh;
+e.back.onclick=()=>{const t=cur();if(t?.i>0){t.i--;t.url=t.h[t.i];draw();save()}};e.forward.onclick=()=>{const t=cur();if(t&&t.i<t.h.length-1){t.i++;t.url=t.h[t.i];draw();save()}};
+$("jpBrowserReload").onclick=()=>{if(cur()?.url)e.frame.src=cur().url};$("jpBrowserHome").onclick=()=>{Object.assign(cur(),{url:"",title:"New tab",h:[],i:-1});draw();save()};e.mark.onclick=bookmark;
+$("jpBrowserExternal").onclick=()=>{if(cur()?.url)window.open(cur().url,"_blank","noopener,noreferrer")};$("jpBrowserBookmarks").onclick=()=>panel("marks");$("jpBrowserHistory").onclick=()=>panel("history");
+$("jpBrowserClearHistory").onclick=()=>{visits=[];save();drawPanel("history")};document.querySelectorAll("[data-close-browser-panel]").forEach(b=>b.onclick=()=>{e.marksPanel.hidden=e.historyPanel.hidden=true});
+$("jpBrowserEngine").onchange=ev=>{engine=ev.target.value;localStorage.setItem("jr-browser-search-engine",engine)};$("jpBrowserDownloads").onclick=()=>window.show&&window.show("downloads");$("jpBrowserStartSearch").onclick=()=>e.address.focus();
+$("jpBrowserFind").onclick=()=>{if(!cur()?.url){say("Open a page first.");return}try{say(e.frame.contentWindow.find(e.find.value)?"Text found.":"No match, or site restricts embedded access.")}catch{say("This website blocks embedded page access. Open externally and use the browser's Find feature.")}};
+document.addEventListener("keydown",ev=>{if($("browser").hidden)return;const k=ev.key.toLowerCase();if((ev.ctrlKey||ev.metaKey)&&k==="l"){ev.preventDefault();e.address.focus();e.address.select()}else if((ev.ctrlKey||ev.metaKey)&&k==="t"){ev.preventDefault();fresh()}else if((ev.ctrlKey||ev.metaKey)&&k==="w"){ev.preventDefault();close(active)}else if((ev.ctrlKey||ev.metaKey)&&k==="r"){ev.preventDefault();if(cur()?.url)e.frame.src=cur().url}else if((ev.ctrlKey||ev.metaKey)&&k==="d"){ev.preventDefault();bookmark()}else if((ev.ctrlKey||ev.metaKey)&&k==="h"){ev.preventDefault();panel("history")}else if(ev.altKey&&ev.key==="ArrowLeft")e.back.click();else if(ev.altKey&&ev.key==="ArrowRight")e.forward.click()});
+draw();save()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 })();
