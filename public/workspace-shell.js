@@ -49,7 +49,13 @@ const catalog=[
 ["jrsettings","Settings","One place for account, security, privacy, appearance and help.","Manage your JR PHEEF experience and account controls."],
 ["connections","Connections","Bring your external services into one organised place.","Browse official services and manage approved integrations when provider authorisation becomes available."],
 ["partners","Partner Centre","Connect companies, institutions and service providers with JR PHEEF.","Review the partner onboarding and integration pathway. Partner registration is not enabled in this release."],
-["developers","Developer Centre","Build services and integrations for JR PHEEF.","Review the planned API, SDK, sandbox and publishing capabilities. Developer access is not open yet."]
+["developers","Developer Centre","Build services and integrations for JR PHEEF.","Review the planned API, SDK, sandbox and publishing capabilities. Developer access is not open yet."],
+["discoverhub","Discover & Learn","Search, explore and learn in one place.","Find information, browse the world, study subjects and research ideas without switching between competing tabs."],
+["workhub","Create & Work","Turn ideas into projects, businesses and finished work.","Create, organise, research and grow from one workspace."],
+["connecthub","People & Connect","Your conversations, community and relationships.","Bring messages, social activity, JP Connect and opportunities together."],
+["personalhub","My Space & Settings","Your account, personal tools, preferences and security.","Manage your profile, files, devices, appearance, accessibility and privacy in one place."],
+["morehub","More Services","Additional JR PHEEF services, ecosystem areas and support.","Open specialist services when you need them without crowding your main navigation."]
+
 ];
 const providers=[
 ["Google","Search, maps, email and productivity","https://www.google.com"],
@@ -110,8 +116,32 @@ function renderCommandCentre(p){
  [["JR Assistant","Research, analyse, plan and coordinate.","assistant"],["Projects","Organise work, tasks and milestones.","projects"],["Browser","Research and browse the wider web.","browser"],["Discover","Find knowledge, products, services and opportunities.","discover"],["Connections","Review external services and integration status.","connections"],["Research & Ideas","Organise research, experiments and concepts.","lab"],["DGBO","Develop business ideas and ventures.","dgbo"],["FAMILY","Open the separate family coordination space.","family"],["Settings & Security","Manage account, privacy and preferences.","jrsettings"]].forEach(([t,d,id])=>{const card=el("article","card jr-workspace-card");card.append(el("h3","",t),el("p","",d));const b=el("button","dark","OPEN "+t.toUpperCase());b.type="button";b.addEventListener("click",()=>go(id));card.append(b);grid.append(card)});
  p.append(hero,grid);
 }
+
+const hubGroups={
+ discoverhub:[["Search & Discover","Search","find"],["Universal Discover","Discover","discover"],["Explore the world","Explore","explore"],["Learn & study","JR Teacher","teacher"],["Knowledge library","Library","library"],["Research & ideas","Research & Ideas","lab"],["Future worlds","Future Worlds","scifi"],["Web browser","Browser","browser"]],
+ workhub:[["Business","Business","create"],["Projects","Projects","projects"],["Research","Research & Ideas","lab"],["Opportunities","Opportunities","opportunities"],["Shopping & marketplace","Marketplace","find"],["My listings","My Listings","mylistings"],["Deals","Deals","deals"],["Business growth","Business Growth","businessgrowth"],["Delivery","Delivery","delivery"],["Advertising","Advertising Centre","ads"],["Shape JR","Feature requests","ideas"]],
+ connecthub:[["Messages & status","Messages","messages"],["Social & community","Social","social"],["JP Connect","JP Connect","jpconnect"],["Opportunities","Opportunities","opportunities"],["Rooms & accommodation","Rooms","rooms"],["Referrals","Invite & Grow","referrals"]],
+ personalhub:[["Profile & identity","Profile","profile"],["Settings","Settings","jrsettings"],["Privacy & data","Privacy Centre","jrprivacy"],["Security & governance","Access Governance","accessgov"],["My files","My Files","vault"],["Devices","Devices","devices"],["Voice & accessibility","Voice & Type","voice"],["Appearance","Appearance Studio","themes"],["Notifications","Notifications","alerts"],["Membership & points","Membership","membership"]],
+ morehub:[["DGBO","Business development","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem","Ecosystem overview","ecosystem"],["Economy","Economy","economy"],["Partner Centre","Partners","partners"],["Developer Centre","Developers","developers"],["Connections","External services","connections"],["App Hub","My apps","apphub"],["PHEEF Flex","PHEEF Flex","flex"],["Repair Services","Repair Services","fixedit"],["JR Labs","Research laboratory","lab"],["Help & Support","Help","jrhelp"]]
+};
+function renderHub(p,id){
+ const meta=catalog.find(x=>x[0]===id);
+ const groups=hubGroups[id]||[];
+ p.innerHTML="";
+ const hero=el("section","jr-workspace-hero jr-parent-hub");
+ hero.append(el("div","jp-kicker","JR PHEEF · ORGANIZED WORKSPACE"),el("h1","",meta?.[1]||"Workspace"),el("p","",meta?.[2]||""),el("p","jr-workspace-intro",meta?.[3]||""));
+ const grid=el("div","jr-workspace-grid jr-child-workspace-grid");
+ groups.forEach(([title,desc,target])=>{
+  const card=el("article","card jr-workspace-card jr-child-workspace-card");
+  card.append(el("span","jp-kicker","OPEN SECTION"),el("h3","",title),el("p","",desc));
+  const b=el("button","dark","OPEN "+title.toUpperCase());b.type="button";b.addEventListener("click",()=>go(target));
+  card.append(b);grid.append(card);
+ });
+ p.append(hero,grid);
+}
 function ensure(id){
  let p=pageFor(id);
+ if(hubGroups[id]){renderHub(p,id);return p;}
  if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
  else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
  if(id==="connections")renderConnections(p);
@@ -167,12 +197,11 @@ function mount(){
   if(wrap&&menu){
    const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
    const sections=[
-    ["DISCOVER & LEARN",["discover","teacher","universe","library","lab","scifi"]],
-    ["PEOPLE & CONNECTIONS",["jpconnect","connections","referrals","membership"]],
-    ["PARTNERS & DEVELOPERS",["partners","developers"]],
-    ["CREATE & GROW",["create","projects","opportunities","businessgrowth","mylistings","deals","delivery","powersale","ads","ideas"]],
-    ["YOUR PERSONAL SPACE",["profile","jpidentity","vault","devices","voice","points","flex","rooms","fixedit","alerts","themes","jrsettings"]],
-    ["CONTROL & GOVERNANCE",["accessgov","ecosystem"]]
+    ["DISCOVER & LEARN",["discoverhub"]],
+    ["CREATE & WORK",["workhub"]],
+    ["PEOPLE & CONNECT",["connecthub"]],
+    ["MY SPACE & SETTINGS",["personalhub"]],
+    ["MORE SERVICES",["morehub"]]
    ];
    sections.forEach(([label,ids])=>{
     const missing=ids.map(id=>catalog.find(item=>item[0]===id)).filter(item=>item&&!existing.has(item[0]));
