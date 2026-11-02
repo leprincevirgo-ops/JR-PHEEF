@@ -13,7 +13,7 @@ for(const action of ["Discover &amp; Learn","Create &amp; Work","Connect","My Sp
 assert.ok(html.includes('/device-bridge.js'),"device bridge script is loaded");
 assert.ok(html.includes('/device-bridge.css'),"device bridge styles are loaded");
 assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services")&&settings.includes("Your JR PHEEF defaults"),"settings consolidates personal controls");
-assert.ok(shell.includes('["accessgov","ecosystem"]')&&!shell.includes('["command","accessgov","ecosystem"]'),"founder command is excluded from member More menu");
+assert.ok(shell.includes('["MY SPACE & SETTINGS",["personalhub"]]')&&!shell.includes('["PRIVATE FOUNDER ACCESS",["command"]]'),"founder command is excluded from member More menu");
 assert.ok(founder.includes('member.is_owner!==true')&&founder.includes("Private Founder Command Centre"),"founder control is only installed for verified owner account");
 for(const api of ["requestDevice","requestPort","Notification.requestPermission"]) assert.ok(bridge.includes(api),"user-triggered browser permission flow exists: "+api);
 assert.ok(bridge.includes("does not scan nearby devices in the background"),"no background device discovery");
