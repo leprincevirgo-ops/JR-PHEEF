@@ -240,7 +240,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/universe-home.css">
 <link rel="stylesheet" href="/founder-command.css">
 <link rel="stylesheet" href="/device-bridge.css?v=1">
-</head>
+<link rel="stylesheet" href="/immersive-world-home.css?v=1">\n</head>
 
 <body>
 
@@ -369,30 +369,40 @@ placeholder="Password">
  </div>
 </div>
 <div id="home" class="page jp-reference-home">
-  <section class="jp-home-hero">
-    <div class="jp-hero-copy"><div class="jp-hero-brand"><span class="jp-hero-mark">JR</span><div><div class="jp-hero-wordmark">JR PHEEF</div><div class="jp-hero-motto">Discover <i>•</i> Connect <i>•</i> Coordinate</div></div></div>
-      <h1>Your world. <span>More possibilities.</span></h1><p>Your connected world—discover opportunities, explore knowledge, connect with people and coordinate what matters.</p>
-      <button class="jp-hero-cta" type="button" onclick="document.getElementById('jpUniversalRequest')?.focus()">✧ Tell JR what you need <b>→</b></button>
-    </div><div class="jp-hero-orb" aria-hidden="true"><div class="jp-orb-ring"></div><div class="jp-cityline"></div></div>
-  </section>
-  <section class="jp-universe-start" aria-labelledby="jpUniverseStartTitle">
-    <div class="jp-universe-kicker">Your connected universe · 1 November 2026</div>
-    <h2 id="jpUniverseStartTitle">What would you like to make happen?</h2>
-    <p>Ask JR to help you find something, learn something, create something, connect people or coordinate a real-world task. Start with your goal; JR helps map the next steps.</p>
-    <form class="jp-universe-compose" id="jpUniversalForm">
-      <textarea id="jpUniversalRequest" rows="2" maxlength="4000" aria-label="Describe what you want JR PHEEF to help you do" placeholder="For example: Help me start a supermarket in Nairobi, plan a trip, learn coding, or create a future city…"></textarea>
-      <button class="jp-universe-voice" type="button" id="jpUniversalVoice" aria-label="Speak your request">🎙</button>
-      <button class="jp-universe-submit" type="submit">LET'S GO →</button>
-    </form>
-    <div id="jpUniversalStatus" class="jp-universe-kicker" role="status" aria-live="polite" style="margin-top:9px;letter-spacing:.5px;text-transform:none"></div>
-    <div class="jp-universe-hints" aria-label="Example requests">
-      <button type="button" data-jr-prompt="Help me find and compare something I want to buy.">🛍 Find something</button>
-      <button type="button" data-jr-prompt="Teach me something step by step, starting at my level.">📚 Learn something</button>
-      <button type="button" data-jr-prompt="Help me turn a new idea into a real project.">✨ Create something</button>
-      <button type="button" data-jr-prompt="Help me connect the right people around one goal.">🤝 Connect people</button>
+  <section class="jr-world-home" aria-labelledby="jrWorldTitle">
+    <div class="jr-world-header">
+      <div><span class="jr-world-eyebrow">YOUR CONNECTED WORLD</span><h1 id="jrWorldTitle">Smarter. <span>Together.</span></h1><p>Tell JR what you want to do, or what you are already doing. JR helps you work out the next step.</p></div>
+      <div class="jr-world-live"><i></i> YOUR SPACE</div>
     </div>
+    <div class="jr-world-universe" aria-label="JR PHEEF connected world">
+      <div class="jr-orbit jr-orbit-one"></div><div class="jr-orbit jr-orbit-two"></div><div class="jr-orbit jr-orbit-three"></div>
+      <div class="jr-earth"><div class="jr-earth-grid"></div><div class="jr-earth-land jr-earth-land-a"></div><div class="jr-earth-land jr-earth-land-b"></div><div class="jr-earth-land jr-earth-land-c"></div><div class="jr-earth-core">JR</div></div>
+      <button class="jr-world-link jr-world-people" data-jr-world-page="messages"><span>♙</span><b>People</b><small>Connect &amp; collaborate</small></button>
+      <button class="jr-world-link jr-world-business" data-jr-world-page="create"><span>▦</span><b>Business</b><small>Build &amp; grow</small></button>
+      <button class="jr-world-link jr-world-opportunities" data-jr-world-page="find"><span>✧</span><b>Opportunities</b><small>Find &amp; create</small></button>
+      <button class="jr-world-link jr-world-knowledge" data-jr-world-page="teacher"><span>◈</span><b>Knowledge</b><small>Learn &amp; explore</small></button>
+      <button class="jr-world-link jr-world-services" data-jr-world-page="connecthub"><span>⌘</span><b>Services</b><small>Get help &amp; more</small></button>
+      <button class="jr-world-link jr-world-intelligence" data-jr-world-page="assistant"><span>✦</span><b>JR Intelligence</b><small>Ask &amp; achieve</small></button>
+      <div class="jr-world-assistant" aria-hidden="true"><div class="jr-bot-aura"></div><div class="jr-bot-head"><i></i><i></i><b></b></div><div class="jr-bot-body"><span>JR</span></div><div class="jr-bot-arm"></div></div>
+      <div class="jr-world-ground"></div>
+    </div>
+    <div class="jr-world-greeting"><span class="jr-greeting-spark">✦</span><div><strong id="jrWorldGreeting">Hello! What would you like to make happen?</strong><small>Start anywhere. JR will help you find the right path.</small></div></div>
+    <section class="jr-intent-console" aria-label="Tell JR what you want to do">
+      <form class="jp-universe-compose jr-intent-compose" id="jpUniversalForm">
+        <button class="jp-universe-voice" type="button" id="jpUniversalVoice" aria-label="Speak your request">🎙</button>
+        <textarea id="jpUniversalRequest" rows="1" maxlength="4000" aria-label="Describe what you want JR PHEEF to help you do" placeholder="I want to… / I'm doing… / Help me with…"></textarea>
+        <button class="jp-universe-submit" type="submit" aria-label="Send request to JR">➜</button>
+      </form>
+      <div id="jpUniversalStatus" class="jr-intent-status" role="status" aria-live="polite"></div>
+      <div class="jp-universe-hints jr-intent-hints" aria-label="Things you can ask JR">
+        <button type="button" data-jr-prompt="Help me find something I need and compare the options.">⌕ Find something</button>
+        <button type="button" data-jr-prompt="Help me learn something step by step.">◈ Learn something</button>
+        <button type="button" data-jr-prompt="Help me create and launch a new idea.">✧ Create something</button>
+        <button type="button" data-jr-prompt="Help me connect with the right people.">♧ Connect people</button>
+        <button type="button" data-jr-prompt="Help me organise what I am working on and decide the next step.">⌘ Organise my work</button>
+      </div>
+    </section>
   </section>
-  
   <div class="jp-home-stat-row">
     <div class="jp-stat-card jp-stat-cyan"><span class="jp-stat-icon">✦</span><div><strong id="pointsValue">0</strong><small>JR PHEEF Points</small></div></div>
     <div class="jp-stat-card jp-stat-violet"><span class="jp-stat-icon">◉</span><div><strong>33</strong><small>Discovery categories</small></div></div>
@@ -1779,5 +1789,5 @@ function jrStartHeaderVoice(){
 <script src="/founder-command.js"></script>
 <script src="/device-bridge.js?v=1"></script>
 <script src="/mobile-phone-shell.js?v=1" defer></script>\n<script src="/screen-studio.js?v=1" defer></script>
-</body>
+<script src="/immersive-world-home.js?v=1" defer></script>\n</body>
 </html>
