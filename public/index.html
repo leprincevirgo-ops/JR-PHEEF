@@ -1568,23 +1568,38 @@ function renderJRAI(){
  host.scrollTop=host.scrollHeight;
 }
 async function askJRAI(){
- const q=$("aiQuestion").value.trim(),status=$("aiStatus"),button=$("aiAskButton");
- if(!q){status.textContent="Write a question first.";return;}
- button.disabled=true;status.textContent="JR PHEEF is working through your question…";
+ const q=$("aiQuestion").value.trim(),status=$("aiStatus"),button=$("aiAskButton"),image=window.jrIntentCameraFile||null;
+ if(!q&&!image){status.textContent="Write a question or attach a photo first.";return;}
+ button.disabled=true;status.textContent=image?"JR PHEEF is analysing your photo and request…":"JR PHEEF is working through your question…";
  try{
-  const d=await api("/api/ai/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:aiHistory.slice(-6),use_web:$("aiWebResearch").checked,mode:$("aiMode").value,answer_depth:$("aiAnswerDepth").value})});
+  let options;
+  if(image){
+   const form=new FormData();
+   form.append("message",q||"Please describe this image and help me understand it.");
+   form.append("history",JSON.stringify(aiHistory.slice(-6)));
+   form.append("use_web",$("aiWebResearch").checked?"true":"false");
+   form.append("mode",$("aiMode").value);
+   form.append("answer_depth",$("aiAnswerDepth").value);
+   form.append("image",image,image.name||"jr-camera-image.jpg");
+   options={method:"POST",body:form};
+  }else{
+   options={method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:q,history:aiHistory.slice(-6),use_web:$("aiWebResearch").checked,mode:$("aiMode").value,answer_depth:$("aiAnswerDepth").value})};
+  }
+  const d=await api("/api/ai/chat",options);
   if(!d.ok){status.textContent=d.message||d.error||"The assistant could not answer. Please retry.";return;}
-  aiHistory.push({role:"user",content:q},{role:"assistant",content:d.answer});
+  aiHistory.push({role:"user",content:(q||"Please describe this image.")+(image?" [Photo attached]":"")},{role:"assistant",content:d.answer});
   aiHistory=aiHistory.slice(-12);renderJRAI();$("aiQuestion").value="";
+  if(image)window.jrIntentCameraFile=null;
   const sources=[...(d.knowledge_sources||[]).map(s=>({title:s.title||s.source_name||s.domain,url:s.source_url})),...(d.web_sources||[]).map(s=>({title:s.title,url:s.url}))];
   const sourceHost=$("aiSources");
-  const safeSources=sources.filter(s=>s.url&&/^https?:\/\//i.test(s.url));
+  const safeSources=sources.filter(s=>s.url&&/^https?:\\/\\//i.test(s.url));
   sourceHost.classList.toggle("hidden",safeSources.length===0);
   sourceHost.innerHTML=safeSources.length?"<b>SOURCES TO CHECK</b>"+safeSources.map(s=>"<p><a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(s.url)+"'>"+escapeHtml(s.title||s.url)+"</a></p>").join(""):"";
-  status.textContent=(d.used_web_research?"Web research was enabled. ":"")+(safeSources.length?"Source links are shown below the answer.":"Review important claims against reliable sources.");
+  status.textContent=(image?"Photo analysed for this request. ":"")+(d.used_web_research?"Web research was enabled. ":"")+(safeSources.length?"Source links are shown below the answer.":"Review important claims against reliable sources.");
  }catch(e){status.textContent="JR PHEEF could not reach the AI service. Check your connection and server configuration.";}
  finally{button.disabled=false;}
 }
+
 function clearJRAI(){aiHistory=[];renderJRAI();$("aiSources").innerHTML="";$("aiSources").classList.add("hidden");$("aiStatus").textContent="Conversation cleared from this page."; }
 
 async function connectByJP(){const msg=$("jpConnectMsg"),host=$("jpConnectResult");msg.textContent="Sending request…";host.innerHTML="";try{const d=await api("/api/connections/by-jp-number",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jp_number:$("jpNumberInput").value})});if(!d.ok){msg.textContent=d.error||"Could not connect.";return;}msg.textContent=d.message||(d.already_exists?"A request already exists.":"Request sent.");host.innerHTML="<div class='listing'><b>"+escapeHtml(d.member?.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(d.member?.jp_number||"")+" · "+escapeHtml(d.connection?.status||"pending")+"</p></div>";loadConnections();}catch(e){msg.textContent="Network error. Try again.";}}
