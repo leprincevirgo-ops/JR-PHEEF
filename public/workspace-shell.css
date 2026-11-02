@@ -42,3 +42,6 @@ main{min-width:0}
  .jr-workspace-card,.jr-provider-card{min-height:0}
 }
 @media(prefers-reduced-motion:reduce){.jr-page-chrome{scroll-behavior:auto}}
+
+/* Parent-child workspace consolidation */
+.jr-parent-hub{margin-bottom:18px}.jr-child-workspace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.jr-child-workspace-card{display:flex;flex-direction:column;align-items:flex-start;min-height:155px;padding:17px}.jr-child-workspace-card h3{margin:9px 0 5px}.jr-child-workspace-card p{flex:1;color:#a9c3d8;font-size:12px;line-height:1.5}.jr-child-workspace-card button{margin:12px 0 0}@media(max-width:760px){.jr-child-workspace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-child-workspace-card{min-height:145px;padding:13px}}@media(max-width:390px){.jr-child-workspace-grid{grid-template-columns:1fr}}
