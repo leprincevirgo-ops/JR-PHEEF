@@ -1,0 +1,10 @@
+"use strict";
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const css=fs.readFileSync("public/conversation-first-access.css","utf8");
+const js=fs.readFileSync("public/conversation-first-access.js","utf8");
+for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus","jrAccessToggle","jrAccessPanel","jrVoiceInput","jrSpeakReplies","jrLargeText","jrHighContrast","jrReduceMotion"])if(!html.includes(id))throw new Error("Missing inclusive conversation control: "+id);
+for(const phrase of ["I need help.","Please explain that more simply.","I communicate by text.","Please wait while I respond.","Please guide me one step at a time."])if(!html.includes(phrase))throw new Error("Missing AAC phrase: "+phrase);
+for(const token of ["#app>.nav","jr-world-link","#home>*:not(.jr-world-home)","prefers-reduced-motion"])if(!css.includes(token))throw new Error("Missing conversation-first visual rule: "+token);
+for(const token of ["SpeechRecognition","speechSynthesis","MutationObserver","aria-expanded","data-jr-aac"])if(!js.includes(token))throw new Error("Missing assistive communication implementation: "+token);
+console.log("PASS: conversation-first shell, optional speech input/output, AAC phrases and visual accessibility controls.");

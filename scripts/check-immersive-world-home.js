@@ -1,0 +1,13 @@
+"use strict";
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const css=fs.readFileSync("public/immersive-world-home.css","utf8");
+const js=fs.readFileSync("public/immersive-world-home.js","utf8");
+const required=["jr-world-home","jr-world-universe","jr-earth-core","jr-world-assistant","jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus","data-jr-prompt","pointsValue","jpHomeIdentity"];
+for(const token of required)if(!html.includes(token))throw new Error("Missing intent-first home element: "+token);
+for(const page of ["messages","create","find","teacher","connecthub","assistant"])if(!html.includes('data-jr-world-page="'+page+'"'))throw new Error("Missing connected destination: "+page);
+for(const rule of ["@media(max-width:760px)","@media(max-width:430px)","@media(min-width:1200px)","prefers-reduced-motion"])if(!css.includes(rule))throw new Error("Missing responsive/accessibility rule: "+rule);
+if(!js.includes('window.show(page)'))throw new Error("Globe destinations not wired to workspaces");
+if(html.includes("2.4M+")||html.includes("850K+")||html.includes("120K+")||html.includes("12.8M"))throw new Error("Do not show invented platform-wide metrics");
+if(!html.includes('id="home" class="page jp-reference-home"'))throw new Error("Home workspace root was removed");
+console.log("PASS: immersive intent-first home, preserved account data/composer, six live workspace links and responsive layouts.");
