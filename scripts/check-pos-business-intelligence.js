@@ -7,7 +7,7 @@ const required = [
   ["only completed POS sales are counted", /eq\("status", "completed"\)/],
   ["sales use a bounded 14-day window", /gte\("created_at", since\)/],
   ["active inventory is scoped to the selected business", /from\("pos_products"\)[\s\S]{0,220}eq\("business_id", businessId\)[\s\S]{0,100}eq\("active", true\)/],
-  ["sale items are linked only to the selected business sales", /from\("pos_sale_items"\)[\s\S]{0,180}in\("sale_id", saleIds\)/],
+  ["sale items are scoped through their owning business receipt", /from\("pos_sale_items"\)[\s\S]{0,250}pos_sales!inner/],
   ["low stock is measured against configured reorder levels", source.includes("Number(p.stock_qty || 0) <= Number(p.reorder_level || 0)")],
   ["sales are explicitly not represented as profit", /Sales are not profit/],
   ["AI recommendations require owner approval for external actions", /without owner approval/],
