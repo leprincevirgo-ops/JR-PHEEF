@@ -1592,7 +1592,7 @@ async function askJRAI(){
   if(image)window.jrIntentCameraFile=null;
   const sources=[...(d.knowledge_sources||[]).map(s=>({title:s.title||s.source_name||s.domain,url:s.source_url})),...(d.web_sources||[]).map(s=>({title:s.title,url:s.url}))];
   const sourceHost=$("aiSources");
-  const safeSources=sources.filter(s=>s.url&&/^https?:\\/\\//i.test(s.url));
+  const safeSources=sources.filter(s=>s.url&&(String(s.url).startsWith("https://")||String(s.url).startsWith("http://")));
   sourceHost.classList.toggle("hidden",safeSources.length===0);
   sourceHost.innerHTML=safeSources.length?"<b>SOURCES TO CHECK</b>"+safeSources.map(s=>"<p><a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(s.url)+"'>"+escapeHtml(s.title||s.url)+"</a></p>").join(""):"";
   status.textContent=(image?"Photo analysed for this request. ":"")+(d.used_web_research?"Web research was enabled. ":"")+(safeSources.length?"Source links are shown below the answer.":"Review important claims against reliable sources.");
