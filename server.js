@@ -316,11 +316,13 @@ app.post("/api/register", async (req, res) => {
     if (birth_year !== null && (!Number.isInteger(birth_year) || birth_year < 1900 || birth_year > new Date().getFullYear()))
       return res.status(400).json({ ok: false, error: "Enter a valid birth year." });
 
-    for (const p of phoneVariants(phone)) {
-      const { data, error } = await db.from("members").select("id")
-        .eq("phone", p).limit(1);
-      if (error) throw error;
-      if (data?.length) return res.status(409).json({ ok: false, error: "Account already exists. Please log in." });
+    if (phone) {
+      for (const p of phoneVariants(phone)) {
+        const { data, error } = await db.from("members").select("id")
+          .eq("phone", p).limit(1);
+        if (error) throw error;
+        if (data?.length) return res.status(409).json({ ok: false, error: "Account already exists. Please log in." });
+      }
     }
 
     if (email) {
