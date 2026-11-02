@@ -1,0 +1,46 @@
+/* JR PHEEF mobile phone module: top controls, quick access, active workspace, bottom dock. */
+.jp-mobile-assistant{display:none}
+.jp-mobile-dock{display:none}
+@media(max-width:900px){
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom))!important}
+  header.jp-global-header{position:sticky!important;top:0!important;z-index:160!important;display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:7px!important;min-height:62px!important;padding:7px 9px!important}
+  .jp-brand-lockup{flex:0 0 auto!important;min-width:0!important}
+  .jp-brand-lockup .logo{font-size:clamp(15px,4vw,20px)!important;letter-spacing:1px!important}
+  .jp-brand-lockup small{font-size:8px!important;letter-spacing:1px!important}
+  .jp-global-search{display:flex!important;order:2!important;flex:1 1 90px!important;width:auto!important;min-width:0!important;max-width:none!important;height:38px!important;margin:0!important;padding:0 4px 0 9px!important;gap:2px!important;border:1px solid rgba(66,245,255,.25)!important;border-radius:11px!important;background:rgba(4,26,48,.94)!important}
+  .jp-global-search>span{display:none!important}
+  .jp-global-search input{display:block!important;flex:1 1 auto!important;width:10px!important;min-width:0!important;height:34px!important;margin:0!important;padding:5px 2px!important;border:0!important;background:transparent!important;font-size:12px!important}
+  .jp-global-search input::placeholder{color:#a7c8db}
+  .jp-global-search .jp-mic-button{display:inline-flex!important;flex:0 0 30px!important;width:30px!important;min-width:30px!important;height:30px!important;min-height:30px!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;background:transparent!important;font-size:14px!important}
+  .jp-global-search .jp-search-submit{display:none!important}
+  .jp-header-actions{display:flex!important;order:3!important;flex:0 0 auto!important;align-items:center!important;gap:3px!important}
+  .jp-header-icon{display:inline-flex!important;width:30px!important;min-width:30px!important;height:34px!important;min-height:34px!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:3px!important;font-size:14px!important}
+  .jp-header-icon[aria-label="Profile menu"]{display:none!important}
+  .jp-profile-trigger{display:flex!important;min-width:39px!important;min-height:36px!important;height:36px!important;margin:0!important;padding:3px 5px!important}
+  .jp-avatar-small{width:30px!important;height:30px!important}
+  .jp-mobile-assistant{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 31px!important;width:31px!important;min-width:31px!important;height:34px!important;min-height:34px!important;margin:0!important;padding:0!important;border:1px solid rgba(66,245,255,.32)!important;border-radius:10px!important;background:linear-gradient(145deg,#0b8ec7,#063c70)!important;color:#eaffff!important;font-size:18px!important}
+  .jp-action-rail{display:flex!important;position:relative!important;top:auto!important;z-index:120!important;width:100%!important;margin:0!important;padding:6px 8px!important;gap:5px!important;border:0!important;border-bottom:1px solid rgba(100,190,255,.14)!important;border-radius:0!important;background:rgba(2,10,25,.96)!important}
+  .jp-action-rail-label{display:none!important}
+  .jp-action-rail button{min-height:34px!important;padding:6px 9px!important;font-size:10px!important}
+  main{padding:8px 10px calc(86px + env(safe-area-inset-bottom))!important}
+  #app>.jp-primary-nav{display:none!important}
+  #jpMobileDock{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:1200!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:3px!important;width:100%!important;height:calc(66px + env(safe-area-inset-bottom))!important;margin:0!important;padding:5px 6px calc(5px + env(safe-area-inset-bottom))!important;border:0!important;border-top:1px solid rgba(91,190,255,.28)!important;border-radius:15px 15px 0 0!important;background:rgba(2,10,25,.98)!important;box-shadow:0 -12px 36px rgba(0,0,0,.38)!important;backdrop-filter:blur(22px)!important}
+  #jpMobileDock .jp-mobile-dock-item{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;min-width:0!important;min-height:48px!important;height:100%!important;margin:0!important;padding:4px 1px!important;border:1px solid transparent!important;border-radius:11px!important;background:transparent!important;color:#a9c7dc!important;font-size:10px!important;line-height:1.1!important;white-space:nowrap!important}
+  #jpMobileDock .jp-mobile-dock-icon{font-size:19px!important;line-height:1!important}
+  #jpMobileDock .jp-mobile-dock-label{font-size:10px!important}
+  #jpMobileDock .jp-mobile-dock-item.is-active{color:#eaffff!important;border-color:rgba(66,245,255,.28)!important;background:linear-gradient(145deg,rgba(0,170,220,.22),rgba(20,76,125,.2))!important}
+  #jr-accessibility-launcher{display:none!important}
+  #jr-accessibility-panel{bottom:calc(76px + env(safe-area-inset-bottom))!important;z-index:1300!important}
+  #app>.page{min-height:calc(100dvh - 160px)!important}
+  .jp-global-header .jp-command-header-actions{order:4!important}
+}
+@media(max-width:390px){
+  header.jp-global-header{gap:5px!important;padding-left:7px!important;padding-right:7px!important}
+  .jp-brand-lockup .logo{font-size:15px!important}
+  .jp-brand-lockup small{font-size:7px!important}
+  .jp-header-icon{width:27px!important;min-width:27px!important}
+  .jp-profile-trigger{min-width:34px!important}
+  .jp-action-rail button{padding:6px 7px!important;font-size:9px!important}
+  #jpMobileDock .jp-mobile-dock-label{font-size:9px!important}
+}
+@media(prefers-reduced-motion:reduce){#jpMobileDock *{scroll-behavior:auto!important;transition:none!important}}
