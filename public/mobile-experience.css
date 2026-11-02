@@ -140,3 +140,19 @@
 @media(prefers-reduced-motion:reduce){
   #app>.jp-primary-nav>.jp-nav-assistant{transform:none!important}
 }
+
+
+/* Unified upper action rail: member-facing discovery and creation tools. */
+.jp-action-rail{display:none;align-items:center;gap:7px;width:min(calc(100% - 28px),1480px);margin:10px auto 0;padding:8px 12px;border:1px solid rgba(100,190,255,.16);border-radius:15px;background:rgba(3,15,32,.84);backdrop-filter:blur(14px);overflow-x:auto;scrollbar-width:none}
+.jp-action-rail::-webkit-scrollbar{display:none}
+body:has(#app:not(.hidden)) .jp-action-rail{display:flex}
+.jp-action-rail-label{flex:0 0 auto;padding:0 8px;color:#70dff4;font-size:9px;font-weight:900;letter-spacing:1.5px}
+.jp-action-rail button{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;min-height:36px;margin:0;padding:8px 12px;border:1px solid rgba(100,190,255,.16);border-radius:10px;background:rgba(8,39,68,.85);color:#e4f8ff;font-size:12px}
+.jp-action-rail button span{color:#69eaff;font-size:15px}
+.jp-action-rail button:hover,.jp-action-rail button:focus-visible{border-color:#42f5ff;outline:2px solid rgba(66,245,255,.18)}
+@media(max-width:680px){
+ .jp-action-rail{width:100%;margin:0;padding:7px 10px;border:0;border-bottom:1px solid rgba(100,190,255,.12);border-radius:0;background:rgba(2,10,25,.96);gap:6px}
+ .jp-action-rail-label{display:none}
+ .jp-action-rail button{min-height:35px;padding:7px 10px;font-size:11px}
+}
+.jp-founder-top-access{display:none!important}
