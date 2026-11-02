@@ -1,10 +1,13 @@
 "use strict";
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
+const vm=require("node:vm");
 const html=fs.readFileSync("public/index.html","utf8");
 const js=fs.readFileSync("public/universe-home.js","utf8");
 const css=fs.readFileSync("public/universe-home.css","utf8");
 const doc=fs.readFileSync("docs/JR-UNIVERSE-ARCHITECTURE.md","utf8");
+const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
+const server=fs.readFileSync("server.js","utf8");
 for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus"])assert.ok(html.includes('id="'+id+'"'),"home composer element missing: "+id);
 assert.ok(html.includes('class="nav jp-primary-nav"'),"single primary navigation missing");
 for(const id of ["home","discover","explore","messages","create","projects","social","find","teacher","browser","apphub","dgbo","family","economy","ecosystem","connections"])assert.ok(html.includes('data-page="'+id+'"'),"navigation destination missing: "+id);
@@ -17,4 +20,22 @@ assert.ok(js.includes("jrToggleMoreMenu")&&js.includes("jrCloseMoreMenu")&&js.in
 assert.ok(js.includes("window.SpeechRecognition")&&js.includes("aiQuestion")&&js.includes("window.askJRAI()"),"voice or automatic assistant submission missing");
 assert.ok(css.includes("jp-primary-nav")&&css.includes(".jp-more-menu[hidden]")&&css.includes("@media(max-width:600px)")&&css.includes("prefers-reduced-motion"),"responsive/accessibility navigation styles missing");
 for(const phrase of ["Cosmic web","JR Care & Connection","end-to-end encryption","humanitarian","offline"])assert.ok(doc.toLowerCase().includes(phrase.toLowerCase()),"vision requirement missing: "+phrase);
+
+const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
+const intentCss=fs.readFileSync("public/intent-first-experience.css","utf8");
+new vm.Script(intent,{filename:"public/intent-first-experience.js"});
+const intentWindow={};
+vm.runInNewContext(intent,{window:intentWindow,document:{readyState:"loading",addEventListener(){}}});
+assert.equal(intentWindow.jrIntentRoute("JR, open Command Centre"),"command","natural-language Command Centre command must route directly");
+assert.equal(intentWindow.jrIntentRoute("open command center"),"command","US spelling of Command Center must route directly");
+assert.equal(intentWindow.jrIntentRoute("JR, open my clothing shop"),"businessgrowth","business workspace command must route directly");
+assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goals must remain with JR Assistant");
+
+for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
+for(const selector of [".jr-intent-bar","#jrIntentCommand",".jr-intent-action",".jr-intent-network","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
+assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
+assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
+assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
+assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
+for(const area of ["Your Command Centre","Overview","My Operations","Management","Intelligence","Communications","Opportunities","Action Centre","Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
 console.log("JR PHEEF universe home and consolidated navigation checks passed.");

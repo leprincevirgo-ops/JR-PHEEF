@@ -71,6 +71,14 @@ function startUniversalVoice(){
  try{recognition.start();}catch(error){if(status)status.textContent="Voice input could not start. Type your request instead.";}
 }
 document.addEventListener("DOMContentLoaded",function(){
+ // Load the intent-first shell as a progressive enhancement; existing workspaces remain intact.
+ if(!document.getElementById("jrIntentFirstStyles")){
+  const style=document.createElement("link");style.id="jrIntentFirstStyles";style.rel="stylesheet";style.href="/intent-first-experience.css";document.head.append(style);
+ }
+ if(!document.getElementById("jrIntentFirstScript")){
+  const script=document.createElement("script");script.id="jrIntentFirstScript";script.src="/intent-first-experience.js";script.defer=true;document.body.append(script);
+ }
+
  document.addEventListener("click",function(event){if(!event.target.closest(".jp-more-wrap")&&!event.target.closest("#jpMoreMenu"))jrCloseMoreMenu();});
  document.addEventListener("keydown",function(event){if(event.key==="Escape")jrCloseMoreMenu();});
  const form=document.getElementById("jpUniversalForm");

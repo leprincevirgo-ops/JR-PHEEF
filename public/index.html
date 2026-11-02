@@ -300,9 +300,9 @@ placeholder="Password">
 <h2>Create account</h2>
 
 <input id="regName" placeholder="Full name">
-<input id="regPhone" placeholder="07XXXXXXXX">
-<input id="regEmail" placeholder="Email">
-<input id="regBirth" placeholder="Birth year" type="number">
+<input id="regPhone" type="tel" autocomplete="tel" placeholder="Phone number with country code (optional)">
+<input id="regEmail" type="email" autocomplete="email" placeholder="Email address (optional if phone supplied)">
+<p class="muted" id="registrationPrivacyNote">Use a phone number or email address. You can add your other details and roles after entering JR PHEEF.</p>
 
 <div style="position:relative">
 <input id="regPassword" type="password" placeholder="Password">
@@ -1119,7 +1119,6 @@ async function register(){
         full_name:$("regName").value.trim(),
         phone:$("regPhone").value.trim(),
         email:$("regEmail").value.trim(),
-        birth_year:$("regBirth").value,
         password:$("regPassword").value
       })
     });
