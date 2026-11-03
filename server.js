@@ -1393,7 +1393,7 @@ require("./routes/operations")(routeCtx);
 require("./routes/opportunities")(routeCtx);
 /* UNIVERSAL HUMAN ENVIRONMENT: private worlds, growth journal and scoped capabilities */
 require("./routes/human-environment")(routeCtx);
-require("./routes/human-environment")(routeCtx);
+
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {
