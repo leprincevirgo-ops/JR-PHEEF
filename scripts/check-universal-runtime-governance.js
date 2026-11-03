@@ -20,7 +20,7 @@ for(const guard of ['consent_ai_context !== true','eq("member_id", member.id)','
 assert.ok(server.includes('eq("consent_ai_context",true)')&&server.includes("Member-approved JR continuity memories"),"Only explicitly consented memories may be reused as AI context.");
 assert.ok(ui.includes("jrMemoryConsent")&&ui.includes("SAVE TO MY MEMORY")&&ui.includes("data-memory-delete"),"Member-controlled memory UI missing.");
 assert.ok(css.includes(".jr-journey-memory")&&css.includes(".jr-memory-card"),"Member memory UI styling missing.");
-assert.ok(html.includes("human-environment-ui.js?v=3")&&html.includes("human-environment-ui.css?v=3"),"Member memory UI assets must be versioned.");
+assert.ok(html.includes("human-environment-ui.js?v=4")&&html.includes("human-environment-ui.css?v=4"),"Member memory UI assets must be versioned.");
 
 for(const table of ["jr_action_proposals","jr_security_events"])assert.ok(migration.includes("create table if not exists public."+table),"Missing governance table "+table);
 for(const table of ["jr_action_proposals","jr_security_events"])assert.ok(migration.includes("enable row level security")&&migration.includes("deny_client_"+table),"Missing private RLS policy for "+table);
@@ -28,8 +28,8 @@ assert.ok(migration.includes("grant all on table public.jr_action_proposals to s
 assert.ok(ui.includes("jrJourneyProposals")&&ui.includes("data-jr-proposal-decision"),"Member-facing approval centre missing.");
 assert.ok(ui.includes("Approval alone does not send, spend, book, purchase or control a device."),"Approval boundary must be visible to members.");
 assert.ok(css.includes(".jr-proposal-card")&&css.includes("@media(max-width:560px)"),"Approval centre mobile styles missing.");
-assert.equal(html.split('human-environment-ui.js?v=3').length-1,1,"Human environment UI script must load exactly once.");
-assert.ok(html.includes('human-environment-ui.css?v=3'),"Human environment CSS cache version missing.");
+assert.equal(html.split('human-environment-ui.js?v=4').length-1,1,"Human environment UI script must load exactly once.");
+assert.ok(html.includes('human-environment-ui.css?v=4'),"Human environment CSS cache version missing.");
 
 const gateway=fs.readFileSync("supabase/migrations/20261103084000_jr_partner_event_gateway.sql","utf8");
 assert.ok(route.includes('require("node:crypto")'),"Partner tokens must use explicit Node crypto.");
