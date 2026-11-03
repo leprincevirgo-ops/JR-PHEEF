@@ -98,7 +98,7 @@
       const data=await apiCall("/api/referrals"),summary=data.summary||{};
       setText("referralTotal",summary.total||0);
       setText("referralPending",summary.pending||0);
-      setText("referralVerified",summary.verified||0);
+      setText("referralVerified","Inactive");
       setText("referralActivityNote","Sign-up attribution only. Cash and points rewards are not active.");
     }catch(e){setText("referralActivityNote","Referral activity is temporarily unavailable.");}
   }
