@@ -4,3 +4,12 @@
 .jr-journey-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px}.jr-journey-bottom h3{font-size:14px;margin:10px 0}.jr-journey-entry{padding:10px 0;border-bottom:1px solid rgba(91,190,255,.12)}.jr-journey-capabilities{display:flex;flex-wrap:wrap;gap:7px}.jr-capability-chip{padding:7px 9px;border-radius:20px;border:1px solid rgba(91,190,255,.17);background:rgba(3,29,52,.7);font-size:10px;color:#c4e7f7}.jr-journey-note{font-size:11px}.jr-journey-reply{margin-top:16px;padding:16px;border-radius:15px;border:1px solid rgba(66,245,255,.3);background:rgba(0,103,145,.12)}.jr-journey-reply p{white-space:pre-wrap;line-height:1.65;color:#e0f6ff}.jr-journey-reply-head{display:flex;justify-content:space-between;gap:12px;color:#42f5ff;font-size:12px}.jr-journey-reply-head span{text-align:right;color:#9dc8db}
 @media(max-width:800px){.jr-journey-worlds{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-journey-bottom{grid-template-columns:1fr}}
 @media(max-width:420px){.jr-journey-heading{flex-direction:column}.jr-journey-world{min-height:72px;padding:10px}.jr-journey-world small{font-size:9px}}
+
+.jr-journey-world{width:100%;text-align:left;color:#eaf8ff;cursor:pointer;transition:border-color .18s ease,transform .18s ease}
+.jr-journey-world:hover,.jr-journey-world:focus-visible{border-color:#42f5ff;transform:translateY(-2px);outline:2px solid rgba(66,245,255,.14)}
+.jr-journey-world-copy{display:flex;min-width:0;flex-direction:column;gap:4px}
+.jr-world-continue{color:#42f5ff!important;font-weight:800;letter-spacing:1px}
+.jr-capability-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(91,190,255,.12);font-size:11px;color:#c4e7f7}
+.jr-capability-toggle{flex:0 0 auto;padding:7px 10px;margin:0;border:1px solid rgba(91,190,255,.25);border-radius:10px;background:rgba(3,29,52,.8);color:#c4e7f7;font-size:10px}
+.jr-capability-toggle.enabled{border-color:rgba(66,245,255,.48);background:rgba(0,150,190,.2);color:#42f5ff}
+.jr-capability-toggle:disabled{opacity:.55}
