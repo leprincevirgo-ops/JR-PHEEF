@@ -21,7 +21,7 @@ async function request(path, options = {}) {
         method: options.method || "GET",
         redirect: "follow",
         signal: controller.signal,
-        headers: { "user-agent": "JR-PHEEF-release-smoke/2.0" }
+        headers: { ...(options.headers || {}), "user-agent": "JR-PHEEF-release-smoke/2.0" }
       });
       if (response.status >= 500 && attempt < attempts) {
         await response.arrayBuffer().catch(() => {});
