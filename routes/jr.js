@@ -289,7 +289,7 @@ module.exports = function mountJr(ctx) {
     { page: "lab", patterns: [/\b(open|start|run)\b.{0,25}\b(research|lab|experiment|investigation)\b/i] },
     { page: "projects", patterns: [/\b(open|show|manage|continue)\b.{0,25}\b(my )?(projects|project plans)\b/i] },
     { page: "find", patterns: [/\b(find|search|shop for|look for)\b.{0,30}\b(products|services|opportunities|jobs|items|marketplace)\b/i, /\b(open|show)\b.{0,20}\b(marketplace|shopping)\b/i] },
-    { page: "rooms", patterns: [/\b(find|show|search|open)\b.{0,25}\b(rooms|rentals|houses|apartments|bedsitters)\b/i] },
+    { page: "rooms", patterns: [/\b(find|show|search|open)\b.{0,25}\b(rooms?|rentals?|houses?|apartments?|bedsitters?|bed sitters?|studios?)\b/i] },
     { page: "deals", patterns: [/\b(open|show|check|view)\b.{0,25}\b(my )?(deals|matches|offers)\b/i] },
     { page: "alerts", patterns: [/\b(open|show|check|read)\b.{0,25}\b(my )?(notifications|alerts|updates)\b/i] },
     { page: "profile", patterns: [/\b(open|show|edit|update)\b.{0,25}\b(my )?(profile|account details)\b/i] },
@@ -303,6 +303,14 @@ module.exports = function mountJr(ctx) {
     { page: "accessgov", patterns: [/\b(open|find|access)\b.{0,25}\b(government|government services|access gov)\b/i] },
     { page: "connections", patterns: [/\b(open|show|manage)\b.{0,25}\b(my )?(connections|contacts|network)\b/i] }
   ];
+
+  function routeByIntent(text) {
+    const value = clean(text).slice(0, 2000);
+    for (const route of INTENT_ROUTES) {
+      if (route.patterns.some(pattern => pattern.test(value))) return route.page;
+    }
+    return null;
+  }
 
   function ruleParse(text) {
     const t = text.toLowerCase(), actions = [];

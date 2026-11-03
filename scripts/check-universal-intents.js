@@ -7,7 +7,7 @@ const start = source.indexOf("  const INTENT_ROUTES = [");
 const end = source.indexOf("\n\n  function ruleParse", start);
 assert.ok(start >= 0 && end > start, "Natural intent route registry must exist.");
 const snippet = source.slice(start, end) + "\nglobalThis.routeByIntent = routeByIntent;";
-const context = { PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages","businessgrowth","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","teacher","family","dgbo","connections","rooms"]] };
+const context = { clean: value => String(value || "").trim(), PAGES: ["home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages","businessgrowth","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts","delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","teacher","family","dgbo","connections"] };
 vm.createContext(context);
 vm.runInContext(snippet, context);
 const cases = [
