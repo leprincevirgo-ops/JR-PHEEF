@@ -424,6 +424,9 @@ module.exports = function mountJr(ctx) {
     const title = clean(req.body.title).slice(0, 80), body = clean(req.body.body).slice(0, 300);
     const category = clean(req.body.category).slice(0, 60) || null, location = clean(req.body.location).slice(0, 120) || null;
     const listing_id = clean(req.body.listing_id) || null;
+    const media_urls = Array.isArray(req.body.media_urls) ? req.body.media_urls.map(clean).filter(Boolean).slice(0,5) : [];
+    const allowedMediaPrefix = process.env.SUPABASE_URL ? process.env.SUPABASE_URL.replace(/\/$/, "") + "/storage/v1/object/public/jr-pheef-media/ad-media/" + m.id + "/" : "";
+    if (req.body.media_urls !== undefined && (!Array.isArray(req.body.media_urls) || req.body.media_urls.length > 5 || media_urls.some(u => !allowedMediaPrefix || !u.startsWith(allowedMediaPrefix)))) return bad(res, "Choose up to five media files uploaded to your own JR PHEEF account.");
     const budget = req.body.budget_ksh === undefined || req.body.budget_ksh === "" ? 0 : money(req.body.budget_ksh);
     if (title.length < 3) return bad(res, "Give the ad a title.");
     if (body.length < 5) return bad(res, "Write a short ad message.");
@@ -436,7 +439,7 @@ module.exports = function mountJr(ctx) {
     }
     const { count } = await db.from("ad_campaigns").select("id", { count: "exact", head: true }).eq("member_id", m.id).in("status", ["pending", "approved", "paused"]);
     if (count >= 5) return bad(res, "You can have up to 5 active or waiting ads.", 409);
-    const { data, error } = await db.from("ad_campaigns").insert({ member_id: m.id, title, body, listing_id, category, location, budget_ksh: budget }).select("*").single();
+    const { data, error } = await db.from("ad_campaigns").insert({ member_id: m.id, title, body, listing_id, category, location, budget_ksh: budget, media_urls }).select("*").single();
     if (error) throw error;
     res.status(201).json({ ok: true, ad: data, message: "Ad sent for review. Payments are not active yet, so approved ads run free during launch." });
   }));
@@ -461,7 +464,7 @@ module.exports = function mountJr(ctx) {
   app.get("/api/ads/feed", wrap("Ads feed", async (req, res) => {
     const m = await requireMember(req, res); if (!m) return;
     const cat = clean(req.query.category).toLowerCase();
-    const { data, error } = await adsLive(db.from("ad_campaigns").select("id,member_id,title,body,listing_id,category,location").neq("member_id", m.id)).limit(30);
+    const { data, error } = await adsLive(db.from("ad_campaigns").select("id,member_id,title,body,listing_id,category,location,media_urls").neq("member_id", m.id)).limit(30);
     if (error) throw error;
     let rows = (data || []);
     if (cat) { const match = rows.filter(a => (a.category || "").toLowerCase() === cat); if (match.length) rows = match; }
