@@ -85,15 +85,34 @@
       const data=await apiCall("/api/me"), member=data.member||{}; currentMember=member;
       setText("referralJpNumber",member.jp_number||"Not available");
       setText("referralCode",member.referral_code||"No referral code assigned yet");
-      const button=document.querySelector('#referrals button.primary');
+      const link=member.referral_code?(window.location.origin+"/?ref="+encodeURIComponent(member.referral_code)):"";
+      setText("referralLink",link||"Not available");
+      const button=document.querySelector("#referrals button.primary");
       if(button) button.disabled=!member.referral_code;
-      setText("referralMsg",member.referral_code?"You can share your code. Trackable referral links and rewards are not active until the referral backend is implemented.":"A unique referral code has not been assigned to this account yet.");
+      await loadReferralActivity();
+      setText("referralMsg",member.referral_code?"Your personal invitation link is ready. New sign-ups through it are attributed to your account; rewards are not active.":"A unique referral code has not been assigned to this account yet.");
     } catch(e){setText("referralJpNumber","Sign in required");setText("referralCode","Unavailable");setText("referralMsg",e.message);}
   };
-  function inviteText(){
-    const code=(currentMember&&currentMember.referral_code)||"";
-    return "Join me on JR PHEEF — Find. Match. Trade. "+(code?"My invite code: "+code:"");
+  async function loadReferralActivity(){
+    try{
+      const data=await apiCall("/api/referrals"),summary=data.summary||{};
+      setText("referralTotal",summary.total||0);
+      setText("referralPending",summary.pending||0);
+      setText("referralVerified",summary.verified||0);
+      setText("referralActivityNote","Sign-up attribution only. Cash and points rewards are not active.");
+    }catch(e){setText("referralActivityNote","Referral activity is temporarily unavailable.");}
   }
+  function inviteUrl(){
+    const code=(currentMember&&currentMember.referral_code)||"";
+    return code?window.location.origin+"/?ref="+encodeURIComponent(code):window.location.origin+"/";
+  }
+  function inviteText(){
+    return "Join JR PHEEF — Learn. Create. Connect. Grow.\n"+inviteUrl();
+  }
+  window.copyReferralLink=async function(){
+    try{await navigator.clipboard.writeText(inviteUrl());setText("referralMsg","Your personal JR PHEEF link has been copied.");}
+    catch(e){setText("referralMsg","Copy unavailable. Select the invitation link shown above and copy it.");}
+  };
   window.copyReferralInvite=async function(){
     try {await navigator.clipboard.writeText(inviteText());setText("referralMsg","Invitation message copied.");}
     catch(e){setText("referralMsg","Copy is unavailable in this browser. Select and copy the invitation text: "+inviteText());}
