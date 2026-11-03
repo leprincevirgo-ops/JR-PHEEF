@@ -48,6 +48,16 @@ module.exports = function mountHumanEnvironment(ctx) {
     bad(res, "Please slow down and try again shortly.", 429);
     return true;
   }
+  async function recordSecurityEvent(memberId, eventType, resourceType, resourceId, summary, metadata = {}) {
+    const { error } = await db.from("jr_security_events").insert({
+      member_id: memberId, event_type: eventType, resource_type: resourceType,
+      resource_id: resourceId ? String(resourceId).slice(0, 120) : null,
+      summary: clean(summary).slice(0, 280),
+      metadata: metadata && typeof metadata === "object" && !Array.isArray(metadata) ? metadata : {}
+    });
+    if (error) throw error;
+  }
+
   function infer(text) {
     for (const [key, world] of Object.entries(WORLDS)) if (world.terms.test(text)) return { key, ...world };
     return { key: "personal", title: "Your life", page: "assistant" };
@@ -80,16 +90,17 @@ module.exports = function mountHumanEnvironment(ctx) {
     const [worldRows, journal, permissions] = await Promise.all([
       ensureWorldRows(member.id),
       db.from("jr_growth_journal").select("id,event_kind,world_key,title,detail,created_at").eq("member_id", member.id).order("created_at", { ascending: false }).limit(12),
-      db.from("jr_capability_permissions").select("capability_key,enabled,scope,updated_at").eq("member_id", member.id)
+      db.from("jr_capability_permissions").select("capability_key,enabled,scope,updated_at").eq("member_id", member.id),
+      db.from("jr_action_proposals").select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").eq("member_id", member.id).order("created_at", { ascending: false }).limit(8)
     ]);
-    for (const r of [journal, permissions]) if (r.error) throw r.error;
+    for (const r of [journal, permissions, proposals]) if (r.error) throw r.error;
     res.json({
       ok: true,
       principle: "JR PHEEF GROWS. IT DOES NOT FORGET.",
       identity: { jp_number: member.jp_number || null, display_name: member.full_name || "Member" },
       active_world: worldRows[0] || null,
       worlds: Object.entries(WORLDS).map(([key, meta]) => { const row = worldRows.find(item => item.world_key === key); return row ? { ...row, title: meta.title, page: meta.page } : { world_key: key, stage: "discovering", progress: {}, last_position: {}, last_interaction_at: null, title: meta.title, page: meta.page, private_by_default: key === "health" }; }),
-      journal: journal.data || [],
+      journal: journal.data || [],\n      action_proposals: proposals.data || [],
       capabilities: CAPABILITIES.map(([key, description, availability]) => {
         const setting = (permissions.data || []).find(p => p.capability_key === key);
         return { key, description, availability, enabled: setting ? setting.enabled : false, scope: setting?.scope || {} };
@@ -246,7 +257,7 @@ module.exports = function mountHumanEnvironment(ctx) {
       }
       throw error;
     }
-    await logActivity(member.id, "JR_ACTION_PROPOSED", { proposal_id: data.id, action_key: actionKey, risk_level: risk });
+    await recordSecurityEvent(member.id, "action_proposed", "action_proposal", data.id, "JR proposed: " + summary, { action_key: actionKey, risk_level: risk });\n    await logActivity(member.id, "JR_ACTION_PROPOSED", { proposal_id: data.id, action_key: actionKey, risk_level: risk });
     res.status(201).json({ ok: true, proposal: data, note: "This records a proposal only. No external action has been performed." });
   }));
 
@@ -264,7 +275,7 @@ module.exports = function mountHumanEnvironment(ctx) {
       .select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").maybeSingle();
     if (error) throw error;
     if (!proposal) return bad(res, "This proposal has expired or has already been decided.", 409);
-    await logActivity(member.id, decision === "approve" ? "JR_ACTION_APPROVED" : "JR_ACTION_REJECTED", { proposal_id: id, action_key: proposal.action_key });
+    await recordSecurityEvent(member.id, decision === "approve" ? "action_approved" : "action_rejected", "action_proposal", id, decision === "approve" ? "Member approved a JR action proposal; execution has not occurred." : "Member rejected a JR action proposal.", { action_key: proposal.action_key, risk_level: proposal.risk_level });\n    await logActivity(member.id, decision === "approve" ? "JR_ACTION_APPROVED" : "JR_ACTION_REJECTED", { proposal_id: id, action_key: proposal.action_key });
     res.json({ ok: true, proposal, executed: false, note: decision === "approve"
       ? "Your approval has been recorded. JR has not executed the action; a separately authorised and connected service is still required."
       : "Your rejection has been recorded. No action was performed." });
