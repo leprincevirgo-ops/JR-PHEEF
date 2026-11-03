@@ -257,7 +257,8 @@ module.exports = function mountHumanEnvironment(ctx) {
       }
       throw error;
     }
-    await recordSecurityEvent(member.id, "action_proposed", "action_proposal", data.id, "JR proposed: " + summary, { action_key: actionKey, risk_level: risk });\n    await logActivity(member.id, "JR_ACTION_PROPOSED", { proposal_id: data.id, action_key: actionKey, risk_level: risk });
+    await recordSecurityEvent(member.id, "action_proposed", "action_proposal", data.id, "JR proposed: " + summary, { action_key: actionKey, risk_level: risk });
+    await logActivity(member.id, "JR_ACTION_PROPOSED", { proposal_id: data.id, action_key: actionKey, risk_level: risk });
     res.status(201).json({ ok: true, proposal: data, note: "This records a proposal only. No external action has been performed." });
   }));
 
@@ -275,7 +276,8 @@ module.exports = function mountHumanEnvironment(ctx) {
       .select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").maybeSingle();
     if (error) throw error;
     if (!proposal) return bad(res, "This proposal has expired or has already been decided.", 409);
-    await recordSecurityEvent(member.id, decision === "approve" ? "action_approved" : "action_rejected", "action_proposal", id, decision === "approve" ? "Member approved a JR action proposal; execution has not occurred." : "Member rejected a JR action proposal.", { action_key: proposal.action_key, risk_level: proposal.risk_level });\n    await logActivity(member.id, decision === "approve" ? "JR_ACTION_APPROVED" : "JR_ACTION_REJECTED", { proposal_id: id, action_key: proposal.action_key });
+    await recordSecurityEvent(member.id, decision === "approve" ? "action_approved" : "action_rejected", "action_proposal", id, decision === "approve" ? "Member approved a JR action proposal; execution has not occurred." : "Member rejected a JR action proposal.", { action_key: proposal.action_key, risk_level: proposal.risk_level });
+    await logActivity(member.id, decision === "approve" ? "JR_ACTION_APPROVED" : "JR_ACTION_REJECTED", { proposal_id: id, action_key: proposal.action_key });
     res.json({ ok: true, proposal, executed: false, note: decision === "approve"
       ? "Your approval has been recorded. JR has not executed the action; a separately authorised and connected service is still required."
       : "Your rejection has been recorded. No action was performed." });
