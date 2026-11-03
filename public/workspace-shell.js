@@ -140,13 +140,12 @@ const hubGroups={
   ["RUN & GROW",[["Opportunities","Find and coordinate opportunities","opportunities"],["Delivery","Delivery and fulfilment coordination","delivery"],["Advertising Centre","Promotions and campaigns","ads"],["PHEEF Flex","Supported Flex services","flex"]]]
  ],
  connecthub:[
-  ["COMMUNICATE",[["Messages & Status","Private and group conversations","messages"],["Social","Community posts and updates","social"],["Rooms","Accommodation and rooms","rooms"]]],
-  ["PEOPLE & NETWORK",[["JP Connect","JP identity connections","jpconnect"],["Opportunities","People, work and opportunities","opportunities"],["Invite & Grow","Referrals and invitations","referrals"]]]
+  ["COMMUNICATE",[["Messages & Status","Private and group conversations","messages"],["Social","Community posts and updates","social"]]],
+  ["PEOPLE & NETWORK",[["JP Connect","JP identity connections","jpconnect"],["Opportunities","People, work and opportunities","opportunities"],["Invite & Grow","Referrals and invitations","referrals"]]],
+  ["YOUR IDENTITY & SPACE",[["Profile","Your personal identity and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership & Points","Membership and eligible activity","membership"],["My Files & Library","Your documents and saved resources","vault"],["Devices","Your connected devices","devices"],["Settings & Privacy","Account, security and appearance","jrsettings"],["Notifications","Your alerts and preferences","alerts"],["Voice & Type","Speak or type to JR","voice"]]]
  ],
  personalhub:[
-  ["YOUR IDENTITY",[["Profile","Personal profile and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership","Membership and access","membership"],["Points","Points and eligible activity","points"]]],
-  ["YOUR PERSONAL TOOLS",[["My Files","Documents and files","vault"],["Library","Saved resources","library"],["Voice & Type","Speak or type to JR","voice"],["Devices","Device and session controls","devices"]]],
-  ["PREFERENCES & PROTECTION",[["Settings","Account and app preferences","jrsettings"],["Privacy & Security","Privacy, permissions and account protection","jrsettings"],["Access Governance","Permissions and security","accessgov"],["Appearance Studio","Themes and display","themes"],["Notifications","Alerts and preferences","alerts"]]]
+  ["YOUR IDENTITY & SPACE",[["Open Connect","Your profile, tools and preferences now live in Connect","connecthub"]]]
  ],
  morehub:[
   ["ECOSYSTEM SPACES",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Family coordination","family"],["Ecosystem Overview","How the ecosystem connects","ecosystem"],["Economy","Business and economic coordination","economy"],["Control Centre","Restricted operational oversight","command"]]],
@@ -177,6 +176,7 @@ function renderHub(p,id){
  p.append(hero,content);
 }
 function ensure(id){
+ if(id==="personalhub")id="connecthub";
  let p=pageFor(id);
  if(hubGroups[id]){renderHub(p,id);return p;}
  if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
