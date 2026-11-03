@@ -348,6 +348,16 @@ app.post("/api/register", async (req, res) => {
     }).select("id,dgbo_id,full_name").single();
 
     if (error) throw error;
+    const inviteCode=clean(req.body.referral_code).toUpperCase().slice(0,40);
+    if(inviteCode){
+      const {data:referrer,error:referrerError}=await db.from("members").select("id").eq("referral_code",inviteCode).neq("id",member.id).maybeSingle();
+      if(referrerError)console.error("Referral code lookup:",referrerError.message);
+      else if(referrer){
+        const {error:referralError}=await db.from("jr_referrals").insert({id:crypto.randomUUID(),referrer_id:referrer.id,referred_id:member.id,reward:0,status:"pending"});
+        if(referralError && referralError.code!=="23505")console.error("Referral attribution:",referralError.message);
+        else if(!referralError)await logActivity(referrer.id,"REFERRAL_SIGNUP",{referred_member_id:member.id});
+      }
+    }
     await logActivity(member.id, "REGISTER");
     res.status(201).json({ ok: true, message: "Account created. Please log in.", member });
   } catch (e) {
@@ -440,6 +450,20 @@ async function ensureReferralCode(member) {
   throw new Error("Could not assign a referral code.");
 }
 
+/* REFERRAL ATTRIBUTION — invite links track sign-ups only; no rewards are issued here. */
+app.get("/api/referrals", async (req,res) => {
+  try {
+    const member=await requireMember(req,res); if(!member)return;
+    const {data,error}=await db.from("jr_referrals").select("id,referred_id,status,reward,created_at").eq("referrer_id",member.id).order("created_at",{ascending:false}).limit(200);
+    if(error)throw error;
+    const rows=data||[];
+    res.setHeader("Cache-Control","no-store");
+    res.json({ok:true,summary:{total:rows.length,pending:rows.filter(x=>x.status==="pending").length,verified:rows.filter(x=>x.status==="verified"||x.status==="qualified").length,rewards_active:false},referrals:rows.map(x=>({id:x.id,status:x.status,created_at:x.created_at,reward:0}))});
+  } catch(e) {
+    console.error("Referral summary:",e.message);
+    if(!res.headersSent)res.status(500).json({ok:false,error:"Referral activity could not be loaded."});
+  }
+});
 /* SESSION RESTORE */
 app.get("/api/me", async (req, res) => {
   try {
