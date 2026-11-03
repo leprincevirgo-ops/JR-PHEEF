@@ -1,7 +1,7 @@
 # JR PHEEF Master Platform Vision
 
 **Identity:** JR PHEEF  
-**Slogan:** Find. Match. Trade.  
+**Slogan:** Learn. Create. Connect. Grow.  
 **Status:** Product direction and roadmap; this document does not claim that planned features are already implemented, deployed, certified, or commercially available.
 
 ## Product definition
@@ -36,7 +36,7 @@ Use secure APIs, webhooks, and authorized integrations. Do not copy proprietary 
 
 | Environment | Planned capabilities | Boundary |
 |---|---|---|
-| Phones and tablets | Assistant, marketplace, identity, notifications, voice | Device permissions and platform policies apply |
+| Phones and tablets | Assistant, opportunity discovery, identity, notifications, voice | Device permissions and platform policies apply |
 | Computers | Web/desktop tools, files, business operations | Least-privilege access |
 | Watches | Short notifications, reminders, voice, quick actions | Depends on supported APIs and companion apps |
 | Supermarket/retail POS | Barcode, catalogue, checkout, stock, offers, receipts, returns, reporting | Hardware, payment-provider, offline, and applicable tax compliance |
@@ -89,7 +89,7 @@ Completed matches and transactions, repeat use, time saved, business outcomes, f
 
 ## Product promise
 
-**JR PHEEF — Find. Match. Trade.**
+**JR PHEEF — Learn. Create. Connect. Grow.**
 
 One connected ecosystem for operating, learning, connecting, verifying, and exchanging legitimate economic value across supported devices and environments. Build incrementally; claims must reflect features actually implemented and tested.
 
