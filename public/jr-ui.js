@@ -130,6 +130,7 @@
     if ($("command")) $("command").insertAdjacentHTML("beforeend", OWNER_CARDS);
   }
 
+  document.addEventListener("jr:workspacechange",e=>{if(e.detail?.id==="ads"){bindAdMediaInputs();adLoad();}});
   const prev = window.show;
   window.show = function (id) {
     prev(id);
@@ -250,10 +251,11 @@
   window.adStopRecording=function(){if(adRecorder&&adRecorder.state!=="inactive"){adRecorder.stop();$("adStopRecord").disabled=true;}};
   window.adExplainLive=function(){$("adRecordMsg").textContent="Public Go Live is not enabled yet. It requires a streaming provider and live moderation controls. Record or upload a video clip for now.";};
   async function adUploadMedia(){if(!adMediaFiles.length)return [];const form=new FormData();adMediaFiles.forEach(f=>form.append("media",f));const response=await fetch("/api/ads/media",{method:"POST",credentials:"include",body:form});const data=await response.json().catch(()=>({}));if(!response.ok||!data.ok)throw new Error(data.error||"Media upload failed.");return data.media_urls||[];}
+  function adMediaMarkup(urls){return (urls||[]).map(url=>{const v=/\.(mp4|webm|mov)(?:\?|$)/i.test(url);return v?'<video src="'+esc(url)+'" controls playsinline style="max-width:100%;max-height:220px"></video>':'<img src="'+esc(url)+'" alt="Ad media" loading="lazy" style="max-width:100%;max-height:180px;border-radius:10px">';}).join("");}
   async function adLoad() {
     const [mine, listings] = await Promise.all([call("/api/ads/mine"), call("/api/listings/mine")]);
     if (listings.ok) $("adListing").innerHTML = '<option value="">Not linked to a listing</option>' + (listings.listings || []).filter(l => l.status === "active").map(l => `<option value="${esc(l.id)}">${esc(l.item_name)}</option>`).join("");
-    $("adMine").innerHTML = mine.ok ? ((mine.ads || []).map(a => `<div class="listing"><b>${esc(a.title)}</b> <span class="badge">${esc(a.status)}</span><br>${esc(a.body)}<br>
+    $("adMine").innerHTML = mine.ok ? ((mine.ads || []).map(a => `<div class="listing"><b>${esc(a.title)}</b> <span class="badge">${esc(a.status)}</span><br>${esc(a.body)}<br>${adMediaMarkup(a.media_urls)}
       <span class="muted">${Number(a.impressions || 0)} views · ${Number(a.clicks || 0)} clicks${a.ends_at && a.status === "approved" ? " · ends " + esc(when(a.ends_at)) : ""}${a.review_note ? " · " + esc(a.review_note) : ""}</span><br>
       ${a.status === "approved" ? `<button class="dark" onclick="adSet('${esc(a.id)}','paused')">PAUSE</button>` : ""}${a.status === "paused" ? `<button onclick="adSet('${esc(a.id)}','approved')">RESUME</button>` : ""}
       ${["approved", "paused", "pending"].includes(a.status) ? `<button class="danger" onclick="adSet('${esc(a.id)}','ended')">END</button>` : ""}</div>`).join("") || "<p class='muted'>No ads yet.</p>") : esc(mine.error || "");
@@ -266,7 +268,7 @@
   async function loadSponsored() {
     const box = $("sponsoredBox"); if (!box) return;
     const d = await call("/api/ads/feed");
-    box.innerHTML = d.ok && (d.ads || []).length ? d.ads.map(a => `<div class="listing" style="border-color:#42f5ff"><span class="badge">Sponsored</span> <b>${esc(a.title)}</b><br>${esc(a.body)}<br>
+    box.innerHTML = d.ok && (d.ads || []).length ? d.ads.map(a => `<div class="listing" style="border-color:#42f5ff"><span class="badge">Sponsored</span> <b>${esc(a.title)}</b><br>${esc(a.body)}<br>${adMediaMarkup(a.media_urls)}
       <span class="muted">${esc(a.advertiser)}${a.verified ? " ✔" : ""}${a.location ? " · 📍 " + esc(a.location) : ""}</span>${a.listing_id ? `<br><button class="primary" onclick="adOpen('${esc(a.id)}')">VIEW OFFER</button>` : ""}</div>`).join("") : "";
   }
   window.adOpen = async function (id) {
