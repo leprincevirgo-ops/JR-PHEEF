@@ -133,7 +133,8 @@ async function main() {
     "/api/continuity",
     "/api/business/workspaces",
     "/api/business/test-business-id/daily-plan",
-    "/api/jr/environment", "/api/jr/environment/memories"
+    "/api/jr/environment", "/api/jr/environment/memories",
+    ...(process.env.REQUIRE_PARTNER_GATEWAY === "true" ? ["/api/jr/integrations", "/api/jr/integrations/events"] : [])
   ]) {
     await check("private endpoint blocks anonymous access: " + endpoint, () => expectProtected(endpoint));
   }
