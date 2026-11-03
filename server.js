@@ -720,18 +720,23 @@ app.post("/api/ads/media", authenticateMemberBeforeUpload, adMediaUpload.array("
   const member=req.jrMember; const files=req.files||[]; const uploaded=[];
   try {
     if(!files.length)return res.status(400).json({ok:false,error:"Choose at least one photo or video."});
-    const bucket=db.storage.from("jr-pheef-media");
+    const types={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov"};
+    const checked=[];
     for(const file of files){
-      const types={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov"};
       const ext=types[file.mimetype],b=file.buffer;
       if(!ext)return res.status(400).json({ok:false,error:"Use JPG, PNG, WebP, MP4, WebM or MOV media only."});
       const validImage=(ext==="jpg"&&b.length>3&&b[0]===0xff&&b[1]===0xd8&&b[2]===0xff)||(ext==="png"&&b.length>8&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))||(ext==="webp"&&b.length>12&&b.toString("ascii",0,4)==="RIFF"&&b.toString("ascii",8,12)==="WEBP");
       const validMp4=(ext==="mp4"||ext==="mov")&&b.length>12&&b.toString("ascii",4,8)==="ftyp";
       const validWebm=ext==="webm"&&b.length>4&&b.subarray(0,4).equals(Buffer.from([0x1a,0x45,0xdf,0xa3]));
       if(!(validImage||validMp4||validWebm))return res.status(400).json({ok:false,error:"One of the selected files is not a valid supported image or video."});
-      const objectPath="ad-media/"+member.id+"/"+crypto.randomUUID()+"."+ext;
-      const {error}=await bucket.upload(objectPath,b,{contentType:file.mimetype,upsert:false,cacheControl:"3600"});
-      if(error)throw error; uploaded.push(objectPath);
+      checked.push({file,ext});
+    }
+    const bucket=db.storage.from("jr-pheef-media");
+    for(const item of checked){
+      const objectPath="ad-media/"+member.id+"/"+crypto.randomUUID()+"."+item.ext;
+      const {error}=await bucket.upload(objectPath,item.file.buffer,{contentType:item.file.mimetype,upsert:false,cacheControl:"3600"});
+      if(error)throw error;
+      uploaded.push(objectPath);
     }
     const urls=uploaded.map(p=>bucket.getPublicUrl(p).data.publicUrl);
     res.status(201).json({ok:true,media_urls:urls,count:urls.length});
