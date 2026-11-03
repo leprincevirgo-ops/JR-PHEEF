@@ -142,7 +142,7 @@ const hubGroups={
  connecthub:[
   ["COMMUNICATE",[["Messages & Status","Private and group conversations","messages"],["Social","Community posts and updates","social"]]],
   ["PEOPLE & NETWORK",[["JP Connect","JP identity connections","jpconnect"],["Opportunities","People, work and opportunities","opportunities"],["Invite & Grow","Referrals and invitations","referrals"]]],
-  ["YOUR IDENTITY & SPACE",[["Profile","Your personal identity and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership & Points","Membership and eligible activity","membership"],["My Files & Library","Your documents and saved resources","vault"],["Devices","Your connected devices","devices"],["Settings & Privacy","Account, security and appearance","jrsettings"],["Notifications","Your alerts and preferences","alerts"],["Voice & Type","Speak or type to JR","voice"]]]
+  ["YOUR IDENTITY & SPACE",[["Profile","Your personal identity and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership & Points","Membership and eligible activity","membership"],["My Files & Library","Your documents and saved resources","vault"],["Devices","Your connected devices","devices"],["Settings & Privacy","Account and security controls","jrsettings"],["Appearance Studio","Themes and display preferences","themes"],["Notifications","Your alerts and preferences","alerts"],["Voice & Type","Speak or type to JR","voice"]]]
  ],
  personalhub:[
   ["YOUR IDENTITY & SPACE",[["Open Connect","Your profile, tools and preferences now live in Connect","connecthub"]]]
