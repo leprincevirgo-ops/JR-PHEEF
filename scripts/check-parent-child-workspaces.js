@@ -8,12 +8,13 @@ assert.equal((shell.match(/const hubGroups=/g)||[]).length,1,"one parent workspa
 assert.equal((shell.match(/function renderHub\(/g)||[]).length,1,"one parent workspace renderer");
 for(const id of ["discoverhub","workhub","connecthub","personalhub","morehub"])assert.ok(shell.includes('"'+id+'"'),"registered parent "+id);
 for(const id of ["find","discover","explore","teacher","library","lab","browser","create","projects","opportunities","messages","social","jpconnect","profile","jrsettings","devices","themes","alerts","dgbo","family","developers","partners"])assert.ok(shell.includes('"'+id+'"'),"child destination retained: "+id);
-for(const id of ["discoverhub","workhub","connecthub","personalhub"])assert.ok(html.includes("show('"+id+"')"),"upper quick access opens "+id);
+for(const id of ["discoverhub","workhub","connecthub"])assert.ok(html.includes("show('"+id+"')"),"upper quick access opens "+id);
+assert.ok(!html.includes("show('personalhub')"),"separate My Space quick access is removed");
 assert.ok(shell.includes("menu.replaceChildren()"),"legacy individual More destinations are cleared");
-assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MY SPACE & SETTINGS",["personalhub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
+assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
 assert.ok(shell.includes('addEventListener("click",()=>go(target))'),"child sections open their existing workspace");
 assert.ok(shell.includes("catalogSeen.has(catalog[i][0])"),"duplicate workspace IDs are removed from the canonical catalog");
-for(const group of ["SEARCH & BROWSE","EXPLORE & LEARN","RESEARCH & KNOWLEDGE","PLAN & CREATE","BUY & SELL","RUN & GROW","COMMUNICATE","PEOPLE & NETWORK","YOUR IDENTITY","YOUR PERSONAL TOOLS","PREFERENCES & PROTECTION","ECOSYSTEM SPACES","SERVICES & SUPPORT","BUILD & CONNECT"])assert.ok(shell.includes(group),"familiar app category exists: "+group);
+for(const group of ["SEARCH & BROWSE","EXPLORE & LEARN","RESEARCH & KNOWLEDGE","PLAN & CREATE","BUY & SELL","RUN & GROW","COMMUNICATE","PEOPLE & NETWORK","YOUR IDENTITY & SPACE","ECOSYSTEM SPACES","SERVICES & SUPPORT","BUILD & CONNECT"])assert.ok(shell.includes(group),"familiar app category exists: "+group);
 assert.ok(shell.includes("jr-hub-category-heading")&&shell.includes("jr-hub-category-count"),"parent workspaces render clear category headings and destination counts");
 assert.ok(css.includes(".jr-hub-categories")&&css.includes(".jr-hub-category-heading"),"grouped workspace categories are styled responsively");
 assert.ok(css.includes(".jr-child-workspace-grid")&&css.includes("@media(max-width:760px)"),"parent-child layout responsive");
