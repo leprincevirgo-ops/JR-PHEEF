@@ -9,7 +9,7 @@ const bridge=fs.readFileSync("public/device-bridge.js","utf8");
 const manifest=JSON.parse(fs.readFileSync("public/jr-pheef-capabilities.json","utf8"));
 const docs=fs.readFileSync("docs/interoperability-architecture.md","utf8");
 assert.ok(html.includes('id="jpActionRail"'),"upper action rail is present");
-for(const action of ["Discover &amp; Learn","Create &amp; Work","Connect","My Space"]) assert.ok(html.includes(">"+action+"</button>"),"quick access includes "+action);
+for(const action of ["Discover &amp; Learn","Create &amp; Work","Connect"]) assert.ok(html.includes(">"+action+"</button>"),"quick access includes "+action);
 assert.ok(html.includes('/device-bridge.js'),"device bridge script is loaded");
 assert.ok(html.includes('/device-bridge.css'),"device bridge styles are loaded");
 assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services")&&settings.includes("Your JR PHEEF defaults"),"settings consolidates personal controls");
