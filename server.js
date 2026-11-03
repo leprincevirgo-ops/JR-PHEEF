@@ -718,6 +718,8 @@ app.patch("/api/lab/experiments/:id", async (req, res) => {
 /* AD MEDIA — authenticated image/video uploads for member campaigns. */
 app.post("/api/ads/media", authenticateMemberBeforeUpload, adMediaUpload.array("media",5), async (req,res) => {
   const member=req.jrMember; const files=req.files||[]; const uploaded=[];
+  const rate=checkRequestRate(req,"ad-media:"+member.id,12,60*60*1000);
+  if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return res.status(429).json({ok:false,error:"Ad media upload limit reached. Try again later."});}
   try {
     if(!files.length)return res.status(400).json({ok:false,error:"Choose at least one photo or video."});
     const types={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov"};
