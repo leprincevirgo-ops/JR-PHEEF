@@ -14,7 +14,7 @@ const catalog=[
 ["ecosystem","Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY connect.","A shared overview of the ecosystem, its permissions and operating status."],
 ["family","FAMILY","Private family coordination and long-term planning.","A separate family space. Financial services require regulated partners and explicit authorisation."],
 ["create","Business","Create and manage a business listing.","Publish an offer, product or service and coordinate the next steps."],
-["find","Marketplace","Discover products, services and opportunities.","Browse listings. Availability, seller identity and fulfilment must be independently confirmed."],
+["find","Discover Opportunities","Explore products, services and opportunities.","Review opportunities and coordinate next steps. Availability and provider details must be confirmed."],
 ["economy","Economy","Coordinate business and economic activity.","Organise opportunities, partners, services and transactions. JR PHEEF does not hold customer funds."],
 ["projects","Projects","Turn goals into organised work.","Create projects, break them into tasks and follow progress."],
 ["assistant","JR Assistant","Ask for help, research, planning and coordination.","Describe what you want to achieve. JR Assistant can help prepare next steps while consequential actions remain under your control."],
@@ -136,7 +136,7 @@ const hubGroups={
  ],
  workhub:[
   ["PLAN & CREATE",[["JR Assistant","Plan and coordinate a goal","assistant"],["Projects","Tasks, milestones and progress","projects"],["Business","Create a business listing","create"],["Business Growth","Business plans and operations","businessgrowth"]]],
-  ["BUY & SELL",[["Marketplace","Find products and services","find"],["My Listings","Manage your offers","mylistings"],["Deals","Negotiations and deal rooms","deals"],["PowerSale","Supported sales workflows","powersale"]]],
+  ["BUY & SELL",[["Discover Opportunities","Find products and services","find"],["My Listings","Manage your offers","mylistings"],["Deals","Negotiations and deal rooms","deals"],["PowerSale","Supported sales workflows","powersale"]]],
   ["RUN & GROW",[["Opportunities","Find and coordinate opportunities","opportunities"],["Delivery","Delivery and fulfilment coordination","delivery"],["Advertising Centre","Promotions and campaigns","ads"],["PHEEF Flex","Supported Flex services","flex"]]]
  ],
  connecthub:[
