@@ -1148,7 +1148,8 @@ async function register(){
         full_name:$("regName").value.trim(),
         phone:$("regPhone").value.trim(),
         email:$("regEmail").value.trim(),
-        password:$("regPassword").value
+        password:$("regPassword").value,
+        referral_code:(localStorage.getItem("jr_referral_code")||"").trim()
       })
     });
     $("regMsg").textContent=data.ok
