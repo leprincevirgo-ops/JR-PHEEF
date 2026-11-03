@@ -70,7 +70,7 @@ module.exports = function mountHumanEnvironment(ctx) {
       journal: journal.data || [],
       capabilities: CAPABILITIES.map(([key, description, availability]) => {
         const setting = (permissions.data || []).find(p => p.capability_key === key);
-        return { key, description, availability, enabled: setting ? setting.enabled : true, scope: setting?.scope || {} };
+        return { key, description, availability, enabled: setting ? setting.enabled : false, scope: setting?.scope || {} };
       }),
       boundaries: { external_connections: "not_connected", high_impact_actions: "confirmation_required", money_movement: "disabled_until_payment_activation" }
     });
