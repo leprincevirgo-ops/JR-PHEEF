@@ -18,7 +18,7 @@
   const localRead=()=>{try{return JSON.parse(localStorage.getItem(key())||"null");}catch{return null;}};
   async function saveNow(){
     if(!memberId||restoring||saving)return;
-    const state={page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()};
+    const page=pageNow();const state={page,workspace_id:page,scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()};
     localSave(state); if(!navigator.onLine)return; saving=true;
     try{const r=await call("/api/continuity","PUT",state);if(!r.ok)console.warn("JR continuity sync deferred:",r.error||"unavailable");}finally{saving=false;}
   }
@@ -98,8 +98,8 @@
   if(typeof oldLogout==="function")window.logout=async function(){memberId=null;ready=false;clearTimeout(timer);return oldLogout.apply(this,arguments);};
   const oldOpen=window.openApp;
   if(typeof oldOpen==="function")window.openApp=async function(){const r=await oldOpen.apply(this,arguments);ensurePage();await restore();return r;};
-  window.addEventListener("scroll",schedule,{passive:true});
-  window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
+  window.addEventListener("scroll",schedule,{passive:true});\n  document.addEventListener("jr:workspacechange",schedule);
+  window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),workspace_id:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
   window.addEventListener("online",()=>{if(ready)schedule();});
   document.addEventListener("DOMContentLoaded",ensurePage);
 })();
