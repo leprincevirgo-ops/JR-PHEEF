@@ -1,12 +1,12 @@
 # JR PHEEF–HUMAN–JR PHEEF: Knowledge Architecture
 Version: 1.0
 Status: Product vision and implementation blueprint
-Product: JR PHEEF — Find. Match. Trade.
+Product: JR PHEEF — Learn. Create. Connect. Grow.
 Attribution: Powered by DIME GLOBAL BUSINESS OPERATORS.
 
 ## 1. The central idea
 
-JR PHEEF is not merely a marketplace. Finding, matching, and trading are useful entry points into a broader human-opportunity and intelligence system.
+JR PHEEF is not merely a opportunity discovery. Finding, matching, and trading are useful entry points into a broader human-opportunity and intelligence system.
 
 The guiding loop is **JR PHEEF → HUMAN → JR PHEEF**:
 1. A person brings a question, need, goal, decision, opportunity, experience, or observation.
@@ -91,7 +91,7 @@ Example: a user wants to start a delivery business.
 3. Actuarial/risk layer tests fuel-price changes, low demand, accidents, delays, and other downside scenarios.
 4. Future simulator compares plans under different assumptions.
 5. Learning layer explains the calculations and what information to collect next.
-6. JR PHEEF marketplace tools help the user find customers, providers, equipment, or collaborators.
+6. JR PHEEF opportunity discovery tools help the user find customers, providers, equipment, or collaborators.
 7. Progress tracking compares real results with the assumptions and improves the next decision.
 
 The same architecture can support education, housing, jobs, procurement, transport, community projects, and personal planning.
@@ -137,7 +137,7 @@ These are product capabilities to build in stages, not a claim that all are alre
 ## 8. Build sequence
 
 ### Phase 1 — Foundation and audit
-- Preserve existing accounts, marketplace, categories, and deployed workflows.
+- Preserve existing accounts, opportunity discovery, categories, and deployed workflows.
 - Audit the current database schema, routes, sessions, payment/access rules, and existing FLEX behaviour before changing them.
 - Establish a versioned knowledge-domain registry and a clear boundary between live features and planned features.
 
@@ -157,7 +157,7 @@ These are product capabilities to build in stages, not a claim that all are alre
 
 ### Phase 5 — Integrate with opportunity workflows
 - Add relevant guidance to Find/Create, business planning, Deal Room safety, delivery planning, Rooms Near Me, and other modules.
-- Keep the marketplace usable even when AI or external knowledge services are unavailable.
+- Keep the opportunity discovery usable even when AI or external knowledge services are unavailable.
 
 ### Phase 6 — Feedback and continuous improvement
 - Compare scenario assumptions with real outcomes where users opt in.
@@ -181,7 +181,7 @@ Success is not measured only by listings or transactions. It also includes:
 
 This document records the intended product direction. It does not assert that these intelligence modules are implemented. Before coding changes into the live app, inspect the existing repository and database schema, then deliver incremental, tested changes that preserve working functionality.
 
-The long-term identity remains: **JR PHEEF — Find. Match. Trade.**  
+The long-term identity remains: **JR PHEEF — Learn. Create. Connect. Grow.**  
 **JR PHEEF → HUMAN → JR PHEEF.**  
 **Powered by DIME GLOBAL BUSINESS OPERATORS.**
 
@@ -225,7 +225,7 @@ The Library is the organized knowledge home:
 
 The first web interface provides a starter catalogue and search. Persistent storage, source ingestion, review workflow, permissions, and citation-backed retrieval remain future backend work.
 
-## 14. How the Universe, Lab, Library, and marketplace connect
+## 14. How the Universe, Lab, Library, and opportunity discovery connect
 
 1. **Universe Assistant** interprets the user's goal and selects relevant knowledge.
 2. **Library** supplies reviewed information, methods, source records and prior lessons.
