@@ -37,7 +37,7 @@ for(const endpoint of ['/api/jr/integrations','/api/jr/integrations/:id','/api/j
 for(const guard of ['createHash("sha256")','events:write','eq("member_id", member.id)','eq("token_hash", tokenHash)','eq("active", true)','external_event_id','executed_action: false'])assert.ok(route.includes(guard),"Missing partner gateway security guard "+guard);
 assert.ok(gateway.includes("jr_partner_connections")&&gateway.includes("jr_partner_events"),"Partner gateway schema missing.");
 assert.ok(gateway.includes("revoke all on table public.jr_partner_connections from anon, authenticated")&&gateway.includes("revoke all on table public.jr_partner_events from anon, authenticated"),"Partner tables must deny direct client access.");
-assert.ok(ui.includes("CREATE CONNECTION")&&ui.includes("token_display_once")&&ui.includes("data-integration-revoke")&&ui.includes("jrPartnerEvents"),"Member-facing integration gateway controls missing.");
+assert.ok(ui.includes("CREATE CONNECTION")&&ui.includes("result.token")&&ui.includes("data-integration-revoke")&&ui.includes("jrPartnerEvents"),"Member-facing integration gateway controls missing.");
 assert.ok(css.includes(".jr-journey-integrations")&&css.includes(".jr-integration-secret")&&css.includes(".jr-partner-event"),"Integration gateway mobile UI styling missing.");
 assert.ok(html.includes("human-environment-ui.js?v=4")&&html.includes("human-environment-ui.css?v=4"),"Integration UI assets must be versioned.");
 console.log("PASS: JR intent interpreter matching, route deduplication, consent lifecycle, member isolation, audit schema and approval UI.");
