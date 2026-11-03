@@ -1,0 +1,16 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const sw=fs.readFileSync("public/service-worker.js","utf8");
+const register=fs.readFileSync("public/pwa-register.js","utf8");
+const offline=fs.readFileSync("public/offline.html","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+new (require("node:vm").Script)(sw,{filename:"public/service-worker.js"});
+new (require("node:vm").Script)(register,{filename:"public/pwa-register.js"});
+assert.ok(sw.includes('request.method!=="GET"'),"offline cache must never intercept writes");
+assert.ok(sw.includes('url.pathname.startsWith("/api/")'),"authenticated API responses must never be cached");
+assert.ok(sw.includes('request.mode==="navigate"')&&sw.includes('caches.match(OFFLINE_URL)'),"offline navigation fallback missing");
+assert.ok(sw.includes('["script","style","image","font"]'),"only static app assets should be cached");
+assert.ok(register.includes('navigator.serviceWorker.register("/service-worker.js"'),"service worker registration missing");
+assert.ok(html.includes('/pwa-register.js?v=1'),"service worker registration script is not loaded");
+assert.ok(offline.includes("temporarily offline")&&offline.includes("delivered"),"offline page must explain uncompleted actions honestly");
+console.log("PASS: offline app shell, static asset cache, API privacy exclusions and service worker registration.");

@@ -7,5 +7,5 @@ for(const route of ["/api/jr/environment","/api/jr/environment/interact","/api/a
 assert.ok(ui.includes("stopImmediatePropagation"),"Universal composer must be intercepted before legacy navigation");
 assert.ok(ui.includes("const oldOpen=window.openApp")&&ui.includes("await load();return result"),"Journey must refresh after login/openApp.");
 assert.ok(css.includes(".jr-journey-worlds")&&css.includes("@media(max-width:800px)"),"Journey must be responsive");
-assert.ok(html.includes("/human-environment-ui.js?v=1")&&html.includes("/human-environment-ui.css?v=1"),"Journey assets must load");
+assert.ok(html.includes("/human-environment-ui.js?v=3")&&html.includes("/human-environment-ui.css?v=3"),"Journey assets must load");
 console.log("PASS: journey panel, universal composer, assistant response bridge and responsive styles.");

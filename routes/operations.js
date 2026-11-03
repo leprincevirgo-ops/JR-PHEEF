@@ -15,7 +15,7 @@ module.exports = function mountOperations(ctx) {
   const PAGE_IDS = new Set([
     "home","ecosystem","universe","lab","library","find","create","rooms","points","flex","profile","assistant","discover","explore","apphub","browser","messages",
     "jpconnect","social","economy","vault","devices","voice","scifi","fixedit","mylistings","deals","alerts",
-    "delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","businessgrowth"
+    "delivery","powersale","membership","accessgov","command","projects","ideas","ads","jrsettings","businessgrowth","teacher","family","dgbo","connections","opportunities","screenstudio","scifi"
   ]);
   const nairobiDate = () => {
     const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {

@@ -7,5 +7,8 @@ assert.ok(ui.includes('fetch("/api/me"')&&ui.includes("memberId"),"continuity mu
 assert.ok(!ui.includes("window.me"),"continuity must not rely on a non-exported lexical member variable");
 for(const id of ["discover","explore","apphub","browser","messages"])assert.ok(routes.includes('"'+id+'"'),"continuity page allowlist missing "+id);
 assert.ok(ui.includes('"/api/continuity"')&&ui.includes("window.addEventListener(\"pagehide\""),"continuity read/write and local fallback missing");
+assert.ok(ui.includes("jr:workspacechange")&&ui.includes("workspace_id"),"continuity must save workspace navigation as well as scroll position");
+assert.ok(ui.includes("window.jrWorkspaceNavigate(state.page)")&&ui.includes("scroll_y"),"continuity must restore the last workspace and scroll position");
+for(const id of ["teacher","family","dgbo","connections","opportunities"])assert.ok(routes.includes('"' + id + '"' ),"continuity page allowlist missing "+id);
 assert.ok(html.includes("/continuity-ui.js"),"continuity UI must be loaded");
 console.log("JR PHEEF cross-device continuity identity checks passed.");

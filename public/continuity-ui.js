@@ -18,7 +18,7 @@
   const localRead=()=>{try{return JSON.parse(localStorage.getItem(key())||"null");}catch{return null;}};
   async function saveNow(){
     if(!memberId||restoring||saving)return;
-    const state={page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()};
+    const page=pageNow();const state={page,workspace_id:page,scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()};
     localSave(state); if(!navigator.onLine)return; saving=true;
     try{const r=await call("/api/continuity","PUT",state);if(!r.ok)console.warn("JR continuity sync deferred:",r.error||"unavailable");}finally{saving=false;}
   }
@@ -89,7 +89,7 @@
   async function restore(){
     if(!await resolveMember())return;restoring=true;let state=localRead();
     if(navigator.onLine){const r=await call("/api/continuity");if(r.ok&&r.state?.page){state=r.state;localSave(state);}}
-    if(state?.page&&$(state.page)?.classList.contains("page")){try{window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo(0,Math.max(0,Number(state.scroll_y)||0)));}
+    if(state?.page&&/^[a-z][a-z0-9_-]{0,50}$/.test(state.page)){try{if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(state.page);else if(typeof window.show==="function")window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo({top:Math.max(0,Number(state.scroll_y)||0),behavior:"instant"}));}
     restoring=false;ready=true;schedule();
   }
   const oldShow=window.show;
@@ -99,7 +99,8 @@
   const oldOpen=window.openApp;
   if(typeof oldOpen==="function")window.openApp=async function(){const r=await oldOpen.apply(this,arguments);ensurePage();await restore();return r;};
   window.addEventListener("scroll",schedule,{passive:true});
-  window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
+  document.addEventListener("jr:workspacechange",schedule);
+  window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),workspace_id:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
   window.addEventListener("online",()=>{if(ready)schedule();});
   document.addEventListener("DOMContentLoaded",ensurePage);
 })();
