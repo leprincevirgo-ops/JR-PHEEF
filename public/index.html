@@ -1089,6 +1089,7 @@ function show(id){
   if(id==="library") loadLIBRARY($("librarySearch").value);
   if(id==="lab") loadMyExperiments();
   if(id==="jpconnect") loadConnections();
+  if(id==="referrals"&&typeof loadReferralCenter==="function") loadReferralCenter();
   if(id==="social") loadSocialPosts();
   if(id==="vault") loadVaultFiles();
   if(id==="devices") loadDevices();
