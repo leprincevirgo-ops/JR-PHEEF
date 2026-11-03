@@ -8,4 +8,9 @@ assert.ok(ui.includes("stopImmediatePropagation"),"Universal composer must be in
 assert.ok(ui.includes("const oldOpen=window.openApp")&&ui.includes("await load();return result"),"Journey must refresh after login/openApp.");
 assert.ok(css.includes(".jr-journey-worlds")&&css.includes("@media(max-width:800px)"),"Journey must be responsive");
 assert.ok(html.includes("/human-environment-ui.js?v=4")&&html.includes("/human-environment-ui.css?v=4"),"Journey assets must load");
+assert.ok(ui.includes('home.querySelector(".jr-journey-section")'),"Journey runtime must reuse the existing home journey section.");
+assert.equal((html.match(/id="jrJourneyWorlds"/g)||[]).length,1,"The home page must have exactly one world container.");
+assert.equal((html.match(/id="jrJourneyJournal"/g)||[]).length,1,"The home page must have exactly one journey journal.");
+assert.ok(ui.includes("jrIntegrationForm")&&ui.includes("jrJourneyIntegrations")&&ui.includes("jrPartnerEvents"),"Partner integration controls must be part of the member journey.");
+
 console.log("PASS: journey panel, universal composer, assistant response bridge and responsive styles.");
