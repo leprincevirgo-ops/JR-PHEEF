@@ -131,10 +131,32 @@ async function main() {
     "/api/payments/status",
     "/api/continuity",
     "/api/business/workspaces",
-    "/api/business/test-business-id/daily-plan"
+    "/api/business/test-business-id/daily-plan",
+    "/api/jr/environment", "/api/jr/environment/memories", "/api/jr/integrations", "/api/jr/integrations/events"
   ]) {
     await check("private endpoint blocks anonymous access: " + endpoint, () => expectProtected(endpoint));
   }
+
+  await check("partner event gateway rejects missing bearer credentials", async () => {
+    const response = await request("/api/inbound/jr/events");
+    assert.equal(response.status, 401, "partner event gateway must reject missing credentials");
+    const body = await response.json();
+    assert.equal(body.ok, false);
+  });
+
+  await check("PWA manifest and offline shell are available", async () => {
+    const manifest = await request("/manifest.webmanifest");
+    assert.equal(manifest.status, 200);
+    const body = await manifest.json();
+    assert.equal(body.name, "JR PHEEF");
+    assert.equal(body.display, "standalone");
+    const worker = await request("/service-worker.js");
+    assert.equal(worker.status, 200);
+    assert.match(await worker.text(), /jr-shell-v1/);
+    const offline = await request("/offline.html");
+    assert.equal(offline.status, 200);
+    assert.match(await offline.text(), /temporarily offline/i);
+  });
 
   if (failures) {
     console.error("\n" + passed + " passed, " + failures + " failed against " + base);
