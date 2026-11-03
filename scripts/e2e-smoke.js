@@ -158,7 +158,7 @@ async function main() {
     assert.equal(body.display, "standalone");
     const worker = await request("/service-worker.js");
     assert.equal(worker.status, 200);
-    assert.match(await worker.text(), /jr-shell-v\\d+/);
+    assert.match(await worker.text(), /jr-shell-v\d+/);
     const offline = await request("/offline.html");
     assert.equal(offline.status, 200);
     assert.match(await offline.text(), /temporarily offline/i);
