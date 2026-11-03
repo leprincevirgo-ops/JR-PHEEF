@@ -100,7 +100,8 @@ module.exports = function mountHumanEnvironment(ctx) {
       identity: { jp_number: member.jp_number || null, display_name: member.full_name || "Member" },
       active_world: worldRows[0] || null,
       worlds: Object.entries(WORLDS).map(([key, meta]) => { const row = worldRows.find(item => item.world_key === key); return row ? { ...row, title: meta.title, page: meta.page } : { world_key: key, stage: "discovering", progress: {}, last_position: {}, last_interaction_at: null, title: meta.title, page: meta.page, private_by_default: key === "health" }; }),
-      journal: journal.data || [],\n      action_proposals: proposals.data || [],
+      journal: journal.data || [],
+      action_proposals: proposals.data || [],
       capabilities: CAPABILITIES.map(([key, description, availability]) => {
         const setting = (permissions.data || []).find(p => p.capability_key === key);
         return { key, description, availability, enabled: setting ? setting.enabled : false, scope: setting?.scope || {} };
