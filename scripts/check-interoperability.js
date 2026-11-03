@@ -17,7 +17,8 @@ assert.ok(shell.includes('["MY SPACE & SETTINGS",["personalhub"]]')&&!shell.incl
 assert.ok(founder.includes('member.is_owner!==true')&&founder.includes("Private Founder Command Centre"),"founder control is only installed for verified owner account");
 for(const api of ["requestDevice","requestPort","Notification.requestPermission"]) assert.ok(bridge.includes(api),"user-triggered browser permission flow exists: "+api);
 assert.ok(bridge.includes("does not scan nearby devices in the background"),"no background device discovery");
-assert.equal(manifest.inbound.api_status,"NOT_OPEN");
+assert.equal(manifest.inbound.api_status,"LIMITED_MEMBER_SCOPED_EVENT_INGESTION");
+assert.ok(manifest.inbound.boundaries.includes("No outbound actions"),"limited event ingestion must not imply outbound execution");
 assert.equal(manifest.outbound.api_status,"NOT_OPEN");
 assert.ok(docs.includes("OAuth 2.1 Authorization Code + PKCE")&&docs.includes("revocation"),"two-way interoperability security architecture documented");
 assert.ok(shell.includes("discoverhub")&&shell.includes("workhub")&&shell.includes("personalhub"),"parent workspace navigation retains child destinations");
