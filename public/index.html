@@ -331,7 +331,6 @@ placeholder="Password">
 <nav class="nav jp-primary-nav" aria-label="Main navigation">
 <button class="jp-nav-active" data-page="home" onclick="show('home')"><span aria-hidden="true">⌂</span><span>Home</span></button>
 <button data-page="explore" onclick="show('explore')"><span aria-hidden="true">✧</span><span>Explore</span></button>
-<button data-page="morehub" onclick="show('morehub')"><span aria-hidden="true">◎</span><span>Worlds</span></button>
 <button class="jp-nav-assistant" data-page="assistant" onclick="show('assistant')"><span aria-hidden="true">✦</span><span>JR</span></button>
 <button data-page="messages" onclick="show('messages');jrMessagesLoad()"><span aria-hidden="true">▤</span><span>Connect</span></button>
 
@@ -356,13 +355,14 @@ placeholder="Password">
     </div>
     <div class="jr-world-universe" aria-label="JR PHEEF connected world">
       <div class="jr-orbit jr-orbit-one"></div><div class="jr-orbit jr-orbit-two"></div><div class="jr-orbit jr-orbit-three"></div>
-      <div class="jr-earth"><div class="jr-earth-grid"></div><div class="jr-earth-land jr-earth-land-a"></div><div class="jr-earth-land jr-earth-land-b"></div><div class="jr-earth-land jr-earth-land-c"></div><div class="jr-earth-core">JR</div></div>
+      <div class="jr-earth"><div class="jr-earth-grid"></div><div class="jr-earth-land jr-earth-land-a"></div><div class="jr-earth-land jr-earth-land-b"></div><div class="jr-earth-land jr-earth-land-c"></div><button type="button" class="jr-earth-core" data-jr-world-page="assistant" aria-label="Talk to JR — open JR Intelligence">JR</button></div>
       <button class="jr-world-link jr-world-people" data-jr-world-page="messages"><span>♙</span><b>People</b><small>Connect &amp; collaborate</small></button>
       <button class="jr-world-link jr-world-business" data-jr-world-page="create"><span>▦</span><b>Business</b><small>Build &amp; grow</small></button>
       <button class="jr-world-link jr-world-opportunities" data-jr-world-page="find"><span>✧</span><b>Opportunities</b><small>Find &amp; create</small></button>
       <button class="jr-world-link jr-world-knowledge" data-jr-world-page="teacher"><span>◈</span><b>Knowledge</b><small>Learn &amp; explore</small></button>
       <button class="jr-world-link jr-world-services" data-jr-world-page="connecthub"><span>⌘</span><b>Services</b><small>Get help &amp; more</small></button>
       <button class="jr-world-link jr-world-intelligence" data-jr-world-page="assistant"><span>✦</span><b>JR Intelligence</b><small>Ask &amp; achieve</small></button>
+       <button class="jr-world-link jr-world-family" data-jr-world-page="family"><span>⌂</span><b>FAMILY</b><small>Goals &amp; togetherness</small></button>
       <div class="jr-world-assistant" aria-hidden="true"><div class="jr-bot-aura"></div><div class="jr-bot-head"><i></i><i></i><b></b></div><div class="jr-bot-body"><span>JR</span></div><div class="jr-bot-arm"></div></div>
       <div class="jr-world-ground"></div>
     </div>
