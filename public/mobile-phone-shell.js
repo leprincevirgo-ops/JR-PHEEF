@@ -23,7 +23,7 @@
     });
     app.append(dock);
     const setActive=id=>{
-      const map={home:"home",explore:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",assistant:"jr",messages:"connect",social:"connect",connecthub:"connect",jrsettings:"you",profile:"you",personalhub:"you"};
+      const map={home:"home",explore:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",family:"worlds",dgbo:"worlds",ecosystem:"worlds",assistant:"jr",messages:"connect",social:"connect",connecthub:"connect",jrsettings:"you",profile:"you",personalhub:"you"};
       const active=map[id]||"home";
       dock.querySelectorAll("[data-mobile-destination]").forEach(b=>{
         const on=b.dataset.mobileDestination===active;
