@@ -1,4 +1,5 @@
 "use strict";
+const crypto = require("node:crypto");
 
 // JR PHEEF — universal human environment foundation.
 // One member identity, many permission-separated worlds, private progress and continuity.
