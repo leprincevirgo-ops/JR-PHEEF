@@ -24,7 +24,7 @@ function render(data){
   worlds.innerHTML=rows.map(w=>'<button type="button" class="jr-journey-world" data-jr-world="'+esc(w.world_key)+'"><span class="jr-journey-world-icon">'+(icons[w.world_key]||"◉")+'</span><span class="jr-journey-world-copy"><b>'+esc(w.title||w.world_key)+'</b><small>'+esc(w.stage||"discovering")+' · Last active '+esc(new Date(w.last_interaction_at||Date.now()).toLocaleDateString())+'</small><small class="jr-world-continue">CONTINUE →</small></span></button>').join("")||'<article class="jr-journey-empty"><b>Your journey starts here.</b><span>Learn something, explore an idea, build a project or connect with someone. JR will remember your progress.</span></article>';
   worlds.querySelectorAll("[data-jr-world]").forEach(button=>button.addEventListener("click",async()=>{
    const key=button.dataset.jrWorld,world=(journey.worlds||[]).find(x=>x.world_key===key),page=world?.page||pages[key]||"explore";
-   await call("/api/jr/environment/worlds/"+encodeURIComponent(key),"PATCH",{stage:world?.stage||"discovering",last_position:{page}});
+   if(key!=="health")await call("/api/jr/environment/worlds/"+encodeURIComponent(key),"PATCH",{stage:world?.stage||"discovering",last_position:{page}});
    if(typeof window.show==="function")window.show(page);
   }));
  }
@@ -59,7 +59,7 @@ async function submit(event){
  const status=$("jpUniversalStatus");if(status)status.textContent="JR is understanding your intention and connecting it to your journey…";
  const result=await call("/api/jr/environment/interact","POST",{text});
  if(!result.ok){if(status)status.textContent=result.error||"JR could not understand that request.";busy=false;return;}
- if(status)status.textContent="Your progress checkpoint has been saved to your JR journey.";
+ if(status)status.textContent=result.checkpoint_saved===false?"This health-related interaction was not added to your saved journey.":"Your progress checkpoint has been saved to your JR journey.";
  let answer=result.response||"I’m ready to work through that with you.";
  const ai=await call("/api/ai/chat","POST",{mode:"universe",message:text});
  if(ai.ok)answer=ai.answer||ai.reply||answer;
