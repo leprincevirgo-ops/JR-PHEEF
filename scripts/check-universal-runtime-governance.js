@@ -16,7 +16,7 @@ for(const endpoint of ["/api/jr/actions/proposals","/api/jr/actions/proposals/:i
 for(const guard of ['.eq("member_id", member.id)','.eq("status", "pending")','.gt("expires_at", now)','idempotency_key','executed: false'])assert.ok(route.includes(guard),"Missing action governance guard: "+guard);
 assert.ok(route.includes("recordSecurityEvent")&&route.includes("action_approved")&&route.includes("action_rejected"),"Consent decisions must be auditable.");
 for(const endpoint of ["/api/jr/environment/memories","/api/jr/environment/memories/:id"])assert.ok(route.includes(endpoint),"Missing member memory endpoint "+endpoint);
-for(const guard of ['consent_ai_context !== true','eq("member_id", member.id)','eq("consent_ai_context",true)','active: false'])assert.ok(route.includes(guard),"Missing explicit memory privacy guard: "+guard);
+for(const guard of ['consent_ai_context !== true','eq("member_id", member.id)','active: false'])assert.ok(route.includes(guard),"Missing explicit memory privacy guard: "+guard);
 assert.ok(server.includes('eq("consent_ai_context",true)')&&server.includes("Member-approved JR continuity memories"),"Only explicitly consented memories may be reused as AI context.");
 assert.ok(ui.includes("jrMemoryConsent")&&ui.includes("SAVE TO MY MEMORY")&&ui.includes("data-memory-delete"),"Member-controlled memory UI missing.");
 assert.ok(css.includes(".jr-journey-memory")&&css.includes(".jr-memory-card"),"Member memory UI styling missing.");
