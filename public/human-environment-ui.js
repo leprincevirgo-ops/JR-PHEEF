@@ -12,7 +12,7 @@ let busy=false,journey=null;
 function ensurePanel(){
  const home=$("home");if(!home||$("jrJourneyPanel"))return;
  const section=document.createElement("section");section.id="jrJourneyPanel";section.className="jr-journey-panel";
- section.innerHTML='<div class="jr-journey-heading"><div><span class="jr-journey-kicker">YOUR CONTINUING JOURNEY</span><h2>Every step builds on the last.</h2><p>Start anywhere. JR keeps your private progress so you can continue learning, creating, working and connecting.</p></div><button type="button" class="dark" id="jrJourneyRefresh">Refresh</button></div><div id="jrJourneyWorlds" class="jr-journey-worlds"><p class="muted">Your worlds will appear here when you begin interacting with JR.</p></div><div class="jr-journey-bottom"><div><h3>Your recent moments</h3><div id="jrJourneyJournal"><p class="muted">Your journey begins with your first interaction.</p></div></div><div><h3>What JR can help coordinate</h3><div id="jrJourneyCapabilities" class="jr-journey-capabilities"></div><p class="jr-journey-note">Enabling a capability records your preference. External services and high-impact actions still need their own permissions and confirmation.</p></div></div><div id="jrJourneyReply" class="jr-journey-reply" hidden aria-live="polite"></div>';
+ section.innerHTML='<div class="jr-journey-heading"><div><span class="jr-journey-kicker">YOUR CONTINUING JOURNEY</span><h2>Every step builds on the last.</h2><p>Start anywhere. JR keeps your private progress so you can continue learning, creating, working and connecting.</p></div><button type="button" class="dark" id="jrJourneyRefresh">Refresh</button></div><div id="jrJourneyWorlds" class="jr-journey-worlds"><p class="muted">Your worlds will appear here when you begin interacting with JR.</p></div><div class="jr-journey-bottom"><div><h3>Your recent moments</h3><div id="jrJourneyJournal"><p class="muted">Your journey begins with your first interaction.</p></div></div><div><h3>What JR can help coordinate</h3><div id="jrJourneyCapabilities" class="jr-journey-capabilities"></div><p class="jr-journey-note">Enabling a capability records your preference. External services and high-impact actions still need their own permissions and confirmation.</p></div></div><section class="jr-journey-actions"><div><h3>Actions awaiting your decision</h3><p class="jr-journey-note">JR records your choice. Approval alone does not send, spend, book, purchase or control a device.</p><div id="jrJourneyProposals"><p class="muted">No action proposals yet.</p></div></div></section><div id="jrJourneyReply" class="jr-journey-reply" hidden aria-live="polite"></div>';
  const compose=home.querySelector(".jr-intent-console");if(compose)compose.insertAdjacentElement("afterend",section);else home.appendChild(section);
  $("jrJourneyRefresh").addEventListener("click",load);
 }
@@ -29,6 +29,21 @@ function render(data){
   }));
  }
  if(journal)journal.innerHTML=(data.journal||[]).slice(0,6).map(e=>'<article class="jr-journey-entry"><b>'+esc(e.title)+'</b><small>'+esc(e.world_key||"personal")+' · '+esc(new Date(e.created_at).toLocaleString())+'</small></article>').join("")||'<p class="muted">No saved moments yet.</p>';
+ const proposals=$("jrJourneyProposals");
+ if(proposals){
+  const items=data.action_proposals||[];
+  proposals.innerHTML=items.map(p=>{
+   const pending=p.status==="pending";
+   const state=p.status==="approved"?"Approved · not executed":p.status==="rejected"?"Rejected":p.status==="expired"?"Expired":p.status;
+   return '<article class="jr-proposal-card"><div class="jr-proposal-meta"><b>'+esc(p.summary)+'</b><span>'+esc(String(p.risk_level||"").toUpperCase())+' RISK · '+esc(state)+'</span></div>'+(pending?'<div class="jr-proposal-buttons"><button type="button" class="primary" data-jr-proposal-decision="approve" data-proposal-id="'+esc(p.id)+'">Approve</button><button type="button" class="dark" data-jr-proposal-decision="reject" data-proposal-id="'+esc(p.id)+'">Reject</button></div>':'')+'</article>';
+  }).join("")||'<p class="muted">No action proposals yet. When JR needs permission for a consequential action, it will appear here.</p>';
+  proposals.querySelectorAll("[data-jr-proposal-decision]").forEach(button=>button.addEventListener("click",async()=>{
+   button.disabled=true;
+   const id=button.dataset.proposalId,decision=button.dataset.jrProposalDecision;
+   const result=await call("/api/jr/actions/proposals/"+encodeURIComponent(id),"PATCH",{decision});
+   if(result.ok)await load();else{button.disabled=false;button.textContent=result.error||"Try again";}
+  }));
+ }
  if(caps){
   caps.innerHTML=(data.capabilities||[]).map(c=>'<div class="jr-capability-row"><span>'+esc(c.description)+'</span><button type="button" class="jr-capability-toggle '+(c.enabled?"enabled":"")+'" data-capability="'+esc(c.key)+'" aria-pressed="'+String(!!c.enabled)+'">'+(c.enabled?"Enabled":"Enable")+'</button></div>').join("");
   caps.querySelectorAll("[data-capability]").forEach(button=>button.addEventListener("click",async()=>{
