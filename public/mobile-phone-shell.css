@@ -1,4 +1,4 @@
-/* JR PHEEF mobile phone module: top controls, quick access, active workspace, bottom dock. */
+/* JR PHEEF unified navigation: one clear dock, no duplicate quick-access rail. */
 .jp-mobile-assistant{display:none}
 .jp-mobile-dock{display:none}
 @media(max-width:900px){
@@ -18,8 +18,8 @@
   .jp-header-icon[aria-label="Profile menu"]{display:none!important}
   .jp-profile-trigger{display:flex!important;min-width:39px!important;min-height:36px!important;height:36px!important;margin:0!important;padding:3px 5px!important}
   .jp-avatar-small{width:30px!important;height:30px!important}
-  .jp-mobile-assistant{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 31px!important;width:31px!important;min-width:31px!important;height:34px!important;min-height:34px!important;margin:0!important;padding:0!important;border:1px solid rgba(66,245,255,.32)!important;border-radius:10px!important;background:linear-gradient(145deg,#0b8ec7,#063c70)!important;color:#eaffff!important;font-size:18px!important}
-  .jp-action-rail{display:flex!important;position:relative!important;top:auto!important;z-index:120!important;width:100%!important;margin:0!important;padding:6px 8px!important;gap:5px!important;border:0!important;border-bottom:1px solid rgba(100,190,255,.14)!important;border-radius:0!important;background:rgba(2,10,25,.96)!important}
+  .jp-mobile-assistant{display:none!important;align-items:center!important;justify-content:center!important;flex:0 0 31px!important;width:31px!important;min-width:31px!important;height:34px!important;min-height:34px!important;margin:0!important;padding:0!important;border:1px solid rgba(66,245,255,.32)!important;border-radius:10px!important;background:linear-gradient(145deg,#0b8ec7,#063c70)!important;color:#eaffff!important;font-size:18px!important}
+  .jp-action-rail{display:none!important;position:relative!important;top:auto!important;z-index:120!important;width:100%!important;margin:0!important;padding:6px 8px!important;gap:5px!important;border:0!important;border-bottom:1px solid rgba(100,190,255,.14)!important;border-radius:0!important;background:rgba(2,10,25,.96)!important}
   .jp-action-rail-label{display:none!important}
   .jp-action-rail button{min-height:34px!important;padding:6px 9px!important;font-size:10px!important}
   main{padding:8px 10px calc(86px + env(safe-area-inset-bottom))!important}
