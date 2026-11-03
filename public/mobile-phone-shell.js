@@ -7,18 +7,13 @@
   function mount(){
     const app=document.getElementById("app"),header=document.querySelector(".jp-global-header"),actions=document.querySelector(".jp-header-actions");
     if(!app||!header||!actions||document.getElementById("jpMobileDock"))return;
-    const assistant=make("button","jp-mobile-assistant","✦");
-    assistant.type="button";assistant.setAttribute("aria-label","Open JR Assistant");assistant.title="JR Assistant";
-    assistant.addEventListener("click",()=>route("assistant"));
-    const profile=actions.querySelector(".jp-profile-trigger");
-    if(profile)actions.insertBefore(assistant,profile);else actions.append(assistant);
     const dock=make("nav","jp-mobile-dock");dock.id="jpMobileDock";dock.setAttribute("aria-label","JR PHEEF mobile navigation");
     const entries=[
-      ["more","☷","More",()=>route("morehub")],
-      ["business","▣","Business",()=>route("workhub")],
-      ["social","◎","Social",()=>route("social")],
-      ["accessibility","◉","Access",()=>document.getElementById("jr-accessibility-launcher")?.click()],
-      ["settings","⚙","Settings",()=>route("jrsettings")]
+      ["home","⌂","Home",()=>route("home")],
+      ["worlds","✧","Worlds",()=>route("morehub")],
+      ["jr","✦","JR",()=>route("assistant")],
+      ["connect","◎","Connect",()=>route("messages")],
+      ["you","◉","You",()=>route("profile")]
     ];
     entries.forEach(([key,icon,label,run])=>{
       const b=make("button","jp-mobile-dock-item");
@@ -28,8 +23,8 @@
     });
     app.append(dock);
     const setActive=id=>{
-      const map={home:"more",morehub:"more",discoverhub:"more",workhub:"business",create:"business",economy:"business",projects:"business",social:"social",messages:"social",connecthub:"social",jrsettings:"settings",profile:"settings",personalhub:"settings"};
-      const active=map[id]||"more";
+      const map={home:"home",explore:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",assistant:"jr",messages:"connect",social:"connect",connecthub:"connect",jrsettings:"you",profile:"you",personalhub:"you"};
+      const active=map[id]||"home";
       dock.querySelectorAll("[data-mobile-destination]").forEach(b=>{
         const on=b.dataset.mobileDestination===active;
         b.classList.toggle("is-active",on);
