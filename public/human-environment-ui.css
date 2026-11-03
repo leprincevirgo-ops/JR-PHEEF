@@ -13,3 +13,10 @@
 .jr-capability-toggle{flex:0 0 auto;padding:7px 10px;margin:0;border:1px solid rgba(91,190,255,.25);border-radius:10px;background:rgba(3,29,52,.8);color:#c4e7f7;font-size:10px}
 .jr-capability-toggle.enabled{border-color:rgba(66,245,255,.48);background:rgba(0,150,190,.2);color:#42f5ff}
 .jr-capability-toggle:disabled{opacity:.55}
+
+.jr-journey-actions{margin-top:20px;padding-top:16px;border-top:1px solid rgba(91,190,255,.15)}
+.jr-proposal-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid rgba(91,190,255,.12)}
+.jr-proposal-meta{min-width:0}.jr-proposal-meta b{display:block;color:#eaf8ff;font-size:12px;line-height:1.5}.jr-proposal-meta span{display:block;margin-top:5px;color:#8eafc8;font-size:10px;letter-spacing:.5px}
+.jr-proposal-buttons{display:flex;gap:7px;flex:0 0 auto}.jr-proposal-buttons button{margin:0;padding:7px 10px;font-size:10px}
+.jr-proposal-buttons button:disabled{opacity:.5}
+@media(max-width:560px){.jr-proposal-card{align-items:flex-start;flex-direction:column}.jr-proposal-buttons{width:100%}.jr-proposal-buttons button{flex:1}}
