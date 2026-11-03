@@ -304,6 +304,14 @@ module.exports = function mountJr(ctx) {
     { page: "connections", patterns: [/\b(open|show|manage)\b.{0,25}\b(my )?(connections|contacts|network)\b/i] }
   ];
 
+  function routeByIntent(text) {
+    const value = clean(text).slice(0, 2000);
+    for (const route of INTENT_ROUTES) {
+      if (route.patterns.some(pattern => pattern.test(value))) return route.page;
+    }
+    return null;
+  }
+
   function ruleParse(text) {
     const t = text.toLowerCase(), actions = [];
     const intentPage = routeByIntent(text);
