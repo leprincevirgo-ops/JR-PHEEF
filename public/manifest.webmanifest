@@ -1,0 +1,37 @@
+{
+  "name": "JR PHEEF",
+  "short_name": "JR PHEEF",
+  "description": "Find. Match. Trade. Learn, create, connect and grow with JR PHEEF.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#06172e",
+  "theme_color": "#0a2c57",
+  "categories": [
+    "business",
+    "education",
+    "productivity",
+    "social",
+    "shopping"
+  ],
+  "icons": [
+    {
+      "src": "/jr-pheef-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/jr-pheef-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

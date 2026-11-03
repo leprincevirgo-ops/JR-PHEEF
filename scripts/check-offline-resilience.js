@@ -4,6 +4,8 @@ const sw=fs.readFileSync("public/service-worker.js","utf8");
 const register=fs.readFileSync("public/pwa-register.js","utf8");
 const offline=fs.readFileSync("public/offline.html","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
+const manifest=JSON.parse(fs.readFileSync("public/manifest.webmanifest","utf8"));
+const icon=fs.readFileSync("public/jr-pheef-icon.svg","utf8");
 new (require("node:vm").Script)(sw,{filename:"public/service-worker.js"});
 new (require("node:vm").Script)(register,{filename:"public/pwa-register.js"});
 assert.ok(sw.includes('request.method!=="GET"'),"offline cache must never intercept writes");
@@ -13,4 +15,7 @@ assert.ok(sw.includes('["script","style","image","font"]'),"only static app asse
 assert.ok(register.includes('navigator.serviceWorker.register("/service-worker.js"'),"service worker registration missing");
 assert.ok(html.includes('/pwa-register.js?v=1'),"service worker registration script is not loaded");
 assert.ok(offline.includes("temporarily offline")&&offline.includes("delivered"),"offline page must explain uncompleted actions honestly");
+assert.ok(html.includes("/manifest.webmanifest")&&html.includes("/jr-pheef-icon.svg"),"PWA manifest and icon must be linked");
+assert.equal(manifest.name,"JR PHEEF");assert.equal(manifest.display,"standalone");assert.ok(manifest.icons.some(x=>x.src==="/jr-pheef-icon.svg"),"PWA app icon missing");
+assert.ok(icon.includes("<svg")&&icon.includes("#06172e"),"JR PHEEF app icon must be a valid branded SVG");
 console.log("PASS: offline app shell, static asset cache, API privacy exclusions and service worker registration.");
