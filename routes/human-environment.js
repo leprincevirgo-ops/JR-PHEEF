@@ -62,7 +62,7 @@ module.exports = function mountHumanEnvironment(ctx) {
     const { data: existing, error: readError } = await db.from("jr_world_progress").select("world_key").eq("member_id", memberId);
     if (readError) throw readError;
     const present = new Set((existing || []).map(row => row.world_key));
-    const missing = Object.keys(WORLDS).filter(key => !present.has(key))
+    const missing = Object.keys(WORLDS).filter(key => key !== "health" && !present.has(key))
       .map(world_key => ({ member_id: memberId, world_key, stage: "discovering", progress: {}, last_position: {} }));
     if (missing.length) {
       const { error } = await db.from("jr_world_progress").upsert(missing, { onConflict: "member_id,world_key", ignoreDuplicates: true });
@@ -88,7 +88,7 @@ module.exports = function mountHumanEnvironment(ctx) {
       principle: "JR PHEEF GROWS. IT DOES NOT FORGET.",
       identity: { jp_number: member.jp_number || null, display_name: member.full_name || "Member" },
       active_world: worldRows[0] || null,
-      worlds: worldRows.map(row => ({ ...row, title: WORLDS[row.world_key]?.title || row.world_key, page: WORLDS[row.world_key]?.page || "assistant" })),
+      worlds: Object.entries(WORLDS).map(([key, meta]) => { const row = worldRows.find(item => item.world_key === key); return row ? { ...row, title: meta.title, page: meta.page } : { world_key: key, stage: "discovering", progress: {}, last_position: {}, last_interaction_at: null, title: meta.title, page: meta.page, private_by_default: key === "health" }; }),
       journal: journal.data || [],
       capabilities: CAPABILITIES.map(([key, description, availability]) => {
         const setting = (permissions.data || []).find(p => p.capability_key === key);
@@ -108,24 +108,30 @@ module.exports = function mountHumanEnvironment(ctx) {
     const worldKey = Object.hasOwn(WORLDS, explicit) ? explicit : inferred.key;
     const selected = WORLDS[worldKey];
     const title = "Started in " + selected.title;
-    const now = new Date().toISOString();
-    const { error: upsertError } = await db.from("jr_world_progress").upsert({
-      member_id: member.id, world_key: worldKey, stage,
-      progress: { intent_stage: stage, last_page: selected.page },
-      last_position: { page: selected.page },
-      last_interaction_at: now, updated_at: now
-    }, { onConflict: "member_id,world_key" });
-    if (upsertError) throw upsertError;
-    const eventKind = stage === "learning" ? "learning" : stage === "building" ? "creation" : "interaction";
-    const { data: journal, error: journalError } = await db.from("jr_growth_journal").insert({
-      member_id: member.id, event_kind: eventKind, world_key: worldKey,
-      title, detail: "JR saved a private progress checkpoint. The original request text is not copied into this growth-journal entry.",
-      metadata: { stage, source: "universal_interaction" }
-    }).select("id,event_kind,world_key,title,detail,created_at").single();
-    if (journalError) throw journalError;
-    await logActivity(member.id, "JR_WORLD_INTERACTION", { world_key: worldKey, stage });
+    let journal = null;
+    let checkpointSaved = false;
+    if (worldKey !== "health") {
+      const now = new Date().toISOString();
+      const { error: upsertError } = await db.from("jr_world_progress").upsert({
+        member_id: member.id, world_key: worldKey, stage,
+        progress: { intent_stage: stage, last_page: selected.page },
+        last_position: { page: selected.page },
+        last_interaction_at: now, updated_at: now
+      }, { onConflict: "member_id,world_key" });
+      if (upsertError) throw upsertError;
+      const eventKind = stage === "learning" ? "learning" : stage === "building" ? "creation" : "interaction";
+      const { data, error: journalError } = await db.from("jr_growth_journal").insert({
+        member_id: member.id, event_kind: eventKind, world_key: worldKey,
+        title, detail: "JR saved a private progress checkpoint. The original request text is not copied into this growth-journal entry.",
+        metadata: { stage, source: "universal_interaction" }
+      }).select("id,event_kind,world_key,title,detail,created_at").single();
+      if (journalError) throw journalError;
+      journal = data;
+      checkpointSaved = true;
+      await logActivity(member.id, "JR_WORLD_INTERACTION", { world_key: worldKey, stage });
+    }
     res.json({
-      ok: true, understood: true,
+      ok: true, understood: true, checkpoint_saved: checkpointSaved,
       world: { key: worldKey, title: selected.title, stage },
       navigation: selected.page === "assistant" ? null : { page: selected.page, label: selected.title },
       response: selected.page === "assistant"
@@ -155,6 +161,7 @@ module.exports = function mountHumanEnvironment(ctx) {
     const member = await requireMember(req, res); if (!member) return;
     const key = clean(req.params.key), stage = clean(req.body.stage);
     if (!Object.hasOwn(WORLDS, key)) return bad(res, "JR world not found.", 404);
+    if (key === "health") return bad(res, "Health-related progress is not saved by default. You can still explore general information without adding it to your journey.", 403);
     if (!STAGES.has(stage)) return bad(res, "Choose a valid growth stage.");
     const progress = req.body.progress, position = req.body.last_position;
     if (progress !== undefined && (!progress || typeof progress !== "object" || Array.isArray(progress) || JSON.stringify(progress).length > 3000)) return bad(res, "Progress data must be a small object.");
