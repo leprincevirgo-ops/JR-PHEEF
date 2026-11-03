@@ -53,3 +53,19 @@
 @media(max-width:430px){.jr-world-header{flex-direction:column}.jr-world-live{align-self:flex-start}.jr-world-universe{height:410px}.jr-earth{width:clamp(165px,49vw,210px);top:43%}.jr-world-link{width:clamp(108px,34vw,132px);min-height:52px;grid-template-columns:27px 1fr;padding:6px;gap:2px 5px}.jr-world-link>span{width:26px;height:26px;font-size:15px}.jr-world-link b{font-size:8px}.jr-world-link small{font-size:7px}.jr-world-people,.jr-world-knowledge{top:8%}.jr-world-business,.jr-world-services{top:47%}.jr-world-opportunities,.jr-world-intelligence{bottom:0}.jr-world-assistant{width:86px;height:90px;top:75%}.jr-world-greeting{padding:11px 12px;border-radius:15px}.jr-intent-compose{gap:5px;padding:5px}.jr-intent-compose .jp-universe-voice,.jr-intent-compose .jp-universe-submit{flex-basis:40px;width:40px;min-width:40px;height:40px;min-height:40px}.jr-intent-compose textarea{font-size:12px;padding:8px 4px}.jr-intent-hints{justify-content:flex-start}.jr-intent-hints button{font-size:10px;padding:8px 10px}}
 @media(min-width:1200px){.jr-world-universe{height:550px}.jr-earth{width:370px}}
 @media(prefers-reduced-motion:reduce){.jr-world-link{transition:none}.jr-world-link:hover{transform:none}}
+
+/* JR Core and worlds: subtle motion, clear touch targets and reduced-motion support. */
+.jr-earth-core{appearance:none;-webkit-appearance:none;display:grid;place-items:center;padding:0;margin:0;cursor:pointer;font-family:inherit;transition:filter .2s ease,box-shadow .2s ease,transform .2s ease;animation:jr-core-pulse 4.5s ease-in-out infinite}
+.jr-earth-core:hover,.jr-earth-core:focus-visible{filter:brightness(1.18);transform:translate(-50%,-50%) scale(1.045);outline:2px solid #8af8ff;outline-offset:5px}
+.jr-world-family{left:50%;bottom:0;transform:translateX(-50%)}
+.jr-world-family:hover,.jr-world-family:focus-visible{transform:translate(-50%,-3px)}
+.jr-world-resume{display:block;flex:0 0 auto;margin:0 0 0 auto;padding:8px 12px;border:1px solid rgba(66,245,255,.28);border-radius:999px;background:rgba(2,19,40,.82);color:#9cf6ff;font-size:10px;font-weight:800;letter-spacing:.6px}
+.jr-world-resume[hidden]{display:none!important}
+.jr-orbit-one{animation:jr-orbit-breathe 13s ease-in-out infinite}
+.jr-orbit-two{animation:jr-orbit-breathe 17s ease-in-out infinite reverse}
+.jr-bot-aura{animation:jr-aura-breathe 3.6s ease-in-out infinite}
+@keyframes jr-core-pulse{0%,100%{box-shadow:0 0 0 9px #40ddff18,0 0 35px #00dfff}50%{box-shadow:0 0 0 15px #40ddff12,0 0 52px #00dfff}}
+@keyframes jr-orbit-breathe{0%,100%{opacity:.72}50%{opacity:1}}
+@keyframes jr-aura-breathe{0%,100%{opacity:.6;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+@media(max-width:760px){.jr-world-family{left:50%;bottom:0}.jr-world-resume{margin:8px 0 0;align-self:flex-start}}
+@media(prefers-reduced-motion:reduce){.jr-earth-core,.jr-orbit-one,.jr-orbit-two,.jr-bot-aura{animation:none!important;transition:none!important}}
