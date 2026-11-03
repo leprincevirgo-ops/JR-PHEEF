@@ -89,7 +89,7 @@
   async function restore(){
     if(!await resolveMember())return;restoring=true;let state=localRead();
     if(navigator.onLine){const r=await call("/api/continuity");if(r.ok&&r.state?.page){state=r.state;localSave(state);}}
-    if(state?.page&&$(state.page)?.classList.contains("page")){try{window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo(0,Math.max(0,Number(state.scroll_y)||0)));}
+    if(state?.page&&/^[a-z][a-z0-9_-]{0,50}$/.test(state.page)){try{if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(state.page);else if(typeof window.show==="function")window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo({top:Math.max(0,Number(state.scroll_y)||0),behavior:"instant"}));}
     restoring=false;ready=true;schedule();
   }
   const oldShow=window.show;
@@ -98,7 +98,8 @@
   if(typeof oldLogout==="function")window.logout=async function(){memberId=null;ready=false;clearTimeout(timer);return oldLogout.apply(this,arguments);};
   const oldOpen=window.openApp;
   if(typeof oldOpen==="function")window.openApp=async function(){const r=await oldOpen.apply(this,arguments);ensurePage();await restore();return r;};
-  window.addEventListener("scroll",schedule,{passive:true});\n  document.addEventListener("jr:workspacechange",schedule);
+  window.addEventListener("scroll",schedule,{passive:true});
+  document.addEventListener("jr:workspacechange",schedule);
   window.addEventListener("pagehide",()=>{if(memberId)localSave({page:pageNow(),workspace_id:pageNow(),scroll_y:Math.max(0,Math.round(window.scrollY||0)),saved_at:new Date().toISOString()});});
   window.addEventListener("online",()=>{if(ready)schedule();});
   document.addEventListener("DOMContentLoaded",ensurePage);
