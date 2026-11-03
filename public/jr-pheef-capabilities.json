@@ -1,11 +1,11 @@
 {
   "name": "JR PHEEF Interoperability Capability Manifest",
-  "version": "0.1.0",
-  "status": "PUBLIC_DISCOVERY_ONLY",
-  "summary": "Describes current browser capabilities and the planned two-way integration model. It does not grant API access.",
+  "version": "0.2.0",
+  "status": "LIMITED_INBOUND_EVENT_GATEWAY",
+  "summary": "Describes active browser capabilities and a limited member-scoped inbound partner event API. This does not grant general device, account or outbound action access.",
   "inbound": {
     "description": "Devices, applications and organisations may eventually send authorised requests/events into JR PHEEF.",
-    "api_status": "NOT_OPEN",
+    "api_status": "LIMITED_MEMBER_SCOPED_EVENT_INGESTION",
     "planned_auth": "OAuth 2.1 / PKCE for user-delegated access; signed service credentials for approved partners",
     "planned_controls": [
       "scoped permissions",
@@ -14,6 +14,24 @@
       "signed webhooks",
       "audit logs",
       "revocation"
+    ],
+    "active_auth": "Member-created, one-time displayed bearer token; SHA-256 hash at rest; events:write scope only; member revocation.",
+    "accepted_events": [
+      "status_update",
+      "task_update",
+      "inventory_update",
+      "delivery_update",
+      "message_received",
+      "calendar_update",
+      "other"
+    ],
+    "boundaries": [
+      "No account or personal-data reads",
+      "No outbound actions",
+      "No payments or bookings",
+      "Private member event inbox",
+      "Idempotent event IDs per connection",
+      "Rate limited and audited"
     ]
   },
   "outbound": {
@@ -36,5 +54,5 @@
     "Web Share API",
     "File picker APIs where supported"
   ],
-  "integration_status": "DESIGN BLUEPRINT; NO GENERAL PUBLIC API OR DEVICE CLOUD CONNECTION IS ACTIVE"
+  "integration_status": "LIMITED INBOUND PARTNER EVENT GATEWAY ACTIVE; GENERAL PUBLIC API, OUTBOUND ACTIONS AND DEVICE CLOUD CONNECTIONS ARE NOT ACTIVE"
 }

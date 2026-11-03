@@ -10,17 +10,18 @@ const base = (process.env.BASE_URL || "https://jr-pheef-marketplace.onrender.com
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 45000);
 const attempts = Number(process.env.SMOKE_ATTEMPTS || 2);
 
-async function request(path) {
+async function request(path, options = {}) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const response = await fetch(base + path, {
-        method: "GET",
+        ...options,
+        method: options.method || "GET",
         redirect: "follow",
         signal: controller.signal,
-        headers: { "user-agent": "JR-PHEEF-release-smoke/2.0" }
+        headers: { ...(options.headers || {}), "user-agent": "JR-PHEEF-release-smoke/2.0" }
       });
       if (response.status >= 500 && attempt < attempts) {
         await response.arrayBuffer().catch(() => {});
@@ -131,10 +132,36 @@ async function main() {
     "/api/payments/status",
     "/api/continuity",
     "/api/business/workspaces",
-    "/api/business/test-business-id/daily-plan"
+    "/api/business/test-business-id/daily-plan",
+    "/api/jr/environment", "/api/jr/environment/memories"
   ]) {
     await check("private endpoint blocks anonymous access: " + endpoint, () => expectProtected(endpoint));
   }
+
+  if (process.env.REQUIRE_PARTNER_GATEWAY === "true") {
+    await check("partner event gateway rejects missing bearer credentials", async () => {
+      const response = await request("/api/inbound/jr/events", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ event_type: "other", title: "Smoke test", summary: "No credential should be rejected.", external_event_id: "smoke-no-token-001" }) });
+      assert.equal(response.status, 401, "partner event gateway must reject missing credentials");
+      const body = await response.json();
+      assert.equal(body.ok, false);
+    });
+  
+  
+  }
+
+  await check("PWA manifest and offline shell are available", async () => {
+    const manifest = await request("/manifest.webmanifest");
+    assert.equal(manifest.status, 200);
+    const body = await manifest.json();
+    assert.equal(body.name, "JR PHEEF");
+    assert.equal(body.display, "standalone");
+    const worker = await request("/service-worker.js");
+    assert.equal(worker.status, 200);
+    assert.match(await worker.text(), /jr-shell-v1/);
+    const offline = await request("/offline.html");
+    assert.equal(offline.status, 200);
+    assert.match(await offline.text(), /temporarily offline/i);
+  });
 
   if (failures) {
     console.error("\n" + passed + " passed, " + failures + " failed against " + base);

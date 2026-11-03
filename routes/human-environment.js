@@ -1,4 +1,5 @@
 "use strict";
+const crypto = require("node:crypto");
 
 // JR PHEEF — universal human environment foundation.
 // One member identity, many permission-separated worlds, private progress and continuity.
@@ -338,6 +339,80 @@ module.exports = function mountHumanEnvironment(ctx) {
     res.json({ ok: true, proposal, executed: false, note: decision === "approve"
       ? "Your approval has been recorded. JR has not executed the action; a separately authorised and connected service is still required."
       : "Your rejection has been recorded. No action was performed." });
+  }));
+
+
+  // PARTNER EVENT GATEWAY — scoped bearer credentials for inbound, non-executing events.
+  const PARTNER_EVENT_TYPES = new Set(["status_update","task_update","inventory_update","delivery_update","message_received","calendar_update","other"]);
+  const SAFE_EVENT_FIELDS = new Set(["status","category","quantity","unit","location_label","description"]);
+  app.get("/api/jr/integrations", wrap("JR partner connections", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const { data, error } = await db.from("jr_partner_connections").select("id,name,scopes,active,created_at,last_used_at,revoked_at").eq("member_id", member.id).order("created_at", { ascending: false }).limit(50);
+    if (error) throw error;
+    res.json({ ok: true, connections: data || [] });
+  }));
+  app.post("/api/jr/integrations", wrap("JR partner connection create", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    if (limited(req, res, "jr-partner-create", 10)) return;
+    const name = clean(req.body.name).slice(0, 60);
+    if (name.length < 3 || !/^[\p{L}\p{N} ._()'-]{3,60}$/u.test(name)) return bad(res, "Give this connection a name between 3 and 60 safe characters.");
+    const { count, error: countError } = await db.from("jr_partner_connections").select("id", { count: "exact", head: true }).eq("member_id", member.id).eq("active", true);
+    if (countError) throw countError;
+    if (count >= 10) return bad(res, "You can have up to 10 active partner connections. Revoke one before adding another.", 409);
+    const token = "jr_live_" + crypto.randomBytes(32).toString("base64url");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const { data, error } = await db.from("jr_partner_connections").insert({ member_id: member.id, name, token_hash: tokenHash, scopes: ["events:write"], active: true })
+      .select("id,name,scopes,active,created_at").single();
+    if (error) throw error;
+    await recordSecurityEvent(member.id, "partner_connection_created", "partner_connection", data.id, "Member created a scoped inbound event connection.", { scopes: data.scopes });
+    res.status(201).json({ ok: true, connection: data, token, token_display_once: true, note: "Copy this token now. JR stores only its hash and cannot show it again. It can submit approved event types only; it cannot read private data or execute actions." });
+  }));
+  app.delete("/api/jr/integrations/:id", wrap("JR partner connection revoke", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const id = clean(req.params.id);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return bad(res, "Connection not found.", 404);
+    const { data, error } = await db.from("jr_partner_connections").update({ active: false, revoked_at: new Date().toISOString() }).eq("id", id).eq("member_id", member.id).eq("active", true).select("id,name,active").maybeSingle();
+    if (error) throw error;
+    if (!data) return bad(res, "Connection is already revoked or could not be found.", 404);
+    await recordSecurityEvent(member.id, "partner_connection_revoked", "partner_connection", id, "Member revoked a partner integration credential.");
+    res.json({ ok: true, connection: data });
+  }));
+  app.get("/api/jr/integrations/events", wrap("JR partner event inbox", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const { data, error } = await db.from("jr_partner_events").select("id,connection_id,event_type,title,summary,external_event_id,occurred_at,received_at,event_data").eq("member_id", member.id).order("received_at", { ascending: false }).limit(50);
+    if (error) throw error;
+    res.json({ ok: true, events: data || [] });
+  }));
+  app.post("/api/inbound/jr/events", wrap("JR inbound partner event", async (req, res) => {
+    if (limited(req, res, "jr-partner-inbound", 120)) return;
+    const match = clean(req.get("authorization")).match(/^Bearer (jr_live_[A-Za-z0-9_-]{40,100})$/);
+    if (!match) return bad(res, "A valid JR partner bearer token is required.", 401);
+    const tokenHash = crypto.createHash("sha256").update(match[1]).digest("hex");
+    const { data: connection, error: connectionError } = await db.from("jr_partner_connections").select("id,member_id,scopes,active").eq("token_hash", tokenHash).eq("active", true).maybeSingle();
+    if (connectionError) throw connectionError;
+    if (!connection || !(connection.scopes || []).includes("events:write")) return bad(res, "This JR partner credential is invalid or revoked.", 401);
+    const eventType = clean(req.body.event_type).toLowerCase();
+    const title = clean(req.body.title).slice(0, 100);
+    const summary = clean(req.body.summary).slice(0, 500);
+    const externalId = clean(req.body.external_event_id).slice(0, 120);
+    if (!PARTNER_EVENT_TYPES.has(eventType)) return bad(res, "Unsupported event type.");
+    if (title.length < 2 || summary.length < 2) return bad(res, "An event title and short summary are required.");
+    if (!/^[A-Za-z0-9_.:-]{3,120}$/.test(externalId)) return bad(res, "Provide a stable external_event_id for safe retry handling.");
+    const occurred = req.body.occurred_at ? new Date(req.body.occurred_at) : new Date();
+    if (Number.isNaN(occurred.getTime())) return bad(res, "The event timestamp is invalid.");
+    const eventData = {};
+    if (req.body.event_data && typeof req.body.event_data === "object" && !Array.isArray(req.body.event_data)) {
+      for (const [key, value] of Object.entries(req.body.event_data)) if (SAFE_EVENT_FIELDS.has(key) && ["string","number","boolean"].includes(typeof value)) eventData[key] = String(value).slice(0, 120);
+    }
+    const { data, error } = await db.from("jr_partner_events").insert({ member_id: connection.member_id, connection_id: connection.id, event_type: eventType, title, summary, external_event_id: externalId, occurred_at: occurred.toISOString(), event_data: eventData })
+      .select("id,event_type,title,summary,external_event_id,occurred_at,received_at").single();
+    if (error) {
+      if (error.code === "23505") return res.json({ ok: true, duplicate: true, note: "JR has already received this event reference." });
+      throw error;
+    }
+    await db.from("jr_partner_connections").update({ last_used_at: new Date().toISOString() }).eq("id", connection.id);
+    await recordSecurityEvent(connection.member_id, "partner_event_received", "partner_event", data.id, "JR received an inbound partner event.", { connection_id: connection.id, event_type: eventType });
+    res.status(202).json({ ok: true, accepted: true, event: data, executed_action: false, note: "Event safely received into your private JR inbox. It does not trigger a payment, message, booking, device command or other external action." });
   }));
 
 };

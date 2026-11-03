@@ -10,11 +10,16 @@ const icons={personal:"◉",learning:"✦",creative:"✧",work:"▤",business:"�
 const pages={personal:"profile",learning:"teacher",creative:"scifi",work:"projects",business:"businessgrowth",opportunities:"find",relationships:"connections",community:"social",family:"family",civic:"accessgov",exploration:"explore",health:"explore",culture:"explore"};
 let busy=false,journey=null;
 function ensurePanel(){
- const home=$("home");if(!home||$("jrJourneyPanel"))return;
- const section=document.createElement("section");section.id="jrJourneyPanel";section.className="jr-journey-panel";
- section.innerHTML='<div class="jr-journey-heading"><div><span class="jr-journey-kicker">YOUR CONTINUING JOURNEY</span><h2>Every step builds on the last.</h2><p>Start anywhere. JR keeps your private progress so you can continue learning, creating, working and connecting.</p></div><button type="button" class="dark" id="jrJourneyRefresh">Refresh</button></div><div id="jrJourneyWorlds" class="jr-journey-worlds"><p class="muted">Your worlds will appear here when you begin interacting with JR.</p></div><div class="jr-journey-bottom"><div><h3>Your recent moments</h3><div id="jrJourneyJournal"><p class="muted">Your journey begins with your first interaction.</p></div></div><div><h3>What JR can help coordinate</h3><div id="jrJourneyCapabilities" class="jr-journey-capabilities"></div><p class="jr-journey-note">Enabling a capability records your preference. External services and high-impact actions still need their own permissions and confirmation.</p></div></div><section class="jr-journey-memory"><div><h3>Your JR memory</h3><p class="jr-journey-note">Save only non-sensitive details you deliberately want JR to remember. Nothing is stored here unless you submit it. AI reuse requires your explicit consent.</p></div><div class="jr-memory-editor"><select id="jrMemoryKind" aria-label="Memory category"><option value="preference">Preference</option><option value="goal">Goal</option><option value="project_context">Project context</option><option value="workflow">Workflow</option><option value="non_sensitive_fact">Other non-sensitive fact</option></select><textarea id="jrMemoryText" maxlength="1000" rows="2" placeholder="What would you like JR to remember?"></textarea><label class="jr-memory-consent"><input id="jrMemoryConsent" type="checkbox"> I agree JR may reuse this in future AI conversations.</label><button type="button" class="primary" id="jrMemorySave">SAVE TO MY MEMORY</button><p id="jrMemoryStatus" class="jr-journey-note" role="status" aria-live="polite"></p></div><div id="jrJourneyMemories"><p class="muted">No saved memories yet.</p></div></section><section class="jr-journey-actions"><div><h3>Actions awaiting your decision</h3><p class="jr-journey-note">JR records your choice. Approval alone does not send, spend, book, purchase or control a device.</p><div id="jrJourneyProposals"><p class="muted">No action proposals yet.</p></div></div></section><div id="jrJourneyReply" class="jr-journey-reply" hidden aria-live="polite"></div>';
- const compose=home.querySelector(".jr-intent-console");if(compose)compose.insertAdjacentElement("afterend",section);else home.appendChild(section);
- $("jrJourneyRefresh").addEventListener("click",load);
+ const home=$("home");if(!home)return;
+ const section=$("jrJourneyPanel")||home.querySelector(".jr-journey-section");if(!section)return;
+ section.id="jrJourneyPanel";
+ const heading=section.querySelector(".jr-journey-heading");
+ if(heading&&!$("jrJourneyRefresh")){const refresh=document.createElement("button");refresh.type="button";refresh.className="dark";refresh.id="jrJourneyRefresh";refresh.textContent="Refresh";heading.append(refresh);refresh.addEventListener("click",load);}
+ if(!$("jrJourneyCapabilities")){const lower=section.querySelector(".jr-journey-lower"),target=lower?.children[1]||section;target.insertAdjacentHTML("beforeend",'<div class="jr-journey-capability-block"><h3>What JR can help coordinate</h3><div id="jrJourneyCapabilities" class="jr-journey-capabilities"></div><p class="jr-journey-note">Enabling a capability records your preference. External services and high-impact actions still need their own permissions and confirmation.</p></div>');}
+ if(!$("jrJourneyProposals"))section.insertAdjacentHTML("beforeend",'<section class="jr-journey-actions"><div><h3>Actions awaiting your decision</h3><p class="jr-journey-note">JR records your choice. Approval alone does not send, spend, book, purchase or control a device.</p><div id="jrJourneyProposals"><p class="muted">No action proposals yet.</p></div></div></section>');
+ if(!$("jrJourneyMemories"))section.insertAdjacentHTML("beforeend",'<section class="jr-journey-memory"><div><h3>Your JR memory</h3><p class="jr-journey-note">Save only non-sensitive details you deliberately want JR to remember. Nothing is stored unless you submit it. AI reuse requires your explicit consent.</p></div><div class="jr-memory-editor"><select id="jrMemoryKind" aria-label="Memory category"><option value="preference">Preference</option><option value="goal">Goal</option><option value="project_context">Project context</option><option value="workflow">Workflow</option><option value="non_sensitive_fact">Other non-sensitive fact</option></select><textarea id="jrMemoryText" maxlength="1000" rows="2" placeholder="What would you like JR to remember?"></textarea><label class="jr-memory-consent"><input id="jrMemoryConsent" type="checkbox"> I agree JR may reuse this in future AI conversations.</label><button type="button" class="primary" id="jrMemorySave">SAVE TO MY MEMORY</button><p id="jrMemoryStatus" class="jr-journey-note" role="status" aria-live="polite"></p></div><div id="jrJourneyMemories"><p class="muted">No saved memories yet.</p></div></section>');
+ if(!$("jrJourneyIntegrations"))section.insertAdjacentHTML("beforeend",'<section class="jr-journey-integrations"><div><h3>Connect your world to JR</h3><p class="jr-journey-note">Create a private, limited connection for a service you control. It can send JR updates into your private inbox; it cannot read your account or trigger actions.</p></div><form id="jrIntegrationForm" class="jr-integration-form"><input id="jrIntegrationName" maxlength="60" minlength="3" placeholder="Connection name (e.g. My stock system)" required><button type="submit" class="primary">CREATE CONNECTION</button></form><p id="jrIntegrationStatus" class="jr-journey-note" role="status" aria-live="polite"></p><div id="jrIntegrationToken" class="jr-integration-token" hidden></div><div id="jrJourneyIntegrations"><p class="muted">No partner connections yet.</p></div><h3>Connected service updates</h3><div id="jrPartnerEvents"><p class="muted">Updates from your connected services will appear here.</p></div></section>');
+ if(!$("jrJourneyReply"))section.insertAdjacentHTML("beforeend",'<div id="jrJourneyReply" class="jr-journey-reply" hidden aria-live="polite"></div>');
 }
 function render(data){
  journey=data;
@@ -43,6 +48,14 @@ function render(data){
    if(result.ok)await load();else{button.disabled=false;button.textContent=result.error||"Try again";}
   }));
  }
+ const integrations=$("jrJourneyIntegrations"),events=$("jrPartnerEvents");
+ if(integrations){
+  integrations.innerHTML=(data.partner_connections||[]).map(x=>'<article class="jr-integration-card"><div><b>'+esc(x.name)+'</b><small>'+esc((x.scopes||[]).join(", "))+' · '+(x.active?"Active":"Revoked")+'</small></div>'+(x.active?'<button type="button" class="dark" data-integration-revoke="'+esc(x.id)+'">Revoke</button>':'')+'</article>').join("")||'<p class="muted">No partner connections yet.</p>';
+  integrations.querySelectorAll("[data-integration-revoke]").forEach(button=>button.addEventListener("click",async()=>{button.disabled=true;const result=await call("/api/jr/integrations/"+encodeURIComponent(button.dataset.integrationRevoke),"DELETE");if(result.ok)await load();else{button.disabled=false;button.textContent=result.error||"Try again";}}));
+ }
+ if(events){
+  events.innerHTML=(data.partner_events||[]).map(e=>'<article class="jr-partner-event"><b>'+esc(e.title)+'</b><small>'+esc(e.event_type.replace(/_/g," "))+' · '+esc(new Date(e.received_at).toLocaleString())+'</small><p>'+esc(e.summary)+'</p></article>').join("")||'<p class="muted">No updates received yet.</p>';
+ }
  if(proposals){
   const items=data.action_proposals||[];
   proposals.innerHTML=items.map(p=>{
@@ -70,7 +83,7 @@ function render(data){
 async function load(){
  ensurePanel();
  const d=await call("/api/jr/environment");
- if(d.ok){const memories=await call("/api/jr/environment/memories");d.memories=memories.ok?memories.memories||[]:[];render(d);}
+ if(d.ok){const [memories,connections,events]=await Promise.all([call("/api/jr/environment/memories"),call("/api/jr/integrations"),call("/api/jr/integrations/events")]);d.memories=memories.ok?memories.memories||[]:[];d.partner_connections=connections.ok?connections.connections||[]:[];d.partner_events=events.ok?events.events||[]:[];render(d);}
  else if(d.error!=="LOGIN_REQUIRED"&&$("jrJourneyWorlds"))$("jrJourneyWorlds").textContent=d.error||"Your journey could not be loaded.";
 }
 function reply(text,world,page){
@@ -107,6 +120,18 @@ function bind(){
   const result=await call("/api/jr/environment/memories","POST",{memory_kind:kind,memory_text:value,consent_ai_context:true});
   memorySave.disabled=false;if(!result.ok){if(status)status.textContent=result.error||"Could not save this memory.";return;}
   $("jrMemoryText").value="";$("jrMemoryConsent").checked=false;if(status)status.textContent="Saved. You can disable AI reuse or remove this memory at any time.";await load();
+ });}
+ const integrationForm=$("jrIntegrationForm");
+ if(integrationForm&&!integrationForm.dataset.bound){integrationForm.dataset.bound="1";integrationForm.addEventListener("submit",async event=>{
+  event.preventDefault();const name=$("jrIntegrationName")?.value.trim()||"",status=$("jrIntegrationStatus"),button=integrationForm.querySelector("button[type=submit]");
+  if(!name)return;button.disabled=true;if(status)status.textContent="Creating a limited connection…";
+  const result=await call("/api/jr/integrations","POST",{name});button.disabled=false;
+  if(!result.ok){if(status)status.textContent=result.error||"Connection could not be created.";return;}
+  $("jrIntegrationName").value="";const tokenHost=$("jrIntegrationToken");tokenHost.hidden=false;tokenHost.replaceChildren();
+  const note=document.createElement("p");note.textContent="Copy this secret now. JR will not display it again.";
+  const code=document.createElement("code");code.textContent=result.token;code.className="jr-integration-secret";
+  const copy=document.createElement("button");copy.type="button";copy.className="dark";copy.textContent="COPY SECRET";copy.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(result.token);copy.textContent="COPIED";}catch{copy.textContent="Select and copy the secret above."; }});
+  tokenHost.append(note,code,copy);if(status)status.textContent="Connection created. Only inbound events:write permission was granted.";await load();
  });}
  const form=$("jpUniversalForm");if(form&&!form.dataset.jrEnvironmentBound){form.dataset.jrEnvironmentBound="1";form.addEventListener("submit",submit,true);}
  call("/api/me").then(d=>{if(d.logged_in)load();});
