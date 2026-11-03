@@ -58,6 +58,8 @@ function bind(){
  document.addEventListener("jr:login",load);
  const show=window.show;
  if(typeof show==="function")window.show=function(id){const r=show.apply(this,arguments);if(id==="home")load();return r;};
+ const oldOpen=window.openApp;
+ if(typeof oldOpen==="function")window.openApp=async function(){const result=await oldOpen.apply(this,arguments);await load();return result;};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
 window.jrHumanEnvironment={refresh:load};
