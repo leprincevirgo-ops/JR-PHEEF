@@ -205,6 +205,62 @@ module.exports = function mountHumanEnvironment(ctx) {
     if (error) throw error;
     res.json({ ok: true, capability: data, note: "This preference does not override transaction-specific consent or another person's permissions." });
   }));
+  // Long-term memory is explicit, member-owned and non-sensitive by design.
+  const MEMORY_KINDS = new Set(["preference", "goal", "project_context", "workflow", "non_sensitive_fact"]);
+  app.get("/api/jr/environment/memories", wrap("JR member memory list", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const { data, error } = await db.from("jr_memory_items")
+      .select("id,memory_kind,memory_text,consent_ai_context,active,source,created_at,updated_at")
+      .eq("member_id", member.id).eq("active", true)
+      .order("updated_at", { ascending: false }).limit(40);
+    if (error) throw error;
+    res.json({ ok: true, memories: data || [] });
+  }));
+  app.post("/api/jr/environment/memories", wrap("JR member memory create", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    if (limited(req, res, "jr-memory-create", 30)) return;
+    const kind = clean(req.body.memory_kind);
+    const value = clean(req.body.memory_text).slice(0, 1000);
+    if (!MEMORY_KINDS.has(kind)) return bad(res, "Choose a supported, non-sensitive memory category.");
+    if (value.length < 3) return bad(res, "Write a little more about what JR should remember.");
+    if (req.body.consent_ai_context !== true) return bad(res, "Confirm whether JR may reuse this memory as context in future AI conversations.");
+    const { count, error: countError } = await db.from("jr_memory_items").select("id", { count: "exact", head: true }).eq("member_id", member.id).eq("active", true);
+    if (countError) throw countError;
+    if (count >= 40) return bad(res, "You can keep up to 40 active memory items. Review or remove an older one first.", 409);
+    const { data, error } = await db.from("jr_memory_items").insert({
+      member_id: member.id, memory_kind: kind, memory_text: value,
+      consent_ai_context: true, active: true, source: "member_entered"
+    }).select("id,memory_kind,memory_text,consent_ai_context,active,source,created_at,updated_at").single();
+    if (error) throw error;
+    await recordSecurityEvent(member.id, "memory_created", "memory_item", data.id, "Member explicitly saved a non-sensitive JR memory.", { memory_kind: kind, consent_ai_context: true });
+    res.status(201).json({ ok: true, memory: data, note: "Saved because you explicitly asked JR to remember it. You can disable AI reuse or delete it at any time." });
+  }));
+  app.patch("/api/jr/environment/memories/:id", wrap("JR member memory consent update", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const id = clean(req.params.id);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return bad(res, "Memory item not found.", 404);
+    if (typeof req.body.consent_ai_context !== "boolean") return bad(res, "Choose whether JR may reuse this memory in future AI conversations.");
+    const { data, error } = await db.from("jr_memory_items").update({
+      consent_ai_context: req.body.consent_ai_context, updated_at: new Date().toISOString()
+    }).eq("id", id).eq("member_id", member.id).eq("active", true)
+      .select("id,memory_kind,memory_text,consent_ai_context,active,source,created_at,updated_at").maybeSingle();
+    if (error) throw error;
+    if (!data) return bad(res, "Memory item not found.", 404);
+    await recordSecurityEvent(member.id, "memory_consent_changed", "memory_item", id, "Member changed AI reuse consent for a JR memory.", { consent_ai_context: data.consent_ai_context });
+    res.json({ ok: true, memory: data });
+  }));
+  app.delete("/api/jr/environment/memories/:id", wrap("JR member memory delete", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const id = clean(req.params.id);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(id)) return bad(res, "Memory item not found.", 404);
+    const { data, error } = await db.from("jr_memory_items").update({ active: false, consent_ai_context: false, updated_at: new Date().toISOString() })
+      .eq("id", id).eq("member_id", member.id).eq("active", true).select("id").maybeSingle();
+    if (error) throw error;
+    if (!data) return bad(res, "Memory item not found.", 404);
+    await recordSecurityEvent(member.id, "memory_deactivated", "memory_item", id, "Member removed a JR memory from active use.");
+    res.json({ ok: true, deleted: true, note: "This memory is no longer active or used as AI context." });
+  }));
+
   // Action proposals are a durable consent record, not an execution engine.
   // An approved proposal must still be handed to a separately authorised connector.
   const ACTION_RISKS = new Set(["low", "medium", "high", "critical"]);
