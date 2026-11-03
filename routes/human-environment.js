@@ -87,7 +87,7 @@ module.exports = function mountHumanEnvironment(ctx) {
 
   app.get("/api/jr/environment", wrap("JR environment overview", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
-    const [worldRows, journal, permissions] = await Promise.all([
+    const [worldRows, journal, permissions, proposals] = await Promise.all([
       ensureWorldRows(member.id),
       db.from("jr_growth_journal").select("id,event_kind,world_key,title,detail,created_at").eq("member_id", member.id).order("created_at", { ascending: false }).limit(12),
       db.from("jr_capability_permissions").select("capability_key,enabled,scope,updated_at").eq("member_id", member.id),
