@@ -28,6 +28,6 @@ assert.ok(migration.includes("grant all on table public.jr_action_proposals to s
 assert.ok(ui.includes("jrJourneyProposals")&&ui.includes("data-jr-proposal-decision"),"Member-facing approval centre missing.");
 assert.ok(ui.includes("Approval alone does not send, spend, book, purchase or control a device."),"Approval boundary must be visible to members.");
 assert.ok(css.includes(".jr-proposal-card")&&css.includes("@media(max-width:560px)"),"Approval centre mobile styles missing.");
-assert.equal(html.split('human-environment-ui.js?v=2').length-1,1,"Human environment UI script must load exactly once.");
-assert.ok(html.includes('human-environment-ui.css?v=2'),"Human environment CSS cache version missing.");
+assert.equal(html.split('human-environment-ui.js?v=3').length-1,1,"Human environment UI script must load exactly once.");
+assert.ok(html.includes('human-environment-ui.css?v=3'),"Human environment CSS cache version missing.");
 console.log("PASS: JR intent interpreter matching, route deduplication, consent lifecycle, member isolation, audit schema and approval UI.");
