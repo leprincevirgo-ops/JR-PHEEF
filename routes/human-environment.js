@@ -5,19 +5,19 @@
 module.exports = function mountHumanEnvironment(ctx) {
   const { app, db, clean, requireMember, logActivity, checkRequestRate } = ctx;
   const WORLDS = {
-    personal: { title: "Your life", page: "profile", terms: /\\b(my life|personal|myself|my goals|my profile|organise my life)\\b/i },
-    learning: { title: "Learning & knowledge", page: "teacher", terms: /\\b(learn|teach|study|lesson|course|understand|explain|school|university|skill|practice a language)\\b/i },
-    creative: { title: "Creation & imagination", page: "scifi", terms: /\\b(create|design|invent|imagine|write|draw|music|story|prototype|build an idea)\\b/i },
-    work: { title: "Work & projects", page: "projects", terms: /\\b(work|job|career|project|task|plan my day|organise my day|resume|cv)\\b/i },
-    business: { title: "Business & enterprise", page: "businessgrowth", terms: /\\b(business|company|shop|supermarket|customers|sales|stock|supplier|grow my business|operate)\\b/i },
-    opportunities: { title: "Opportunities & exchange", page: "find", terms: /\\b(find|search|buy|sell|trade|opportunit|marketplace|product|service|job opening)\\b/i },
-    relationships: { title: "People & relationships", page: "connections", terms: /\\b(connect|friend|people|relationship|contact|network|message|chat)\\b/i },
-    community: { title: "Community & society", page: "social", terms: /\\b(community|society|volunteer|group|social|share a status)\\b/i },
-    family: { title: "Family", page: "family", terms: /\\b(family|household|relatives|family goals)\\b/i },
-    civic: { title: "Civic & public services", page: "accessgov", terms: /\\b(government|public service|county|citizen|civic|permit|public office)\\b/i },
-    exploration: { title: "Explore the world", page: "explore", terms: /\\b(explore|discover|world|country|travel|where is|research|what is happening)\\b/i },
-    health: { title: "Health & wellbeing", page: "explore", terms: /\\b(health|wellbeing|well-being|fitness|exercise|nutrition|sleep)\\b/i },
-    culture: { title: "Culture & expression", page: "explore", terms: /\\b(culture|language|tradition|art|history|heritage)\\b/i }
+    personal: { title: "Your life", page: "profile", terms: /\b(my life|personal|myself|my goals|my profile|organise my life)\b/i },
+    learning: { title: "Learning & knowledge", page: "teacher", terms: /\b(learn|teach|study|lesson|course|understand|explain|school|university|skill|practice a language)\b/i },
+    creative: { title: "Creation & imagination", page: "scifi", terms: /\b(create|design|invent|imagine|write|draw|music|story|prototype|build an idea)\b/i },
+    work: { title: "Work & projects", page: "projects", terms: /\b(work|job|career|project|task|plan my day|organise my day|resume|cv)\b/i },
+    business: { title: "Business & enterprise", page: "businessgrowth", terms: /\b(business|company|shop|supermarket|customers|sales|stock|supplier|grow my business|operate)\b/i },
+    opportunities: { title: "Opportunities & exchange", page: "find", terms: /\b(find|search|buy|sell|trade|opportunit|marketplace|product|service|job opening)\b/i },
+    relationships: { title: "People & relationships", page: "connections", terms: /\b(connect|friend|people|relationship|contact|network|message|chat)\b/i },
+    community: { title: "Community & society", page: "social", terms: /\b(community|society|volunteer|group|social|share a status)\b/i },
+    family: { title: "Family", page: "family", terms: /\b(family|household|relatives|family goals)\b/i },
+    civic: { title: "Civic & public services", page: "accessgov", terms: /\b(government|public service|county|citizen|civic|permit|public office)\b/i },
+    exploration: { title: "Explore the world", page: "explore", terms: /\b(explore|discover|world|country|travel|where is|research|what is happening)\b/i },
+    health: { title: "Health & wellbeing", page: "explore", terms: /\b(health|wellbeing|well-being|fitness|exercise|nutrition|sleep)\b/i },
+    culture: { title: "Culture & expression", page: "explore", terms: /\b(culture|language|tradition|art|history|heritage)\b/i }
   };
   const CAPABILITIES = [
     ["learning", "Learn, practise and build skills", "ready"],
@@ -53,9 +53,9 @@ module.exports = function mountHumanEnvironment(ctx) {
     return { key: "personal", title: "Your life", page: "assistant" };
   }
   function stageFor(key, text) {
-    if (/\\b(learn|teach|study|practis|understand|lesson)\\b/i.test(text)) return "learning";
-    if (/\\b(create|build|make|write|design|launch|start)\\b/i.test(text)) return "building";
-    if (/\\b(help|how|what|where|explore|find|show|tell)\\b/i.test(text)) return "discovering";
+    if (/\b(learn|teach|study|practis|understand|lesson)\b/i.test(text)) return "learning";
+    if (/\b(create|build|make|write|design|launch|start)\b/i.test(text)) return "building";
+    if (/\b(help|how|what|where|explore|find|show|tell)\b/i.test(text)) return "discovering";
     return key === "learning" ? "learning" : "practising";
   }
   async function ensureWorldRows(memberId) {
@@ -193,4 +193,81 @@ module.exports = function mountHumanEnvironment(ctx) {
     if (error) throw error;
     res.json({ ok: true, capability: data, note: "This preference does not override transaction-specific consent or another person's permissions." });
   }));
+  // Action proposals are a durable consent record, not an execution engine.
+  // An approved proposal must still be handed to a separately authorised connector.
+  const ACTION_RISKS = new Set(["low", "medium", "high", "critical"]);
+  const ACTION_DECISIONS = new Set(["approve", "reject"]);
+  app.get("/api/jr/actions/proposals", wrap("JR action proposals", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    const now = new Date().toISOString();
+    const { data: expired, error: expireError } = await db.from("jr_action_proposals")
+      .update({ status: "expired", decided_at: now })
+      .eq("member_id", member.id).eq("status", "pending").lt("expires_at", now)
+      .select("id");
+    if (expireError) throw expireError;
+    const { data, error } = await db.from("jr_action_proposals")
+      .select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at")
+      .eq("member_id", member.id).order("created_at", { ascending: false }).limit(40);
+    if (error) throw error;
+    res.json({ ok: true, proposals: data || [], expired_count: (expired || []).length });
+  }));
+
+  app.post("/api/jr/actions/proposals", wrap("JR action proposal create", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    if (limited(req, res, "jr-action-proposal-create", 30)) return;
+    const actionKey = clean(req.body.action_key).toLowerCase();
+    const summary = clean(req.body.summary).slice(0, 280);
+    const risk = clean(req.body.risk_level).toLowerCase();
+    const idempotencyKey = clean(req.body.idempotency_key).slice(0, 100);
+    if (!/^[a-z][a-z0-9_.:-]{1,79}$/.test(actionKey)) return bad(res, "Give this action a valid identifier.");
+    if (summary.length < 5) return bad(res, "Explain what JR is proposing to do.");
+    if (!ACTION_RISKS.has(risk)) return bad(res, "Choose a valid risk level.");
+    if (idempotencyKey && !/^[a-zA-Z0-9_.:-]{8,100}$/.test(idempotencyKey)) return bad(res, "The request reference is invalid.");
+    if (idempotencyKey) {
+      const { data: prior, error: priorError } = await db.from("jr_action_proposals")
+        .select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at")
+        .eq("member_id", member.id).eq("idempotency_key", idempotencyKey).maybeSingle();
+      if (priorError) throw priorError;
+      if (prior) return res.json({ ok: true, proposal: prior, reused: true });
+    }
+    const now = Date.now();
+    const requestedExpiry = Number(req.body.expires_in_hours);
+    const hours = Number.isFinite(requestedExpiry) ? Math.min(72, Math.max(1, requestedExpiry)) : 24;
+    const { data, error } = await db.from("jr_action_proposals").insert({
+      member_id: member.id, action_key: actionKey, summary, risk_level: risk,
+      status: "pending", requires_confirmation: true,
+      idempotency_key: idempotencyKey || null,
+      expires_at: new Date(now + hours * 3600000).toISOString()
+    }).select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").single();
+    if (error) {
+      if (error.code === "23505" && idempotencyKey) {
+        const { data: prior } = await db.from("jr_action_proposals").select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").eq("member_id", member.id).eq("idempotency_key", idempotencyKey).maybeSingle();
+        if (prior) return res.json({ ok: true, proposal: prior, reused: true });
+      }
+      throw error;
+    }
+    await logActivity(member.id, "JR_ACTION_PROPOSED", { proposal_id: data.id, action_key: actionKey, risk_level: risk });
+    res.status(201).json({ ok: true, proposal: data, note: "This records a proposal only. No external action has been performed." });
+  }));
+
+  app.patch("/api/jr/actions/proposals/:id", wrap("JR action proposal decision", async (req, res) => {
+    const member = await requireMember(req, res); if (!member) return;
+    if (limited(req, res, "jr-action-proposal-decision", 40)) return;
+    const id = clean(req.params.id);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return bad(res, "Action proposal not found.", 404);
+    const decision = clean(req.body.decision).toLowerCase();
+    if (!ACTION_DECISIONS.has(decision)) return bad(res, "Choose approve or reject.");
+    const now = new Date().toISOString();
+    const { data: proposal, error } = await db.from("jr_action_proposals").update({
+      status: decision === "approve" ? "approved" : "rejected", decided_at: now
+    }).eq("id", id).eq("member_id", member.id).eq("status", "pending").gt("expires_at", now)
+      .select("id,action_key,summary,risk_level,status,requires_confirmation,created_at,expires_at,decided_at").maybeSingle();
+    if (error) throw error;
+    if (!proposal) return bad(res, "This proposal has expired or has already been decided.", 409);
+    await logActivity(member.id, decision === "approve" ? "JR_ACTION_APPROVED" : "JR_ACTION_REJECTED", { proposal_id: id, action_key: proposal.action_key });
+    res.json({ ok: true, proposal, executed: false, note: decision === "approve"
+      ? "Your approval has been recorded. JR has not executed the action; a separately authorised and connected service is still required."
+      : "Your rejection has been recorded. No action was performed." });
+  }));
+
 };
