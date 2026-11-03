@@ -25,7 +25,7 @@ function addResume(){
    }else{button.textContent="YOU'RE ALREADY HOME";button.disabled=false;}
   }catch{button.textContent="RECONNECT TO RESUME";button.disabled=false;}
  });
- greeting.append(button);
+ greeting.insertAdjacentElement("afterend",button);
  fetch("/api/continuity",{credentials:"include"}).then(r=>r.json()).then(data=>{
   const page=data?.state?.page||data?.page;
   if(page&&page!=="home"&&/^[a-z][a-z0-9_-]{0,50}$/.test(page))button.hidden=false;
