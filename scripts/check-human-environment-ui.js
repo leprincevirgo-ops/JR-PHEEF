@@ -1,0 +1,10 @@
+"use strict";
+const assert=require("node:assert/strict"),fs=require("node:fs");
+const ui=fs.readFileSync("public/human-environment-ui.js","utf8"),css=fs.readFileSync("public/human-environment-ui.css","utf8"),html=fs.readFileSync("public/index.html","utf8");
+new (require("node:vm").Script)(ui,{filename:"public/human-environment-ui.js"});
+for(const id of ["jrJourneyPanel","jrJourneyWorlds","jrJourneyJournal","jrJourneyCapabilities","jrJourneyReply"])assert.ok(ui.includes(id),"Missing journey UI element "+id);
+for(const route of ["/api/jr/environment","/api/jr/environment/interact","/api/ai/chat"])assert.ok(ui.includes(route),"Missing interaction call "+route);
+assert.ok(ui.includes("stopImmediatePropagation"),"Universal composer must be intercepted before legacy navigation");
+assert.ok(css.includes(".jr-journey-worlds")&&css.includes("@media(max-width:800px)"),"Journey must be responsive");
+assert.ok(html.includes("/human-environment-ui.js?v=1")&&html.includes("/human-environment-ui.css?v=1"),"Journey assets must load");
+console.log("PASS: journey panel, universal composer, assistant response bridge and responsive styles.");
