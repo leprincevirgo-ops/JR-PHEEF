@@ -40,6 +40,7 @@
  <select id="adListing"><option value="">Not linked to a listing</option></select>
  <input id="adCategory" maxlength="60" placeholder="Category to appear in (optional), e.g. Food">
  <input id="adLocation" maxlength="120" placeholder="Area (optional)">
+ <div class="ad-media-tools"><p class="muted">Add up to five photos or videos from your gallery or camera.</p><label for="adGallery">Gallery — photos and videos</label><input id="adGallery" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple><label for="adCamera">Take a photo</label><input id="adCamera" type="file" accept="image/*" capture="environment"><div class="ad-media-actions"><button type="button" class="dark" onclick="adStartRecording()">RECORD VIDEO</button><button type="button" class="dark" onclick="adExplainLive()">GO LIVE</button><button type="button" class="dark" onclick="adStopRecording()" id="adStopRecord" disabled>STOP RECORDING</button></div><video id="adCameraPreview" class="ad-camera-preview" playsinline muted hidden></video><p id="adRecordMsg" class="muted" aria-live="polite">Public live broadcasting is not active yet; you can record a video clip.</p><div id="adMediaPreview" class="ad-media-preview"></div></div>
  <button class="primary" onclick="adCreate()">SEND FOR REVIEW</button><p id="adMsg" class="muted" aria-live="polite"></p></div>
  <div class="card"><h3>My ads</h3><div id="adMine"></div></div></div>
 
@@ -135,7 +136,7 @@
     if (!inited) return;
     if (id === "projects") { if (openProject) pjOpen(openProject); else pjList(); }
     if (id === "ideas") ideaList();
-    if (id === "ads") adLoad();
+    if (id === "ads") { bindAdMediaInputs(); adLoad(); }
     if (id === "jrsettings") jsLoad();
     if (id === "find") loadSponsored();
     if (id === "command" && isOwner()) loadOwnerJr();
@@ -241,6 +242,14 @@
   window.ideaVote = async id => { const d = await call("/api/ideas/" + encodeURIComponent(id) + "/vote", "POST", {}); if (!d.ok) alert(d.error || "Could not vote."); ideaList(); };
 
   /* ---------- advertising centre ---------- */
+  const adMediaFiles=[];let adRecorder=null,adStream=null,adChunks=[];
+  function adRenderMedia(){const host=$("adMediaPreview");if(!host)return;host.replaceChildren();adMediaFiles.forEach((f,i)=>{const box=document.createElement("div");box.className="ad-media-item";const media=document.createElement(f.type.startsWith("video/")?"video":"img");media.src=URL.createObjectURL(f);if(media.tagName==="VIDEO"){media.controls=true;media.playsInline=true;}else media.alt="Ad media preview";const label=document.createElement("span");label.textContent=f.name;const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.textContent="REMOVE";remove.onclick=()=>{adMediaFiles.splice(i,1);adRenderMedia();};box.append(media,label,remove);host.append(box);});}
+  function adAddFiles(files){for(const f of Array.from(files||[])){if(adMediaFiles.length>=5)break;if(!/^(image\/(jpeg|png|webp)|video\/(mp4|webm|quicktime))$/.test(f.type)||f.size>20*1024*1024)continue;adMediaFiles.push(f);}adRenderMedia();}
+  function bindAdMediaInputs(){["adGallery","adCamera"].forEach(id=>{const el=$(id);if(el&&!el.dataset.bound){el.dataset.bound="1";el.addEventListener("change",()=>{adAddFiles(el.files);el.value="";});}});}
+  window.adStartRecording=async function(){if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$("adRecordMsg").textContent="Video recording is not supported here. Upload a clip from your gallery.";return;}if(adMediaFiles.length>=5)return;try{adStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:true});const preview=$("adCameraPreview");preview.srcObject=adStream;preview.hidden=false;await preview.play();const mime=["video/webm;codecs=vp9,opus","video/webm","video/mp4"].find(t=>MediaRecorder.isTypeSupported(t));adRecorder=mime?new MediaRecorder(adStream,{mimeType:mime}):new MediaRecorder(adStream);adChunks=[];adRecorder.ondataavailable=e=>{if(e.data?.size)adChunks.push(e.data);};adRecorder.onstop=()=>{const type=adRecorder.mimeType||"video/webm",ext=type.includes("mp4")?"mp4":"webm";adAddFiles([new File([new Blob(adChunks,{type})],"jr-ad-video-"+Date.now()+"."+ext,{type})]);adStream?.getTracks().forEach(t=>t.stop());adStream=null;preview.srcObject=null;preview.hidden=true;$("adRecordMsg").textContent="Video saved for your ad. Preview it below.";};adRecorder.start();$("adStopRecord").disabled=false;$("adRecordMsg").textContent="Recording on this device — not broadcasting. Press STOP RECORDING to save."; }catch(e){$("adRecordMsg").textContent="Camera/microphone unavailable or permission denied. Gallery upload is still available.";adStream?.getTracks().forEach(t=>t.stop());adStream=null;}};
+  window.adStopRecording=function(){if(adRecorder&&adRecorder.state!=="inactive"){adRecorder.stop();$("adStopRecord").disabled=true;}};
+  window.adExplainLive=function(){$("adRecordMsg").textContent="Public Go Live is not enabled yet. It requires a streaming provider and live moderation controls. Record or upload a video clip for now.";};
+  async function adUploadMedia(){if(!adMediaFiles.length)return [];const form=new FormData();adMediaFiles.forEach(f=>form.append("media",f));const response=await fetch("/api/ads/media",{method:"POST",credentials:"include",body:form});const data=await response.json().catch(()=>({}));if(!response.ok||!data.ok)throw new Error(data.error||"Media upload failed.");return data.media_urls||[];}
   async function adLoad() {
     const [mine, listings] = await Promise.all([call("/api/ads/mine"), call("/api/listings/mine")]);
     if (listings.ok) $("adListing").innerHTML = '<option value="">Not linked to a listing</option>' + (listings.listings || []).filter(l => l.status === "active").map(l => `<option value="${esc(l.id)}">${esc(l.item_name)}</option>`).join("");
@@ -250,9 +259,7 @@
       ${["approved", "paused", "pending"].includes(a.status) ? `<button class="danger" onclick="adSet('${esc(a.id)}','ended')">END</button>` : ""}</div>`).join("") || "<p class='muted'>No ads yet.</p>") : esc(mine.error || "");
   }
   window.adCreate = async function () {
-    const d = await call("/api/ads", "POST", { title: $("adTitle").value, body: $("adBody").value, listing_id: $("adListing").value || undefined, category: $("adCategory").value, location: $("adLocation").value });
-    $("adMsg").textContent = d.ok ? d.message : (d.error || "Could not send the ad.");
-    if (d.ok) { $("adTitle").value = ""; $("adBody").value = ""; adLoad(); }
+    const msg=$("adMsg");msg.textContent="Preparing your ad…";try{const media_urls=await adUploadMedia();const d=await call("/api/ads","POST",{title:$("adTitle").value,body:$("adBody").value,listing_id:$("adListing").value||undefined,category:$("adCategory").value,location:$("adLocation").value,media_urls});msg.textContent=d.ok?d.message:(d.error||"Could not send the ad.");if(d.ok){$("adTitle").value="";$("adBody").value="";$("adGallery").value="";$("adCamera").value="";adMediaFiles.length=0;adRenderMedia();adLoad();}}catch(e){msg.textContent=e.message||"Could not upload your ad media.";}
   };
   window.adSet = async (id, status) => { const d = await call("/api/ads/" + encodeURIComponent(id), "PATCH", { status }); if (!d.ok) alert(d.error || "Not possible."); adLoad(); };
 
