@@ -15,6 +15,7 @@ assert.ok(html.includes('referral_code:(localStorage.getItem("jr_referral_code")
 assert.ok(ui.includes('window.location.origin+"/?ref="'),"personal invite URL missing");
 assert.ok(ui.includes('/api/referrals'),"referral activity client missing");
 assert.ok(html.includes("DISCOVER OPPORTUNITIES"),"new discovery heading missing");
+assert.ok(html.includes('if(id==="referrals"&&typeof loadReferralCenter==="function") loadReferralCenter();'),"referral dashboard is not loaded on navigation");
 assert.ok(manifest.includes("Learn. Create. Connect. Grow."),"new slogan missing from app manifest");
 assert.ok(!html.includes("DISCOVER &amp; MARKETPLACE"),"legacy public marketplace heading remains");
 console.log("PASS: personal invite links, referral attribution, activity UI and updated public identity.");
