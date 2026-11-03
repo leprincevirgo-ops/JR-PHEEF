@@ -15,6 +15,13 @@ assert.equal(server.split('require("./routes/human-environment")(routeCtx);').le
 for(const endpoint of ["/api/jr/actions/proposals","/api/jr/actions/proposals/:id"])assert.ok(route.includes(endpoint),"Missing consent endpoint "+endpoint);
 for(const guard of ['.eq("member_id", member.id)','.eq("status", "pending")','.gt("expires_at", now)','idempotency_key','executed: false'])assert.ok(route.includes(guard),"Missing action governance guard: "+guard);
 assert.ok(route.includes("recordSecurityEvent")&&route.includes("action_approved")&&route.includes("action_rejected"),"Consent decisions must be auditable.");
+for(const endpoint of ["/api/jr/environment/memories","/api/jr/environment/memories/:id"])assert.ok(route.includes(endpoint),"Missing member memory endpoint "+endpoint);
+for(const guard of ['consent_ai_context !== true','eq("member_id", member.id)','eq("consent_ai_context",true)','active: false'])assert.ok(route.includes(guard),"Missing explicit memory privacy guard: "+guard);
+assert.ok(server.includes('eq("consent_ai_context",true)')&&server.includes("Member-approved JR continuity memories"),"Only explicitly consented memories may be reused as AI context.");
+assert.ok(ui.includes("jrMemoryConsent")&&ui.includes("SAVE TO MY MEMORY")&&ui.includes("data-memory-delete"),"Member-controlled memory UI missing.");
+assert.ok(css.includes(".jr-journey-memory")&&css.includes(".jr-memory-card"),"Member memory UI styling missing.");
+assert.ok(html.includes("human-environment-ui.js?v=3")&&html.includes("human-environment-ui.css?v=3"),"Member memory UI assets must be versioned.");
+
 for(const table of ["jr_action_proposals","jr_security_events"])assert.ok(migration.includes("create table if not exists public."+table),"Missing governance table "+table);
 for(const table of ["jr_action_proposals","jr_security_events"])assert.ok(migration.includes("enable row level security")&&migration.includes("deny_client_"+table),"Missing private RLS policy for "+table);
 assert.ok(migration.includes("grant all on table public.jr_action_proposals to service_role")&&migration.includes("grant all on table public.jr_security_events to service_role"),"Trusted server role grants missing.");
