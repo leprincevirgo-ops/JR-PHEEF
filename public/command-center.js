@@ -16,7 +16,7 @@ const MODULES=[
  ["fixedit","Repair services","Find repair and maintenance services","⚒"],
  ["ideas","Shape JR","Submit ideas and feature requests","＋"],
  ["ads","Advertising centre","Manage advertising campaigns and placements","▤"],
- ["find","Discover & marketplace","Search listings, products, services and opportunities","⌕"],
+ ["find","Discover opportunities","Discover people, products, services and opportunities","⌕"],
  ["discover","Universal Discover","Explore subjects, categories, web, images, video and places","✧"],
  ["explore","Explore","Visual discovery and inspiration","◎"],
  ["apphub","App Hub","Organise and open your other apps","▦"],
