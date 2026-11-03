@@ -5,26 +5,26 @@ const panel=$("jrNaturalInteraction"); if(!panel)return;
 const status=$("jrNaturalStatus"), transcript=$("jrNaturalTranscript"), input=$("jrNaturalInput");
 const mic=$("jrNaturalMic"), send=$("jrNaturalSend"), stop=$("jrNaturalStop"), speak=$("jrNaturalSpeak");
 const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-let recognition=null, silenceTimer=null, busy=false, listening=false, speaking=false, pending="";
+let recognition=null, silenceTimer=null, busy=false, listening=false, speaking=false, latestTranscript="";
 let history=[];
 function setStatus(s){status.textContent=s;}
 function addLine(who,text){const p=document.createElement("p");p.className="jr-line jr-"+who;p.textContent=(who==="user"?"You: ":"JR: ")+text;transcript.appendChild(p);transcript.scrollTop=transcript.scrollHeight;}
 function clearTimer(){if(silenceTimer){clearTimeout(silenceTimer);silenceTimer=null;}}
 function stopSpeech(){if(window.speechSynthesis){window.speechSynthesis.cancel();}speaking=false;}
-function stopListening(){clearTimer();if(recognition){try{recognition.stop();}catch(e){}}listening=false;mic.textContent="🎙 START TALKING";}
+function stopListening(){clearTimer();latestTranscript="";if(recognition){try{recognition.stop();}catch(e){}}listening=false;mic.textContent="🎙 START TALKING";}
 function startListening(){
  if(!SpeechRecognition){setStatus("Voice recognition is not supported here. You can type to JR.");return;}
  stopSpeech(); if(recognition){try{recognition.abort();}catch(e){}}
  recognition=new SpeechRecognition(); recognition.lang=document.documentElement.lang||"en-KE"; recognition.continuous=true; recognition.interimResults=true;
  pending=""; listening=true; mic.textContent="Listening…";setStatus("Listening. Speak naturally; JR will wait about 3 seconds after you finish.");
  recognition.onresult=e=>{
-  let interim="";
-  for(let i=e.resultIndex;i<e.results.length;i++){const text=e.results[i][0].transcript||"";if(e.results[i].isFinal)pending+=text+" ";else interim+=text;}
-  input.value=(pending+interim).trim();
-  if(pending.trim()){clearTimer();silenceTimer=setTimeout(()=>{const text=pending.trim();pending="";if(text)sendMessage(text);},3000);}
+  let finalText="", interimText="";
+  for(let i=0;i<e.results.length;i++){const text=e.results[i][0].transcript||"";if(e.results[i].isFinal)finalText+=text+" ";else interimText+=text+" ";}
+  latestTranscript=(finalText+" "+interimText).trim();input.value=latestTranscript;
+  if(latestTranscript){clearTimer();silenceTimer=setTimeout(()=>{const text=latestTranscript.trim();latestTranscript="";if(text)sendMessage(text);},3000);}
  };
  recognition.onerror=e=>{if(e.error!=="no-speech"&&e.error!=="aborted")setStatus("Microphone issue: "+e.error+". You can type instead.");};
- recognition.onend=()=>{if(listening&&!busy){listening=false;mic.textContent="🎙 START TALKING";if(pending.trim()){const text=pending.trim();pending="";clearTimer();sendMessage(text);}else setStatus("Listening paused. Tap start talking to continue.");}};
+ recognition.onend=()=>{if(listening&&!busy){listening=false;mic.textContent="🎙 START TALKING";setStatus(latestTranscript?"Listening paused. JR will respond after the pause.":"Listening paused. Tap start talking to continue.");}};
  try{recognition.start();}catch(e){listening=false;setStatus("Could not start the microphone. Check browser permission.");}
 }
 async function sendMessage(value){
