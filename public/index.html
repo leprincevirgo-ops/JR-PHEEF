@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JR PHEEF</title>
 <meta name="theme-color" content="#0a2c57">
+<script>(function(){try{const c=(new URLSearchParams(location.search).get("ref")||"").trim().toUpperCase();if(/^JR-[A-F0-9]{12}$/.test(c))localStorage.setItem("jr_referral_code",c);}catch(e){}})();</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/jr-pheef-icon.svg">
 
@@ -690,7 +691,7 @@ placeholder="Password">
 <div id="find" class="page hidden">
 
 <div class="card">
-<h2>DISCOVER &amp; MARKETPLACE</h2>
+<h2>DISCOVER OPPORTUNITIES</h2>
 
 <input id="searchQ" placeholder="Search products, services, listings or opportunities">
 
@@ -792,7 +793,7 @@ Points are JR PHEEF rewards and are not cash withdrawals.
 <h2>💙 PHEEF FLEX</h2>
 
 <p>
-Need marketplace access but don't have cash?
+Need opportunity discovery access but don't have cash?
 </p>
 
 <div class="badge">PAY LATER</div>
@@ -804,7 +805,7 @@ PHEEF FLEX is being prepared for eligible members.
 </p>
 
 <p class="muted">
-Real credit is currently inactive. Marketplace discovery is free. FLEX and any credit services remain inactive until a partner and safeguards are in place.
+Real credit is currently inactive. Opportunity Discovery discovery is free. FLEX and any credit services remain inactive until a partner and safeguards are in place.
 </p>
 
 <input id="flexAmount"
@@ -1154,6 +1155,7 @@ async function register(){
       ? "Account created. Please sign in with the phone number or email and password you just registered."
       : (data.error||"Account creation failed. Please try again.");
     if(data.ok){
+      localStorage.removeItem("jr_referral_code");
       showLogin();
       $("loginIdentifier").value=$("regEmail").value.trim()||$("regPhone").value.trim();
       $("loginPassword").value="";
