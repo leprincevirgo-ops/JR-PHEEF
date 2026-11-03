@@ -238,7 +238,6 @@ function mount(){
     ["DISCOVER & LEARN",["discoverhub"]],
     ["CREATE & WORK",["workhub"]],
     ["PEOPLE & CONNECT",["connecthub"]],
-    ["MY SPACE & SETTINGS",["personalhub"]],
     ["MORE SERVICES",["morehub"]]
    ];
    sections.forEach(([label,ids])=>{
