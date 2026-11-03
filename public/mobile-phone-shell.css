@@ -59,3 +59,31 @@
 .ad-media-item button{margin:0}
 @media(max-width:620px){.ad-media-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-media-item img,.ad-media-item video{max-height:130px}.ad-media-actions button{flex:1 1 100%}}
 @media(min-width:621px) and (max-width:1000px){.ad-media-preview{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Responsive shell refinements: safe-area support, compact content and accessible touch controls. */
+html{min-width:320px;overflow-x:hidden}
+body{overflow-x:hidden;min-height:100dvh}
+button,a,input,select,textarea{touch-action:manipulation}
+img,video,canvas,iframe{max-width:100%}
+#app>.page{width:100%;min-width:0}
+#app .card,.jr-workspace-card{min-width:0;overflow-wrap:anywhere}
+@media(max-width:900px){
+  #app>.nav{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+  #app>.nav::-webkit-scrollbar{display:none}
+  #jpMobileDock{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #jpMobileDock .jp-mobile-dock-item{min-height:52px!important}
+  main{padding-left:max(9px,env(safe-area-inset-left))!important;padding-right:max(9px,env(safe-area-inset-right))!important}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  input,select,textarea{max-width:100%;font-size:16px}
+}
+@media(max-width:420px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .card{padding:13px}
+  .jp-workspace-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:900px){
+  #jpMobileDock{height:calc(54px + env(safe-area-inset-bottom))!important}
+  #jpMobileDock .jp-mobile-dock-item{min-height:42px!important}
+  #jpMobileDock .jp-mobile-dock-icon{font-size:16px!important}
+  #jpMobileDock .jp-mobile-dock-label{font-size:9px!important}
+}
