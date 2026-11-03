@@ -555,7 +555,7 @@ app.post("/api/points/redeem-access", async (req, res) => {
   return res.status(410).json({
     ok: false,
     error: "POINTS_REDEMPTION_NOT_ACTIVE",
-    message: "No points were deducted. Marketplace browsing is free; rewards redemption will be enabled after its rules are finalized."
+    message: "No points were deducted. Opportunity discovery is free; rewards redemption will be enabled after its rules are finalized."
   });
 });
 
@@ -1224,7 +1224,7 @@ const JR_AI_MODES = {
   dgbo: "DGBO Strategy Agent: support governance, decision briefs, venture planning, risk registers and investor-readiness analysis; founder decisions remain human-approved.",
   family: "FAMILY Coordination Agent: support family planning, service requests, budgeting education and continuity; never present the platform as a licensed bank or move funds.",
   ecosystem: "Ecosystem Coordinator: break cross-module goals into tasks, route them to relevant specialists, request only minimum permissions and present a consolidated plan.",
-  shopping_services: "Marketplace and Services Agent: help define service needs, compare listings and prepare safe requests; never invent provider verification or availability.",
+  shopping_services: "Opportunity and Services Agent: help define service needs, compare listings and prepare safe requests; never invent provider verification or availability.",
   education: "Education and Tutoring Agent: explain concepts, create practice and adapt learning plans without doing deceptive academic work.",
   business: "Business & Entrepreneurship Strategist: validate customer needs, model unit economics, plan operations and disclose assumptions.",
   research: "Research Analyst: prefer current attributable sources when web research is enabled; distinguish source claims from conclusions.",
