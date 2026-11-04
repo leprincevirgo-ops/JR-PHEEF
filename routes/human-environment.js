@@ -101,19 +101,19 @@ module.exports = function mountHumanEnvironment(ctx) {
     const [worlds, businesses, continuity, proposals, memories, partners] = checks;
     const aiConfigured = !!process.env.OPENAI_API_KEY;
     const storageConfigured = !!(process.env.SUPABASE_URL && (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY));
-    const liveConfigured = !!(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET);
+    const liveProviderCredentialsPresent = !!(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET);
     const statusOf = (result) => result.error ? "unavailable" : "ready";
     const rows = [
       { key: "living_intelligence", title: "JR Living Intelligence", status: aiConfigured ? "configured_unverified" : "fallback_only", detail: aiConfigured ? "AI provider credentials are configured. Provider quota and response availability are checked when JR receives a request." : "Natural interaction and deterministic assistance are available; external AI generation needs a funded provider connection.", page: "assistant", metric: Number(memories.count || 0), metric_label: "active saved memories" },
       { key: "world_engine", title: "JR World Engine", status: statusOf(worlds), detail: worlds.error ? "Member world progress could not be verified." : "Private worlds and journey checkpoints are available through the JR environment service.", page: "explore", metric: Number(worlds.count || 0), metric_label: "saved world records" },
       { key: "business_os", title: "JR Business Operating System", status: statusOf(businesses), detail: businesses.error ? "Business workspaces could not be verified." : "Business workspaces and daily plans are available. AI enrichment depends on provider availability; template plans remain available.", page: "businessgrowth", metric: Number(businesses.count || 0), metric_label: "your business workspaces" },
       { key: "continuity", title: "JR Continuity Engine", status: statusOf(continuity), detail: continuity.error ? "Cloud checkpoint storage could not be verified." : "Private cross-device checkpoints are available; this device also keeps a local recovery checkpoint.", page: "devices", metric: Number(continuity.count || 0), metric_label: "cloud checkpoints" },
-      { key: "creator_media", title: "JR Creator & Media Studio", status: storageConfigured ? "upload_route_ready" : "storage_configuration_needed", detail: liveConfigured ? "Media upload is configured and a LiveKit provider is configured; live-room operation still requires end-to-end provider validation." : "Camera/gallery capture and authenticated advertising uploads are implemented. Public broadcasting is not connected to a streaming provider.", page: "ads", live_broadcast: liveConfigured ? "provider_configured_unverified" : "not_connected" },
+      { key: "creator_media", title: "JR Creator & Media Studio", status: storageConfigured ? "upload_configured_unverified" : "storage_configuration_needed", detail: "Camera/gallery capture and authenticated advertising uploads are implemented. Storage is verified when an upload succeeds. Public broadcasting is not integrated with a live-room service.", page: "ads", live_broadcast: "not_integrated", streaming_credentials_present: liveProviderCredentialsPresent },
       { key: "identity_trust", title: "JR Identity & Trust Network", status: member.jp_number ? "ready" : "identity_incomplete", detail: "JP identity, consent-based connection requests and approval records protect member actions. Phone and email are not exposed by this status service.", page: "jpconnect", jp_identity_present: !!member.jp_number, pending_approvals: Number(proposals.count || 0), active_partner_connections: Number(partners.count || 0) }
     ];
     res.setHeader("Cache-Control", "no-store");
     res.json({ ok: true, generated_at: new Date().toISOString(), identity: { jp_number: member.jp_number || null }, capabilities: rows,
-      boundaries: { payments: "not_activated", public_live_broadcast: liveConfigured ? "provider_configured_but_unverified" : "not_connected", consequential_actions: "member_approval_required", ai_provider_quota: "not_tested_until_request" } });
+      boundaries: { payments: "not_activated", public_live_broadcast: "not_integrated", consequential_actions: "member_approval_required", ai_provider_quota: "not_tested_until_request" } });
   }));
 
   app.get("/api/jr/environment", wrap("JR environment overview", async (req, res) => {
