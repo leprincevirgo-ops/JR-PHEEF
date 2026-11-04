@@ -1,6 +1,6 @@
 {
   "name": "JR PHEEF Interoperability Capability Manifest",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "LIMITED_INBOUND_EVENT_GATEWAY",
   "summary": "Describes active browser capabilities and a limited member-scoped inbound partner event API. This does not grant general device, account or outbound action access.",
   "inbound": {
@@ -54,5 +54,7 @@
     "Web Share API",
     "File picker APIs where supported"
   ],
-  "integration_status": "LIMITED INBOUND PARTNER EVENT GATEWAY ACTIVE; GENERAL PUBLIC API, OUTBOUND ACTIONS AND DEVICE CLOUD CONNECTIONS ARE NOT ACTIVE"
+  "integration_status": "LIMITED MEMBER-SCOPED INBOUND EVENT GATEWAY ACTIVE; DEVELOPER PORTAL AND OPENAPI CONTRACT PUBLISHED; GENERAL PUBLIC API, OUTBOUND ACTIONS, OAUTH AND DEVICE CLOUD CONNECTIONS NOT ACTIVE",
+  "developer_portal": "/developers/",
+  "api_spec": "/openapi/jr-partner-events.yaml"
 }
