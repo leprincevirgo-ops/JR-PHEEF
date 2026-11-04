@@ -55,7 +55,7 @@ function build(){
  const app=$("app");if(!app||$("jrIntentBar"))return;
  const bar=document.createElement("section");bar.id="jrIntentBar";bar.className="jr-intent-bar";bar.setAttribute("aria-label","JR PHEEF universal command");
  const form=document.createElement("form");form.id="jrIntentForm";form.className="jr-intent-form";
- const input=document.createElement("input");input.id="jrIntentCommand";input.type="search";input.autocomplete="off";input.placeholder="Search or tell JR what to do…";input.setAttribute("aria-label","Search or tell JR what to do");
+ const input=document.createElement("input");input.id="jrIntentCommand";input.type="search";input.autocomplete="off";input.placeholder="Say anything to JR — ask, describe, create, solve, plan…";input.setAttribute("aria-label","Tell JR anything in your own words");
  const submitButton=document.createElement("button");submitButton.type="submit";submitButton.className="jr-intent-action jr-intent-search";submitButton.textContent="⌕";submitButton.setAttribute("aria-label","Search or submit request");
  const voice=document.createElement("button");voice.type="button";voice.id="jrIntentVoice";voice.className="jr-intent-action";voice.textContent="🎙";voice.setAttribute("aria-label","Speak to JR");
  const camera=document.createElement("button");camera.type="button";camera.id="jrIntentCamera";camera.className="jr-intent-action";camera.textContent="▣";camera.setAttribute("aria-label","Open camera or choose a photo");
