@@ -121,17 +121,67 @@ function renderConnections(p){
  search.addEventListener("input",()=>draw(search.value));draw();p.append(grid);
  const note=el("div","card jr-integration-note");note.append(el("h3","","How connections become active"),el("p","","When a provider offers an approved integration, JR PHEEF will request the minimum permissions needed, explain what data is shared, and let you revoke access. Passwords are never requested or stored by JR PHEEF for another company's account."));p.append(note);
 }
+function renderMemberSnapshot(host){
+ const card=el("section","card jr-member-snapshot");
+ card.setAttribute("aria-labelledby","jrMemberSnapshotTitle");
+ const loading=el("p","jr-member-snapshot-loading","Loading your personal details…");
+ card.append(loading);host.append(card);
+ const safePhoto=value=>{try{const u=new URL(String(value||""),location.origin);return ["https:","http:"].includes(u.protocol)?u.href:"";}catch{return "";}};
+ fetch("/api/me",{credentials:"include",cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject(new Error("profile unavailable"))).then(data=>{
+  if(!data||!data.ok||!data.logged_in||!data.member)throw new Error("session unavailable");
+  const m=data.member;card.replaceChildren();
+  const top=el("div","jr-member-snapshot-top");
+  const identity=el("div","jr-member-snapshot-identity");
+  const avatar=el("div","jr-member-snapshot-avatar");
+  const photo=safePhoto(m.profile_photo||m.avatar_url);
+  if(photo){const img=el("img");img.src=photo;img.alt="";img.referrerPolicy="no-referrer";img.onerror=()=>{avatar.replaceChildren();avatar.textContent=(m.full_name||"JR").trim().slice(0,2).toUpperCase();};avatar.append(img);}
+  else avatar.textContent=(m.full_name||"JR").trim().slice(0,2).toUpperCase();
+  const name=el("div","jr-member-snapshot-name");
+  name.append(el("span","jp-kicker","YOUR JR PHEEF PROFILE"),el("h2","",""+(m.full_name||"Your profile")),el("p","",m.jp_number?"JP NUMBER · "+m.jp_number:"JP number pending"));
+  identity.append(avatar,name);
+  const actions=el("div","jr-member-snapshot-actions");
+  const edit=el("button","primary","EDIT PROFILE");edit.type="button";edit.addEventListener("click",()=>go("profile"));
+  const refresh=el("button","dark","REFRESH");refresh.type="button";refresh.addEventListener("click",()=>{card.dataset.refresh="1";renderMemberSnapshotRefresh(card);});
+  actions.append(edit,refresh);top.append(identity,actions);
+  const details=el("div","jr-member-snapshot-details");
+  const since=m.created_at?new Date(m.created_at):null;
+  const sinceLabel=since&&!Number.isNaN(since.getTime())?since.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"Not available";
+  const values=[
+   ["Email",m.email||"Not added"],
+   ["Location",m.location||"Not added"],
+   ["Membership",m.plan||"Standard"],
+   ["Account status",m.status||"Active"],
+   ["Verification",m.verified===true?"Verified":"Not verified"],
+   ["Member since",sinceLabel],
+   ["Points",String(Number(m.reward_points||0))]
+  ];
+  values.forEach(([label,value])=>{const item=el("div","jr-member-snapshot-item");item.append(el("span","",label),el("strong","",value));details.append(item);});
+  const completion=[m.full_name,m.email,m.location,m.bio,m.profile_photo].filter(v=>String(v||"").trim()).length;
+  const progress=el("div","jr-member-profile-progress");
+  const progressHead=el("div","");progressHead.append(el("strong","","Profile completeness"),el("span","",completion+"/5"));
+  const track=el("div","jr-member-profile-track");const fill=el("span","");fill.style.width=(completion/5*100)+"%";track.append(fill);
+  progress.append(progressHead,track);
+  card.append(top,details,progress);
+ }).catch(()=>{
+  card.replaceChildren(el("div","jp-kicker","YOUR JR PHEEF PROFILE"),el("h2","","Your profile"),el("p","jr-member-snapshot-loading","Your personal information could not be loaded right now."));
+  const retry=el("button","dark","TRY AGAIN");retry.type="button";retry.addEventListener("click",()=>renderMemberSnapshotRefresh(card));card.append(retry);
+ });
+}
+function renderMemberSnapshotRefresh(card){
+ const old=card;const parent=old.parentNode;if(!parent)return;old.remove();renderMemberSnapshot(parent);
+}
 function renderCommandCentre(p){
  p.innerHTML="";
+ renderMemberSnapshot(p);
  const hero=el("section","jr-workspace-hero jr-command-hero");
- hero.append(el("div","jp-kicker","JR PHEEF · COMMAND CENTER"),el("h1","","Your Command Center"),el("p","","One organised control room for your personal, business and ecosystem activity."),el("p","jr-workspace-intro","Work from the highest-priority matters down to daily execution, growth, stewardship and improvement. Live figures appear only when verified data is available."));
+ hero.append(el("div","jp-kicker","JR PHEEF · YOUR SPACE"),el("h1","","Your Command Center"),el("p","","Your personal starting point for the things you want to manage, discover and move forward."),el("p","jr-workspace-intro","Start with your identity and account information, then move into priorities, daily activity, opportunities and the tools you use."));
  const intro=el("section","jr-command-priority-intro");
  intro.append(el("span","jp-kicker","YOUR PRIORITY ORDER"),el("p","","Protect and resolve first. Execute commitments next. Grow when the essentials are under control. Review and improve continuously."));
  const groups=[
   ["01 · LEAD — URGENT & IMPORTANT","Start here. Resolve items that need your attention, permission or protection.",[["Needs Your Attention","Review important alerts, pending requests and messages needing a response.","alerts"],["Approvals & Decisions","Review proposals and actions that require your explicit approval.","accessgov"],["Security & Account Health","Manage account protection, privacy, sessions and recovery.","jrsettings"],["Identity & Verification","Review your member identity and supported verification details.","jpidentity"],["Notifications & Inbox","Review updates from across your JR PHEEF activity.","messages"]]],
   ["02 · EXECUTE — DAILY OPERATIONS","Keep the work already in motion moving forward.",[["Daily Operations & Projects","Review tasks, milestones, commitments and project progress.","projects"],["Business Operations","Open business workspaces, daily plans and operating activity.","businessgrowth"],["People & Communications","Continue conversations, groups and connection requests.","connecthub"],["Social Community","Review community posts and social activity.","social"],["Listings, Deals & Orders","Manage published offers, negotiations and deal rooms.","mylistings"],["Delivery & Fulfilment","Coordinate delivery requests and service fulfilment.","delivery"],["Rooms & Accommodation","Review accommodation listings and enquiries.","rooms"],["Economy & Transactions","Review supported commercial activity and transaction records.","economy"],["PHEEF Flex","Review supported Flex services and requests.","flex"]]],
   ["03 · GROW — OPPORTUNITIES & INTELLIGENCE","Build new value after urgent matters and current operations are under control.",[["Opportunities & Partnerships","Find opportunities, people and potential partners.","opportunities"],["Research & Intelligence","Compare evidence, investigate questions and develop ideas.","lab"],["Advertising & Audience","Create promotions and manage advertising activity.","ads"],["Customer & Market Discovery","Explore demand, products, services and potential customers.","discover"],["Business Growth Plans","Organise growth priorities and business development work.","businessgrowth"],["Creator & Media Studio","Prepare supported media and advertising content.","ads"],["App Hub & External Tools","Open your organised shortcuts to other services.","apphub"],["Browser & Web Research","Use the JR PHEEF web workspace.","browser"]]],
-  ["04 · STEWARD — PEOPLE, VENTURES & RESOURCES","Look after the wider ecosystem, resources and long-term responsibilities.",[["DGBO","Open the parent business development environment.","dgbo"],["FAMILY","Open the separate family coordination environment.","family"],["Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY are structured.","ecosystem"],["Membership & Points","Review membership, access and eligible activity.","membership"],["Invitations & Referrals","Review invitations and referral activity where enabled.","referrals"],["My Files & Library","Organise personal files and saved knowledge resources.","vault"],["Connected Devices","Review device sessions and continuity settings.","devices"],["External Connections","Review services and authorised integrations.","connections"],["Partner & Developer Centre","Review partner and developer onboarding resources.","partners"]]],
+  ["04 · YOUR RESOURCES — PEOPLE & TOOLS","Look after your own work, resources and connections.",[["My Businesses & Workspaces","Open businesses and projects you are authorised to manage.","businessgrowth"],["People & Communities","Manage your connections and community activity.","connecthub"],["Membership & Points","Review membership, access and eligible activity.","membership"],["Invitations & Referrals","Review invitations and referral activity where enabled.","referrals"],["My Files & Library","Organise personal files and saved knowledge resources.","vault"],["Connected Devices","Review device sessions and continuity settings.","devices"],["External Connections","Review services and authorised integrations.","connections"],["Partner & Developer Centre","Review partner and developer onboarding resources.","partners"]]],
   ["05 · IMPROVE — LEARN & CONFIGURE","Strengthen your knowledge, preferences and the way you work.",[["JR Assistant","Ask JR to research, plan, explain and prepare your next actions.","assistant"],["JR Teacher & Learning","Build knowledge, skills and study plans.","teacher"],["Knowledge Library","Find saved resources and learning materials.","library"],["Research Lab","Explore experiments, concepts and research notes.","lab"],["Voice & Accessibility","Configure supported voice, display and accessibility tools.","voice"],["Settings & Preferences","Manage appearance, notifications and account preferences.","jrsettings"],["Help & Support","Find help and report issues.","ideas"]]]
  ];
  const content=el("div","jr-command-sections");
