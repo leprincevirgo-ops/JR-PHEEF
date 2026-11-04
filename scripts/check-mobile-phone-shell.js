@@ -2,7 +2,7 @@ const fs=require("fs");const assert=require("assert");
 const js=fs.readFileSync("public/mobile-phone-shell.js","utf8");
 const css=fs.readFileSync("public/mobile-phone-shell.css","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
-for(const token of ["jpMobileDock","morehub","workhub","social","jrsettings","jr-accessibility-launcher","jr:workspacechange"])assert(js.includes(token),"mobile shell missing "+token);
+for(const token of ["jpMobileDock","morehub","workhub","command","jr-accessibility-launcher","jr:workspacechange"])assert(js.includes(token),"mobile shell missing "+token);
 for(const token of ["jp-mobile-dock","jp-global-search","jp-action-rail","env(safe-area-inset-bottom)","max-width:900px"])assert(css.includes(token),"mobile styles missing "+token);
 assert(html.includes("/mobile-phone-shell.css"),"mobile shell stylesheet not linked");
 assert(html.includes("/mobile-phone-shell.js"),"mobile shell script not linked");
