@@ -1,48 +1,48 @@
--- Global business workspace foundation. Server-side service-role access only.
-create extension if not exists pgcrypto;
+-- Extend the existing JR Business Workspace model; do not create a parallel business registry.
+alter table public.jr_business_workspaces
+  add column if not exists slug text,
+  add column if not exists description text,
+  add column if not exists legal_entity_name text,
+  add column if not exists registration_country text,
+  add column if not exists operating_countries text[] not null default '{}',
+  add column if not exists base_currency text,
+  add column if not exists timezone text,
+  add column if not exists primary_language text,
+  add column if not exists status text not null default 'setup',
+  add column if not exists template_version text not null default '1.0',
+  add column if not exists workspace_config jsonb not null default '{}'::jsonb;
 
-create table if not exists public.jr_businesses (
+update public.jr_business_workspaces
+set slug = coalesce(nullif(slug,''), 'business-' || replace(id::text,'-',''))
+where slug is null or slug = '';
+
+create unique index if not exists jr_business_workspaces_owner_slug_uidx
+  on public.jr_business_workspaces(owner_member_id, slug);
+
+create table if not exists public.jr_business_workspace_members (
   id uuid primary key default gen_random_uuid(),
-  owner_member_id text not null,
-  name text not null check (char_length(name) between 2 and 140),
-  slug text not null,
-  industry_key text not null default 'general',
-  description text,
-  legal_entity_name text,
-  registration_country text,
-  operating_countries text[] not null default '{}',
-  base_currency text,
-  timezone text,
-  primary_language text,
-  status text not null default 'setup' check (status in ('setup','active','paused','closed')),
-  template_version text not null default '1.0',
-  workspace_config jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique(owner_member_id, slug)
-);
-
-create index if not exists jr_businesses_owner_updated_idx
-  on public.jr_businesses(owner_member_id, updated_at desc);
-
-create table if not exists public.jr_business_members (
-  id uuid primary key default gen_random_uuid(),
-  business_id uuid not null references public.jr_businesses(id) on delete cascade,
-  member_id text not null,
+  business_id uuid not null references public.jr_business_workspaces(id) on delete cascade,
+  member_id uuid not null references public.members(id) on delete cascade,
   role_key text not null default 'staff',
   permissions jsonb not null default '[]'::jsonb,
   status text not null default 'invited' check (status in ('invited','active','suspended','removed')),
   created_at timestamptz not null default now(),
   unique(business_id, member_id)
 );
+create index if not exists jr_business_workspace_members_member_idx
+  on public.jr_business_workspace_members(member_id, status);
 
-create index if not exists jr_business_members_member_idx
-  on public.jr_business_members(member_id, status);
+insert into public.jr_business_workspace_members(business_id,member_id,role_key,permissions,status)
+select id,owner_member_id,'owner',
+ '["business:manage","people:manage","data:import","data:export","integrations:manage","documents:manage","finance:view","approvals:manage"]'::jsonb,
+ 'active'
+from public.jr_business_workspaces
+on conflict (business_id,member_id) do nothing;
 
 create table if not exists public.jr_business_import_jobs (
   id uuid primary key default gen_random_uuid(),
-  business_id uuid not null references public.jr_businesses(id) on delete cascade,
-  requested_by text not null,
+  business_id uuid not null references public.jr_business_workspaces(id) on delete cascade,
+  requested_by uuid not null references public.members(id),
   source_system text,
   source_type text not null check (source_type in ('csv','xlsx','json','xml','database_backup','api_connector','documents','other')),
   data_domains text[] not null default '{}',
@@ -54,25 +54,23 @@ create table if not exists public.jr_business_import_jobs (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 create index if not exists jr_business_import_jobs_business_idx
   on public.jr_business_import_jobs(business_id, created_at desc);
 
--- All business data is accessed through authenticated server routes. No direct
--- browser/anon/authenticated table access is granted by this foundation.
-alter table public.jr_businesses enable row level security;
-alter table public.jr_business_members enable row level security;
+alter table public.jr_business_workspace_members enable row level security;
 alter table public.jr_business_import_jobs enable row level security;
-
-drop policy if exists jr_businesses_no_client_access on public.jr_businesses;
-create policy jr_businesses_no_client_access on public.jr_businesses
-  for all to anon, authenticated using (false) with check (false);
-drop policy if exists jr_business_members_no_client_access on public.jr_business_members;
-create policy jr_business_members_no_client_access on public.jr_business_members
+drop policy if exists jr_business_workspace_members_no_client_access on public.jr_business_workspace_members;
+create policy jr_business_workspace_members_no_client_access on public.jr_business_workspace_members
   for all to anon, authenticated using (false) with check (false);
 drop policy if exists jr_business_import_jobs_no_client_access on public.jr_business_import_jobs;
 create policy jr_business_import_jobs_no_client_access on public.jr_business_import_jobs
   for all to anon, authenticated using (false) with check (false);
+revoke all on public.jr_business_workspace_members, public.jr_business_import_jobs from anon, authenticated;
+grant all on public.jr_business_workspace_members, public.jr_business_import_jobs to service_role;
 
-revoke all on public.jr_businesses, public.jr_business_members, public.jr_business_import_jobs from anon, authenticated;
-grant all on public.jr_businesses, public.jr_business_members, public.jr_business_import_jobs to service_role;
+alter table public.jr_business_workspaces enable row level security;
+drop policy if exists jr_business_workspaces_no_client_access on public.jr_business_workspaces;
+create policy jr_business_workspaces_no_client_access on public.jr_business_workspaces
+  for all to anon, authenticated using (false) with check (false);
+revoke all on public.jr_business_workspaces from anon, authenticated;
+grant all on public.jr_business_workspaces to service_role;
