@@ -1,0 +1,11 @@
+"use strict";
+const assert=require("node:assert/strict"),fs=require("node:fs");
+const js=fs.readFileSync("public/install-prompt.js","utf8"),css=fs.readFileSync("public/install-prompt.css","utf8"),html=fs.readFileSync("public/index.html","utf8");
+new (require("node:vm").Script)(js,{filename:"public/install-prompt.js"});
+assert.ok(js.includes("beforeinstallprompt"),"Android/Chromium install prompt handling missing");
+assert.ok(js.includes("appinstalled"),"Installed state handling missing");
+assert.ok(js.includes("Add to Home Screen"),"iOS/manual installation guidance missing");
+assert.ok(js.includes("display-mode: standalone"),"Already-installed state detection missing");
+assert.ok(html.includes("/install-prompt.js?v=1")&&html.includes("/install-prompt.css?v=1"),"Install invitation not wired into app shell");
+assert.ok(css.includes("#jrInstallPrompt"),"Install invitation styles missing");
+console.log("PASS: JR PHEEF install invitation, browser-native prompt, iOS/Android guidance and standalone handling.");
