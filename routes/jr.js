@@ -506,6 +506,52 @@ module.exports = function mountJr(ctx) {
     if (String(ad.member_id) !== String(m.id)) await db.rpc("ad_event", { p_id: id, p_kind: "click" });
     res.json({ ok: true, listing_id: ad.listing_id });
   }));
+  app.get("/api/admin/overview", wrap("Admin operating overview", async (req, res) => {
+    const owner = await requireOwner(req, res); if (!owner) return;
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const count = async (query) => {
+      const { count, error } = await query;
+      if (error) throw error;
+      return Number(count || 0);
+    };
+    const [
+      members, verifiedMembers, listings, businesses, dealRooms,
+      deliveryRequests, roomListings, opportunities, pendingAds,
+      newIdeas, recentActivity, paymentRecords, posSales
+    ] = await Promise.all([
+      count(db.from("members").select("id", { count: "exact", head: true })),
+      count(db.from("members").select("id", { count: "exact", head: true }).eq("verified", true)),
+      count(db.from("jr_listings").select("id", { count: "exact", head: true })),
+      count(db.from("jr_business_workspaces").select("id", { count: "exact", head: true })),
+      count(db.from("jr_deal_rooms").select("id", { count: "exact", head: true })),
+      count(db.from("jr_delivery_requests").select("id", { count: "exact", head: true })),
+      count(db.from("room_listings").select("id", { count: "exact", head: true })),
+      count(db.from("jr_opportunities").select("id", { count: "exact", head: true })),
+      count(db.from("ad_campaigns").select("id", { count: "exact", head: true }).eq("status", "pending")),
+      count(db.from("feature_requests").select("id", { count: "exact", head: true }).eq("status", "new")),
+      count(db.from("activity_log").select("id", { count: "exact", head: true }).gte("created_at", since)),
+      count(db.from("jr_payments").select("id", { count: "exact", head: true })),
+      count(db.from("pos_sales").select("id", { count: "exact", head: true }))
+    ]);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      generated_at: new Date().toISOString(),
+      metrics: {
+        members_total: members, members_verified: verifiedMembers,
+        listings_total: listings, business_workspaces: businesses,
+        deal_rooms: dealRooms, delivery_requests: deliveryRequests,
+        room_listings: roomListings, opportunities: opportunities,
+        ads_pending: pendingAds, ideas_new: newIdeas,
+        activity_last_24h: recentActivity, payment_records: paymentRecords,
+        pos_sales_records: posSales
+      },
+      financials: {
+        revenue_available: false,
+        reason: "Revenue is not reported until settled payment records can be verified and reconciled."
+      }
+    });
+  }));
   app.get("/api/admin/ads", wrap("Admin ads", async (req, res) => {
     if (!await requireOwner(req, res)) return;
     const status = clean(req.query.status) || "pending";
