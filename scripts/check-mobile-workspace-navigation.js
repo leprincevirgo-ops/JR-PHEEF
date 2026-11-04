@@ -4,5 +4,6 @@ const html=fs.readFileSync("public/index.html","utf8"),js=fs.readFileSync("publi
 assert.ok(html.includes('id="jpUniversalForm"')&&html.includes('id="jpUniversalRequest"'),"One universal request composer must remain available.");
 assert.ok(!html.includes('id="jpMoreMenu"')&&!html.includes('class="jp-more-wrap"'),"The old More menu must stay removed.");
 assert.ok(js.includes("submitUniversalRequest")&&js.includes("goToAssistant"),"Universal requests must continue into JR.");
-assert.ok(html.includes('data-page="home"')&&html.includes('data-page="explore"')&&html.includes('data-page="assistant"')&&html.includes('data-page="messages"'),"Core destinations must remain accessible.");
+assert.ok(html.includes('data-page="home"')&&html.includes('data-page="worlds"')&&html.includes('data-page="assistant"')&&html.includes('data-page="command"'),"Core destinations must remain accessible.");
+assert.ok(js.includes('["worlds","Worlds"')||fs.readFileSync("public/workspace-shell.js","utf8").includes('["worlds","Worlds"'),"Worlds workspace must remain accessible.");
 console.log("PASS: natural-language-first navigation with no technical More menu.");
