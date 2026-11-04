@@ -33,6 +33,7 @@ function apply(){
 const section=document.body.dataset.jpSection||"home",override=state.section[section]||{},p=preset(override.preset||state.global),accent=override.accent||p.a,wall=override.wallpaper||state.wallpaper;
 document.body.classList.add("jp-theme-active");
 document.body.style.setProperty("--jp-theme-accent",accent);
+document.body.style.setProperty("--jp-theme-base",p.b);
 document.body.style.setProperty("--jp-theme-accent-soft",hexRgba(accent,.14));
 document.body.style.setProperty("--jp-theme-border",hexRgba(accent,.32));
 document.body.style.setProperty("--jp-theme-wallpaper",state.customImage&&storedImageUrl?"url("+storedImageUrl+")":wallpaper(wall));
