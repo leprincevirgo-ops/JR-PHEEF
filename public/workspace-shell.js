@@ -230,6 +230,21 @@ function mount(){
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(":scope > .nav");
  if(nav){
+  if(!nav.querySelector(".jr-desktop-extra")){
+   const extra=el("div","jr-desktop-extra");
+   const links=[["discover","Discover"],["find","Opportunities"],["messages","Connect"],["ads","Advertising"],["dgbo","DGBO"],["family","FAMILY"],["business","Business"],["economy","Economy"],["projects","Projects"],["jrsettings","Settings"]];
+   links.forEach(([id,label])=>{const b=el("button","jr-desktop-nav-item",label);b.type="button";b.dataset.page=id;b.addEventListener("click",()=>go(id));extra.append(b);});
+   nav.append(extra);
+  }
+  const home=$("home");
+  if(home&&!home.querySelector(".jr-desktop-landscapes")){
+   const landscapes=el("section","jr-desktop-landscapes");
+   landscapes.innerHTML='<div class="jr-landscape-heading"><div><span>EXPLORE YOUR WORLD</span><h2>Places, possibilities and new horizons</h2></div><button type="button" data-jr-landscape-all>Explore all →</button></div><div class="jr-landscape-grid"><button class="jr-landscape-scene jr-scene-city" data-jr-world-page="explore"><span>01 · PLACES</span><b>Discover places</b><small>Explore cities and destinations</small></button><button class="jr-landscape-scene jr-scene-nature" data-jr-world-page="explore"><span>02 · NATURE</span><b>Find your calm</b><small>Landscapes, nature and inspiration</small></button><button class="jr-landscape-scene jr-scene-future" data-jr-world-page="explore"><span>03 · FUTURE</span><b>Imagine what is next</b><small>Ideas, science and technology</small></button><button class="jr-landscape-scene jr-scene-space" data-jr-world-page="explore"><span>04 · BEYOND</span><b>Go beyond borders</b><small>Explore a wider universe</small></button></div>';
+   home.append(landscapes);
+   landscapes.querySelector("[data-jr-landscape-all]")?.addEventListener("click",()=>go("explore"));
+   landscapes.querySelectorAll("[data-jr-world-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.jrWorldPage)));
+  }
+ }
   const wrap=nav.querySelector(".jp-more-wrap");
   const menu=wrap?.querySelector("#jpMoreMenu");
   if(wrap&&menu){
