@@ -1,6 +1,8 @@
 "use strict";
 const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("node:vm");
 const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const legacyUi=fs.readFileSync("public/jr-ui.js","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
 const founder=fs.readFileSync("public/founder-command.js","utf8");
 const css=fs.readFileSync("public/workspace-shell.css","utf8");
 new vm.Script(shell,{filename:"public/workspace-shell.js"});
@@ -16,4 +18,7 @@ assert.ok(open.includes('fetch("/api/me"')&&open.includes("data.member?.is_owner
 assert.ok(founder.includes("function removeFounderAccess()"),"Non-owner access must be removed.");
 assert.ok(founder.includes("page.remove()"),"Private page must be removed for non-owners.");
 assert.ok(css.includes(".jr-member-snapshot")&&css.includes("@media(max-width:520px)"),"Profile summary needs responsive styling.");
+assert.ok(!legacyUi.includes("OWNER CONTROL CENTER")&&!legacyUi.includes("DGBO CONTROL CENTER")&&!legacyUi.includes("OWNER_CARDS"),"Legacy member UI must not expose owner-control navigation or cards.");
+assert.ok(!html.includes('id="founder-command"')&&!html.includes("OWNER CONTROL CENTER"),"Founder command must not be statically present in member pages.");
+assert.ok(!renderer.includes("phone")&&!renderer.includes("birth_year"),"Private phone and birth-year fields must not be shown in the overview by default.");
 console.log("PASS: member command centre starts with private profile essentials; founder command is owner-only and re-authorised on every open.");
