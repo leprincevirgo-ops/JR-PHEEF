@@ -122,3 +122,18 @@ body.jp-theme-active .page>.card,body.jp-theme-active .jp-theme-page>.card{trans
 .jp-header-navigation .jp-nav-arrow:disabled{opacity:.35;cursor:not-allowed}
 body.jp-theme-active>header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 @media(max-width:520px){.jp-header-navigation{margin-left:auto}.jp-header-navigation .jp-nav-arrow{min-width:38px;min-height:36px}}
+
+/* Appearance Studio must theme the actual dashboard and wallpaper, not only the preview. */
+body.jp-theme-active{background-color:var(--jp-theme-base,#020916)!important;background-image:radial-gradient(ellipse at 12% 0%,var(--jp-theme-accent-soft),transparent 42%),linear-gradient(145deg,var(--jp-theme-base,#020916),#020916 76%)!important;background-attachment:fixed!important}
+body.jp-theme-active:before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:var(--jp-theme-wallpaper,none);background-position:center;background-size:cover;background-repeat:no-repeat;opacity:var(--jp-theme-wallpaper-opacity,.22)}
+body.jp-theme-active>*{position:relative;z-index:1}
+body.jp-theme-active .jr-world-home{border-color:var(--jp-theme-border)!important;background:radial-gradient(ellipse at 50% 38%,var(--jp-theme-accent-soft),transparent 55%),linear-gradient(150deg,var(--jp-theme-base,#07345b),#020916 72%)!important}
+body.jp-theme-active .jr-earth{border-color:var(--jp-theme-accent)!important;box-shadow:0 0 20px var(--jp-theme-accent),0 0 65px var(--jp-theme-accent-soft),inset -25px -15px 50px #0009}
+body.jp-theme-active .jr-earth-core,body.jp-theme-active .jr-core-mark{border-color:var(--jp-theme-accent)!important;color:var(--jp-theme-accent)!important;box-shadow:0 0 0 9px var(--jp-theme-accent-soft),0 0 30px var(--jp-theme-accent-soft)!important}
+body.jp-theme-active .jr-world-link,body.jp-theme-active .jr-core-capability-drawer{border-color:var(--jp-theme-border)!important;background:linear-gradient(140deg,var(--jp-theme-base,#07345b),rgba(2,12,27,.97))!important}
+body.jp-theme-active .jr-world-link>span{background:linear-gradient(145deg,var(--jp-theme-accent),var(--jp-theme-base))!important;color:#061321!important}
+body.jp-theme-active .jr-world-eyebrow,body.jp-theme-active .jr-world-header h1 span,body.jp-theme-active .jr-core-capability-drawer>span{color:var(--jp-theme-accent)!important}
+body.jp-theme-active header,body.jp-theme-active #app>.nav{border-color:var(--jp-theme-border)!important}
+body.jp-theme-active #app>.nav button,body.jp-theme-active .nav button{border-color:var(--jp-theme-border)!important;background:linear-gradient(145deg,var(--jp-theme-base),#061329)!important}
+body.jp-theme-active .card,body.jp-theme-active .page>.card{border-color:var(--jp-theme-border)}
+body.jp-theme-active button.primary,body.jp-theme-active .jr-intent-compose .jp-universe-submit{background:linear-gradient(110deg,var(--jp-theme-base),var(--jp-theme-accent))!important;color:#061321!important}
