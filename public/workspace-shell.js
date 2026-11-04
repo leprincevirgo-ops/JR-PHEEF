@@ -122,10 +122,26 @@ function renderConnections(p){
 }
 function renderCommandCentre(p){
  p.innerHTML="";
- const hero=el("section","jr-workspace-hero");hero.append(el("div","jp-kicker","JR PHEEF · COMMAND CENTRE"),el("h1","","Your Command Centre"),el("p","","Your control room for the operations, people, services, opportunities and decisions available to your account."),el("p","jr-workspace-intro","Live operational indicators will appear only when verified data sources are connected."));
- const grid=el("div","jr-workspace-grid");
- [["Overview","Review your ecosystem spaces and current context.","ecosystem"],["My Operations","Open projects, tasks and ongoing work.","projects"],["Management","Review permissions and authorised management tools.","accessgov"],["Intelligence","Open research, analysis and knowledge tools.","lab"],["Communications","Open conversations and connection activity.","messages"],["Opportunities","Review available opportunities and introductions.","opportunities"],["Action Centre","Review notifications and items needing attention.","alerts"],["Connections","Review external services and their actual connection status.","connections"],["JR Assistant","Ask JR to research, plan and coordinate.","assistant"],["Browser","Research and browse the wider web.","browser"],["DGBO","Open the separate business development environment.","dgbo"],["FAMILY","Open the separate family coordination environment.","family"],["Controls & Security","Manage account, privacy and available controls.","jrsettings"]].forEach(([t,d,id])=>{const card=el("article","card jr-workspace-card");card.append(el("h3","",t),el("p","",d));const b=el("button","dark","OPEN "+t.toUpperCase());b.type="button";b.addEventListener("click",()=>go(id));card.append(b);grid.append(card)});
- p.append(hero,grid);
+ const hero=el("section","jr-workspace-hero jr-command-hero");
+ hero.append(el("div","jp-kicker","JR PHEEF · COMMAND CENTRE"),el("h1","","Your Command Centre"),el("p","","The place to oversee what matters, decide what happens next and follow progress across your JR PHEEF world."),el("p","jr-workspace-intro","Prioritised by urgency and importance. Operational figures appear only when verified live data is available."));
+ const intro=el("section","jr-command-priority-intro");
+ intro.append(el("span","jp-kicker","YOUR OPERATING ORDER"),el("p","","First protect and resolve. Then execute. Then grow. Finally review and improve."));
+ const groups=[
+  ["01 · LEAD — ATTENTION & DECISIONS","Resolve urgent matters before starting new work.",[["Needs Your Attention","Review alerts, pending requests and important updates.","alerts"],["Approvals & Governance","Review permissions, proposals and decisions requiring your authorisation.","accessgov"],["Security & Account Health","Manage identity, privacy, devices and access controls.","jrsettings"]]],
+  ["02 · EXECUTE — DAILY OPERATIONS","Keep commitments, projects and services moving.",[["Daily Operations","Open your projects, tasks, milestones and ongoing work.","projects"],["Business Operations","Review business workspaces, daily plans and growth activities.","businessgrowth"],["People & Communications","Continue conversations, connection requests and team coordination.","connecthub"],["Delivery & Service Activity","Coordinate fulfilment, service requests and deal progress.","delivery"]]],
+  ["03 · GROW — OPPORTUNITIES & INTELLIGENCE","Build new value after essential operations are under control.",[["Opportunities & Partnerships","Find new opportunities, people and potential partners.","opportunities"],["Intelligence & Research","Research, compare evidence, identify risks and develop ideas.","lab"],["Advertising & Audience","Create promotions and review advertising activity.","ads"],["Customer & Market Discovery","Explore demand, listings, services and potential customers.","discover"]]],
+  ["04 · STEWARD — ECOSYSTEM & RESOURCES","Review the wider organisation, connections and long-term direction.",[["DGBO","Open the parent business development environment.","dgbo"],["FAMILY","Open the separate family coordination environment.","family"],["Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY are structured.","ecosystem"],["Connected Services","Review available external services and their connection status.","connections"],["Reports & Activity","Review available records and operational history.","alerts"]]],
+  ["05 · IMPROVE — LEARN & CONFIGURE","Strengthen the system and prepare for what comes next.",[["JR Assistant","Ask JR to research, plan and prepare your next actions.","assistant"],["Learning & Knowledge","Build knowledge and skills for future decisions.","teacher"],["Settings & Preferences","Configure your experience, notifications and accessibility.","jrsettings"]]]
+ ];
+ const content=el("div","jr-command-sections");
+ groups.forEach(([heading,description,items])=>{
+  const section=el("section","jr-command-group");
+  const head=el("div","jr-command-group-heading");head.append(el("span","jp-kicker",heading),el("p","",description));
+  const grid=el("div","jr-workspace-grid jr-command-grid");
+  items.forEach(([title,body,target])=>{const card=el("article","card jr-workspace-card jr-command-card");card.append(el("h3","",title),el("p","",body));const b=el("button","dark","OPEN "+title.toUpperCase());b.type="button";b.addEventListener("click",()=>go(target));card.append(b);grid.append(card);});
+  section.append(head,grid);content.append(section);
+ });
+ p.append(hero,intro,content);
 }
 
 const hubGroups={
@@ -230,12 +246,7 @@ function mount(){
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(":scope > .nav");
  if(nav){
-  if(!nav.querySelector(".jr-desktop-extra")){
-   const extra=el("div","jr-desktop-extra");
-   const links=[["discover","Discover"],["find","Opportunities"],["messages","Connect"],["ads","Advertising"],["dgbo","DGBO"],["family","FAMILY"],["business","Business"],["economy","Economy"],["projects","Projects"],["jrsettings","Settings"]];
-   links.forEach(([id,label])=>{const b=el("button","jr-desktop-nav-item",label);b.type="button";b.dataset.page=id;b.addEventListener("click",()=>go(id));extra.append(b);});
-   nav.append(extra);
-  }
+  nav.querySelector(".jr-desktop-extra")?.remove();
   const home=$("home");
   if(home&&!home.querySelector(".jr-desktop-landscapes")){
    const landscapes=el("section","jr-desktop-landscapes");
