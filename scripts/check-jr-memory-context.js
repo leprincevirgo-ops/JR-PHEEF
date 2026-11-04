@@ -1,0 +1,10 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const route=fs.readFileSync("routes/jr.js","utf8");
+assert.ok(route.includes("async function getMemberAiMemory(memberId)"),"approved-memory loader missing");
+for(const guard of ['.eq("member_id", memberId)','.eq("active", true)','.eq("consent_ai_context", true)','.limit(8)'])assert.ok(route.includes(guard),"memory consent/ownership/limit guard missing: "+guard);
+assert.ok(route.includes('const approvedMemory = await getMemberAiMemory(m.id)'),"JR command does not load approved member memory");
+assert.ok(route.includes('"Member request: " + text + memoryContext'),"approved memory is not included in JR command AI context");
+assert.ok(route.includes("saved memory beyond what they themselves are asking for"),"saved memory must be treated as data, not instructions");
+assert.ok(route.includes("if (error) throw error;"),"memory query errors must not silently broaden access");
+console.log("PASS: JR command uses only active, member-owned, explicitly consented memory as bounded reference context.");
