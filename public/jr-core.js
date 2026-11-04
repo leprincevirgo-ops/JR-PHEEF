@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const icons={living_intelligence:"✦",world_engine:"◎",business_os:"▦",continuity:"↔",creator_media:"◉",identity_trust:"⌘"};
-const labels={ready:"READY",configured_unverified:"CONFIGURED · VERIFY ON USE",fallback_only:"LIMITED · AI PROVIDER NEEDED",unavailable:"CHECK REQUIRED",upload_route_ready:"MEDIA UPLOAD READY",storage_configuration_needed:"STORAGE CONFIGURATION NEEDED",identity_incomplete:"IDENTITY SETUP NEEDED"};
+const labels={ready:"READY",configured_unverified:"CONFIGURED · VERIFY ON USE",fallback_only:"LIMITED · AI PROVIDER NEEDED",unavailable:"CHECK REQUIRED",upload_configured_unverified:"MEDIA UPLOAD · VERIFY ON USE",storage_configuration_needed:"STORAGE CONFIGURATION NEEDED",identity_incomplete:"IDENTITY SETUP NEEDED"};
 let loading=false,last=null;
 function go(page){if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(page);else if(typeof window.show==="function")window.show(page);}
 function ensure(){
@@ -22,14 +22,14 @@ function render(data){
   const article=document.createElement("article");article.className="jr-core-card";
   const top=document.createElement("div");top.className="jr-core-card-top";
   const icon=document.createElement("span");icon.className="jr-core-icon";icon.textContent=icons[cap.key]||"◉";
-  const badge=document.createElement("span");badge.className="jr-core-status "+(cap.status==="ready"||cap.status==="upload_route_ready"?"is-ready":cap.status==="unavailable"||cap.status==="storage_configuration_needed"||cap.status==="identity_incomplete"?"needs-work":"is-limited");badge.textContent=labels[cap.status]||String(cap.status||"STATUS UNKNOWN").replace(/_/g," ").toUpperCase();
+  const badge=document.createElement("span");badge.className="jr-core-status "+(cap.status==="ready"||cap.status==="upload_configured_unverified"?"is-ready":cap.status==="unavailable"||cap.status==="storage_configuration_needed"||cap.status==="identity_incomplete"?"needs-work":"is-limited");badge.textContent=labels[cap.status]||String(cap.status||"STATUS UNKNOWN").replace(/_/g," ").toUpperCase();
   top.append(icon,badge);
   const title=document.createElement("h3");title.textContent=cap.title;
   const detail=document.createElement("p");detail.textContent=cap.detail;
   const metric=document.createElement("small");metric.className="jr-core-metric";
   if(cap.metric_label)metric.textContent=String(cap.metric||0)+" · "+cap.metric_label;
   else if(cap.jp_identity_present)metric.textContent="JP identity active · "+String(cap.pending_approvals||0)+" pending approvals";
-  else if(cap.live_broadcast)metric.textContent="Public broadcast: "+cap.live_broadcast.replace(/_/g," ");
+  else if(cap.live_broadcast)metric.textContent="Public broadcast: "+cap.live_broadcast.replace(/_/g," ")+(cap.streaming_credentials_present?" · provider credentials present":"");
   const open=document.createElement("button");open.type="button";open.className="jr-core-open";open.textContent="OPEN WORKSPACE →";open.dataset.jrCoreOpen=cap.page;
   article.append(top,title,detail,metric,open);host.append(article);
  });
