@@ -11,7 +11,7 @@ assert.ok(html.includes('data-page="command"'),"Command Center must be a first-c
 assert.ok(shell.includes('if(id==="worlds")id="morehub"'),"Worlds must route to the Worlds hub");
 assert.ok(shell.includes("function renderCommandCentre(p)"),"Command Center renderer missing");
 for(const section of ["01 · LEAD","02 · EXECUTE","03 · GROW","04 · STEWARD","05 · IMPROVE"])assert.ok(shell.includes(section),"missing priority group "+section);
-for(const item of ["Needs Your Attention","Approvals & Governance","Daily Operations","Business Operations","People & Communications","Opportunities & Partnerships","DGBO","FAMILY","JR Assistant","Settings & Preferences"])assert.ok(shell.includes(item),"missing Command Center item "+item);
+for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operations & Projects","Business Operations","People & Communications","Opportunities & Partnerships","DGBO","FAMILY","JR Assistant","Settings & Preferences"])assert.ok(shell.includes(item),"missing Command Center item "+item);
 assert.ok(mobile.includes('["worlds","✧","Worlds",()=>route("worlds")]'),"mobile Worlds destination missing");
 assert.ok(mobile.includes('["command","▦","Command Center",()=>route("command")]'),"mobile Command Center destination missing");
 assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive Command Center styles missing");
