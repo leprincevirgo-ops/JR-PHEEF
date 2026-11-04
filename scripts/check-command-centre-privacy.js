@@ -2,11 +2,12 @@
 const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("node:vm");
 const shell=fs.readFileSync("public/workspace-shell.js","utf8");
 const legacyUi=fs.readFileSync("public/jr-ui.js","utf8");
+const loader=fs.readFileSync("public/founder-loader.js","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
-const founder=fs.readFileSync("public/founder-command.js","utf8");
+const founder=fs.readFileSync("private/founder-command.js","utf8");
 const css=fs.readFileSync("public/workspace-shell.css","utf8");
 new vm.Script(shell,{filename:"public/workspace-shell.js"});
-new vm.Script(founder,{filename:"public/founder-command.js"});
+new vm.Script(founder,{filename:"private/founder-command.js"});
 const renderer=shell.slice(shell.indexOf("function renderMemberSnapshot(host){"),shell.indexOf("\nconst hubGroups"));
 assert.ok(renderer.indexOf("renderMemberSnapshot(p)")<renderer.indexOf("jr-workspace-hero"),"Personal profile must be first in the member command centre.");
 for(const field of ["full_name","jp_number","email","location","plan","status","verified","created_at","reward_points"])assert.ok(renderer.includes("m."+field),"Member overview missing "+field);
@@ -19,6 +20,7 @@ assert.ok(founder.includes("function removeFounderAccess()"),"Non-owner access m
 assert.ok(founder.includes("page.remove()"),"Private page must be removed for non-owners.");
 assert.ok(css.includes(".jr-member-snapshot")&&css.includes("@media(max-width:520px)"),"Profile summary needs responsive styling.");
 assert.ok(!legacyUi.includes("OWNER CONTROL CENTER")&&!legacyUi.includes("DGBO CONTROL CENTER")&&!legacyUi.includes("OWNER_CARDS"),"Legacy member UI must not expose owner-control navigation or cards.");
-assert.ok(!html.includes('id="founder-command"')&&!html.includes("OWNER CONTROL CENTER"),"Founder command must not be statically present in member pages.");
+assert.ok(!html.includes('id="founder-command"')&&!html.includes("OWNER CONTROL CENTER")&&html.includes("/founder-loader.js")&&!html.includes('src="/founder-command.js"'),"Founder command must not be statically present or loaded directly in member pages.");
+assert.ok(loader.includes("member?.is_owner!==true")&&loader.includes("/founder-command.js"),"Founder loader must check owner identity before requesting the private script.");
 assert.ok(!renderer.includes("phone")&&!renderer.includes("birth_year"),"Private phone and birth-year fields must not be shown in the overview by default.");
 console.log("PASS: member command centre starts with private profile essentials; founder command is owner-only and re-authorised on every open.");
