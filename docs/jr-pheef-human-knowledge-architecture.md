@@ -1,7 +1,7 @@
 # JR PHEEF–HUMAN–JR PHEEF: Knowledge Architecture
 Version: 1.0
 Status: Product vision and implementation blueprint
-Product: JR PHEEF — Learn. Create. Connect. Grow.
+Product: JR PHEEF — A World of Possibilities.
 Attribution: Powered by DIME GLOBAL BUSINESS OPERATORS.
 
 ## 1. The central idea
