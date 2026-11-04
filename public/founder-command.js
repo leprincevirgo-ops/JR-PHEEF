@@ -65,29 +65,49 @@ function render(){
  const input=$("jpfAgentSearch");if(input)input.addEventListener("input",()=>{query=input.value;render();const n=$("jpfAgentSearch");if(n){n.focus();n.setSelectionRange(query.length,query.length);}});
  document.querySelectorAll("[data-jpf-group]").forEach(b=>{b.classList.toggle("active",b.dataset.jpfGroup===current);b.setAttribute("aria-pressed",String(b.dataset.jpfGroup===current));});
 }
-function open(){
- const pages=document.querySelectorAll("#app .page");pages.forEach(p=>p.classList.add("hidden"));
- const p=$("founder-command");if(p)p.classList.remove("hidden");
- const m=$("jpMoreMenu");if(m)m.hidden=true;
- document.querySelectorAll("#app .jp-primary-nav [data-page]").forEach(b=>b.classList.remove("jp-nav-active"));
- const trigger=$("jpMoreTrigger");if(trigger)trigger.classList.remove("jp-nav-active");
- render();window.scrollTo({top:0,behavior:"instant"});
+function removeFounderAccess(){
+ const button=document.querySelector(".jp-founder-top-access");if(button)button.remove();
+ const page=$("founder-command");if(page){const wasVisible=!page.hidden&&!page.classList.contains("hidden");page.remove();if(wasVisible&&typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate("home");}
+}
+async function open(){
+ try{
+  const response=await fetch("/api/me",{credentials:"include",cache:"no-store"});
+  const data=response.ok?await response.json():null;
+  if(!data||!data.ok||!data.logged_in||data.member?.is_owner!==true){removeFounderAccess();return;}
+  install(data.member);
+  const pages=document.querySelectorAll("#app .page");pages.forEach(p=>{p.classList.add("hidden");p.hidden=true;p.setAttribute("aria-hidden","true");if("inert" in p)p.inert=true;});
+  const p=$("founder-command");if(!p)return;
+  p.classList.remove("hidden");p.hidden=false;p.setAttribute("aria-hidden","false");if("inert" in p)p.inert=false;
+  const m=$("jpMoreMenu");if(m)m.hidden=true;
+  document.querySelectorAll("#app .jp-primary-nav [data-page]").forEach(b=>b.classList.remove("jp-nav-active"));
+  const trigger=$("jpMoreTrigger");if(trigger)trigger.classList.remove("jp-nav-active");
+  render();window.scrollTo({top:0,behavior:"instant"});
+ }catch(e){removeFounderAccess();}
 }
 function install(member){
  if(!member||member.is_owner!==true)return;
- const app=$("app"),headerActions=document.querySelector(".jp-header-actions");if(!app||!headerActions||$("founder-command"))return;
- const btn=document.createElement("button");btn.type="button";btn.className="jp-header-icon jp-founder-top-access";btn.textContent="⌘";btn.title="PRIVATE FOUNDER ACCESS · Private Founder Command Centre";btn.dataset.accessLabel="PRIVATE FOUNDER ACCESS";btn.setAttribute("aria-label","Open private Founder Command Centre");btn.addEventListener("click",open);btn.style.display="inline-flex";headerActions.prepend(btn);
- const page=document.createElement("section");page.id="founder-command";page.className="page hidden jpf-page";
- page.innerHTML='<div class="jpf-top"><div><span class="jpf-eyebrow">PRIVATE · OWNER ACCESS ONLY</span><h1>Founder Command Structure</h1><p>Three companies. One founder-led group. Distinct mandates, teams, records and accountability.</p></div><span class="jpf-private">🔒 PRIVATE</span></div><div class="jpf-tabs" role="group" aria-label="Choose company command centre">'+GROUPS.map(g=>'<button type="button" data-jpf-group="'+g.key+'" aria-pressed="false">'+g.name+'</button>').join("")+'</div><div id="jpFounderContent" aria-live="polite"></div>';
- app.append(page);
- page.querySelectorAll("[data-jpf-group]").forEach(b=>b.addEventListener("click",()=>{current=b.dataset.jpfGroup;query="";render();}));
+ const app=$("app"),headerActions=document.querySelector(".jp-header-actions");if(!app||!headerActions)return;
+ if(!$("founder-command")){
+  const page=document.createElement("section");page.id="founder-command";page.className="page hidden jpf-page";page.hidden=true;page.setAttribute("aria-hidden","true");page.inert=true;
+  page.innerHTML='<div class="jpf-top"><div><span class="jpf-eyebrow">PRIVATE · OWNER ACCESS ONLY</span><h1>Founder Command Structure</h1><p>Three companies. One founder-led group. Distinct mandates, teams, records and accountability.</p></div><span class="jpf-private">🔒 PRIVATE</span></div><div class="jpf-tabs" role="group" aria-label="Choose company command centre">'+GROUPS.map(g=>'<button type="button" data-jpf-group="'+g.key+'" aria-pressed="false">'+g.name+'</button>').join("")+'</div><div id="jpFounderContent" aria-live="polite"></div>';
+  app.append(page);
+  page.querySelectorAll("[data-jpf-group]").forEach(b=>b.addEventListener("click",()=>{current=b.dataset.jpfGroup;query="";render();}));
+ }
+ if(!document.querySelector(".jp-founder-top-access")){
+  const btn=document.createElement("button");btn.type="button";btn.className="jp-header-icon jp-founder-top-access";btn.textContent="⌘";btn.title="PRIVATE FOUNDER ACCESS · Private Founder Command Centre";btn.dataset.accessLabel="PRIVATE FOUNDER ACCESS";btn.setAttribute("aria-label","Open private Founder Command Centre");btn.addEventListener("click",open);btn.style.display="inline-flex";headerActions.prepend(btn);
+ }
 }
 async function checkOwner(){
- try{const r=await fetch("/api/me",{credentials:"include",cache:"no-store"});if(!r.ok)return;const d=await r.json();if(d.ok&&d.logged_in&&d.member?.is_owner===true)install(d.member);}catch(e){}
+ try{
+  const r=await fetch("/api/me",{credentials:"include",cache:"no-store"});
+  const d=r.ok?await r.json():null;
+  if(d&&d.ok&&d.logged_in&&d.member?.is_owner===true)install(d.member);
+  else removeFounderAccess();
+ }catch(e){removeFounderAccess();}
 }
 function boot(){
  checkOwner();
- const app=$("app");if(app)new MutationObserver(()=>{if(!app.classList.contains("hidden"))checkOwner();}).observe(app,{attributes:true,attributeFilter:["class"]});
+ const app=$("app");if(app){new MutationObserver(()=>{if(!app.classList.contains("hidden"))checkOwner();}).observe(app,{attributes:true,attributeFilter:["class"]});document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkOwner();});}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
