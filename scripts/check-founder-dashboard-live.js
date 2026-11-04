@@ -1,0 +1,14 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("node:vm");
+const route=fs.readFileSync("routes/jr.js","utf8"),ui=fs.readFileSync("public/founder-command.js","utf8"),css=fs.readFileSync("public/founder-command.css","utf8");
+new vm.Script(ui,{filename:"public/founder-command.js"});
+const start=route.indexOf('app.get("/api/admin/overview"'),end=route.indexOf('app.get("/api/admin/ads"',start);
+assert.ok(start>=0&&end>start,"Owner overview endpoint must exist before admin review endpoints.");
+const api=route.slice(start,end);
+assert.ok(api.includes("requireOwner(req, res)"),"Live overview must be owner-authorised on the server.");
+for(const table of ["members","jr_listings","jr_business_workspaces","jr_deal_rooms","jr_delivery_requests","room_listings","jr_opportunities","ad_campaigns","feature_requests","activity_log","jr_payments","pos_sales"])assert.ok(api.includes('from("'+table+'")'),"Missing verified operational metric: "+table);
+assert.ok(api.includes('Cache-Control", "no-store"'),"Owner metrics must not be cached.");
+assert.ok(api.includes("revenue_available: false"),"Do not report revenue without verified settled-payment reconciliation.");
+assert.ok(ui.includes('fetch("/api/admin/overview"')&&ui.includes("jpfOverviewStats")&&ui.includes("loadOverview()"),"Private owner dashboard must fetch and render live metrics.");
+assert.ok(css.includes(".jpf-live-stats")&&css.includes("@media(max-width:580px)"),"Live metrics must be responsive.");
+console.log("PASS: owner-only live operating overview, scoped metric sources, no-store response and honest revenue boundary.");
