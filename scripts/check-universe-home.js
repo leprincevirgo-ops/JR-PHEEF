@@ -14,7 +14,7 @@ for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUn
 const navStart=html.indexOf('<nav class="nav jp-primary-nav"'),navEnd=html.indexOf("</nav>",navStart);
 assert.ok(navStart>=0&&navEnd>navStart,"single primary navigation missing");
 const primary=[...html.slice(navStart,navEnd).matchAll(/<button([^>]*)data-page="([^"]+)"/g)].map(m=>m[2]);
-assert.deepEqual(primary,["home","explore","assistant","messages"],"Primary navigation must remain focused on Home, Explore, JR and Connect.");
+assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Center.");
 assert.ok(!html.includes('id="jpMoreMenu"')&&!html.includes('class="jp-more-wrap"'),"technical More menu must remain removed from the user interface");
 assert.ok(!html.includes("jp-quick-panel")&&!html.includes("Explore JR PHEEF worlds"),"duplicate dashboard shortcut grids remain");
 assert.ok(html.includes("jr-world-greeting")&&html.includes("jr-intent-console"),"conversation-first home greeting and request composer must be present");
@@ -32,7 +32,7 @@ assert.equal(intentWindow.jrIntentRoute("JR, open Command Centre"),"command","na
 assert.equal(intentWindow.jrIntentRoute("open command center"),"command","US spelling of Command Center must route directly");
 assert.equal(intentWindow.jrIntentRoute("JR, open my clothing shop"),"businessgrowth","business workspace command must route directly");
 assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goals must remain with JR Assistant");
-for(const phrase of ["Command Centre","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
+for(const phrase of ["Command Center","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand",".jr-intent-action",".jr-intent-network","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
 assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
@@ -41,5 +41,5 @@ assert.ok(html.includes("new FormData()")&&html.includes('form.append("image",im
 assert.ok(intent.includes("window.jrIntentCameraFile=photo||null")&&intent.includes("only when you submit your request"),"camera selection must be explicit and user-controlled");
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
 assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
-for(const area of ["Your Command Centre","Overview","My Operations","Management","Intelligence","Communications","Opportunities","Action Centre","Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
+for(const area of ["Your Command Center","01 · LEAD","02 · EXECUTE","03 · GROW","04 · STEWARD","05 · IMPROVE","Daily Operations & Projects","Opportunities & Partnerships","External Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
 console.log("PASS: JR universe home, natural-language routing and four-destination navigation.");
