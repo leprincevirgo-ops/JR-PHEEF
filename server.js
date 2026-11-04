@@ -285,6 +285,23 @@ app.get("/health", (req, res) => res.json({
   flex: "PREPARED / INACTIVE", daraja: process.env.PAYMENTS_ENABLED === "true" ? "ENABLED" : "OFF"
 }));
 
+// Founder command code is served only to an authenticated owner. Keep it outside /public.
+app.get("/founder-command.js", async (req, res) => {
+  try {
+    const member = await getMember(req);
+    const owner = member && [member.account_type, member.role]
+      .some(value => String(value || "").toLowerCase() === "owner");
+    if (!owner) return res.status(404).type("text/plain").send("Not found");
+    res.setHeader("Cache-Control", "no-store");
+    res.type("application/javascript");
+    return res.sendFile(path.join(__dirname, "private", "founder-command.js"), error => {
+      if (error && !res.headersSent) res.status(404).end();
+    });
+  } catch {
+    return res.status(404).type("text/plain").send("Not found");
+  }
+});
+
 // Serve other static assets (images, manifest, etc.) from /public.
 // index:false keeps "/" handled by the route below.
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
