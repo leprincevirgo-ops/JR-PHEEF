@@ -12,7 +12,7 @@
       ["home","⌂","Home",()=>route("home")],
       ["worlds","✧","Worlds",()=>route("worlds")],
       ["jr","✦","JR",()=>route("assistant")],
-      ["command","▦","Command Centre",()=>route("command")]
+      ["command","▦","Command Center",()=>route("command")]
     ];
     entries.forEach(([key,icon,label,run])=>{
       const b=make("button","jp-mobile-dock-item");
@@ -22,7 +22,7 @@
     });
     app.append(dock);
     const setActive=id=>{
-      const map={home:"home",explore:"worlds",worlds:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",family:"worlds",dgbo:"worlds",ecosystem:"worlds",assistant:"jr",messages:"worlds",social:"worlds",connecthub:"worlds",jpconnect:"worlds",opportunities:"worlds",referrals:"worlds",jrsettings:"worlds",profile:"worlds",personalhub:"worlds",devices:"worlds",vault:"worlds",jpidentity:"worlds",membership:"worlds",points:"worlds",alerts:"worlds",voice:"worlds",command:"command"};
+      const map={home:"home",explore:"worlds",worlds:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",family:"worlds",dgbo:"worlds",ecosystem:"worlds",assistant:"jr",messages:"command",social:"command",connecthub:"command",jpconnect:"command",opportunities:"command",referrals:"command",jrsettings:"command",profile:"command",personalhub:"command",devices:"command",vault:"command",jpidentity:"command",membership:"command",points:"command",alerts:"command",voice:"command",command:"command"};
       const active=map[id]||"home";
       dock.querySelectorAll("[data-mobile-destination]").forEach(b=>{
         const on=b.dataset.mobileDestination===active;
