@@ -4,6 +4,7 @@
 const $=id=>document.getElementById(id);
 const catalog=[
 ["home","Home","Your connected world, organised in one place.","Your Command Centre for the things you want to discover, organise and move forward."],
+["worlds","Worlds","Explore the connected JR PHEEF ecosystem.","Discover places, knowledge, opportunities, communities, services and the worlds connected to your account."],
 ["discover","Discover","Find knowledge, products, services, opportunities and people.","Search across JR PHEEF and explore useful information from connected sources."],
 ["explore","Explore","Visual inspiration from places, nature, cities, architecture and ideas.","Browse visual collections and use supported images as your workspace wallpaper."],
 ["browser","Browser","Search the web, visit websites and move between pages.","Use the JR PHEEF web workspace. Some websites may open in a separate browser when they do not allow embedding."],
@@ -145,7 +146,12 @@ function renderCommandCentre(p){
 }
 
 const hubGroups={
- discoverhub:[
+ worlds:[
+  ["EXPLORE THE WORLD",[["Places & Landscapes","Discover places, nature, cities and destinations","explore"],["Knowledge & Learning","Explore knowledge, lessons and research","teacher"],["Universe & Future","Explore subjects, science and future concepts","universe"]]],
+  ["OPPORTUNITIES & WORK",[["Discover Opportunities","Find products, services and opportunities","find"],["Business & Enterprise","Create and manage business activity","create"],["Projects & Ideas","Turn goals into organised work","projects"],["Delivery & Services","Explore delivery and useful services","delivery"]]],
+  ["PEOPLE & COMMUNITIES",[["People & Connect","Meet people and manage conversations","connecthub"],["Social Community","Discover community activity","social"],["Partner Network","Explore organisations and partners","partners"]]],
+  ["DGBO ECOSYSTEM",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Private family coordination","family"],["Ecosystem Overview","See how the ventures connect","ecosystem"]]]
+ ], discoverhub:[
   ["SEARCH & BROWSE",[["Search","Search JR PHEEF","find"],["Discover","Find products, services and information","discover"],["Browser","Browse the wider web","browser"],["App Hub","Open your other apps","apphub"]]],
   ["EXPLORE & LEARN",[["Explore","Places, nature, cities and inspiration","explore"],["JR Teacher","Lessons and study plans","teacher"],["Library","Saved learning resources","library"],["Future Worlds","Ideas and future concepts","scifi"]]],
   ["RESEARCH & KNOWLEDGE",[["Research & Ideas","Experiments, notes and concepts","lab"],["Universe","Explore subjects and knowledge","universe"]]]
@@ -227,7 +233,11 @@ function go(id,replace=false){
  updateNav(id);window.scrollTo({top:0,behavior:"instant"});
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
-function updateNav(id){document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===id;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});}
+function updateNav(id){
+ const destinations={home:"home",worlds:"worlds",assistant:"assistant",teacher:"worlds",universe:"worlds",explore:"worlds",discover:"worlds",find:"worlds",create:"worlds",projects:"worlds",delivery:"worlds",dgbo:"worlds",family:"worlds",ecosystem:"worlds",partners:"worlds",social:"worlds",connecthub:"command",messages:"command",jpconnect:"command",profile:"command",jpidentity:"command",vault:"command",library:"command",lab:"command",opportunities:"command",businessgrowth:"command",ads:"command",alerts:"command",accessgov:"command",jrsettings:"command",devices:"command",membership:"command",points:"command",referrals:"command",economy:"command",deals:"command",mylistings:"command",rooms:"command",fixedit:"command",connections:"command",apphub:"command",browser:"command",command:"command"};
+ const selected=destinations[id]||"command";
+ document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===selected;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current","page");});
+}
 function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor];ensure(id);activateOnlyWorkspace(id);updateNav(id);window.scrollTo({top:0,behavior:"instant"});document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));}
 function concealInternalOrchestration(){
  const architecture=$("connectedArchitecture");if(architecture)architecture.hidden=true;
@@ -246,6 +256,13 @@ function mount(){
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(":scope > .nav");
  if(nav){
+  const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]];
+  nav.replaceChildren();
+  primary.forEach(([id,glyph,label],index)=>{
+   const b=el("button",index===0?"jp-nav-active":"");b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
+   const icon=el("span","",glyph);icon.setAttribute("aria-hidden","true");
+   const name=el("span","",label);b.append(icon,name);b.addEventListener("click",()=>go(id));nav.append(b);
+  });
   nav.querySelector(".jr-desktop-extra")?.remove();
   const home=$("home");
   if(home&&!home.querySelector(".jr-desktop-landscapes")){
