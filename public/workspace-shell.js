@@ -244,7 +244,6 @@ function mount(){
    landscapes.querySelector("[data-jr-landscape-all]")?.addEventListener("click",()=>go("explore"));
    landscapes.querySelectorAll("[data-jr-world-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.jrWorldPage)));
   }
- }
   const wrap=nav.querySelector(".jp-more-wrap");
   const menu=wrap?.querySelector("#jpMoreMenu");
   if(wrap&&menu){
