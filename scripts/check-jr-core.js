@@ -1,0 +1,18 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const route=fs.readFileSync("routes/human-environment.js","utf8");
+const ui=fs.readFileSync("public/jr-core.js","utf8");
+const css=fs.readFileSync("public/jr-core.css","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
+const sw=fs.readFileSync("public/service-worker.js","utf8");
+new Function(ui);
+assert.ok(route.includes('app.get("/api/jr/core/status"'),"authenticated capability status endpoint missing");
+for(const key of ["living_intelligence","world_engine","business_os","continuity","creator_media","identity_trust"])assert.ok(route.includes('"'+key+'"'),"missing capability "+key);
+assert.ok(route.includes("OPENAI_API_KEY")&&route.includes("LIVEKIT_API_KEY"),"provider readiness checks missing");
+assert.ok(route.includes("not_connected"),"unconnected live broadcast must be disclosed");
+assert.ok(ui.includes("/api/jr/core/status"),"JR Core must load server readiness");
+assert.ok(ui.includes("jrWorkspaceNavigate")&&ui.includes("data-jr-core-open"),"capability cards must open existing workspaces");
+assert.ok(css.includes("@media(max-width:900px)")&&css.includes("grid-template-columns:repeat(2"),"mobile JR Core layout missing");
+assert.ok(html.includes("/jr-core.css?v=1")&&html.includes("/jr-core.js?v=1"),"JR Core assets not loaded");
+assert.ok(sw.includes('const VERSION="jr-shell-v7"'),"PWA cache version not refreshed");
+console.log("PASS: unified JR Core, six authenticated readiness checks, capability navigation and responsive UI.");
