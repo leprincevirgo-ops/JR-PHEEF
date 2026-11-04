@@ -11,9 +11,9 @@ assert.ok(css.includes("grid-template-columns:clamp(205px,17vw,270px) minmax(0,1
 assert.ok(css.includes(".jr-desktop-landscapes{display:none}"),"scenic cards must remain hidden by default");
 assert.ok(css.includes(".jr-desktop-extra{display:none}"),"desktop-only navigation must remain hidden by default");
 assert.ok(css.includes(".jr-scene-city")&&css.includes(".jr-scene-nature")&&css.includes(".jr-scene-future")&&css.includes(".jr-scene-space"),"four scenic landscape treatments missing");
-assert.ok(html.includes("/desktop-connected-world.css?v=1"),"desktop stylesheet not loaded");
+assert.ok(html.includes("/desktop-connected-world.css?v=2"),"desktop stylesheet not loaded");
 assert.ok(shell.includes("jr-desktop-extra")&&shell.includes("jr-desktop-landscapes"),"desktop components are not mounted");
 assert.ok(mobile.includes("max-width: 900px"),"existing mobile breakpoint missing");
 assert.ok(mobileCss.includes("@media(max-width:900px)"),"existing mobile styling must remain");
-assert.ok(sw.includes('const VERSION="jr-shell-v7"'),"PWA cache version not updated");
+assert.ok(sw.includes('const VERSION="jr-shell-v8"'),"PWA cache version not updated");
 console.log("PASS: desktop connected-world layout, scenic environments, desktop-only navigation and preserved mobile shell.");
