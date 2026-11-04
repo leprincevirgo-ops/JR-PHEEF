@@ -1,6 +1,8 @@
+.jr-desktop-landscapes{display:none}
 /* JR PHEEF desktop and large-screen connected-world shell.
    The existing phone layout remains controlled by mobile-phone-shell.css. */
 @media(min-width:901px){
+  .jr-desktop-landscapes{display:block!important}
   body{background:radial-gradient(ellipse at 72% 8%,rgba(0,128,255,.18),transparent 42%),linear-gradient(145deg,#020816,#061b38 54%,#031126)!important;overflow-x:hidden}
   .jp-global-header{position:sticky!important;top:0;z-index:180;min-height:76px!important;padding:10px clamp(18px,2.2vw,34px)!important;backdrop-filter:blur(22px);background:rgba(2,10,27,.91)!important;border-bottom:1px solid rgba(65,190,255,.24)!important;box-shadow:0 12px 36px rgba(0,0,0,.26)}
   .jp-brand-lockup .logo{font-size:21px!important;letter-spacing:.04em}
