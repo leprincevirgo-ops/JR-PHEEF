@@ -76,3 +76,27 @@
  .jr-world-universe{min-height:270px!important}
 }
 @media(prefers-reduced-motion:reduce){.jr-landscape-scene{transition:none!important}}
+
+/* Ordered primary navigation and Command Centre hierarchy. */
+#app>.nav.jp-primary-nav{display:flex;flex-direction:column;gap:8px}
+#app>.nav.jp-primary-nav>[data-page="command"]{margin-top:8px;border:1px solid rgba(49,196,255,.48)!important;background:linear-gradient(100deg,rgba(0,150,255,.24),rgba(0,82,170,.1))!important;color:#e9faff!important;box-shadow:0 0 20px rgba(0,155,255,.12)}
+.jr-command-priority-intro{display:flex;align-items:center;gap:14px;margin:18px 0 26px;padding:16px 19px;border:1px solid rgba(42,188,255,.34);border-radius:16px;background:linear-gradient(110deg,rgba(0,123,220,.18),rgba(4,24,57,.75))}
+.jr-command-priority-intro .jp-kicker{white-space:nowrap;color:#51ddff;font-weight:800;letter-spacing:.12em}
+.jr-command-priority-intro p{margin:0;color:#d7eaff}
+.jr-command-sections{display:flex;flex-direction:column;gap:28px}
+.jr-command-group{min-width:0}
+.jr-command-group-heading{margin-bottom:12px}
+.jr-command-group-heading .jp-kicker{font-size:12px;letter-spacing:.14em;color:#52dfff;font-weight:800}
+.jr-command-group-heading p{margin:5px 0 0;color:#a9c6e5;font-size:13px}
+.jr-command-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.jr-command-card{display:flex;flex-direction:column;align-items:flex-start;min-height:160px;padding:18px!important;border:1px solid rgba(64,158,237,.25)!important;background:linear-gradient(145deg,rgba(7,31,70,.94),rgba(3,15,39,.96))!important;border-radius:16px!important;box-shadow:0 12px 28px rgba(0,0,0,.17)}
+.jr-command-card h3{margin:0 0 8px;color:#f0f8ff}
+.jr-command-card p{margin:0 0 16px;color:#b7cce5;font-size:13px;line-height:1.5;flex:1}
+.jr-command-card button{margin-top:auto}
+@media(max-width:1200px){.jr-command-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){
+ .jr-command-priority-intro{align-items:flex-start;flex-direction:column;gap:5px}
+ .jr-command-sections{gap:23px}
+ .jr-command-grid{grid-template-columns:minmax(0,1fr)}
+ .jr-command-card{min-height:130px}
+}
