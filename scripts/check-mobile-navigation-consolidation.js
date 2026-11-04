@@ -5,11 +5,11 @@ const start=html.indexOf('<nav class="nav jp-primary-nav"'),end=html.indexOf("</
 assert.ok(start>=0&&end>start,"Primary navigation must exist.");
 const nav=html.slice(start,end);
 const primary=[...nav.matchAll(/<button([^>]*)data-page="([^"]+)"/g)].map(m=>m[2]);
-assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Centre.");
+assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Center.");
 assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,0,"Technical workspace overflow menus must not return to the primary navigation.");
 assert.ok(!html.includes('id="jpMoreMenu"'),"The old technical More menu must remain removed.");
 assert.ok(css.includes(".jp-global-search{display:none!important}"),"The duplicate mobile global search row must be hidden.");
-assert.ok(shell.includes("never append workspace buttons to the primary bar"),"Workspace shell must not append technical workspace buttons.");
+assert.ok(shell.includes("Four primary destinations: Home, Worlds, JR and Command Center."),"Workspace shell must keep one four-destination navigation.");
 assert.ok(shell.includes('const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]]'),"Workspace shell must construct only the four ordered primary destinations.");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"The old secondary desktop navigation must remain removed.");
 console.log("PASS: Home → Worlds → JR → Command Centre; technical workspaces stay out of the primary navigation.");
