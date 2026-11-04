@@ -58,6 +58,6 @@ $("create").addEventListener("click",async()=>{const name=$("connectionName").va
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(token);$("copy").textContent="Copied";}catch{message("Clipboard access was blocked. Select and copy the token manually.");}});
 $("refreshConnections").addEventListener("click",loadConnections);
 $("refreshEvents").addEventListener("click",loadEvents);
-if(document.cookie.split(";").some(v=>v.trim().startsWith("jr_session="))){loadConnections();loadEvents();}
+loadConnections();loadEvents();
 })();
 </script></body></html>
