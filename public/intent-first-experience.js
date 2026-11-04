@@ -5,11 +5,12 @@
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
+// Command Center is the primary control room; both spellings resolve to the same workspace.
 const routeAliases={
  "home":"home","welcome":"home","start":"home",
  "command centre":"command","command center":"command","control centre":"command","control center":"command","command":"command",
  "discover":"discover","search":"discover","search and browse":"discover",
- "explore":"explore","world":"explore",
+ "explore":"worlds","world":"worlds","worlds":"worlds","my worlds":"worlds",
  "browser":"browser","web browser":"browser","internet":"browser",
  "messages":"messages","message":"messages","chat":"messages","connect":"connecthub","communication":"messages",
  "dgbo":"dgbo","family":"family","ecosystem":"ecosystem",
