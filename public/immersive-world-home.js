@@ -7,6 +7,18 @@ function openDestination(event){
  if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(page);
  else if(typeof window.show==="function")window.show(page);
 }
+function mountCoreCapabilities(){
+ const core=document.querySelector(".jr-world-universe");
+ const hints=document.querySelector(".jr-capability-hints");
+ if(!core||!hints||core.contains(hints))return;
+ const drawer=document.createElement("div");
+ drawer.className="jr-core-capability-drawer";
+ drawer.setAttribute("aria-label","JR Intelligence capabilities");
+ const label=document.createElement("span");
+ label.textContent="ASK JR · EXPLORE CAPABILITIES";
+ drawer.append(label,hints);
+ core.appendChild(drawer);
+}
 function addResume(){
  const greeting=document.querySelector(".jr-world-greeting");
  if(!greeting||document.getElementById("jrWorldResume"))return;
@@ -41,8 +53,8 @@ function personalise(){
   greeting.textContent="Hello, "+name+"! What would you like to make happen?";
  }
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){personalise();addResume();});else{personalise();addResume();}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){personalise();mountCoreCapabilities();addResume();});else{personalise();mountCoreCapabilities();addResume();}
 document.addEventListener("jr:workspacechange",function(event){
- if(event.detail&&event.detail.id==="home"){personalise();addResume();}
+ if(event.detail&&event.detail.id==="home"){personalise();mountCoreCapabilities();addResume();}
 });
 })();
