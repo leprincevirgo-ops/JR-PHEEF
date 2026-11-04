@@ -262,6 +262,18 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 @media(prefers-reduced-motion:reduce){
   .jp-primary-nav .jp-nav-assistant{transition:none}
 }
+
+/* JR is the first encounter, including before account sign-in. */
+.jr-entry-welcome{max-width:760px;margin:18px auto 22px;padding:26px 20px;text-align:center;border:1px solid rgba(75,207,255,.25);border-radius:24px;background:radial-gradient(ellipse at 50% 12%,rgba(0,186,255,.17),transparent 58%),linear-gradient(145deg,#061b36,#020b1b);box-shadow:0 18px 48px #0005}
+.jr-entry-orb{display:grid;place-items:center;width:86px;height:86px;margin:0 auto 14px;border:1px solid #53eaff;border-radius:50%;background:radial-gradient(circle at 35% 25%,#25c7ef,#06447a 58%,#03142c);box-shadow:0 0 0 9px #28dfff12,0 0 38px #00c8ff45}
+.jr-entry-orb span{font-size:29px;font-weight:1000;letter-spacing:-2px;color:#e2fdff;text-shadow:0 0 16px #00cfff}
+.jr-entry-kicker{margin:0 0 8px;color:#6beaff;font-size:10px;font-weight:900;letter-spacing:2px}
+.jr-entry-welcome h1{margin:0 0 9px;font-size:clamp(30px,5vw,48px);color:#eefaff}
+.jr-entry-welcome h1 span{color:#56eaff}
+.jr-entry-welcome>p:not(.jr-entry-kicker){max-width:590px;margin:0 auto;color:#bad2e6;font-size:14px;line-height:1.65}
+.jr-entry-prompt{display:inline-block;margin-top:15px;padding:10px 15px;border:1px solid #4adfff4d;border-radius:14px;background:#06284b;color:#e6fbff;font-weight:700}
+@media(max-width:600px){.jr-entry-welcome{margin:8px auto 14px;padding:21px 14px}.jr-entry-orb{width:70px;height:70px}.jr-entry-welcome>p:not(.jr-entry-kicker){font-size:12px}}
+
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
@@ -314,12 +326,16 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <main>
 
 <section id="auth">
-
+<div class="jr-entry-welcome">
+  <div class="jr-entry-orb" aria-hidden="true"><span>JR</span></div>
+  <p class="jr-entry-kicker">JR PHEEF · YOUR INTELLIGENT ENVIRONMENT</p>
+  <h1>Start with <span>JR.</span></h1>
+  <p>Ask anything. Bring a question, a challenge, an idea, a task or a possibility. JR will first understand what you mean, then help you find a way forward.</p>
+  <div class="jr-entry-prompt">“JR, what can you do for me?”</div>
+</div>
 <div class="card">
-<h1>One connected world.</h1>
-<p class="muted">
-Your universal opportunity center.
-</p>
+<h1>Welcome to JR PHEEF</h1>
+<p class="muted">Sign in or create an account to continue into your personal environment.</p>
 
 <div id="loginBox">
 <h2>Login</h2>
@@ -386,10 +402,10 @@ placeholder="Password">
 <div id="home" class="page jp-reference-home">
   <section class="jr-world-home" aria-labelledby="jrWorldTitle">
     <div class="jr-world-header">
-      <div><span class="jr-world-eyebrow">YOUR CONNECTED WORLD</span><h1 id="jrWorldTitle">Your world. <span>One JR.</span></h1><p>Start with JR. Say what you need, ask what is possible, and let JR guide you to the right capability.</p></div>
+      <div><span class="jr-world-eyebrow">YOUR CONNECTED WORLD</span><h1 id="jrWorldTitle">Your world. <span>One JR.</span></h1><p>Say anything in your own words. Ask a question, share a problem, describe an idea, give an instruction or start a conversation. JR begins by understanding you.</p></div>
       <div class="jr-world-live"><i></i> YOUR SPACE</div>
     </div>
-    <div class="jr-world-universe" aria-label="JR PHEEF connected world">
+    <div class="jr-world-universe" aria-label="JR Intelligence core and connected capabilities">
       <div class="jr-orbit jr-orbit-one"></div><div class="jr-orbit jr-orbit-two"></div><div class="jr-orbit jr-orbit-three"></div>
       <div class="jr-earth"><div class="jr-earth-grid"></div><div class="jr-earth-land jr-earth-land-a"></div><div class="jr-earth-land jr-earth-land-b"></div><div class="jr-earth-land jr-earth-land-c"></div><button type="button" class="jr-earth-core" data-jr-world-page="assistant" aria-label="Talk to JR — open JR Intelligence">JR</button></div>
       <button class="jr-world-link jr-world-people" data-jr-world-page="messages"><span>♙</span><b>People</b><small>Connect &amp; collaborate</small></button>
@@ -406,12 +422,12 @@ placeholder="Password">
     <section class="jr-intent-console" aria-label="Tell JR what you want to do">
       <form class="jp-universe-compose jr-intent-compose" id="jpUniversalForm">
         <button class="jp-universe-voice" type="button" id="jpUniversalVoice" aria-label="Speak your request">🎙</button>
-        <textarea id="jpUniversalRequest" rows="1" maxlength="4000" aria-label="Describe what you want JR PHEEF to help you do" placeholder="JR, what can you do for me? Tell JR what you want to accomplish…"></textarea>
+        <textarea id="jpUniversalRequest" rows="1" maxlength="4000" aria-label="Describe what you want JR PHEEF to help you do" placeholder="Say anything to JR. What are you thinking about, trying to do, or needing help with?"></textarea>
         <button class="jp-universe-submit" type="submit" aria-label="Send request to JR">➜</button>
       </form>
       <div id="jpUniversalStatus" class="jr-intent-status" role="status" aria-live="polite"></div>
-<div class="jr-capability-hints" aria-label="Examples of things JR can help with" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
-<span class="muted" style="width:100%;font-size:12px">ONE INTELLIGENCE. MANY POSSIBILITIES.</span>
+<div class="jr-capability-hints" aria-label="Optional examples of things JR can help with" style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">
+<span class="muted" style="width:100%;font-size:12px">A FEW IDEAS TO GET STARTED — NOT LIMITS</span>
 <button type="button" class="dark" onclick="jrUseExample('Plan and coordinate my business today')">Grow my business</button>
 <button type="button" class="dark" onclick="jrUseExample('Find a rider and track my parcel')">Move a parcel</button>
 <button type="button" class="dark" onclick="jrUseExample('Teach me something new about space')">Learn anything</button>
