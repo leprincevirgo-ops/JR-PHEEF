@@ -8,7 +8,7 @@ const sw=fs.readFileSync("public/service-worker.js","utf8");
 const primary='const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]]';
 assert.ok(shell.includes(primary),"primary destinations must be Home, Worlds, JR, Command Center in that order");
 assert.ok(html.includes('data-page="command"'),"Command Center must be a first-class destination");
-assert.ok(shell.includes('if(id==="worlds")id="morehub"'),"Worlds must route to the Worlds hub");
+assert.ok(shell.includes(" worlds:[")&&shell.includes("if(hubGroups[id])"),"Worlds must render its own organised hub");
 assert.ok(shell.includes("function renderCommandCentre(p)"),"Command Center renderer missing");
 for(const section of ["01 · LEAD","02 · EXECUTE","03 · GROW","04 · STEWARD","05 · IMPROVE"])assert.ok(shell.includes(section),"missing priority group "+section);
 for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operations & Projects","Business Operations","People & Communications","Opportunities & Partnerships","DGBO","FAMILY","JR Assistant","Settings & Preferences"])assert.ok(shell.includes(item),"missing Command Center item "+item);
