@@ -22,8 +22,8 @@
     });
     app.append(dock);
     const setActive=id=>{
-      const map={home:"home",explore:"worlds",worlds:"worlds",morehub:"worlds",discoverhub:"worlds",teacher:"worlds",find:"worlds",workhub:"worlds",create:"worlds",economy:"worlds",projects:"worlds",family:"worlds",dgbo:"worlds",ecosystem:"worlds",assistant:"jr",messages:"command",social:"command",connecthub:"command",jpconnect:"command",opportunities:"command",referrals:"command",jrsettings:"command",profile:"command",personalhub:"command",devices:"command",vault:"command",jpidentity:"command",membership:"command",points:"command",alerts:"command",voice:"command",command:"command"};
-      const active=map[id]||"home";
+      const worldDestinations=new Set(["worlds","explore","morehub","discoverhub","teacher","universe","find","workhub","create","economy","projects","family","dgbo","ecosystem","partners","social","discover","scifi","fixedit"]);
+      const active=id==="home"?"home":id==="assistant"?"jr":worldDestinations.has(id)?"worlds":"command";
       dock.querySelectorAll("[data-mobile-destination]").forEach(b=>{
         const on=b.dataset.mobileDestination===active;
         b.classList.toggle("is-active",on);
