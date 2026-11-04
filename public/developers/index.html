@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a36"><title>JR PHEEF Developer Gateway</title>
+<style>
+:root{color-scheme:dark;--bg:#061326;--panel:#0d2342;--line:#20466e;--text:#eaf6ff;--muted:#a8c2dc;--cyan:#55e5ed;--blue:#428cff;--good:#72e6b1;--warn:#ffd27a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#123e69 0,transparent 42%),linear-gradient(150deg,#061326,#081d37 60%,#061326);color:var(--text);font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+main{width:min(1080px,calc(100% - 32px));margin:38px auto 70px}.eyebrow{color:var(--cyan);letter-spacing:.16em;font-size:11px;font-weight:800}.hero{padding:28px 0 34px}.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.02;margin:12px 0}.hero p{max-width:720px;color:var(--muted);font-size:17px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:4px 11px;color:var(--cyan);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.card{background:linear-gradient(145deg,rgba(15,42,74,.95),rgba(8,27,51,.95));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 12px 36px #0003}.card h2,.card h3{margin:0 0 8px}.muted{color:var(--muted)}.status{font-size:12px;color:var(--good);font-weight:750}.warning{color:var(--warn)}section{margin-top:24px}h2.section{font-size:23px;margin:0 0 13px}.endpoint{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid #244363}.method{font-size:12px;font-weight:800;color:var(--cyan)}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{color:#a9f4f5}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#041020;border:1px solid #183858;border-radius:12px;padding:16px;color:#d8efff;font-size:13px}.btn{border:0;border-radius:10px;background:linear-gradient(100deg,#277cf0,#23bfcf);color:#03162a;font-weight:800;padding:11px 16px;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}input{width:100%;background:#04152a;border:1px solid #315577;border-radius:9px;padding:12px;color:white;margin:8px 0 12px}.token{border:1px solid #548eaa;background:#071c2c;padding:12px;border-radius:10px;overflow-wrap:anywhere}.foot{margin-top:30px;color:var(--muted);font-size:13px}a{color:var(--cyan)}@media(max-width:540px){main{margin-top:18px}.hero{padding-top:18px}.endpoint{grid-template-columns:70px 1fr}}
+</style></head>
+<body><main>
+<div class="hero"><div class="eyebrow">JR PHEEF · CONNECTED WORLD</div><span class="pill">Developer Gateway · v0.3</span><h1>Build a connection.<br><span style="color:var(--cyan)">Bring systems together.</span></h1><p>Connect a business system, application or approved device to JR PHEEF. Start with a secure event connection, then expand through scoped integrations as the platform's verified connectors become available.</p></div>
+<div class="grid">
+<article class="card"><div class="status">AVAILABLE · MEMBER SCOPED</div><h3>Inbound event gateway</h3><p class="muted">Receive inventory, delivery, task, calendar and status events in a private JR inbox. Credentials can be revoked by their owner.</p></article>
+<article class="card"><div class="status warning">IN DEVELOPMENT</div><h3>Two-way integrations</h3><p class="muted">OAuth delegated access, outbound actions, signed webhooks and provider-specific adapters require separate implementation and approval.</p></article>
+<article class="card"><div class="status warning">NOT ACTIVE</div><h3>Payments & device control</h3><p class="muted">No payment movement, booking, device command or other consequential action is enabled by this event gateway.</p></article>
+</div>
+<section class="card"><h2 class="section">Create your secure connection</h2><p class="muted">Sign in to JR PHEEF first. Your token is displayed once; JR stores only its SHA-256 hash. Never share it or place it in browser code.</p><label for="connectionName">Connection name</label><input id="connectionName" maxlength="60" placeholder="e.g. My supermarket inventory system"><button class="btn" id="create">Create connection</button><p id="message" class="muted" aria-live="polite"></p><div id="tokenArea" hidden><h3>Copy this token now</h3><div id="token" class="token"></div><button class="btn" id="copy" style="margin-top:10px">Copy token</button><p class="warning">It cannot be displayed again. Store it in your service's secret manager.</p></div></section>
+<section class="card"><h2 class="section">API endpoints</h2>
+<div class="endpoint"><span class="method">POST</span><div><code>/api/jr/integrations</code><div class="muted">Create a member-owned connection. Requires JR login session.</div></div></div>
+<div class="endpoint"><span class="method">GET</span><div><code>/api/jr/integrations</code><div class="muted">List your connections and their active/revoked status.</div></div></div>
+<div class="endpoint"><span class="method">GET</span><div><code>/api/jr/integrations/events</code><div class="muted">Read your private inbound event inbox. Requires JR login session.</div></div></div>
+<div class="endpoint"><span class="method">DELETE</span><div><code>/api/jr/integrations/{id}</code><div class="muted">Revoke your own connection immediately.</div></div></div>
+<div class="endpoint"><span class="method">POST</span><div><code>/api/inbound/jr/events</code><div class="muted">Submit an event using the connection's bearer token.</div></div></div>
+</section>
+<section class="card"><h2 class="section">Send an event</h2><p class="muted">Example request from your server (replace the environment variable with the one-time token):</p><pre>curl -X POST https://jr-pheef-marketplace.onrender.com/api/inbound/jr/events \
+  -H "Authorization: Bearer $JR_PARTNER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_type": "inventory_update",
+    "title": "Stock count updated",
+    "summary": "Product ABC has 12 units recorded.",
+    "external_event_id": "stock-count-001",
+    "event_data": {
+      "category": "stock",
+      "quantity": 12,
+      "unit": "items"
+    }
+  }'</pre><p class="muted">Accepted event types: <code>status_update</code>, <code>task_update</code>, <code>inventory_update</code>, <code>delivery_update</code>, <code>message_received</code>, <code>calendar_update</code>, <code>other</code>. Reuse the same external event ID when retrying; duplicate events are safely acknowledged.</p></section>
+<section class="grid"><article class="card"><h3>Security by design</h3><p class="muted">Least privilege · member ownership · hashed credentials · rate limits · allowlisted event fields · deduplication · audit events · revocation.</p></article><article class="card"><h3>Build with us</h3><p class="muted">Provider adapters and broader API scopes are released only after consent, permission checks, testing, auditability and rollback are in place.</p><a href="/jr-pheef-capabilities.json">View capability manifest →</a></article></section>
+<p class="foot">JR PHEEF · Find. Match. Trade. · Powered by DIME GLOBAL BUSINESS OPERATORS<br>API availability is limited to the endpoints and scopes documented here. A connection is not proof that a third-party provider is installed or operational.</p>
+</main>
+<script>
+(()=>{const $=id=>document.getElementById(id);let token="";$("create").addEventListener("click",async()=>{const name=$("connectionName").value.trim();$("message").textContent="Creating secure connection…";$("create").disabled=true;$("tokenArea").hidden=true;try{const r=await fetch("/api/jr/integrations",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});const data=await r.json();if(!r.ok||!data.ok)throw new Error(data.error||"Could not create connection. Sign in and try again.");token=data.token;$("token").textContent=token;$("tokenArea").hidden=false;$("message").textContent="Connection created: "+data.connection.name;}catch(e){$("message").textContent=e.message;}finally{$("create").disabled=false;}});$("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(token);$("copy").textContent="Copied";}catch{$("message").textContent="Clipboard access was blocked. Select and copy the token manually.";}});})();
+</script></body></html>
