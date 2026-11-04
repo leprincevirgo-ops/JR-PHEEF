@@ -23,7 +23,7 @@ assert.ok(ads.includes("adMediaMarkup(a.media_urls)"),"uploaded ad media is not 
 assert.ok(ads.includes("Public Go Live is not enabled yet"),"live broadcast limitation must be disclosed");
 assert.ok(workspace.includes('["YOUR IDENTITY & SPACE"'),"profile and account tools must be in Connect");
 assert.ok(workspace.includes('if(id==="personalhub")id="connecthub"'),"legacy personal-space navigation must redirect to Connect");
-assert.ok(mobile.includes('route("connecthub")'),"mobile Connect must open unified Connect workspace");
+assert.ok(mobile.includes('route("command")')&&mobile.includes('worldDestinations.has(id)?"worlds":"command"')&&workspace.includes("People & Communications"),"Connect must be available from Command Centre and grouped there on mobile");
 assert.ok(!mobile.includes('"you"'),"separate You dock item should be removed");
 assert.ok(css.includes("grid-template-columns:repeat(4,minmax(0,1fr))!important"),"mobile dock must use four destinations");
 console.log("PASS: ad media upload, camera/gallery, video recording, Connect consolidation and responsive navigation.");
