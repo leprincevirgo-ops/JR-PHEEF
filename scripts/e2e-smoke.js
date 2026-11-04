@@ -110,6 +110,11 @@ async function main() {
 
   // Session restoration is intentionally public: an anonymous browser must be
   // able to ask whether a session exists without being treated as logged in.
+  await check("private founder command script is hidden from anonymous users", async () => {
+    const response = await request("/founder-command.js");
+    assert.equal(response.status, 404, "founder command source must remain hidden from anonymous sessions");
+  });
+
   await check("session restoration safely reports anonymous state", async () => {
     const response = await request("/api/me");
     assert.equal(response.status, 200, "expected HTTP 200 for session restoration");
