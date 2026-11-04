@@ -10,9 +10,9 @@
     const dock=make("nav","jp-mobile-dock");dock.id="jpMobileDock";dock.setAttribute("aria-label","JR PHEEF mobile navigation");
     const entries=[
       ["home","⌂","Home",()=>route("home")],
-      ["worlds","✧","Worlds",()=>route("worlds")],
+      ["worlds","✧","Worlds",()=>route("morehub")],
       ["jr","✦","JR",()=>route("assistant")],
-      ["command","▦","Command Center",()=>route("command")]
+      ["command","▦","Command Centre",()=>route("command")]
     ];
     entries.forEach(([key,icon,label,run])=>{
       const b=make("button","jp-mobile-dock-item");
