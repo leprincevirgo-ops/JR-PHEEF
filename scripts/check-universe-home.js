@@ -41,5 +41,5 @@ assert.ok(html.includes("new FormData()")&&html.includes('form.append("image",im
 assert.ok(intent.includes("window.jrIntentCameraFile=photo||null")&&intent.includes("only when you submit your request"),"camera selection must be explicit and user-controlled");
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
 assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
-for(const area of ["Your Command Center","01 · LEAD","02 · EXECUTE","03 · GROW","04 · STEWARD","05 · IMPROVE","Daily Operations & Projects","Opportunities & Partnerships","External Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
+for(const area of ["Your Command Center","01 · LEAD","02 · EXECUTE","03 · GROW","04 · YOUR RESOURCES","05 · IMPROVE","Daily Operations & Projects","Opportunities & Partnerships","External Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
 console.log("PASS: JR universe home, natural-language routing and four-destination navigation.");
