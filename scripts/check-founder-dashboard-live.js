@@ -1,7 +1,7 @@
 "use strict";
 const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("node:vm");
-const route=fs.readFileSync("routes/jr.js","utf8"),ui=fs.readFileSync("public/founder-command.js","utf8"),css=fs.readFileSync("public/founder-command.css","utf8");
-new vm.Script(ui,{filename:"public/founder-command.js"});
+const route=fs.readFileSync("routes/jr.js","utf8"),ui=fs.readFileSync("private/founder-command.js","utf8"),css=fs.readFileSync("public/founder-command.css","utf8");
+new vm.Script(ui,{filename:"private/founder-command.js"});
 const start=route.indexOf('app.get("/api/admin/overview"'),end=route.indexOf('app.get("/api/admin/ads"',start);
 assert.ok(start>=0&&end>start,"Owner overview endpoint must exist before admin review endpoints.");
 const api=route.slice(start,end);
