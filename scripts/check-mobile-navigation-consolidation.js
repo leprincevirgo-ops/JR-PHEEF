@@ -5,10 +5,10 @@ const start=html.indexOf('<nav class="nav jp-primary-nav"'),end=html.indexOf("</
 assert.ok(start>=0&&end>start,"Primary navigation must exist.");
 const nav=html.slice(start,end);
 const primary=[...nav.matchAll(/<button([^>]*)data-page="([^"]+)"/g)].map(m=>m[2]);
-assert.deepEqual(primary,["home","explore","assistant","messages"],"Primary navigation must stay focused on Home, Explore, JR and Connect.");
+assert.deepEqual(primary,["home","morehub","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Centre.");
 assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,0,"Technical workspace overflow menus must not return to the primary navigation.");
 assert.ok(!html.includes('id="jpMoreMenu"'),"The old technical More menu must remain removed.");
 assert.ok(css.includes(".jp-global-search{display:none!important}"),"The duplicate mobile global search row must be hidden.");
 assert.ok(shell.includes("never append workspace buttons to the primary bar"),"Workspace shell must not append technical workspace buttons.");
 assert.ok(!shell.includes("nav.append(b)"),"Workspace shell must not add secondary destinations to primary navigation.");
-console.log("PASS: four outcome-led destinations; technical workspaces stay out of the primary navigation.");
+console.log("PASS: Home → Worlds → JR → Command Centre; technical workspaces stay out of the primary navigation.");
