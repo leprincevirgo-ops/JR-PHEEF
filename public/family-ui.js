@@ -107,7 +107,7 @@
     return code?window.location.origin+"/?ref="+encodeURIComponent(code):window.location.origin+"/";
   }
   function inviteText(){
-    return "Join JR PHEEF — Learn. Create. Connect. Grow.\n"+inviteUrl();
+    return "JR PHEEF — A World of Possibilities. Enter curious. Discover more. Become more.\n"+inviteUrl();
   }
   window.copyReferralLink=async function(){
     try{await navigator.clipboard.writeText(inviteUrl());setText("referralMsg","Your personal JR PHEEF link has been copied.");}
