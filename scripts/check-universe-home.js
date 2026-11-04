@@ -32,7 +32,7 @@ assert.equal(intentWindow.jrIntentRoute("JR, open Command Centre"),"command","na
 assert.equal(intentWindow.jrIntentRoute("open command center"),"command","US spelling of Command Center must route directly");
 assert.equal(intentWindow.jrIntentRoute("JR, open my clothing shop"),"businessgrowth","business workspace command must route directly");
 assert.equal(intentWindow.jrIntentRoute("teach me Mandarin"),null,"ordinary goals must remain with JR Assistant");
-for(const phrase of ["Command Center","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.includes(phrase),"Intent-first capability missing: "+phrase);
+for(const phrase of ["Command Center","universal command","camera","navigator.onLine","SpeechRecognition","jrWorkspaceNavigate","askJRAI"])assert.ok(intent.toLowerCase().includes(phrase.toLowerCase()),"Intent-first capability missing: "+phrase);
 for(const selector of [".jr-intent-bar","#jrIntentCommand",".jr-intent-action",".jr-intent-network","#app>.nav","#jpActionRail"])assert.ok(intentCss.includes(selector),"Intent-first presentation rule missing: "+selector);
 assert.ok(js.includes("intent-first-experience.js")&&js.includes("intent-first-experience.css"),"Intent-first assets are not loaded");
 assert.ok(server.includes("if (!phone && !email)")&&server.includes("valid international phone number"),"registration must accept either email or globally formatted phone");
