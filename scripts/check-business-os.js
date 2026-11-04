@@ -1,0 +1,12 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const route=fs.readFileSync("routes/business-os.js","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261104120000_jr_global_business_workspaces.sql","utf8");
+for(const item of ["supermarket","salon_beauty","barber","transport_logistics","professional_services","manufacturing"])assert.ok(route.includes(item),"Industry template missing: "+item);
+for(const item of ["/api/businesses","/api/businesses/:id","/api/businesses/:id/imports","consent_confirmed","owner_member_id","operating_countries"])assert.ok(route.includes(item),"Business API control missing: "+item);
+for(const table of ["jr_businesses","jr_business_members","jr_business_import_jobs"])assert.ok(migration.includes(table),"Migration table missing: "+table);
+assert.ok(migration.includes("enable row level security"));
+assert.ok(migration.includes("to anon, authenticated using (false)"));
+new Function("module","exports","require",route);
+console.log("PASS: global business workspace API, industry catalogue, import consent and server-only database controls.");
