@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>JR PHEEF</title>
-<meta name="theme-color" content="#0a2c57">
+<meta name="theme-color" content="#35e9dc">
 <script>(function(){try{const c=(new URLSearchParams(location.search).get("ref")||"").trim().toUpperCase();if(/^JR-[A-F0-9]{12}$/.test(c))localStorage.setItem("jr_referral_code",c);}catch(e){}})();</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/jr-pheef-icon.svg">
@@ -227,6 +227,40 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
+
+/* JR PHEEF — elevated luminous panoramic Talk to JR tab */
+.jp-primary-nav .jp-nav-assistant{
+  position:relative;
+  transform:translateY(-5px);
+  isolation:isolate;
+  overflow:hidden;
+  color:#031b2b!important;
+  border:1px solid rgba(172,255,250,.92)!important;
+  background:linear-gradient(105deg,#35f6cf 0%,#42e8ff 38%,#65b8ff 70%,#b4a0ff 100%)!important;
+  box-shadow:0 0 12px rgba(46,244,221,.55),0 0 28px rgba(53,194,255,.38),0 7px 22px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.8)!important;
+  text-shadow:none!important;
+}
+.jp-primary-nav .jp-nav-assistant:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(110deg,transparent 10%,rgba(255,255,255,.58) 48%,transparent 76%);
+  opacity:.58;
+  pointer-events:none;
+}
+.jp-primary-nav .jp-nav-assistant:hover,
+.jp-primary-nav .jp-nav-assistant:focus-visible{
+  transform:translateY(-7px);
+  filter:saturate(1.18) brightness(1.08);
+  box-shadow:0 0 18px rgba(46,244,221,.7),0 0 38px rgba(53,194,255,.48),0 9px 26px rgba(0,0,0,.3)!important;
+}
+@media(max-width:600px){
+  .jp-primary-nav .jp-nav-assistant{transform:translateY(-4px);box-shadow:0 0 10px rgba(46,244,221,.5),0 0 22px rgba(53,194,255,.32)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .jp-primary-nav .jp-nav-assistant{transition:none}
+}
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
