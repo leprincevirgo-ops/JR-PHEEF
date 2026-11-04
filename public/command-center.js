@@ -3,6 +3,7 @@
 const MODULES=[
  ["home","Home dashboard","Your personal JR PHEEF starting point","⌂"],
  ["ecosystem","DGBO ecosystem","Governance, ventures and ecosystem coordination","◈"],
+ ["companies","My companies","Open JR PHEEF, DGBO, FAMILY and authorised business services","▦"],
  ["universe","Universe","Explore worlds, knowledge and new possibilities","✧"],
  ["teacher","JR Teacher","Learn, practice and build study plans","✎"],
  ["referrals","Invite & grow","Referral code, invitations and growth activity","↗"],
