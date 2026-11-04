@@ -87,3 +87,5 @@ img,video,canvas,iframe{max-width:100%}
   #jpMobileDock .jp-mobile-dock-icon{font-size:16px!important}
   #jpMobileDock .jp-mobile-dock-label{font-size:9px!important}
 }
+
+@media(max-width:900px){#jpMobileDock [data-mobile-destination="command"] .jp-mobile-dock-label{font-size:8px!important;letter-spacing:-.2px!important}}
