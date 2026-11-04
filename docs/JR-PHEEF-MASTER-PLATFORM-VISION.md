@@ -1,7 +1,7 @@
 # JR PHEEF Master Platform Vision
 
 **Identity:** JR PHEEF  
-**Slogan:** Learn. Create. Connect. Grow.  
+**Slogan:** A World of Possibilities.  
 **Status:** Product direction and roadmap; this document does not claim that planned features are already implemented, deployed, certified, or commercially available.
 
 ## Product definition
