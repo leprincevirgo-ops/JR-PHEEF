@@ -1,0 +1,18 @@
+"use strict";
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const html=fs.readFileSync("public/index.html","utf8");
+const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const mobile=fs.readFileSync("public/mobile-phone-shell.js","utf8");
+const css=fs.readFileSync("public/desktop-connected-world.css","utf8");
+const nav=html.slice(html.indexOf('<nav class="nav jp-primary-nav"'),html.indexOf("</nav>",html.indexOf('<nav class="nav jp-primary-nav"'))+6);
+const labels=[...nav.matchAll(/<span>(Home|Worlds|JR|Command Centre)<\/span>/g)].map(x=>x[1]);
+assert.deepEqual(labels,["Home","Worlds","JR","Command Centre"],"primary navigation order must match product direction");
+assert.ok(nav.includes('data-page="command"'),"Command Centre must be a first-class destination");
+assert.ok(shell.includes("function renderCommandCentre(p)"),"Command Centre renderer missing");
+for(const section of ["01 · LEAD","02 · EXECUTE","03 · GROW","04 · STEWARD","05 · IMPROVE"])assert.ok(shell.includes(section),"missing priority group "+section);
+assert.ok(shell.includes('["People & Communications"')||shell.includes('["People & Communications"'),"connect destination should be in command centre");
+assert.ok(mobile.includes('"command","▦","Command Centre",()=>route("command)")')||mobile.includes('"command","▦","Command Centre",()=>route("command")'),"mobile dock must expose Command Centre");
+assert.ok(mobile.includes('["worlds","✧","Worlds",()=>route("morehub)')||mobile.includes('["worlds","✧","Worlds",()=>route("morehub")'),"mobile Worlds entry must remain");
+assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive command centre styles missing");
+assert.ok(!shell.includes('nav.append(extra)'),"old extra desktop nav must be removed");
+console.log("PASS: Home → Worlds → JR → Command Centre, mobile dock alignment, and five-level Command Centre hierarchy.");
