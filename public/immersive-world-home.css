@@ -69,3 +69,50 @@
 @keyframes jr-aura-breathe{0%,100%{opacity:.6;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @media(max-width:760px){.jr-world-family{left:50%;top:0;bottom:auto}.jr-world-resume{margin:0 auto 12px}}
 @media(prefers-reduced-motion:reduce){.jr-earth-core,.jr-orbit-one,.jr-orbit-two,.jr-bot-aura{animation:none!important;transition:none!important}}
+
+/* JR Intelligence Core: bring the globe, JR presence and capabilities into one compact centre. */
+.jr-world-universe{height:clamp(390px,48vw,470px);max-width:820px;overflow:visible}
+.jr-earth{top:39%;width:clamp(155px,23vw,245px)}
+.jr-orbit{top:39%;width:min(64vw,470px)}
+.jr-orbit-two{width:min(78vw,570px)}
+.jr-orbit-three{width:min(48vw,360px)}
+.jr-world-assistant{top:66%;width:clamp(64px,9vw,94px);height:clamp(66px,9vw,96px)}
+.jr-world-ground{bottom:17%;height:18%;width:min(68%,580px)}
+.jr-world-link{width:clamp(112px,16vw,155px);min-height:51px;padding:7px 9px;grid-template-columns:30px 1fr;gap:2px 7px}
+.jr-world-link>span{width:28px;height:28px;font-size:16px}
+.jr-world-link small{font-size:9px}
+.jr-world-people{left:2%;top:10%}.jr-world-business{left:0;top:43%}
+.jr-world-opportunities{left:8%;bottom:18%}.jr-world-knowledge{right:2%;top:10%}
+.jr-world-services{right:0;top:43%}.jr-world-intelligence{right:8%;bottom:18%}
+.jr-world-family{top:0}
+.jr-core-capability-drawer{position:absolute;z-index:8;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,740px);padding:10px 12px;border:1px solid rgba(66,210,255,.26);border-radius:16px;background:linear-gradient(120deg,rgba(4,25,51,.96),rgba(5,40,68,.94));box-shadow:0 10px 30px rgba(0,0,0,.3);backdrop-filter:blur(14px)}
+.jr-core-capability-drawer>span{display:block;margin:0 0 8px;text-align:center;color:#65eaff;font-size:9px;font-weight:900;letter-spacing:1.4px}
+.jr-core-capability-drawer .jr-capability-hints{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:0!important;padding:0;border:0;background:transparent}
+.jr-core-capability-drawer .jr-capability-hints>span:first-child{display:none}
+.jr-core-capability-drawer .jr-capability-hints button{flex:1 1 28%;min-width:0;min-height:34px;padding:7px 9px;font-size:10px}
+.jr-world-greeting{margin-top:4px}
+@media(max-width:760px){
+ .jr-world-universe{height:430px;width:100%}
+ .jr-earth{top:37%;width:clamp(145px,43vw,205px)}
+ .jr-orbit{top:37%;width:74vw}
+ .jr-orbit-two{width:90vw}
+ .jr-orbit-three{width:58vw}
+ .jr-world-assistant{top:63%;width:68px;height:72px}
+ .jr-world-ground{bottom:20%;height:14%;width:78%}
+ .jr-world-link{width:clamp(105px,31vw,132px);min-height:47px;padding:6px;grid-template-columns:25px 1fr;gap:2px 5px}
+ .jr-world-link>span{width:24px;height:24px;font-size:14px}
+ .jr-world-link b{font-size:8px}.jr-world-link small{font-size:7px}
+ .jr-world-people,.jr-world-knowledge{top:9%}
+ .jr-world-business,.jr-world-services{top:40%}
+ .jr-world-opportunities,.jr-world-intelligence{bottom:20%}
+ .jr-world-family{top:0}
+ .jr-core-capability-drawer{bottom:0;padding:8px}
+ .jr-core-capability-drawer .jr-capability-hints button{flex:1 1 30%;font-size:9px;padding:7px 5px}
+}
+@media(max-width:430px){
+ .jr-world-universe{height:420px}
+ .jr-earth{top:36%;width:clamp(138px,42vw,178px)}
+ .jr-world-assistant{top:62%;width:60px;height:64px}
+ .jr-world-link{width:clamp(99px,30vw,119px)}
+ .jr-world-capability-drawer{padding:7px}
+}
