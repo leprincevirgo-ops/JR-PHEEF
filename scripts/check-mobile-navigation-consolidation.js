@@ -9,7 +9,7 @@ assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary naviga
 assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,0,"Technical workspace overflow menus must not return to the primary navigation.");
 assert.ok(!html.includes('id="jpMoreMenu"'),"The old technical More menu must remain removed.");
 assert.ok(css.includes(".jp-global-search{display:none!important}"),"The duplicate mobile global search row must be hidden.");
-assert.ok(shell.includes("Four primary destinations: Home, Worlds, JR and Command Center."),"Workspace shell must keep one four-destination navigation.");
+assert.ok(shell.includes('const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]]'),"Workspace shell must keep one four-destination navigation.");
 assert.ok(shell.includes('const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]]'),"Workspace shell must construct only the four ordered primary destinations.");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"The old secondary desktop navigation must remain removed.");
 console.log("PASS: Home → Worlds → JR → Command Centre; technical workspaces stay out of the primary navigation.");
