@@ -21,6 +21,6 @@ assert.ok(founder.includes("page.remove()"),"Private page must be removed for no
 assert.ok(css.includes(".jr-member-snapshot")&&css.includes("@media(max-width:520px)"),"Profile summary needs responsive styling.");
 assert.ok(!legacyUi.includes("OWNER CONTROL CENTER")&&!legacyUi.includes("DGBO CONTROL CENTER")&&!legacyUi.includes("OWNER_CARDS"),"Legacy member UI must not expose owner-control navigation or cards.");
 assert.ok(!html.includes('id="founder-command"')&&!html.includes("OWNER CONTROL CENTER")&&html.includes("/founder-loader.js")&&!html.includes('src="/founder-command.js"'),"Founder command must not be statically present or loaded directly in member pages.");
-assert.ok(loader.includes("member?.is_owner!==true")&&loader.includes("/founder-command.js"),"Founder loader must check owner identity before requesting the private script.");
+assert.ok(loader.includes("member?.is_owner!==true")&&loader.includes("/founder-command.js")&&loader.includes("MutationObserver")&&loader.includes("jr:login"),"Founder loader must retry after sign-in and check owner identity before requesting the private script.");
 assert.ok(!renderer.includes("phone")&&!renderer.includes("birth_year"),"Private phone and birth-year fields must not be shown in the overview by default.");
 console.log("PASS: member command centre starts with private profile essentials; founder command is owner-only and re-authorised on every open.");
