@@ -5,7 +5,7 @@ const start=html.indexOf('<nav class="nav jp-primary-nav"'),end=html.indexOf("</
 assert.ok(start>=0&&end>start,"Primary navigation must exist.");
 const nav=html.slice(start,end);
 const primary=[...nav.matchAll(/<button([^>]*)data-page="([^"]+)"/g)].map(m=>m[2]);
-assert.deepEqual(primary,["home","morehub","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Centre.");
+assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Centre.");
 assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,0,"Technical workspace overflow menus must not return to the primary navigation.");
 assert.ok(!html.includes('id="jpMoreMenu"'),"The old technical More menu must remain removed.");
 assert.ok(css.includes(".jp-global-search{display:none!important}"),"The duplicate mobile global search row must be hidden.");
