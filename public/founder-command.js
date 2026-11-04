@@ -107,7 +107,7 @@ async function checkOwner(){
 }
 function boot(){
  checkOwner();
- const app=$("app");if(app){new MutationObserver(()=>{if(!app.classList.contains("hidden"))checkOwner();}).observe(app,{attributes:true,attributeFilter:["class"]});document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkOwner();});}
+ const app=$("app");if(app){new MutationObserver(()=>{if(app.classList.contains("hidden"))removeFounderAccess();else checkOwner();}).observe(app,{attributes:true,attributeFilter:["class"]});document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkOwner();});}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
