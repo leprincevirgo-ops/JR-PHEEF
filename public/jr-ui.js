@@ -6,7 +6,6 @@
   const esc = v => escapeHtml(v);
   const KSH = n => "KSh " + Number(n || 0).toLocaleString("en-KE");
   const when = d => (d ? new Date(d).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "");
-  const isOwner = () => !!(typeof me !== "undefined" && me && me.is_owner);
   let inited = false, openProject = null;
 
   async function call(url, method, body) {
@@ -59,9 +58,6 @@
  <button class="primary" onclick="jrAsk()">ASK JR</button><button class="dark" onclick="jrListen()">🎙 SPEAK</button>
  <div id="jrReply" aria-live="polite"></div></div>`;
 
-  const OWNER_CARDS = `
-<div class="card"><h3>Ads waiting for review</h3><div id="cmdAds"></div></div>
-<div class="card"><h3>New ideas from members</h3><div id="cmdIdeas"></div></div>`;
 
   function inject() {
     $("app").insertAdjacentHTML("beforeend", PAGES);
@@ -82,7 +78,6 @@
       {label:"INTELLIGENCE", names:["UNIVERSE","LAB","LIBRARY","AI ASSISTANT","SCI-FI & FUTURES","REPAIR SERVICES"]},
       {label:"SERVICES", names:["ROOMS NEAR ME","FLEX","POINTS","ECONOMY","DELIVERY","JR PHEEF DELIVERY","ACCESS GOV","POWER SALE"]},
       {label:"MY SPACE", names:["PROFILE","MY FILES","DEVICES","VOICE / TYPE","JR SETTINGS"]},
-      {label:"CONTROL", names:["COMMAND CENTER","OWNER CONTROL CENTER","DGBO CONTROL CENTER"]}
     ];
     const buttons = [...nav.querySelectorAll(":scope > button")];
     nav.classList.add("jp-nav-grouped");
@@ -127,7 +122,6 @@
     const anchor = $("myActivity") || $("coordination");
     anchor.insertAdjacentHTML("beforebegin", COMMAND_CARD);
     const find = $("results"); if (find) find.insertAdjacentHTML("beforebegin", '<div id="sponsoredBox"></div>');
-    if ($("command")) $("command").insertAdjacentHTML("beforeend", OWNER_CARDS);
   }
 
   document.addEventListener("jr:workspacechange",e=>{if(e.detail?.id==="ads"){bindAdMediaInputs();adLoad();}});
@@ -140,7 +134,6 @@
     if (id === "ads") { bindAdMediaInputs(); adLoad(); }
     if (id === "jrsettings") jsLoad();
     if (id === "find") loadSponsored();
-    if (id === "command" && isOwner()) loadOwnerJr();
   };
 
   /* ---------- talk to JR ---------- */
