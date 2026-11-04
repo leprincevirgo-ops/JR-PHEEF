@@ -5,7 +5,7 @@ const founder=fs.readFileSync("public/founder-command.js","utf8");
 const css=fs.readFileSync("public/workspace-shell.css","utf8");
 new vm.Script(shell,{filename:"public/workspace-shell.js"});
 new vm.Script(founder,{filename:"public/founder-command.js"});
-const renderer=shell.slice(shell.indexOf("function renderCommandCentre(p){"),shell.indexOf("\nconst hubGroups"));
+const renderer=shell.slice(shell.indexOf("function renderMemberSnapshot(host){"),shell.indexOf("\nconst hubGroups"));
 assert.ok(renderer.indexOf("renderMemberSnapshot(p)")<renderer.indexOf("jr-workspace-hero"),"Personal profile must be first in the member command centre.");
 for(const field of ["full_name","jp_number","email","location","plan","status","verified","created_at","reward_points"])assert.ok(renderer.includes("m."+field),"Member overview missing "+field);
 assert.ok(renderer.includes('go("profile")'),"Member must be able to edit their profile from the first card.");
