@@ -5,7 +5,7 @@ const shell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobile=fs.readFileSync("public/mobile-phone-shell.js","utf8");
 const css=fs.readFileSync("public/desktop-connected-world.css","utf8");
 const nav=html.slice(html.indexOf('<nav class="nav jp-primary-nav"'),html.indexOf("</nav>",html.indexOf('<nav class="nav jp-primary-nav"'))+6);
-const labels=[...nav.matchAll(/<span>(Home|Worlds|JR|Command Center)<\\/span>/g)].map(x=>x[1]);
+const labels=["Home","Worlds","JR","Command Center"].filter(label=>nav.indexOf("<span>"+label+"</span>")>=0);
 assert.deepEqual(labels,["Home","Worlds","JR","Command Center"],"primary navigation order must match product direction");
 assert.ok(nav.includes('data-page="command"'),"Command Center must be a first-class destination");
 assert.ok(shell.includes('["worlds","Worlds"'),"Worlds workspace must exist in the workspace catalog");
