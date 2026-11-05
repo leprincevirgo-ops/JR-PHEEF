@@ -171,7 +171,7 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
  <textarea id="dgboRecEvidence" rows="2" maxlength="800" placeholder="Evidence or source (required for a strong decision)"></textarea>
  <input id="dgboRecOutcome" maxlength="500" placeholder="Expected measurable outcome">
  <input id="dgboRecEffort" maxlength="120" placeholder="Effort or estimated resources">
- <textarea id="dgboRecRisk" rows="2" maxlength="500" placeholder="Risks and safeguards">
+ <textarea id="dgboRecRisk" rows="2" maxlength="500" placeholder="Risks and safeguards"></textarea>
  <button class="primary" onclick="dgboRecommendationAdd()">SUBMIT PROPOSAL FOR REVIEW</button><p id="dgboRecMsg" class="muted" aria-live="polite"></p>
 </div>`);
   window.load_dgbo = loadDgbo;
