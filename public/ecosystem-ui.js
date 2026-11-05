@@ -131,7 +131,7 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
 
   /* ---------- DGBO owner panel ---------- */
   async function loadDgbo() {
-    const [ov, dec, apps] = await Promise.all([call("/api/dgbo/overview"), call("/api/dgbo/decisions"), call("/api/dgbo/family/applications")]);
+    const [ov, dec, apps, intelligence] = await Promise.all([call("/api/dgbo/overview"), call("/api/dgbo/decisions"), call("/api/dgbo/family/applications"), call("/api/dgbo/business-intelligence")]);
     const host = $("dgboPanel"); if (!host) return;
     if (!ov.ok) { host.innerHTML = `<div class="card">${esc(ov.error || "")}</div>`; return; }
     const t = (n, l) => `<div class="listing"><div class="big">${n}</div>${l}</div>`;
@@ -153,6 +153,27 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
   <span class="muted">${esc(r.applicant.name)}${r.applicant.jp_number ? " · " + esc(r.applicant.jp_number) : ""}${r.applicant.phone ? " · " + esc(r.applicant.phone) : ""}${r.applicant.email ? " · " + esc(r.applicant.email) : ""}${r.applicant.contact_consented ? "" : " · contact not shared"} · ${esc(when(r.created_at))}</span><br>
   <button class="primary" onclick="reqMove('${esc(r.id)}','referred')">REFERRED TO PARTNER</button><button class="dark" onclick="reqMove('${esc(r.id)}','closed')">CLOSE</button></div>`).join("") || "<p class='muted'>Nothing waiting.</p>") : ""}</div>`;
   }
+    const businesses = intelligence.ok ? (intelligence.businesses || []) : [];
+    const businessOptions = businesses.map(b => `<option value="${esc(b.id)}">${esc(b.business_name)} · ${esc(b.sector)}</option>`).join("");
+    const portfolio = intelligence.ok ? (businesses.map(b => {
+      const p = b.operating_summary || {};
+      return `<div class="listing"><b>${esc(b.business_name)}</b> <span class="badge">${esc(b.status)}</span><br><span class="muted">${esc(b.sector)} · ${esc(b.location || "Location not set")} · plans: ${p.total || 0}, completed: ${p.completed || 0}, in progress: ${p.in_progress || 0}</span></div>`;
+    }).join("") || "<p class='muted'>No business workspaces have been registered yet.</p>") : `<p class="muted">${esc(intelligence.error || "Business intelligence is temporarily unavailable.")}</p>`;
+    host.insertAdjacentHTML("beforeend", `
+<div class="card"><p style="letter-spacing:2px;color:#42f5ff;font-size:11px;font-weight:bold">DGBO · BUSINESS INTELLIGENCE</p><h3>Business portfolio</h3>
+ <p class="muted">Private owner-level operating summaries. Business-specific customer and employee records are not displayed here.</p>
+ ${portfolio}
+ <h3>Record a business recommendation</h3>
+ <p class="muted">Recommendations are proposals only. They do not authorise spending, contact customers or change business operations.</p>
+ <select id="dgboRecBusiness"><option value="">Choose business workspace</option>${businessOptions}</select>
+ <input id="dgboRecTitle" maxlength="150" placeholder="Recommendation title">
+ <textarea id="dgboRecText" rows="3" maxlength="1800" placeholder="What should the business do, and why?"></textarea>
+ <textarea id="dgboRecEvidence" rows="2" maxlength="800" placeholder="Evidence or source (required for a strong decision)"></textarea>
+ <input id="dgboRecOutcome" maxlength="500" placeholder="Expected measurable outcome">
+ <input id="dgboRecEffort" maxlength="120" placeholder="Effort or estimated resources">
+ <textarea id="dgboRecRisk" rows="2" maxlength="500" placeholder="Risks and safeguards">
+ <button class="primary" onclick="dgboRecommendationAdd()">SUBMIT PROPOSAL FOR REVIEW</button><p id="dgboRecMsg" class="muted" aria-live="polite"></p>
+</div>`);
   window.load_dgbo = loadDgbo;
   window.ventureSet = async function (slug, licenceOnly, status) {
     const body = {}; const lic = $("lic-" + slug);
@@ -160,6 +181,23 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
     if (!licenceOnly && status) body.status = status;
     const d = await call("/api/dgbo/ventures/" + encodeURIComponent(slug), "PATCH", body);
     if (!d.ok) { alert(d.error || "Could not update."); return; } loadDgbo();
+  };
+  window.dgboRecommendationAdd = async function () {
+    const msg = $("dgboRecMsg");
+    const body = {
+      business_id: $("dgboRecBusiness").value,
+      title: $("dgboRecTitle").value,
+      recommendation: $("dgboRecText").value,
+      evidence: $("dgboRecEvidence").value,
+      expected_outcome: $("dgboRecOutcome").value,
+      effort: $("dgboRecEffort").value,
+      risk: $("dgboRecRisk").value
+    };
+    if (!body.business_id || !body.title.trim() || !body.recommendation.trim()) { msg.textContent = "Choose a business and enter a title and recommendation."; return; }
+    msg.textContent = "Submitting proposal…";
+    const d = await call("/api/dgbo/business-recommendations", "POST", body);
+    msg.textContent = d.ok ? "Proposal recorded for owner review. No business action was executed." : (d.error || "Could not record proposal.");
+    if (d.ok) { $("dgboRecTitle").value = ""; $("dgboRecText").value = ""; $("dgboRecEvidence").value = ""; $("dgboRecOutcome").value = ""; $("dgboRecEffort").value = ""; $("dgboRecRisk").value = ""; loadDgbo(); }
   };
   window.decisionAdd = async function () {
     const d = await call("/api/dgbo/decisions", "POST", { title: $("dcTitle").value, details: $("dcDetails").value, venture: $("dcVenture").value || undefined });
