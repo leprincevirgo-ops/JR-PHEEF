@@ -165,3 +165,15 @@ This section separates implemented code from the larger product roadmap.
 - No real business workspace, order, payment, or customer record should be created for release testing without explicit test data and authorization.
 
 - Automatic daily delivery remains blocked until Render billing is enabled for a scheduled job. The runner script is committed, but creating the scheduled service was rejected because Render requires payment information. Manual generation from the business workspace remains available. Do not describe automatic delivery as active until a cron job is created and a scheduled run is verified.
+
+
+## Diamond ecosystem alignment — 5 November 2026
+
+The parent-company identity and connected venture model are documented in `docs/DIAMOND-ECOSYSTEM-CORE-ARCHITECTURE.md`.
+
+- DGBO is the parent business-development, governance and venture-stewardship core.
+- JR PHEEF remains the human-facing intelligence and execution environment: **A World of Possibilities**.
+- FAMILY remains a distinct financial-access and empowerment venture, not merely a JR PHEEF wallet.
+- DGBO business intelligence should feed evidence-based, owner-approved marketing and operating plans into existing JR business workspaces. Independent partner businesses retain their ownership and data boundaries.
+- Inclusive access is a first-use requirement. The accessibility layer now includes reading-spacing preferences and optional browser voice dictation into a text field; dictated text is not automatically submitted. Browser support and end-to-end accessibility still require verification.
+- These are architecture and code changes, not proof that every planned business integration, external AI provider, payment rail, legal registration or accessibility scenario is live.
