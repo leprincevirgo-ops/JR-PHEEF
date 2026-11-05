@@ -2,7 +2,7 @@
 Version: 1.0
 Status: Product vision and implementation blueprint
 Product: JR PHEEF — A World of Possibilities.
-Attribution: Powered by DIME GLOBAL BUSINESS OPERATORS.
+Attribution: Powered by DIAMOND GLOBAL BUSINESS OPERATORS.
 
 ## 1. The central idea
 
@@ -183,7 +183,7 @@ This document records the intended product direction. It does not assert that th
 
 The long-term identity remains: **JR PHEEF — Learn. Create. Connect. Grow.**  
 **JR PHEEF → HUMAN → JR PHEEF.**  
-**Powered by DIME GLOBAL BUSINESS OPERATORS.**
+**Powered by DIAMOND GLOBAL BUSINESS OPERATORS.**
 
 ## 11. JR PHEEF Character Intelligence System
 
