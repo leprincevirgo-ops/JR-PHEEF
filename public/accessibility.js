@@ -53,11 +53,11 @@ const voice=el("button",{type:"button"},"Dictate into a text field");
 voice.addEventListener("click",()=>{
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!Recognition){announce("Voice dictation is not supported in this browser. Use your device voice typing or type your message.");return;}
- const target=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)?document.activeElement:document.querySelector("textarea:not([disabled]),input:not([disabled]):not([type=hidden])");
+ const target=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)?document.activeElement:document.querySelector("textarea:not([disabled]),input:not([disabled])[type=text],input:not([disabled])[type=search],input:not([disabled])[type=email],input:not([disabled])[type=url],input:not([disabled])[type=tel]");
  if(!target){announce("Open a message or text field first, then start dictation.");return;}
  const recognition=new Recognition();recognition.lang=document.documentElement.lang||navigator.language||"en";recognition.interimResults=false;recognition.maxAlternatives=1;
  voice.disabled=true;voice.textContent="Listening…";
- recognition.onresult=event=>{const spoken=event.results&&event.results[0]&&event.results[0][0]?event.results[0][0].transcript:"";if(spoken){const start=target.selectionStart??target.value.length,end=target.selectionEnd??target.value.length;target.setRangeText((target.value&&start>0?" ":"")+spoken,start,end,"end");target.dispatchEvent(new Event("input",{bubbles:true}));announce("Dictation added. Review it before sending.");}};
+ recognition.onresult=event=>{const spoken=event.results&&event.results[0]&&event.results[0][0]?event.results[0][0].transcript:"";if(spoken){const start=typeof target.selectionStart==="number"?target.selectionStart:target.value.length,end=typeof target.selectionEnd==="number"?target.selectionEnd:target.value.length;const addition=(target.value&&start>0?" ":"")+spoken;if(typeof target.setRangeText==="function")target.setRangeText(addition,start,end,"end");else target.value+=addition;target.dispatchEvent(new Event("input",{bubbles:true}));announce("Dictation added. Review it before sending.");}};
  recognition.onerror=()=>announce("Dictation could not start. Check microphone permission or use device voice typing.");
  recognition.onend=()=>{voice.disabled=false;voice.textContent="Dictate into a text field";};
  try{recognition.start();announce("Listening. Your words will be placed in the selected text field, not sent automatically.");}catch(e){voice.disabled=false;voice.textContent="Dictate into a text field";announce("Could not start dictation.");}
