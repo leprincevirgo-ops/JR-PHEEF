@@ -64,6 +64,61 @@ module.exports = function mountBusinessOS(ctx) {
     const {data,error}=await db.from("jr_business_workspaces").update(update).eq("id",current.id).eq("owner_member_id",member.id).select("id,business_name,slug,sector,registration_country,operating_countries,base_currency,timezone,primary_language,status,updated_at").single();
     if(error)throw error;res.json({ok:true,business:data});
   }));
+  // Daily operating plan: deterministic starter guidance until the AI provider is available.
+  const PLAN_TASKS = {
+    general:["Review yesterday's results and unresolved issues","Check cash position, costs and obligations","Contact priority customers or partners","Complete the most important revenue or delivery task","Record today's results and tomorrow's priority"],
+    retail:["Check opening stock and fast-moving items","Confirm prices, displays and promotions","Review sales and customer requests","Reconcile cash and digital payments","Record low-stock items and reorder needs"],
+    supermarket:["Check shelves, expiry dates and cold storage","Review fast-moving and low-stock products","Confirm supplier deliveries and purchase needs","Check till reconciliation and cash controls","Review customer service and closing stock"],
+    salon_beauty:["Confirm appointments and staff readiness","Check product and consumable stock","Contact clients due for follow-up","Review service quality and daily sales","Prepare bookings and supplies for tomorrow"],
+    restaurant_food:["Check food safety, freshness and preparation stock","Confirm staffing and service readiness","Review orders, wastage and supplier needs","Reconcile sales and payment channels","Record customer feedback and closing checks"],
+    transport_logistics:["Confirm vehicle and driver readiness","Review bookings, routes and delivery priorities","Check fuel, maintenance and safety items","Track completed trips and customer updates","Reconcile collections and operating costs"],
+    agriculture:["Check crop, livestock or field conditions","Review water, feed, inputs and equipment","Complete the highest-priority field activity","Record production, losses and weather observations","Plan labour, inputs and next-day work"]
+  };
+  const makePlan = business => {
+    const tasks = PLAN_TASKS[business.sector] || PLAN_TASKS.general;
+    return { title: business.business_name + " daily operating plan", focus: business.goals || "Keep operations reliable, customers served and records current.", tasks: tasks.map((title,i)=>({id:"task-"+(i+1),title,priority:i===0?"high":"normal",done:false})), review: ["What created value today?","What needs attention or approval?","What is the first priority tomorrow?"] };
+  };
+  app.get("/api/businesses/:id/daily-plan",wrap("Business daily plan list",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    const business=await ownedBusiness(member,req.params.id);if(!business)return fail(res,"Business workspace not found.",404);
+    const date=clean(req.query.date)||new Date().toISOString().slice(0,10);
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return fail(res,"Use a valid plan date (YYYY-MM-DD).");
+    const {data,error}=await db.from("jr_business_daily_plans").select("*").eq("business_id",business.id).eq("plan_date",date).maybeSingle();
+    if(error)throw error;
+    res.json({ok:true,business:{id:business.id,name:business.business_name},plan:data||null,available_template:!data});
+  }));
+  app.post("/api/businesses/:id/daily-plan",wrap("Business daily plan create",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    if(checkRequestRate&&!checkRequestRate(req,"business-daily-plan",30,3600000).allowed)return fail(res,"Too many plan requests. Try again later.",429);
+    const business=await ownedBusiness(member,req.params.id);if(!business)return fail(res,"Business workspace not found.",404);
+    if(!business.daily_plan_enabled)return fail(res,"Daily plans are disabled for this workspace.",403);
+    const date=clean(req.body.date)||new Date().toISOString().slice(0,10);
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return fail(res,"Use a valid plan date (YYYY-MM-DD).");
+    const {data:existing,error:lookupError}=await db.from("jr_business_daily_plans").select("*").eq("business_id",business.id).eq("plan_date",date).maybeSingle();
+    if(lookupError)throw lookupError;
+    if(existing)return res.json({ok:true,plan:existing,created:false});
+    const {data,error}=await db.from("jr_business_daily_plans").insert({business_id:business.id,plan_date:date,plan:makePlan(business),source:"template",status:"ready",completed_tasks:[]}).select("*").single();
+    if(error){if(error.code==="23505"){const retry=await db.from("jr_business_daily_plans").select("*").eq("business_id",business.id).eq("plan_date",date).maybeSingle();if(retry.data)return res.json({ok:true,plan:retry.data,created:false});}throw error;}
+    if(logActivity)await logActivity(member.id,"BUSINESS_DAILY_PLAN_CREATED",{business_id:business.id,plan_date:date,source:"template"});
+    res.status(201).json({ok:true,plan:data,created:true,note:"Starter plan created from a business-sector template. It is guidance, not AI-generated advice; review and adapt it before use."});
+  }));
+  app.patch("/api/businesses/:id/daily-plan/:planId/tasks",wrap("Business daily plan task update",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    const business=await ownedBusiness(member,req.params.id);if(!business)return fail(res,"Business workspace not found.",404);
+    const taskId=clean(req.body.task_id),done=req.body.done;
+    if(!/^task-[1-9]\\d?$/.test(taskId)||typeof done!=="boolean")return fail(res,"Provide a valid task ID and completed state.");
+    const {data:plan,error}=await db.from("jr_business_daily_plans").select("*").eq("id",req.params.planId).eq("business_id",business.id).maybeSingle();
+    if(error)throw error;if(!plan)return fail(res,"Daily plan not found.",404);
+    const tasks=Array.isArray(plan.plan&&plan.plan.tasks)?plan.plan.tasks:[];
+    if(!tasks.some(t=>t.id===taskId))return fail(res,"Task not found in this plan.",404);
+    const completed=new Set(Array.isArray(plan.completed_tasks)?plan.completed_tasks:[]);
+    if(done)completed.add(taskId);else completed.delete(taskId);
+    const completedTasks=[...completed];
+    const status=tasks.length&&completedTasks.length>=tasks.length?"completed":completedTasks.length?"in_progress":"ready";
+    const {data:updated,error:updateError}=await db.from("jr_business_daily_plans").update({completed_tasks:completedTasks,status,updated_at:new Date().toISOString()}).eq("id",plan.id).eq("business_id",business.id).select("*").single();
+    if(updateError)throw updateError;
+    res.json({ok:true,plan:updated});
+  }));
   app.post("/api/businesses/:id/imports",wrap("Business import request",async(req,res)=>{
     const member=await requireMember(req,res);if(!member)return;
     const business=await ownedBusiness(member,req.params.id);if(!business)return fail(res,"Business workspace not found.",404);
