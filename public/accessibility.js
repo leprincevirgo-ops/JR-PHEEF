@@ -53,7 +53,7 @@ const voice=el("button",{type:"button"},"Dictate into a text field");
 voice.addEventListener("click",()=>{
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!Recognition){announce("Voice dictation is not supported in this browser. Use your device voice typing or type your message.");return;}
- const target=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)?document.activeElement:document.querySelector("textarea:not([disabled]),input:not([disabled])[type=text],input:not([disabled])[type=search],input:not([disabled])[type=email],input:not([disabled])[type=url],input:not([disabled])[type=tel]");
+ const active=document.activeElement;const activeType=active&&active.tagName==="INPUT"?String(active.type||"text").toLowerCase():"";const target=active&&(active.tagName==="TEXTAREA"||(active.tagName==="INPUT"&&["text","search","email","url","tel"].includes(activeType)))?active:document.querySelector("textarea:not([disabled]),input:not([disabled])[type=text],input:not([disabled])[type=search],input:not([disabled])[type=email],input:not([disabled])[type=url],input:not([disabled])[type=tel]");
  if(!target){announce("Open a message or text field first, then start dictation.");return;}
  const recognition=new Recognition();recognition.lang=document.documentElement.lang||navigator.language||"en";recognition.interimResults=false;recognition.maxAlternatives=1;
  voice.disabled=true;voice.textContent="Listening…";
