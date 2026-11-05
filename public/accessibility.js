@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 const KEY="jr-pheef-accessibility-v1";
-const defaults={largeText:false,highContrast:false,reduceMotion:false};
+const defaults={largeText:false,highContrast:false,reduceMotion:false,extraSpacing:false};
 let prefs={...defaults};
 try{prefs={...defaults,...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch(e){}
 const style=document.createElement("style");
@@ -15,7 +15,7 @@ style.textContent=`
 #jr-accessibility-panel .jr-a11y-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 #jr-accessibility-panel button{min-height:44px;padding:10px 13px;background:#07527b;color:#fff;border:1px solid #74dfff;border-radius:10px}
 #jr-accessibility-panel button[aria-pressed=true]{background:#e0fbff;color:#001522;border:2px solid #fff}
-#jr-accessibility-panel .jr-a11y-phrases{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#jr-accessibility-panel .jr-a11y-phrases{display:grid;grid-template-columns:1fr 1fr;gap:8px}\nbody.jr-a11y-spacing{letter-spacing:.035em;word-spacing:.12em;line-height:1.7}\nbody.jr-a11y-large main{font-size:1.2em}\n#jr-accessibility-panel button{font-size:1rem;line-height:1.35}\n#jr-accessibility-panel button:focus-visible{outline:3px solid #ffe08a;outline-offset:3px}
 #jr-accessibility-panel .jr-a11y-phrases button{text-align:left;min-height:54px}
 #jr-accessibility-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 body.jr-a11y-large{font-size:1.15em}
@@ -28,7 +28,7 @@ body.jr-a11y-motion *,body.jr-a11y-motion *::before,body.jr-a11y-motion *::after
 `;
 document.head.append(style);
 function el(tag,attrs,text){const n=document.createElement(tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(k==="class")n.className=v;else n.setAttribute(k,v)});if(text!==undefined)n.textContent=text;return n;}
-function apply(){document.body.classList.toggle("jr-a11y-large",!!prefs.largeText);document.body.classList.toggle("jr-a11y-contrast",!!prefs.highContrast);document.body.classList.toggle("jr-a11y-motion",!!prefs.reduceMotion);try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch(e){}}
+function apply(){document.body.classList.toggle("jr-a11y-large",!!prefs.largeText);document.body.classList.toggle("jr-a11y-contrast",!!prefs.highContrast);document.body.classList.toggle("jr-a11y-motion",!!prefs.reduceMotion);body.classList.toggle("jr-a11y-spacing",!!prefs.extraSpacing);try{localStorage.setItem(KEY,JSON.stringify(prefs))}catch(e){}}
 function announce(message){status.textContent="";window.setTimeout(()=>{status.textContent=message},30);}
 const skip=el("a",{id:"jr-a11y-skip",href:"#main"},"Skip to main content");
 document.body.prepend(skip);
@@ -40,7 +40,7 @@ panel.append(el("h2",{id:"jr-a11y-title"},"Accessibility & communication"));
 panel.append(el("p",{},"Choose the way JR PHEEF works best for you. These controls do not replace your device screen reader or operating-system accessibility settings."));
 const controls=el("div",{class:"jr-a11y-row"});
 function toggle(label,key){const b=el("button",{type:"button","aria-pressed":String(!!prefs[key])},label);b.addEventListener("click",()=>{prefs[key]=!prefs[key];b.setAttribute("aria-pressed",String(prefs[key]));apply();announce(label+" "+(prefs[key]?"on":"off"))});controls.append(b);}
-toggle("Larger text","largeText");toggle("High contrast","highContrast");toggle("Reduce motion","reduceMotion");
+toggle("Larger text","largeText");toggle("High contrast","highContrast");toggle("Reduce motion","reduceMotion");toggle("Reading spacing","extraSpacing");
 panel.append(controls);
 const readRow=el("div",{class:"jr-a11y-row"});
 const read=el("button",{type:"button"},"Read this page aloud");
@@ -48,6 +48,22 @@ const stop=el("button",{type:"button"},"Stop reading");
 read.addEventListener("click",()=>{if(!("speechSynthesis"in window)){announce("Text to speech is not supported by this browser. Your device screen reader can read the page.");return;}const textContent=(document.querySelector("main")||document.body).innerText.slice(0,12000);window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(textContent);utterance.lang=document.documentElement.lang||navigator.language||"en";window.speechSynthesis.speak(utterance);announce("Reading page content aloud.");});
 stop.addEventListener("click",()=>{if("speechSynthesis"in window)window.speechSynthesis.cancel();announce("Reading stopped.");});
 readRow.append(read,stop);panel.append(readRow);
+const voiceRow=el("div",{class:"jr-a11y-row"});
+const voice=el("button",{type:"button"},"Dictate into a text field");
+voice.addEventListener("click",()=>{
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition){announce("Voice dictation is not supported in this browser. Use your device voice typing or type your message.");return;}
+ const target=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)?document.activeElement:document.querySelector("textarea:not([disabled]),input:not([disabled]):not([type=hidden])");
+ if(!target){announce("Open a message or text field first, then start dictation.");return;}
+ const recognition=new Recognition();recognition.lang=document.documentElement.lang||navigator.language||"en";recognition.interimResults=false;recognition.maxAlternatives=1;
+ voice.disabled=true;voice.textContent="Listening…";
+ recognition.onresult=event=>{const spoken=event.results&&event.results[0]&&event.results[0][0]?event.results[0][0].transcript:"";if(spoken){const start=target.selectionStart??target.value.length,end=target.selectionEnd??target.value.length;target.setRangeText((target.value&&start>0?" ":"")+spoken,start,end,"end");target.dispatchEvent(new Event("input",{bubbles:true}));announce("Dictation added. Review it before sending.");}};
+ recognition.onerror=()=>announce("Dictation could not start. Check microphone permission or use device voice typing.");
+ recognition.onend=()=>{voice.disabled=false;voice.textContent="Dictate into a text field";};
+ try{recognition.start();announce("Listening. Your words will be placed in the selected text field, not sent automatically.");}catch(e){voice.disabled=false;voice.textContent="Dictate into a text field";announce("Could not start dictation.");}
+});
+voiceRow.append(voice);panel.append(voiceRow);
+
 panel.append(el("h3",{},"Quick communication phrases"));
 panel.append(el("p",{},"Choose a phrase to copy, then paste it into JR messages or another conversation."));
 const phrases=el("div",{class:"jr-a11y-phrases"});
