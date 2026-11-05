@@ -243,6 +243,80 @@ module.exports = function mountEcosystem(ctx) {
     });
   }));
 
+  // DGBO intelligence view: aggregates workspace health and recent plans without
+  // exposing member-level private records or crossing workspace ownership boundaries.
+  app.get("/api/dgbo/business-intelligence", wrap("DGBO business intelligence", async (req, res) => {
+    if (!await requireOwner(req, res)) return;
+    const [{ data: businesses, error: businessError }, { data: plans, error: planError }, { data: decisions, error: decisionError }] = await Promise.all([
+      db.from("jr_business_workspaces").select("id,business_name,sector,location,goals,plan_tier,status,daily_plan_enabled,created_at,updated_at").order("updated_at", { ascending: false }).limit(200),
+      db.from("jr_business_daily_plans").select("id,business_id,plan_date,status,source,completed_tasks,plan,updated_at").order("plan_date", { ascending: false }).limit(300),
+      db.from("dgbo_decisions").select("id,title,venture,details,status,created_at,decided_at").order("created_at", { ascending: false }).limit(50)
+    ]);
+    if (businessError) throw businessError;
+    if (planError) throw planError;
+    if (decisionError) throw decisionError;
+    const planCounts = {};
+    for (const p of plans || []) {
+      const key = String(p.business_id);
+      if (!planCounts[key]) planCounts[key] = { total: 0, completed: 0, in_progress: 0, latest_date: null };
+      planCounts[key].total++;
+      if (p.status === "completed") planCounts[key].completed++;
+      if (p.status === "in_progress") planCounts[key].in_progress++;
+      if (!planCounts[key].latest_date || p.plan_date > planCounts[key].latest_date) planCounts[key].latest_date = p.plan_date;
+    }
+    res.json({
+      ok: true,
+      business_count: (businesses || []).length,
+      businesses: (businesses || []).map(b => ({
+        ...b,
+        operating_summary: planCounts[String(b.id)] || { total: 0, completed: 0, in_progress: 0, latest_date: null }
+      })),
+      recent_plans: (plans || []).slice(0, 60).map(p => ({
+        id: p.id, business_id: p.business_id, plan_date: p.plan_date, status: p.status,
+        source: p.source, completed_tasks: p.completed_tasks,
+        task_count: Array.isArray(p.plan && p.plan.tasks) ? p.plan.tasks.length : 0,
+        updated_at: p.updated_at
+      })),
+      decisions: decisions || [],
+      safeguards: ["Owner-only portfolio view", "No cross-business customer or employee data", "Recommendations require a separate approval", "No external action is triggered by this endpoint"]
+    });
+  }));
+
+  // Record a recommendation as a proposed DGBO decision; it never executes automatically.
+  app.post("/api/dgbo/business-recommendations", wrap("DGBO business recommendation", async (req, res) => {
+    const owner = await requireOwner(req, res); if (!owner) return;
+    const businessId = clean(req.body.business_id);
+    const title = clean(req.body.title).slice(0, 150);
+    const recommendation = clean(req.body.recommendation).slice(0, 1800);
+    const evidence = clean(req.body.evidence).slice(0, 800);
+    const risk = clean(req.body.risk).slice(0, 500);
+    const effort = clean(req.body.effort).slice(0, 120);
+    const expected = clean(req.body.expected_outcome).slice(0, 500);
+    if (!UUID.test(businessId)) return bad(res, "Select a valid business workspace.");
+    if (title.length < 3 || recommendation.length < 10) return bad(res, "Provide a clear title and recommendation.");
+    const { data: business, error: businessError } = await db.from("jr_business_workspaces")
+      .select("id,business_name,sector").eq("id", businessId).maybeSingle();
+    if (businessError) throw businessError;
+    if (!business) return bad(res, "Business workspace not found.", 404);
+    const details = [
+      "DGBO BUSINESS RECOMMENDATION — PROPOSED ONLY",
+      "Business: " + business.business_name + " (" + business.sector + ")",
+      "Recommendation: " + recommendation,
+      "Evidence / source: " + (evidence || "Not supplied; verify before approval."),
+      "Expected outcome: " + (expected || "Not quantified; define a measurable outcome."),
+      "Effort: " + (effort || "Not assessed."),
+      "Risk / safeguards: " + (risk || "Assess before approval."),
+      "Created: " + new Date().toISOString(),
+      "Control: No action is authorised until an owner approves the decision and separately executes the approved work."
+    ].join("\n");
+    const { data, error } = await db.from("dgbo_decisions").insert({
+      title, venture: "dgbo", details, status: "proposed", proposed_by: owner.id
+    }).select("*").single();
+    if (error) throw error;
+    await logActivity(owner.id, "DGBO_BUSINESS_RECOMMENDATION_PROPOSED", { business_id: business.id, decision_id: data.id });
+    res.status(201).json({ ok: true, decision: data, business: { id: business.id, name: business.business_name }, executed: false });
+  }));
+
   app.get("/api/dgbo/decisions", wrap("Decisions list", async (req, res) => {
     if (!await requireOwner(req, res)) return;
     const { data, error } = await db.from("dgbo_decisions").select("*").order("created_at", { ascending: false }).limit(50);
