@@ -285,7 +285,7 @@
   /* ---------- owner review panels ---------- */
   async function loadOwnerJr() {
     const [ads, ideas] = await Promise.all([call("/api/admin/ads"), call("/api/admin/ideas")]);
-    $("cmdAds").innerHTML = ads.ok ? ((ads.ads || []).map(a => `<div class="listing"><b>${esc(a.title)}</b> by ${esc(a.advertiser)}<br>${esc(a.body)}<br><span class="muted">${esc(a.category || "any category")} · ${esc(a.location || "anywhere")}</span><br>
+    $("cmdAds").innerHTML = ads.ok ? ((ads.ads || []).map(a => `<div class="listing"><b>${esc(a.title)}</b> by ${esc(a.advertiser)}<br>${esc(a.body)}<br>${adMediaMarkup(a.media_urls)}<p class="muted">${esc(a.review_note || "Queued for safety review.")}</p><span class="muted">${esc(a.category || "any category")} · ${esc(a.location || "anywhere")}</span><br>
       <button class="primary" onclick="cmdAd('${esc(a.id)}','approved')">APPROVE</button><button class="danger" onclick="cmdAd('${esc(a.id)}','rejected')">REJECT</button></div>`).join("") || "<p class='muted'>No ads waiting.</p>") : esc(ads.error || "");
     $("cmdIdeas").innerHTML = ideas.ok ? ((ideas.ideas || []).map(i => `<div class="listing"><b>${esc(i.summary || i.body)}</b> · 👍 ${Number(i.votes || 0)}<br><span class="muted">${esc(i.body)}</span><br>
       ${["planned", "building", "done", "declined"].map(s => `<button class="${s === "declined" ? "danger" : "dark"}" onclick="cmdIdea('${esc(i.id)}','${s}')">${s.toUpperCase()}</button>`).join("")}</div>`).join("") || "<p class='muted'>No new ideas.</p>") : esc(ideas.error || "");
