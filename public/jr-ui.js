@@ -4,8 +4,9 @@
   "use strict";
   const $ = id => document.getElementById(id);
   const esc = v => escapeHtml(v);
-  const KSH = n => "KSh " + Number(n || 0).toLocaleString("en-KE");
-  const when = d => (d ? new Date(d).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "");
+  const memberRegion = () => window.jrCurrentMember || {};
+  const KSH = n => { const p=memberRegion(), currency=p.preferred_currency||"KES", locale=p.preferred_locale||"en-KE"; try{return new Intl.NumberFormat(locale,{style:"currency",currency,maximumFractionDigits:2}).format(Number(n||0));}catch{return "KSh "+Number(n||0).toLocaleString(locale||"en-KE");} };
+  const when = d => (d ? new Date(d).toLocaleString(memberRegion().preferred_locale||"en-KE", { dateStyle: "medium", timeStyle: "short", timeZone:memberRegion().preferred_timezone||Intl.DateTimeFormat().resolvedOptions().timeZone }) : "");
   if(!window.jrVideoSoundHandlerBound){window.jrVideoSoundHandlerBound=true;document.addEventListener("click",async event=>{const button=event.target.closest("[data-jr-enable-sound]");if(!button)return;const player=button.parentElement?.querySelector("video");if(!player)return;player.muted=false;player.defaultMuted=false;player.volume=1;try{await player.play();button.textContent="SOUND ON";button.setAttribute("aria-label","Sound enabled");const note=button.parentElement.querySelector("[data-jr-audio-note]");if(note){if(player.audioTracks&&player.audioTracks.length===0)note.textContent="This file has no audio track. Try uploading the original video with sound.";else note.textContent="Sound enabled. Use your device volume buttons to adjust loudness.";}}catch(error){button.textContent="TAP TO ENABLE SOUND";}});}
   let inited = false, openProject = null;
 
