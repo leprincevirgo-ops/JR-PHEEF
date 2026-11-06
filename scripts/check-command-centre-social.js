@@ -6,7 +6,7 @@ const css=fs.readFileSync("public/command-centre-social.css","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 const messages=fs.readFileSync("public/messages-ui.js","utf8");
 const openApp=html.slice(html.indexOf("async function openApp()"),html.indexOf("function fillProfile()"));
-assert.match(openApp,/show\\(["\\x27]command["\\x27]\\)/,"sign-in must open the Command Center");
+assert.match(openApp,/show\(["']command["']\)/,"sign-in must open the Command Center");
 for(const tab of ["jr","chats","contacts","status","profile"])assert.match(js,new RegExp('["\\x27]'+tab+'["\\x27]'),"missing "+tab+" tab");
 for(const route of ["/api/connections","/api/connections/by-jp-number","/api/me","/api/jr/command"])assert.ok(js.includes(route),"missing route "+route);
 assert.match(js,/continuous\s*=\s*false/,"voice must be one-shot");
