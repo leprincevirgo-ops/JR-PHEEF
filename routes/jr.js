@@ -8,6 +8,7 @@
 //     ALWAYS proposals. Nothing here can spend money: payments are off and spend_limit is 0.
 //   * Every action JR takes or proposes is logged and visible to the member.
 const makeHelpers = require("./helpers");
+const JR_HUMANITY_CONSTITUTION = require("../jr-humanity-constitution");
 
 const PAGES = ["home", "ecosystem", "universe", "lab", "library", "find", "create", "rooms", "points", "flex", "profile", "assistant", "discover", "explore", "apphub", "browser", "messages", "businessgrowth",
   "jpconnect", "social", "economy", "vault", "devices", "voice", "scifi", "fixedit", "mylistings", "deals", "alerts", "delivery",
@@ -38,7 +39,7 @@ module.exports = function mountJr(ctx) {
     try {
       const r = await fetch("https://api.openai.com/v1/responses", {
         method: "POST", headers: { Authorization: "Bearer " + process.env.OPENAI_API_KEY, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: process.env.OPENAI_MODEL || "gpt-6-astra", instructions, input, max_output_tokens: maxTokens }),
+        body: JSON.stringify({ model: process.env.OPENAI_MODEL || "gpt-6-astra", instructions: String(instructions || "") + String.fromCharCode(10,10) + JR_HUMANITY_CONSTITUTION, input, max_output_tokens: maxTokens }),
         signal: AbortSignal.timeout(25000)
       });
       const j = await r.json().catch(() => ({}));
