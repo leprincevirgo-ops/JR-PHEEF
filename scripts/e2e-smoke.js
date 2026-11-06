@@ -131,7 +131,7 @@ async function main() {
 
   for (const endpoint of [
     "/api/listings/mine",
-    "/api/connections", "/api/connections/by-jp-number",
+    "/api/connections",
     "/api/messages/conversations", "/api/messages/status", "/api/jr/command",
     ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/api/opportunities", "/api/opportunities/mine"] : []),
     "/api/deals",
