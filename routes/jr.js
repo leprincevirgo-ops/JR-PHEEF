@@ -437,6 +437,36 @@ module.exports = function mountJr(ctx) {
     res.json({ ok: true });
   }));
 
+  /* Automated ad safety screening. Safe text/image-only ads may be approved automatically.
+     Videos and unavailable/uncertain moderation remain pending for review. */
+  async function screenAd(title, body, mediaUrls) {
+    if (!process.env.OPENAI_API_KEY) return { decision: "review", note: "Automated screening is not configured; awaiting review." };
+    const video = (mediaUrls || []).some(u => /\\.(mp4|webm|mov)(?:\\?|$)/i.test(u));
+    const input = [{ type: "text", text: "JR PHEEF advertisement. Title: " + title + ". Message: " + body }];
+    for (const url of (mediaUrls || []).filter(u => /\\.(jpg|jpeg|png|webp)(?:\\?|$)/i.test(u)).slice(0,5)) {
+      input.push({ type: "image_url", image_url: { url } });
+    }
+    try {
+      const response = await fetch("https://api.openai.com/v1/moderations", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + process.env.OPENAI_API_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "omni-moderation-latest", input })
+      });
+      if (!response.ok) return { decision: "review", note: "Automated screening could not complete; awaiting review." };
+      const result = await response.json();
+      const item = result.results && result.results[0];
+      if (!item) return { decision: "review", note: "Screening returned no result; awaiting review." };
+      const categories = item.categories || {};
+      if (categories["sexual/minors"]) return { decision: "block", note: "Content involving sexual exploitation or minors is prohibited." };
+      if (categories.sexual) return { decision: "block", note: "Explicit sexual content and pornography are not allowed in JR PHEEF advertising." };
+      if (item.flagged) return { decision: "review", note: "Automated safety screening flagged this ad for a closer review." };
+      if (video) return { decision: "review", note: "Video ads require additional frame-by-frame safety screening before approval." };
+      return { decision: "approve", note: "Passed automated text and image safety screening." };
+    } catch {
+      return { decision: "review", note: "Automated screening was unavailable; awaiting review." };
+    }
+  }
+
   /* ---------- advertising centre ---------- */
   const adsLive = q => q.eq("status", "approved").lte("starts_at", new Date().toISOString()).gt("ends_at", new Date().toISOString());
 
@@ -461,9 +491,20 @@ module.exports = function mountJr(ctx) {
     }
     const { count } = await db.from("ad_campaigns").select("id", { count: "exact", head: true }).eq("member_id", m.id).in("status", ["pending", "approved", "paused"]);
     if (count >= 5) return bad(res, "You can have up to 5 active or waiting ads.", 409);
-    const { data, error } = await db.from("ad_campaigns").insert({ member_id: m.id, title, body, listing_id, category, location, budget_ksh: budget, media_urls }).select("*").single();
+    const screening = await screenAd(title, body, media_urls);
+    if (screening.decision === "block") return bad(res, screening.note, 400);
+    const now = new Date();
+    const autoApproved = screening.decision === "approve";
+    const insert = { member_id: m.id, title, body, listing_id, category, location, budget_ksh: budget, media_urls,
+      status: autoApproved ? "approved" : "pending", review_note: screening.note,
+      starts_at: autoApproved ? now.toISOString() : null,
+      ends_at: autoApproved ? new Date(now.getTime() + 7 * 86400000).toISOString() : null };
+    const { data, error } = await db.from("ad_campaigns").insert(insert).select("*").single();
     if (error) throw error;
-    res.status(201).json({ ok: true, ad: data, message: "Ad sent for review. Payments are not active yet, so approved ads run free during launch." });
+    await logActivity(m.id, autoApproved ? "AD_AUTO_APPROVED" : "AD_QUEUED_FOR_REVIEW", { ad_id: data.id, screening: screening.decision });
+    res.status(201).json({ ok: true, ad: data, message: autoApproved
+      ? "Your ad passed automated safety screening and is now running for 7 days."
+      : "Your ad has been safely queued for additional review. You do not need to contact the owner." });
   }));
   app.get("/api/ads/mine", wrap("Ads mine", async (req, res) => {
     const m = await requireMember(req, res); if (!m) return;
