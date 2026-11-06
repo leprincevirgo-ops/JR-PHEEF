@@ -6,7 +6,7 @@
  const call=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});return await r.json();}catch{return{ok:false,error:"Network error. Try again."};}};
  let active=null,stream=null,refreshing=false;
  function status(s){if($("jrChatStatus"))$("jrChatStatus").textContent=s||"";}
- function activePage(){return $("messages")&&!$("messages").classList.contains("hidden");}
+ function activePage(){return !!(($("messages")&&!$("messages").classList.contains("hidden"))||(window.jrCommandCentreChatActive&&window.jrCommandCentreChatActive()));}
  function connectStream(){if(stream||!window.EventSource)return;stream=new EventSource("/api/messages/stream");stream.addEventListener("refresh",async()=>{if(!activePage()||refreshing)return;refreshing=true;try{await window.jrMessagesLoad();if(active)await open(active,true);}finally{refreshing=false;}});stream.addEventListener("ready",()=>status("Live connection active"));stream.onerror=()=>status("Reconnecting to live messages…");}
  window.jrMessagesLoad=async function(){
   const box=$("jrConversations");if(!box)return;connectStream();
