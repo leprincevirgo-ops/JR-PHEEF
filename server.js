@@ -340,18 +340,6 @@ app.post("/api/register", async (req, res) => {
     if(preferred_timezone){try{new Intl.DateTimeFormat("en",{timeZone:preferred_timezone});if(preferred_timezone.length>80)throw new Error("timezone");}catch{return res.status(400).json({ok:false,error:"Enter a valid time zone, such as Asia/Kuwait or Indian/Antananarivo."});}}
     if(preferred_currency && !/^[A-Z]{3}$/.test(preferred_currency))return res.status(400).json({ok:false,error:"Enter a valid three-letter currency code, such as KWD, EUR or MGA."});
     if(!["metric","imperial"].includes(measurement_system))return res.status(400).json({ok:false,error:"Choose metric or imperial measurements."});
-
-    const country_code=clean(req.body.country_code).toUpperCase();
-    const preferred_locale=clean(req.body.preferred_locale);
-    const preferred_timezone=clean(req.body.preferred_timezone);
-    const preferred_currency=clean(req.body.preferred_currency).toUpperCase();
-    const measurement_system=clean(req.body.measurement_system)||"metric";
-    if(country_code && !/^[A-Z]{2}$/.test(country_code))return res.status(400).json({ok:false,error:"Enter a valid two-letter country code, such as KW, FR or MG."});
-    let localeValue=null;
-    if(preferred_locale){try{localeValue=Intl.getCanonicalLocales(preferred_locale)[0];if(!localeValue||localeValue.length>35)throw new Error("locale");}catch{return res.status(400).json({ok:false,error:"Enter a valid language, such as ar-KW, fr-FR or fr-MG."});}}
-    if(preferred_timezone){try{new Intl.DateTimeFormat("en",{timeZone:preferred_timezone});if(preferred_timezone.length>80)throw new Error("timezone");}catch{return res.status(400).json({ok:false,error:"Enter a valid time zone, such as Asia/Kuwait or Indian/Antananarivo."});}}
-    if(preferred_currency && !/^[A-Z]{3}$/.test(preferred_currency))return res.status(400).json({ok:false,error:"Enter a valid three-letter currency code, such as KWD, EUR or MGA."});
-    if(!["metric","imperial"].includes(measurement_system))return res.status(400).json({ok:false,error:"Choose metric or imperial measurements."});
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ ok: false, error: "Enter a valid email address." });
 
@@ -381,7 +369,6 @@ app.post("/api/register", async (req, res) => {
     const { data: member, error } = await db.from("members").insert({
       dgbo_id: memberCode,
       full_name, phone: phone || null, email: email || null,
-      country_code:country_code||null, preferred_locale:localeValue, preferred_timezone:preferred_timezone||null, preferred_currency:preferred_currency||null, measurement_system,
       country_code:country_code||null,
       preferred_locale:localeValue,
       preferred_timezone:preferred_timezone||null,
