@@ -351,10 +351,10 @@ placeholder="Password">
 <button onclick="toggle('loginPassword')">👁</button>
 </div>
 
-<button class="primary" onclick="login()">LOGIN</button>
+<button id="loginSubmit" class="primary" type="button">LOGIN</button>
 <button class="dark" onclick="showRegister()">CREATE ACCOUNT</button>
 
-<p id="loginMsg"></p>
+<p id="loginMsg" role="status" aria-live="polite"></p>
 </div>
 
 <div id="registerBox" class="hidden">
@@ -1178,8 +1178,12 @@ async function api(url,options={}){
 }
 
 async function login(){
-  const button=document.querySelector('#loginBox button.primary');
+  const button=$("loginSubmit");
+  if(!button){$("loginMsg").textContent="The sign-in control is unavailable. Reload JR PHEEF and try again.";return;}
+  const idleLabel=button.textContent;
   button.disabled=true;
+  button.setAttribute("aria-busy","true");
+  button.textContent="SIGNING IN…";
   $("loginMsg").textContent="Signing in…";
   try{
     const data=await api("/api/login",{
@@ -1208,8 +1212,17 @@ async function login(){
     $("loginMsg").textContent="JR PHEEF could not reach the server. Check your connection and try again.";
   }finally{
     button.disabled=false;
+    button.removeAttribute("aria-busy");
+    button.textContent=idleLabel;
   }
 }
+
+// Bind sign-in directly rather than relying on an inline HTML click handler.
+// Enter works from either credential field, including on mobile keyboards.
+$("loginSubmit")?.addEventListener("click",()=>{void login();});
+["loginIdentifier","loginPassword"].forEach(id=>$(id)?.addEventListener("keydown",event=>{
+  if(event.key==="Enter"){event.preventDefault();void login();}
+}));
 
 function suggestRegistrationRegion(){
   const locale=navigator.language||"en";
@@ -1910,7 +1923,7 @@ function jrStartHeaderVoice(){
 <script src="/projects-ui.js"></script>
 <link rel="stylesheet" href="/coordination-studio.css">
 <script src="/coordination-studio.js"></script>
-<script src="/workspace-shell.js?v=command3"></script>
+<script src="/workspace-shell.js?v=command4"></script>
 <link rel="stylesheet" href="/command-centre-social.css?v=1">
 <script src="/command-centre-social.js?v=1"></script>
 <script src="/open-ecosystem.js"></script>
