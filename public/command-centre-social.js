@@ -119,8 +119,8 @@ function syncFloatingTalkControl(){
  document.body.classList.toggle("jrcc-command-open",open);
  document.querySelectorAll("button,a,[role='button']").forEach(el=>{
   if(el.closest("#jrCommandSocial"))return;
-  const label=(el.innerText||el.textContent||"").replace(/\\s+/g," ").trim();
-  if(!/^✦?\\s*Talk to JR$/i.test(label))return;
+  const label=(el.innerText||el.textContent||"").replace(/\s+/g," ").trim();
+  if(!/^✦?\s*Talk to JR$/i.test(label))return;
   let node=el,floating=false;
   for(let i=0;node&&i<4;i++,node=node.parentElement){
    if(getComputedStyle(node).position==="fixed"){floating=true;break;}
