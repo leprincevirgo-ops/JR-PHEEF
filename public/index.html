@@ -894,6 +894,15 @@ REQUEST FLEX
 <input id="profileName" placeholder="Name">
 <input id="profileEmail" placeholder="Email">
 <input id="profileLocation" placeholder="Location">
+<div class="jr-global-preferences">
+ <b>YOUR REGION & LANGUAGE</b>
+ <p class="muted">Set your country, language, time zone and display currency. Payments and services still depend on local availability and law.</p>
+ <input id="profileCountryCode" maxlength="2" autocomplete="country" placeholder="Country code — e.g. KE, GB, US">
+ <input id="profileLocale" maxlength="35" placeholder="Language — e.g. en-KE, sw-KE, fr-FR">
+ <input id="profileTimezone" maxlength="80" placeholder="Time zone — e.g. Africa/Nairobi">
+ <input id="profileCurrency" maxlength="3" placeholder="Currency — e.g. KES, GBP, USD">
+ <select id="profileMeasurement"><option value="metric">Metric (km, kg, °C)</option><option value="imperial">Imperial (mi, lb, °F)</select>
+</div>
 
 <textarea id="profileBio" placeholder="Bio"></textarea>
 
@@ -1263,6 +1272,13 @@ function fillProfile(){
   $("profileName").value=me.full_name||"";
   $("profileEmail").value=me.email||"";
   $("profileLocation").value=me.location||"";
+  const locale=navigator.language||"en";
+  const region=(locale.split("-")[1]||"").toUpperCase();
+  $("profileCountryCode").value=me.country_code||region;
+  $("profileLocale").value=me.preferred_locale||locale;
+  $("profileTimezone").value=me.preferred_timezone||Intl.DateTimeFormat().resolvedOptions().timeZone||"";
+  $("profileCurrency").value=me.preferred_currency||(region==="KE"?"KES":region==="GB"?"GBP":region==="US"?"USD":region==="EU"?"EUR":"");
+  $("profileMeasurement").value=me.measurement_system||"metric";
   $("profileBio").value=me.bio||"";
   $("profileTheme").value=me.theme||"ocean";
   const photo=me.profile_photo||me.avatar_url||"";
@@ -1612,7 +1628,12 @@ async function saveProfile(){
       email:$("profileEmail").value,
       location:$("profileLocation").value,
       bio:$("profileBio").value,
-      theme:$("profileTheme").value
+      theme:$("profileTheme").value,
+      country_code:$("profileCountryCode").value.trim().toUpperCase(),
+      preferred_locale:$("profileLocale").value.trim(),
+      preferred_timezone:$("profileTimezone").value.trim(),
+      preferred_currency:$("profileCurrency").value.trim().toUpperCase(),
+      measurement_system:$("profileMeasurement").value
     })
   });
 
