@@ -40,3 +40,8 @@
 body.jrcc-command-open .jrcc-floating-talk-control{display:none!important}
 .jrcc-tabs [data-jrcc-tab="jr"]{min-width:112px;font-weight:900}
 @media(max-width:420px){.jrcc-tabs [data-jrcc-tab="jr"]{min-width:108px}.jrcc-tabs{gap:6px}.jrcc-tabs button{padding:10px 12px}}
+
+/* Lift the floating Talk to JR launcher slightly so it never crowds the
+   Command Center navigation on compact screens. It still hides when the
+   Command Center itself is open. */
+.jrcc-floating-talk-control{margin-bottom:12px!important}
