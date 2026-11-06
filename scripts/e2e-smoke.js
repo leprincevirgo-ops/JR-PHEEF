@@ -1,3 +1,5 @@
+
+// Command Center assets are checked in the release smoke suite.
 #!/usr/bin/env node
 "use strict";
 
