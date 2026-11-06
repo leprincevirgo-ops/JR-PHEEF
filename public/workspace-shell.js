@@ -281,7 +281,7 @@ function go(id,replace=false){
  const p=ensure(id);
  if(cursor<0||history[cursor]!==id){history=history.slice(0,cursor+1);history.push(id);cursor=history.length-1;}
  activateOnlyWorkspace(id);
- updateNav(id);window.scrollTo({top:0,behavior:"instant"});
+ updateNav(id);window.scrollTo(0,0);
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
 function updateNav(id){
@@ -289,7 +289,7 @@ function updateNav(id){
  const selected=destinations[id]||"command";
  document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===selected;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current","page");});
 }
-function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor];ensure(id);activateOnlyWorkspace(id);updateNav(id);window.scrollTo({top:0,behavior:"instant"});document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));}
+function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor];ensure(id);activateOnlyWorkspace(id);updateNav(id);window.scrollTo(0,0);document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));}
 function concealInternalOrchestration(){
  const architecture=$("connectedArchitecture");if(architecture)architecture.hidden=true;
  const directory=$("aiAgentDirectory");if(directory){const card=directory.closest(".card");if(card)card.hidden=true;}
