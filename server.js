@@ -89,7 +89,7 @@ function phoneVariants(v) {
 }
 
 const MEMBER_FIELDS = [
-  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme", "profile_photo", "profile_photo_hidden",
+  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme", "profile_photo", "profile_photo_hidden", "country_code", "preferred_locale", "preferred_timezone", "preferred_currency", "measurement_system",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
   "show_location", "verified", "status", "plan", "referral_code", "created_at"
 ];
@@ -855,12 +855,12 @@ app.put("/api/profile", async (req, res) => {
     if (!m) return;
     const update = {};
 
-    for (const k of ["full_name", "bio", "location", "theme", "profile_visibility", "show_email", "show_birth_year", "show_location"]) {
+    for (const k of ["full_name", "bio", "location", "theme", "profile_visibility", "show_email", "show_birth_year", "show_location", "country_code", "preferred_locale", "preferred_timezone", "preferred_currency", "measurement_system"]) {
       if (req.body[k] !== undefined) update[k] = req.body[k];
     }
 
     // Normalise text fields before validating and saving them.
-    for (const k of ["full_name", "bio", "location", "theme"]) {
+    for (const k of ["full_name", "bio", "location", "theme", "country_code", "preferred_locale", "preferred_timezone", "preferred_currency", "measurement_system"]) {
       if (update[k] !== undefined) update[k] = clean(update[k]);
     }
 
@@ -872,6 +872,11 @@ app.put("/api/profile", async (req, res) => {
       return res.status(400).json({ ok: false, error: "Location is too long." });
     if (update.theme !== undefined && !/^[a-z0-9_-]{1,30}$/i.test(update.theme))
       return res.status(400).json({ ok: false, error: "Invalid theme." });
+    if (update.country_code !== undefined) { update.country_code = update.country_code.toUpperCase(); if (!/^[A-Z]{2}$/.test(update.country_code)) return res.status(400).json({ ok: false, error: "Use a two-letter ISO country code, such as KE or GB." }); }
+    if (update.preferred_currency !== undefined) { update.preferred_currency = update.preferred_currency.toUpperCase(); if (!/^[A-Z]{3}$/.test(update.preferred_currency)) return res.status(400).json({ ok: false, error: "Use a three-letter currency code, such as KES, GBP or USD." }); }
+    if (update.preferred_locale !== undefined) { try { update.preferred_locale = Intl.getCanonicalLocales(update.preferred_locale)[0]; if (!update.preferred_locale || update.preferred_locale.length > 35) throw new Error("locale"); } catch { return res.status(400).json({ ok: false, error: "Enter a valid language/locale, such as en-KE or sw-KE." }); } }
+    if (update.preferred_timezone !== undefined) { try { new Intl.DateTimeFormat("en", { timeZone: update.preferred_timezone }); if (update.preferred_timezone.length > 80) throw new Error("timezone"); } catch { return res.status(400).json({ ok: false, error: "Choose a valid IANA time zone, such as Africa/Nairobi or Europe/London." }); } }
+    if (update.measurement_system !== undefined && !["metric", "imperial"].includes(update.measurement_system)) return res.status(400).json({ ok: false, error: "Choose metric or imperial measurements." });
     if (update.profile_visibility !== undefined && !["public", "private", "connections"].includes(update.profile_visibility))
       return res.status(400).json({ ok: false, error: "Invalid profile visibility." });
 
