@@ -1216,7 +1216,7 @@ function suggestRegistrationRegion(){
   const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
   const region=(locale.match(/[-_]([A-Za-z]{2})$/)||[])[1]?.toUpperCase()||"";
   const zones={"Asia/Kuwait":"KW","Europe/Paris":"FR","Indian/Antananarivo":"MG","Africa/Nairobi":"KE","Europe/London":"GB","America/New_York":"US","America/Los_Angeles":"US","Asia/Dubai":"AE","Asia/Riyadh":"SA","Asia/Tokyo":"JP","Asia/Kolkata":"IN","Africa/Lagos":"NG","Africa/Johannesburg":"ZA","America/Toronto":"CA","Australia/Sydney":"AU","Europe/Berlin":"DE","Europe/Madrid":"ES","Europe/Rome":"IT"};
-  const country=region||zones[timezone]||"";
+  const country=zones[timezone]||region||"";
   const money={KE:"KES",GB:"GBP",US:"USD",FR:"EUR",DE:"EUR",ES:"EUR",IT:"EUR",NL:"EUR",BE:"EUR",IE:"EUR",PT:"EUR",FI:"EUR",KW:"KWD",MG:"MGA",AE:"AED",SA:"SAR",JP:"JPY",IN:"INR",NG:"NGN",ZA:"ZAR",CA:"CAD",AU:"AUD",BR:"BRL",NZ:"NZD",CH:"CHF",SG:"SGD",TZ:"TZS",UG:"UGX",RW:"RWF",EG:"EGP",GH:"GHS"};
   $("regCountryCode").value=country;
   $("regLocale").value=locale;
