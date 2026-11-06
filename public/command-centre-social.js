@@ -151,7 +151,7 @@ document.addEventListener("jr:workspacechange",e=>{
  if(e.detail?.id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");}
  if(e.detail?.id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");}
 });
-window.jrCommandCentreChatActive=()=>activeTab==="chats"&&!!$("jrCommandSocial")&&!$("jrCommandSocial").hidden;
+window.jrCommandCentreChatActive=()=>{const page=$("command"),root=$("jrCommandSocial");return activeTab==="chats"&&!!page&&!page.hidden&&!page.classList.contains("hidden")&&!!root&&!root.hidden;};
 window.jrCommandCentreOpen=switchTab;
 const originalShow=window.show;if(typeof originalShow==="function"){window.show=function(id){if(id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");return;}if(id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");return;}return originalShow(id);};}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{if($("command"))mount();});else mount();
