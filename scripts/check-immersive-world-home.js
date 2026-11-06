@@ -3,6 +3,8 @@ const fs=require("node:fs");
 const html=fs.readFileSync("public/index.html","utf8");
 const css=fs.readFileSync("public/immersive-world-home.css","utf8");
 const js=fs.readFileSync("public/immersive-world-home.js","utf8");
+const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
+const server=fs.readFileSync("routes/jr.js","utf8");
 const required=["jr-world-home","jr-world-universe","jr-earth-core","jr-world-assistant","jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUniversalStatus","data-jr-aac","pointsValue","jpHomeIdentity"];
 for(const token of required)if(!html.includes(token))throw new Error("Missing intent-first home element: "+token);
 for(const page of ["messages","create","find","teacher","connecthub","assistant","family"])if(!html.includes('data-jr-world-page="'+page+'"'))throw new Error("Missing connected destination: "+page);
