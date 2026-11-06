@@ -364,6 +364,16 @@ placeholder="Password">
 <input id="regName" placeholder="Full name">
 <input id="regPhone" type="tel" autocomplete="tel" placeholder="Phone number with country code (optional)">
 <input id="regEmail" type="email" autocomplete="email" placeholder="Email address (optional if phone supplied)">
+<div class="jr-registration-region">
+ <b>WHERE ARE YOU JOINING FROM?</b>
+ <p class="muted">JR suggests a region from your device language and time zone. Confirm or change it. This setting does not publicly display your location.</p>
+ <input id="regCountryCode" maxlength="2" autocomplete="country" placeholder="Country code — e.g. KW, FR, MG">
+ <input id="regLocale" maxlength="35" placeholder="Preferred language — e.g. ar-KW, fr-FR, fr-MG">
+ <input id="regTimezone" maxlength="80" placeholder="Time zone — e.g. Asia/Kuwait">
+ <input id="regCurrency" maxlength="3" placeholder="Currency — e.g. KWD, EUR, MGA">
+ <select id="regMeasurement"><option value="metric">Metric (km, kg, °C)</option><option value="imperial">Imperial (mi, lb, °F)</option></select>
+ <small id="regRegionHint" aria-live="polite">Choose or confirm your country. You can change these settings later.</small>
+</div>
 <p class="muted" id="registrationPrivacyNote">Use a phone number or email address. You can add your other details and roles after entering JR PHEEF.</p>
 
 <div style="position:relative">
@@ -1099,6 +1109,8 @@ function toggle(id){
 function showRegister(){
   $("loginBox").classList.add("hidden");
   $("registerBox").classList.remove("hidden");
+
+  suggestRegistrationRegion();
 }
 
 function showLogin(){
@@ -1199,6 +1211,19 @@ async function login(){
   }
 }
 
+function suggestRegistrationRegion(){
+  const locale=navigator.language||"en";
+  const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
+  const region=(locale.match(/[-_]([A-Za-z]{2})$/)||[])[1]?.toUpperCase()||"";
+  const zones={"Asia/Kuwait":"KW","Europe/Paris":"FR","Indian/Antananarivo":"MG","Africa/Nairobi":"KE","Europe/London":"GB","America/New_York":"US","America/Los_Angeles":"US","Asia/Dubai":"AE","Asia/Riyadh":"SA","Asia/Tokyo":"JP","Asia/Kolkata":"IN","Africa/Lagos":"NG","Africa/Johannesburg":"ZA","America/Toronto":"CA","Australia/Sydney":"AU","Europe/Berlin":"DE","Europe/Madrid":"ES","Europe/Rome":"IT"};
+  const country=region||zones[timezone]||"";
+  const money={KE:"KES",GB:"GBP",US:"USD",FR:"EUR",DE:"EUR",ES:"EUR",IT:"EUR",NL:"EUR",BE:"EUR",IE:"EUR",PT:"EUR",FI:"EUR",KW:"KWD",MG:"MGA",AE:"AED",SA:"SAR",JP:"JPY",IN:"INR",NG:"NGN",ZA:"ZAR",CA:"CAD",AU:"AUD",BR:"BRL",NZ:"NZD",CH:"CHF",SG:"SGD",TZ:"TZS",UG:"UGX",RW:"RWF",EG:"EGP",GH:"GHS"};
+  $("regCountryCode").value=country;
+  $("regLocale").value=locale;
+  $("regTimezone").value=timezone;
+  $("regCurrency").value=money[country]||"";
+  $("regRegionHint").textContent=country?"Suggested region: "+country+". Please confirm it is correct.":"We could not confidently suggest your country. Enter its two-letter country code.";
+}
 async function register(){
   const button=document.querySelector('#registerBox button.primary');
   button.disabled=true;
@@ -1212,6 +1237,11 @@ async function register(){
         phone:$("regPhone").value.trim(),
         email:$("regEmail").value.trim(),
         password:$("regPassword").value,
+        country_code:$("regCountryCode").value.trim().toUpperCase(),
+        preferred_locale:$("regLocale").value.trim(),
+        preferred_timezone:$("regTimezone").value.trim(),
+        preferred_currency:$("regCurrency").value.trim().toUpperCase(),
+        measurement_system:$("regMeasurement").value,
         referral_code:(localStorage.getItem("jr_referral_code")||"").trim()
       })
     });
