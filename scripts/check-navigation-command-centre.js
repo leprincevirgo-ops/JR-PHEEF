@@ -16,5 +16,5 @@ assert.ok(mobile.includes('["worlds","✧","Worlds",()=>route("worlds")]'),"mobi
 assert.ok(mobile.includes('["command","▦","Command Center",()=>route("command")]'),"mobile Command Center destination missing");
 assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive Command Center styles missing");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"secondary desktop navigation must remain removed");
-assert.ok(sw.includes('const VERSION="jr-shell-v8"'),"PWA cache version missing");
+assert.ok(sw.includes('const VERSION="jr-shell-v11"'),"PWA cache version missing");
 console.log("PASS: Home → Worlds → JR → Command Center, mobile dock alignment, and five-level Command Center hierarchy.");
