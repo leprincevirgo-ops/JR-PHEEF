@@ -10,6 +10,7 @@ assert.ok(shell.includes(primary),"primary destinations must be Home, Worlds, JR
 assert.ok(html.includes('data-page="command"'),"Command Center must be a first-class destination");
 assert.ok(shell.includes(" worlds:[")&&shell.includes("if(hubGroups[id])"),"Worlds must render its own organised hub");
 assert.ok(!shell.includes('if(id==="worlds")id="morehub"'),"Worlds must open its own hub, not redirect to More Services");
+assert.ok(!shell.includes('behavior:"instant"'),"Workspace navigation must use a WebView-safe scroll call");
 assert.ok(shell.includes("function renderCommandCentre(p)"),"Command Center renderer missing");
 for(const section of ["01 · LEAD","02 · EXECUTE","03 · GROW","04 · YOUR RESOURCES","05 · IMPROVE"])assert.ok(shell.includes(section),"missing priority group "+section);
 for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operations & Projects","Business Operations","People & Communications","Opportunities & Partnerships","My Businesses & Workspaces","People & Communities","JR Assistant","Settings & Preferences"])assert.ok(shell.includes(item),"missing Command Center item "+item);
