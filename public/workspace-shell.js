@@ -93,6 +93,8 @@ const providers=[
 let history=[],cursor=-1,wrapped=false;
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+function clearChildren(node){while(node&&node.firstChild)node.removeChild(node.firstChild);}
+function replaceChildrenCompat(node,...children){clearChildren(node);for(const child of children)if(child)node.appendChild(child);}
 function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section");p.id=id;p.className="page hidden jr-generated-workspace";$("app")?.append(p);return p;}
 function makeChrome(p,id){return;}
 function renderGenerated(p,id){
@@ -118,7 +120,7 @@ function renderConnections(p){
  const hero=el("section","jr-workspace-hero jr-connections-hero");hero.append(el("div","jp-kicker","JR PHEEF · EXTERNAL CONNECTIONS"),el("h1","","Your services, organised."),el("p","","A single place to find the external services you already use and prepare secure connections to JR PHEEF."),el("p","jr-workspace-intro","A service appearing here does not mean its account is connected. Secure integrations require the provider's official API, your authorisation and any required partner approval."));
  const search=el("input","jr-provider-search");search.type="search";search.placeholder="Search companies and services…";search.setAttribute("aria-label","Search external services");hero.append(search);p.append(hero);
  const grid=el("div","jr-provider-grid");grid.id="jrProviderGrid";
- function draw(q=""){grid.replaceChildren();providers.filter(x=>x.join(" ").toLowerCase().includes(q.toLowerCase())).forEach(([name,desc,url])=>{const card=el("article","card jr-provider-card");card.append(el("span","jr-provider-mark",name.slice(0,1)),el("h3","",name),el("p","",desc),el("span","jr-provider-status","EXTERNAL SERVICE · NOT CONNECTED"));const a=el("a","jr-provider-link","OPEN OFFICIAL SERVICE ↗");a.href=url;a.target="_blank";a.rel="noopener noreferrer";card.append(a);grid.append(card);});}
+ function draw(q=""){clearChildren(grid);providers.filter(x=>x.join(" ").toLowerCase().includes(q.toLowerCase())).forEach(([name,desc,url])=>{const card=el("article","card jr-provider-card");card.append(el("span","jr-provider-mark",name.slice(0,1)),el("h3","",name),el("p","",desc),el("span","jr-provider-status","EXTERNAL SERVICE · NOT CONNECTED"));const a=el("a","jr-provider-link","OPEN OFFICIAL SERVICE ↗");a.href=url;a.target="_blank";a.rel="noopener noreferrer";card.append(a);grid.append(card);});}
  search.addEventListener("input",()=>draw(search.value));draw();p.append(grid);
  const note=el("div","card jr-integration-note");note.append(el("h3","","How connections become active"),el("p","","When a provider offers an approved integration, JR PHEEF will request the minimum permissions needed, explain what data is shared, and let you revoke access. Passwords are never requested or stored by JR PHEEF for another company's account."));p.append(note);
 }
@@ -130,12 +132,12 @@ function renderMemberSnapshot(host){
  const safePhoto=value=>{try{const u=new URL(String(value||""),location.origin);return ["https:","http:"].includes(u.protocol)?u.href:"";}catch{return "";}};
  fetch("/api/me",{credentials:"include",cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject(new Error("profile unavailable"))).then(data=>{
   if(!data||!data.ok||!data.logged_in||!data.member)throw new Error("session unavailable");
-  const m=data.member;card.replaceChildren();
+  const m=data.member;clearChildren(card);
   const top=el("div","jr-member-snapshot-top");
   const identity=el("div","jr-member-snapshot-identity");
   const avatar=el("div","jr-member-snapshot-avatar");
   const photo=safePhoto(m.profile_photo||m.avatar_url);
-  if(photo){const img=el("img");img.src=photo;img.alt="";img.referrerPolicy="no-referrer";img.onerror=()=>{avatar.replaceChildren();avatar.textContent=(m.full_name||"JR").trim().slice(0,2).toUpperCase();};avatar.append(img);}
+  if(photo){const img=el("img");img.src=photo;img.alt="";img.referrerPolicy="no-referrer";img.onerror=()=>{clearChildren(avatar);avatar.textContent=(m.full_name||"JR").trim().slice(0,2).toUpperCase();};avatar.append(img);}
   else avatar.textContent=(m.full_name||"JR").trim().slice(0,2).toUpperCase();
   const name=el("div","jr-member-snapshot-name");
   name.append(el("span","jp-kicker","YOUR JR PHEEF PROFILE"),el("h2","",""+(m.full_name||"Your profile")),el("p","",m.jp_number?"JP NUMBER · "+m.jp_number:"JP number pending"));
@@ -164,7 +166,7 @@ function renderMemberSnapshot(host){
   progress.append(progressHead,track);
   card.append(top,details,progress);
  }).catch(()=>{
-  card.replaceChildren(el("div","jp-kicker","YOUR JR PHEEF PROFILE"),el("h2","","Your profile"),el("p","jr-member-snapshot-loading","Your personal information could not be loaded right now."));
+  replaceChildrenCompat(card,el("div","jp-kicker","YOUR JR PHEEF PROFILE"),el("h2","","Your profile"),el("p","jr-member-snapshot-loading","Your personal information could not be loaded right now."));
   const retry=el("button","dark","TRY AGAIN");retry.type="button";retry.addEventListener("click",()=>renderMemberSnapshotRefresh(card));card.append(retry);
  });
 }
@@ -305,10 +307,10 @@ function mount(){
  // Keep the primary navigation limited to Home, Explore, JR Assistant, Connect and More.
  // The ecosystem group order ["dgbo","family","ecosystem"] stays together inside More.
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
- const nav=app.querySelector(":scope > .nav");
+ const nav=app.querySelector(".nav");
  if(nav){
   const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]];
-  nav.replaceChildren();
+  clearChildren(nav);
   primary.forEach(([id,glyph,label],index)=>{
    const b=el("button",index===0?"jp-nav-active":"");b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
    const icon=el("span","",glyph);icon.setAttribute("aria-hidden","true");
@@ -326,7 +328,7 @@ function mount(){
   const wrap=nav.querySelector(".jp-more-wrap");
   const menu=wrap?.querySelector("#jpMoreMenu");
   if(wrap&&menu){
-   menu.replaceChildren();
+   clearChildren(menu);
    const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
    const sections=[
     ["DISCOVER & LEARN",["discoverhub"]],
