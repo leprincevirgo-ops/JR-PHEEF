@@ -1,3 +1,5 @@
+
+// Command Center assets are checked in the release smoke suite.
 #!/usr/bin/env node
 "use strict";
 
@@ -91,6 +93,8 @@ async function main() {
 
   for (const asset of [
     "/market-ui.js", "/extras-ui.js", "/ecosystem-ui.js",
+    "/command-centre-social.js", "/command-centre-social.css", "/messages-ui.js",
+    "/jp-contacts-ui.js", "/jp-contacts-ui.css",
     "/family-ui.js", "/family-bank-ui.js", "/jr-ui.js", "/continuity-ui.js",
     "/jp-identity.css", "/jp-identity-ui.js", "/themes.css", "/themes.js",
     "/explore.css", "/explore-ui.js",
@@ -127,6 +131,8 @@ async function main() {
 
   for (const endpoint of [
     "/api/listings/mine",
+    "/api/connections",
+    "/api/messages/conversations", "/api/messages/status", "/api/jr/command",
     ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/api/opportunities", "/api/opportunities/mine"] : []),
     "/api/deals",
     "/api/notifications",
