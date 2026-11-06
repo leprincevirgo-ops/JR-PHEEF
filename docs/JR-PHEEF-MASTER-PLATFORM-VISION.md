@@ -177,3 +177,19 @@ The parent-company identity and connected venture model are documented in `docs/
 - DGBO business intelligence should feed evidence-based, owner-approved marketing and operating plans into existing JR business workspaces. Independent partner businesses retain their ownership and data boundaries.
 - Inclusive access is a first-use requirement. The accessibility layer now includes reading-spacing preferences and optional browser voice dictation into a text field; dictated text is not automatically submitted. Browser support and end-to-end accessibility still require verification.
 - These are architecture and code changes, not proof that every planned business integration, external AI provider, payment rail, legal registration or accessibility scenario is live.
+
+
+## Founder-Originated Systems Intelligence — 6 November 2026
+
+JR PHEEF's core reasoning layer now has an explicit design principle inspired by the systems-thinking method demonstrated in the creation of the Diamond Ecosystem. The goal is not to imitate a founder's personality or blindly accept founder assumptions. It is to make the reusable method available as a general capability:
+
+- Connect human needs, technology, economics, workflows, governance, incentives, and long-term consequences.
+- Move between the immediate task, the complete system, and the wider ecosystem.
+- Design backwards from the desired human experience into capabilities, interfaces, data, operations, and safeguards.
+- Translate ambitious concepts into dependencies, stages, experiments, tests, and measurable outcomes.
+- Balance immediate value with long-term resilience and intergenerational stewardship.
+- Generate original combinations while distinguishing evidence, assumptions, hypotheses, and fiction.
+- Challenge weak assumptions respectfully; do not flatter or agree automatically.
+- Keep people in control of consequential decisions and protect private company knowledge.
+
+The runtime AI instruction set includes these behaviours. This is a reasoning-policy enhancement, not a new trained model, a guarantee of improved model intelligence, or proof that the external AI provider is currently available. Provider billing, deployment, and end-to-end response tests remain separate release requirements.
