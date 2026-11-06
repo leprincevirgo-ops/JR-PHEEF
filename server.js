@@ -44,9 +44,20 @@ app.use((req,res,next)=>{
   if(req.path.startsWith("/api/"))res.setHeader("Cache-Control","no-store");
   const origin=req.get("origin");
   if(origin && req.path.startsWith("/api/")){
-    try {
-      if(new globalThis.URL(origin).host!==req.get("host"))return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
-    } catch { return res.status(403).json({ok:false,error:"Invalid request origin."}); }
+    // Some Android WebViews and installed-PWA contexts send the opaque origin
+    // literal "null" for same-app JSON fetches. Permit only JSON requests in
+    // that case; cross-site HTML form submissions remain blocked.
+    if(origin==="null"){
+      if(!req.is("application/json"))return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
+    }else{
+      try {
+        const parsedOrigin=new globalThis.URL(origin);
+        if(parsedOrigin.host.toLowerCase()!==String(req.get("host")||"").toLowerCase())
+          return res.status(403).json({ok:false,error:"Cross-origin request blocked."});
+      } catch {
+        return res.status(403).json({ok:false,error:"Invalid request origin."});
+      }
+    }
   }
   next();
 });
