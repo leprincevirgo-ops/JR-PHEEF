@@ -5,13 +5,23 @@
 **Connected ventures:** JR PHEEF and FAMILY, with room for future ventures.  
 **Status:** Architecture and implementation direction. This document does not claim that every proposed capability is already deployed, legally registered, licensed, or commercially active.
 
-## 1. The three-part operating model
+## 1. One ecosystem, three essential pillars
 
-- **DGBO — the parent company and business-development core.** Develops, owns, invests in, governs, researches, operates and supports ventures according to documented legal ownership and management arrangements.
-- **JR PHEEF — the intelligence, interaction and execution environment.** Gives people and organizations a natural-language entry point to knowledge, tools, opportunities, workflows, learning, commerce and business operations. Its promise is **A World of Possibilities**.
-- **FAMILY — an independent financial-access and empowerment venture.** Its expansion is **Financial Access to Money for Investments & Loving Yourself**. It has its own identity, service boundaries, records, financial controls, partners and regulatory requirements. It is not merely a JR PHEEF wallet.
+The Diamond Ecosystem is **one connected ecosystem with three essential, mutually reinforcing pillars: DGBO, JR PHEEF and FAMILY**. FAMILY is not a side company, optional add-on, or subordinate service. It serves the ecosystem as a core pillar, just as DGBO and JR PHEEF do. The three work together toward shared human, business and generational outcomes while retaining clear responsibilities and safeguards.
 
-The ventures should connect where the member has chosen to connect them, but must not become one undifferentiated database, ledger, permission set or legal entity.
+- **DGBO — the parent, stewardship and business-development pillar.** Develops, owns, invests in, governs, researches, operates and supports ventures according to documented legal ownership and management arrangements. It provides strategic direction, governance, venture development and continuity.
+- **JR PHEEF — the intelligence, interaction and execution pillar.** Gives people and organizations a natural-language environment for knowledge, tools, opportunities, workflows, learning, commerce and business operations. Its promise is **A World of Possibilities**.
+- **FAMILY — the financial-access, empowerment and ecosystem-participation pillar.** Its expansion is **Financial Access to Money for Investments & Loving Yourself**. FAMILY contributes its own services, capabilities and pathways to the shared ecosystem, helping people and participating ventures engage with responsible financial access, planning and opportunity. It is not merely a JR PHEEF wallet.
+
+### How the three strengthen one another
+
+- DGBO helps steward the ecosystem, develop ventures and create responsible business opportunities.
+- JR PHEEF helps people and organizations discover, understand, coordinate and execute useful activity across the ecosystem.
+- FAMILY contributes financial-access and empowerment capabilities that can serve people and eligible ecosystem participants, under appropriate legal permissions and partner arrangements.
+- Each pillar can create value in its own right and contribute to the success of the other two. No pillar should be treated as decorative, optional, or merely a support tab.
+- A user should experience a coherent ecosystem, not three disconnected products. Connections should feel seamless where useful and consented.
+
+**Unity does not mean uncontrolled commingling.** Preserve appropriate legal-entity, data, account, financial-ledger, permission and liability boundaries. Shared identity, navigation, referrals, coordinated services and approved information flows can connect the pillars without collapsing their independent controls.
 
 ## 2. DGBO Core and JR PHEEF Core
 
