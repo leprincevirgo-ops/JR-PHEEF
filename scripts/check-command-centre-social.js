@@ -20,6 +20,6 @@ assert.ok(css.includes("#04172f")&&css.includes("#4ceaff"),"distinct blue/aqua p
 assert.ok(!/25D366|075E54|128C7E/i.test(css),"WhatsApp palette must not be copied");
 console.log("Command Center social integration checks passed.");
 
-assert.match(js,/\\[\\["jr","✦ Talk to JR"\\]/,"Talk to JR must be a first-class Command Center tab");
-assert.match(js,/jrcc-floating-talk-control/,"floating Talk to JR control must be detected");
-assert.match(css,/jrcc-command-open \\.jrcc-floating-talk-control/,"floating launcher must hide while Command Center is open");
+assert.ok(js.includes('["jr","✦ Talk to JR"]'),"Talk to JR must be a first-class Command Center tab");
+assert.ok(js.includes("jrcc-floating-talk-control"),"floating Talk to JR control must be detected");
+assert.ok(css.includes("jrcc-command-open .jrcc-floating-talk-control"),"floating launcher must hide while Command Center is open");
