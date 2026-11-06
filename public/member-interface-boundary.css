@@ -1,0 +1,4 @@
+/* Member interface boundary: do not surface internal company governance or platform administration in the ordinary member UI. */
+#app>#ecosystem,#app>#dgbo,#app>#jpidentity,#app>#developers,#app>#partners,#app>#accessgov{display:none!important}
+#app>.nav [data-page="ecosystem"],#app>.nav [data-page="dgbo"],#app>.nav [data-page="companies"],#app>.nav [data-page="command"],#app>.nav [data-page="accessgov"],#app>.nav [data-page="developers"],#app>.nav [data-page="partners"],#app>.nav [data-page="jpidentity"]{display:none!important}
+#jpMoreMenu [role="menuitem"]{display:none!important}
