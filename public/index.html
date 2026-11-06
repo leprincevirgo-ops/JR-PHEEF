@@ -1257,7 +1257,9 @@ async function openApp(){
 }
 
 function fillProfile(){
-
+  window.jrCurrentMember=me;
+  const verification=$("profileVerificationText");
+  if(verification)verification.textContent=me.verified?"Your account has passed the JR PHEEF system verification recorded for this profile.":"Your account is not system-verified yet. Verification is completed only after JR PHEEF checks the required evidence; a badge is not a guarantee of a safe transaction.";
   $("profileName").value=me.full_name||"";
   $("profileEmail").value=me.email||"";
   $("profileLocation").value=me.location||"";
