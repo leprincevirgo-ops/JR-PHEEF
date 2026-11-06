@@ -193,3 +193,8 @@ JR PHEEF's core reasoning layer now has an explicit design principle inspired by
 - Keep people in control of consequential decisions and protect private company knowledge.
 
 The runtime AI instruction set includes these behaviours. This is a reasoning-policy enhancement, not a new trained model, a guarantee of improved model intelligence, or proof that the external AI provider is currently available. Provider billing, deployment, and end-to-end response tests remain separate release requirements.
+
+
+## One Diamond Ecosystem — three essential pillars (6 November 2026)
+
+DGBO, JR PHEEF and FAMILY are the three essential, mutually reinforcing pillars of one connected ecosystem. FAMILY is not a side company, optional add-on, or subordinate wallet/service. It serves the ecosystem in its own right and contributes financial-access and empowerment capabilities alongside DGBO's stewardship/business-development role and JR PHEEF's intelligence/interaction/execution role. All three are equally important to the ecosystem's purpose, while retaining distinct identities, functions and appropriate legal, data, financial-ledger, permission and regulatory boundaries. The member experience should feel coherent and connected, with consented information flows and coordinated services—not like three unrelated products.
