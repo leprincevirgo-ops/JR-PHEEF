@@ -2,7 +2,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let activeTab="jr",member=null,connections=[],recognition=null,silenceTimer=null,maxTimer=null,statusSection=null,chatGrid=null,mounted=false;
+let activeTab="jr",member=null,connections=[],recognition=null,silenceTimer=null,maxTimer=null,statusSection=null,chatGrid=null,mounted=false,floatingObserver=null;
 const api=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",cache:"no-store",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));return r.ok?d:{...d,ok:false};}catch{return{ok:false,error:"Connection unavailable. Please try again."};}};
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 function stopVoice(message){
@@ -114,12 +114,32 @@ async function loadProfile(){
  const note=node("p","jrcc-note",member.verified===true?"Your account has a platform verification flag.":"Founder or JP identity status does not itself verify a person's identity. Verification must be completed through an evidence-based process.");host.append(note);
  const edit=node("button","primary","EDIT FULL PROFILE");edit.onclick=()=>window.jrWorkspaceNavigate?.("profile");host.append(edit);
 }
+function syncFloatingTalkControl(){
+ const page=$("command"),open=!!page&&!page.hidden&&!page.classList.contains("hidden");
+ document.body.classList.toggle("jrcc-command-open",open);
+ document.querySelectorAll("button,a,[role='button']").forEach(el=>{
+  if(el.closest("#jrCommandSocial"))return;
+  const label=(el.innerText||el.textContent||"").replace(/\\s+/g," ").trim();
+  if(!/^✦?\\s*Talk to JR$/i.test(label))return;
+  let node=el,floating=false;
+  for(let i=0;node&&i<4;i++,node=node.parentElement){
+   if(getComputedStyle(node).position==="fixed"){floating=true;break;}
+  }
+  if(floating)el.classList.add("jrcc-floating-talk-control");
+ });
+}
+function observeFloatingTalkControl(){
+ syncFloatingTalkControl();
+ if(floatingObserver)return;
+ floatingObserver=new MutationObserver(()=>syncFloatingTalkControl());
+ floatingObserver.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style"]});
+}
 function mount(){
  const page=$("command");if(!page||mounted)return;
  const root=node("section","jr-command-social");root.id="jrCommandSocial";
  const heading=node("div","jrcc-heading");heading.append(node("span","jp-kicker","JR PHEEF · COMMAND CENTER"),node("h2","","Your people. Your conversations. One JR."),node("p","","A single connected space for JR, private chats, contacts, status and your profile."));
  const tabs=node("div","jrcc-tabs");tabs.setAttribute("role","tablist");tabs.setAttribute("aria-label","Command Center communication");
- [["jr","✦ JR"],["chats","✉ Chats"],["contacts","♧ Contacts"],["status","◌ Status"],["profile","◉ Profile"]].forEach(([id,label])=>{const b=node("button",id==="jr"?"is-active":"",label);b.type="button";b.dataset.jrccTab=id;b.setAttribute("role","tab");b.setAttribute("aria-selected",String(id==="jr"));b.addEventListener("click",()=>switchTab(id));tabs.append(b);});
+ [["jr","✦ Talk to JR"],["chats","✉ Chats"],["contacts","♧ Contacts"],["status","◌ Status"],["profile","◉ Profile"]].forEach(([id,label])=>{const b=node("button",id==="jr"?"is-active":"",label);b.type="button";b.dataset.jrccTab=id;b.setAttribute("role","tab");b.setAttribute("aria-selected",String(id==="jr"));b.addEventListener("click",()=>switchTab(id));tabs.append(b);});
  const body=node("div","jrcc-body");
  const jr=node("section","jrcc-panel");jr.dataset.jrccPanel="jr";jr.setAttribute("role","tabpanel");
  const jrtop=node("div","jrcc-jr-top");jrtop.append(node("div","jrcc-jr-orb","JR"),node("div","", "JR is here. Start anywhere."));jr.append(jrtop);
@@ -144,16 +164,16 @@ function mount(){
   if(statusSection)status.append(statusSection);
   if(chatGrid)chats.append(chatGrid);
  }
- mounted=true;loadProfile();
+ mounted=true;loadProfile();observeFloatingTalkControl();
 }
 document.addEventListener("jr:workspacechange",e=>{
- if(e.detail?.id==="command"){mounted=false;mount();switchTab(activeTab);}
+ if(e.detail?.id==="command"){mounted=false;mount();switchTab(activeTab);}syncFloatingTalkControl();
  if(e.detail?.id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");}
  if(e.detail?.id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");}
 });
 window.jrCommandCentreChatActive=()=>{const page=$("command"),root=$("jrCommandSocial");return activeTab==="chats"&&!!page&&!page.hidden&&!page.classList.contains("hidden")&&!!root&&!root.hidden;};
 window.jrCommandCentreOpen=switchTab;
 const originalShow=window.show;if(typeof originalShow==="function"){window.show=function(id){if(id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");return;}if(id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");return;}return originalShow(id);};}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{if($("command"))mount();});else mount();
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{if($("command"))mount();observeFloatingTalkControl();});else{mount();observeFloatingTalkControl();}
 window.addEventListener("beforeunload",()=>stopVoice("Microphone is off."));
 })();
