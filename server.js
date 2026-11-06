@@ -89,7 +89,7 @@ function phoneVariants(v) {
 }
 
 const MEMBER_FIELDS = [
-  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme", "profile_photo",
+  "id", "dgbo_id", "jp_number", "full_name", "email", "location", "bio", "theme", "profile_photo", "profile_photo_hidden",
   "reward_points", "profile_visibility", "show_email", "show_birth_year",
   "show_location", "verified", "status", "plan", "referral_code", "created_at"
 ];
@@ -794,7 +794,7 @@ app.post("/api/profile/photo", authenticateMemberBeforeUpload, upload.single("ph
     const { data: publicData } = bucket.getPublicUrl(uploadedPath);
     const photoUrl = publicData.publicUrl;
     const { data: updated, error: updateError } = await db.from("members")
-      .update({ profile_photo: photoUrl }).eq("id", member.id).select("*").single();
+      .update({ profile_photo: photoUrl, profile_photo_hidden: false, profile_photo_hidden_url: null }).eq("id", member.id).select("*").single();
     if (updateError) throw updateError;
 
     // Remove only a previous profile image owned by this same member.
@@ -814,6 +814,38 @@ app.post("/api/profile/photo", authenticateMemberBeforeUpload, upload.single("ph
     console.error("Profile photo upload:", e.message);
     if (!res.headersSent) return res.status(500).json({ ok: false, error: "Profile photo could not be saved. Please try again." });
   }
+});
+
+
+/* PROFILE PHOTO VISIBILITY — member may hide or restore their own photo. */
+app.post("/api/profile/photo/visibility", async (req,res) => {
+  try {
+    const member=await requireMember(req,res); if(!member)return;
+    if(typeof req.body.visible!=="boolean")return res.status(400).json({ok:false,error:"Choose whether your photo should be visible."});
+    const update=req.body.visible
+      ? {profile_photo:member.profile_photo_hidden_url||member.profile_photo||null,profile_photo_hidden:false,profile_photo_hidden_url:null}
+      : {profile_photo:null,profile_photo_hidden:true,profile_photo_hidden_url:member.profile_photo||member.profile_photo_hidden_url||null};
+    const {data,error}=await db.from("members").update(update).eq("id",member.id).select("*").single();
+    if(error)throw error;
+    await logActivity(member.id,req.body.visible?"PROFILE_PHOTO_SHOWN":"PROFILE_PHOTO_HIDDEN");
+    return res.json({ok:true,member:safeMember(data)});
+  }catch(e){console.error("Profile photo visibility:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Photo visibility could not be updated."});}
+});
+
+/* PROFILE PHOTO REMOVAL — deletes only the authenticated member's own object. */
+app.delete("/api/profile/photo", async (req,res) => {
+  try {
+    const member=await requireMember(req,res); if(!member)return;
+    const urls=[member.profile_photo,member.profile_photo_hidden_url].filter(Boolean);
+    const marker="/storage/v1/object/public/jr-pheef-media/";
+    const paths=urls.map(url=>{const at=String(url).indexOf(marker);return at>=0?decodeURIComponent(String(url).slice(at+marker.length)):null;})
+      .filter(p=>p&&p.startsWith("profile-photos/"+member.id+"/"));
+    if(paths.length){const {error}=await db.storage.from("jr-pheef-media").remove([...new Set(paths)]);if(error)throw error;}
+    const {data,error}=await db.from("members").update({profile_photo:null,profile_photo_hidden:false,profile_photo_hidden_url:null}).eq("id",member.id).select("*").single();
+    if(error)throw error;
+    await logActivity(member.id,"PROFILE_PHOTO_REMOVED");
+    return res.json({ok:true,member:safeMember(data)});
+  }catch(e){console.error("Profile photo removal:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Photo could not be removed. Please try again."});}
 });
 
 /* PROFILE */
