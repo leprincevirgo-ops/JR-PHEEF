@@ -9,6 +9,7 @@ const primary='const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["
 assert.ok(shell.includes(primary),"primary destinations must be Home, Worlds, JR, Command Center in that order");
 assert.ok(html.includes('data-page="command"'),"Command Center must be a first-class destination");
 assert.ok(shell.includes(" worlds:[")&&shell.includes("if(hubGroups[id])"),"Worlds must render its own organised hub");
+assert.ok(!shell.includes('if(id==="worlds")id="morehub"'),"Worlds must open its own hub, not redirect to More Services");
 assert.ok(shell.includes("function renderCommandCentre(p)"),"Command Center renderer missing");
 for(const section of ["01 · LEAD","02 · EXECUTE","03 · GROW","04 · YOUR RESOURCES","05 · IMPROVE"])assert.ok(shell.includes(section),"missing priority group "+section);
 for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operations & Projects","Business Operations","People & Communications","Opportunities & Partnerships","My Businesses & Workspaces","People & Communities","JR Assistant","Settings & Preferences"])assert.ok(shell.includes(item),"missing Command Center item "+item);
@@ -16,5 +17,5 @@ assert.ok(mobile.includes('["worlds","✧","Worlds",()=>route("worlds")]'),"mobi
 assert.ok(mobile.includes('["command","▦","Command Center",()=>route("command")]'),"mobile Command Center destination missing");
 assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive Command Center styles missing");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"secondary desktop navigation must remain removed");
-assert.ok(sw.includes('const VERSION="jr-shell-v12"'),"PWA cache version missing");
+assert.ok(sw.includes('const VERSION="jr-shell-v13"'),"PWA cache version missing");
 console.log("PASS: Home → Worlds → JR → Command Center, mobile dock alignment, and five-level Command Center hierarchy.");
