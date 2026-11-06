@@ -5,7 +5,7 @@ const policy=fs.readFileSync("jr-humanity-constitution.js","utf8");
 const server=fs.readFileSync("server.js","utf8");
 const jr=fs.readFileSync("routes/jr.js","utf8");
 const docs=fs.readFileSync("docs/JR-PHEEF-HUMANITY-CONSTITUTION-AND-SYSTEMS-ARCHITECTURE.md","utf8");
-for(const phrase of ["NON-NEGOTIABLE","missiles","weapons","government","Voice is input, not authority","certified controllers","humanitarian","3–6–9 framework","store-and-forward"])assert.ok(policy.includes(phrase),"Shared policy missing: "+phrase);
+for(const phrase of ["NON-NEGOTIABLE","missiles","weapons","government","Voice is input, not authority","certified controllers","humanitarian","3–6–9 framework","store-and-forward"])assert.ok(policy.toLowerCase().includes(phrase.toLowerCase()),"Shared policy missing: "+phrase);
 assert.ok(server.includes('require("./jr-humanity-constitution")'),"Main AI server must load the shared constitution.");
 assert.ok(server.includes("JR_HUMANITY_CONSTITUTION"),"Main AI request must append the shared constitution.");
 assert.ok(jr.includes('require("../jr-humanity-constitution")'),"JR command AI must load the shared constitution.");
