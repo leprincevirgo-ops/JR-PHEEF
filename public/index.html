@@ -1283,7 +1283,8 @@ async function openApp(){
   if(homeIdentity)homeIdentity.textContent=me.jp_number||"Pending";
   if(homeAvatar){const photo=me.profile_photo||me.avatar_url||"";if(photo){const img=document.createElement("img");img.src=photo;img.alt="Your profile photo";img.referrerPolicy="no-referrer";img.onerror=()=>{homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase()};homeAvatar.replaceChildren(img);}else homeAvatar.textContent=(me.full_name||"JR").slice(0,2).toUpperCase();}
   fillProfile();
-  show("home");
+  // The signed-in starting point is the integrated Command Center, with JR as its first conversation.
+  show("command");
   $("auth").classList.add("hidden");
   $("app").classList.remove("hidden");
   
