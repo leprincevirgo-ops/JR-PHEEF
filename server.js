@@ -798,7 +798,7 @@ app.post("/api/profile/photo", authenticateMemberBeforeUpload, upload.single("ph
     if (updateError) throw updateError;
 
     // Remove only a previous profile image owned by this same member.
-    const oldUrl = clean(member.profile_photo || member.avatar_url);
+    const oldUrl = clean(member.profile_photo || member.profile_photo_hidden_url || member.avatar_url);
     const bucketMarker = "/storage/v1/object/public/jr-pheef-media/";
     const oldAt = oldUrl.indexOf(bucketMarker);
     if (oldAt >= 0) {
