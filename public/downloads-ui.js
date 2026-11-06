@@ -27,7 +27,24 @@ function mount(){
  const grid=$("jrDownloadResults"),search=$("jrDownloadSearch"),input=$("jrDownloadQuery");let filter="ALL";
  function draw(q=""){grid.replaceChildren();const rows=SOURCES.filter(x=>(filter==="ALL"||x.kind===filter)&&(!q||(x.name+" "+x.desc+" "+x.kind).toLowerCase().includes(q.toLowerCase())));rows.forEach(x=>grid.append(card(x)));if(!rows.length){const p=document.createElement("p");p.className="muted";p.textContent="No matching source in this starter directory. Try another search.";grid.append(p);}}
  document.querySelectorAll(".jr-download-filter").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;document.querySelectorAll(".jr-download-filter").forEach(x=>x.classList.toggle("is-active",x===b));draw(input.value.trim());}));
- search.addEventListener("submit",e=>{e.preventDefault();draw(input.value.trim());});
+ search.addEventListener("submit",e=>{
+ e.preventDefault();
+ const q=input.value.trim();draw(q);
+ if(!q)return;
+ const box=document.createElement("section");box.className="jr-download-search-results";
+ const heading=document.createElement("h2");heading.textContent="Search official music and film sources";box.append(heading);
+ const providers=[
+  ["YouTube","https://www.youtube.com/results?search_query="],
+  ["Vimeo","https://vimeo.com/search?q="],
+  ["Internet Archive","https://archive.org/search?query="],
+  ["Bandcamp","https://bandcamp.com/search?q="],
+  ["SoundCloud","https://soundcloud.com/search?q="],
+  ["Jamendo","https://www.jamendo.com/search?q="]
+ ];
+ providers.forEach(([name,base])=>{const a=document.createElement("a");a.href=base+encodeURIComponent(q);a.target="_blank";a.rel="noopener noreferrer";a.className="jr-download-open";a.textContent="SEARCH "+name+" ↗";box.append(a);});
+ const note=document.createElement("p");note.className="jr-download-note";note.textContent="Choose a provider's official playback or download option. A file can be downloaded only when the rights holder or platform permits it; JR PHEEF does not bypass subscriptions, DRM or copyright restrictions.";box.append(note);
+ grid.append(box);
+});
  $("jrOpenVault").addEventListener("click",()=>window.show&&window.show("vault"));
  draw();
  const tile=document.createElement("button");tile.type="button";tile.className="jp-quick-card q-downloads";tile.innerHTML='<span>♫</span><b>Downloads & Play</b><small>Music, video & games</small>';tile.addEventListener("click",()=>window.show&&window.show("downloads"));
