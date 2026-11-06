@@ -17,6 +17,6 @@ assert.ok(ui.includes('/api/referrals'),"referral activity client missing");
 assert.ok(html.includes("DISCOVER OPPORTUNITIES"),"new discovery heading missing");
 assert.ok(html.includes('if(id==="referrals"&&typeof loadReferralCenter==="function") loadReferralCenter();'),"referral dashboard is not loaded on navigation");
 assert.ok(manifest.includes("A World of Possibilities."),"new brand promise missing from app manifest");
-assert.ok(html.includes("A world of <span>possibilities.</span>"),"new JR world-first home identity missing");
+assert.ok(html.includes("Your world. <span>One JR.</span>"),"new JR world-first home identity missing");
 assert.ok(!html.includes("DISCOVER &amp; MARKETPLACE"),"legacy public marketplace heading remains");
 console.log("PASS: personal invite links, referral attribution, activity UI and updated public identity.");
