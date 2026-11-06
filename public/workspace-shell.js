@@ -277,7 +277,6 @@ function activateOnlyWorkspace(id){
 }
 function go(id,replace=false){
  if(id==="personalhub")id="connecthub";
- if(id==="worlds")id="morehub";
  if(!id)return;
  const p=ensure(id);
  if(cursor<0||history[cursor]!==id){history=history.slice(0,cursor+1);history.push(id);cursor=history.length-1;}
