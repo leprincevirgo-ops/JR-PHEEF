@@ -33,7 +33,7 @@
  <div class="card"><h3>Ideas from members</h3><div id="idList"></div></div></div>
 
 <div id="ads" class="page hidden"><div class="card"><h2>ADVERTISING CENTRE</h2>
- <p class="muted">Promote a listing or your business to members. Every ad is reviewed first and shown with a "Sponsored" label. Payments are not active yet, so approved ads run free during launch.</p>
+ <p class="muted">Promote a listing or your business. Text and image ads can pass automatic safety checks and publish without waiting for the owner. Flagged ads and all video ads go to a review queue. Prohibited sexual content is blocked. Approved ads display a Sponsored label; launch ads are currently free.</p>
  <input id="adTitle" maxlength="80" placeholder="Ad title">
  <textarea id="adBody" rows="2" maxlength="300" placeholder="Short message (no phone numbers, emails or links)"></textarea>
  <select id="adListing"><option value="">Not linked to a listing</option></select>
