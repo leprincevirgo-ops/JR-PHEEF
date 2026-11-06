@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
+const JR_HUMANITY_CONSTITUTION = require("./jr-humanity-constitution");
 
 const VERSION = require("./package.json").version;
 const app = express();
@@ -1462,7 +1463,7 @@ app.post("/api/ai/chat", authenticateMemberBeforeUpload, aiImageUpload, async (r
     const userContent=[{type:"input_text",text:message+context+memoryContext}];
     if(file)userContent.push({type:"input_image",image_url:"data:"+file.mimetype+";base64,"+file.buffer.toString("base64"),detail:"auto"});
     const input=[...history,{role:"user",content:userContent}];
-    const payload={model:process.env.OPENAI_MODEL||"gpt-6-astra",instructions:JR_AI_INSTRUCTIONS+String.fromCharCode(10,10)+"Current mode: "+JR_AI_MODES[mode]+String.fromCharCode(10,10)+"Answer depth: "+answerDepth+". quick = brief; standard = useful context and next steps; deep = thorough structured treatment.",input,max_output_tokens:answerDepth==="deep"?2200:1200,store:false};
+    const payload={model:process.env.OPENAI_MODEL||"gpt-6-astra",instructions:JR_AI_INSTRUCTIONS+String.fromCharCode(10,10)+"Current mode: "+JR_AI_MODES[mode]+String.fromCharCode(10,10)+"Answer depth: "+answerDepth+". quick = brief; standard = useful context and next steps; deep = thorough structured treatment."+String.fromCharCode(10,10)+JR_HUMANITY_CONSTITUTION,input,max_output_tokens:answerDepth==="deep"?2200:1200,store:false};
     if(useWeb)payload.tools=[{type:"web_search"}];
     const response=await fetch("https://api.openai.com/v1/responses",{
       method:"POST",headers:{"Authorization":"Bearer "+process.env.OPENAI_API_KEY,"Content-Type":"application/json"},
