@@ -298,6 +298,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/natural-interaction.css?v=1">
 <link rel="stylesheet" href="/desktop-connected-world.css?v=2">
 <link rel="stylesheet" href="/jr-core.css?v=1">
+<link rel="stylesheet" href="/personal-command-centre.css?v=1">
 </head>
 
 <body>
@@ -880,13 +881,12 @@ REQUEST FLEX
 <div class="card jp-profile-card">
 <h2>PROFILE</h2>
 <div class="jp-profile-photo-row">
-  <img id="profilePhotoPreview" class="jp-profile-photo" alt="Your JR PHEEF profile photo" src="" hidden>
-  <div id="profilePhotoFallback" class="jp-profile-photo jp-profile-photo-fallback" aria-hidden="true">JP</div>
+  <img id="profilePhotoPreview" class="jp-profile-photo" alt="Your JR PHEEF profile photo" src="" hidden role="button" tabindex="0" aria-label="Tap to choose a profile photo">
+  <div id="profilePhotoFallback" class="jp-profile-photo jp-profile-photo-fallback" role="button" tabindex="0" aria-label="Tap to choose a profile photo">JP</div>
   <div class="jp-profile-photo-actions">
     <strong>Your profile photo</strong>
     <p class="muted">Add a clear photo so people can recognize you. JPG, PNG or WebP, up to 5 MB.</p>
-    <input id="profilePhotoFile" type="file" accept="image/jpeg,image/png,image/webp">
-    <button class="primary" type="button" onclick="uploadProfilePhoto()">UPLOAD PROFILE PHOTO</button>
+    <input id="profilePhotoFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
     <p id="profilePhotoMsg" class="muted" aria-live="polite"></p>
   </div>
 </div>
@@ -1875,5 +1875,6 @@ function jrStartHeaderVoice(){
 <script src="/pwa-register.js?v=1" defer></script>
 <script src="/install-prompt.js?v=1" defer></script>
 <script src="/natural-interaction.js?v=1"></script>
+<script src="/personal-command-centre.js?v=1" defer></script>
 </body>
 </html>
