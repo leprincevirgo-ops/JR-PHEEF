@@ -132,7 +132,7 @@ async function main() {
   for (const endpoint of [
     "/api/listings/mine",
     "/api/connections",
-    "/api/messages/conversations", "/api/messages/status", "/api/jr/command",
+    "/api/messages/conversations", "/api/messages/status",
     ...(process.env.REQUIRE_OPPORTUNITY_FEATURE === "true" ? ["/api/opportunities", "/api/opportunities/mine"] : []),
     "/api/deals",
     "/api/notifications",
@@ -161,6 +161,15 @@ async function main() {
   
   
   }
+
+  await check("JR command rejects anonymous POST requests", async () => {
+    const response = await request("/api/jr/command", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: "smoke test" }) });
+    assert.equal(response.status, 401, "JR command must reject anonymous requests");
+  });
+  await check("JP-number connection endpoint rejects anonymous POST requests", async () => {
+    const response = await request("/api/connections/by-jp-number", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jp_number: "JP-123456" }) });
+    assert.equal(response.status, 401, "connection request must reject anonymous requests");
+  });
 
   await check("PWA manifest and offline shell are available", async () => {
     const manifest = await request("/manifest.webmanifest");
