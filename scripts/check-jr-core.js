@@ -14,5 +14,5 @@ assert.ok(ui.includes("/api/jr/core/status"),"JR Core must load server readiness
 assert.ok(ui.includes("jrWorkspaceNavigate")&&ui.includes("data-jr-core-open"),"capability cards must open existing workspaces");
 assert.ok(css.includes("@media(max-width:900px)")&&css.includes("grid-template-columns:repeat(2"),"mobile JR Core layout missing");
 assert.ok(html.includes("/jr-core.css?v=1")&&html.includes("/jr-core.js?v=1"),"JR Core assets not loaded");
-assert.ok(sw.includes('const VERSION="jr-shell-v11"'),"PWA cache version not refreshed");
+assert.ok(sw.includes('const VERSION="jr-shell-v12"'),"PWA cache version not refreshed");
 console.log("PASS: unified JR Core, six authenticated readiness checks, capability navigation and responsive UI.");
