@@ -23,3 +23,7 @@ console.log("Command Center social integration checks passed.");
 assert.ok(js.includes('["jr","✦ Talk to JR"]'),"Talk to JR must be a first-class Command Center tab");
 assert.ok(js.includes("jrcc-floating-talk-control"),"floating Talk to JR control must be detected");
 assert.ok(css.includes("jrcc-command-open .jrcc-floating-talk-control"),"floating launcher must hide while Command Center is open");
+
+assert.ok(fs.readFileSync("server.js","utf8").includes('if(origin==="null")'),"Android/WebView opaque-origin JSON requests must be handled explicitly");
+assert.ok(fs.readFileSync("server.js","utf8").includes('!req.is("application/json")'),"opaque origins must not permit cross-site form submissions");
+assert.ok(css.includes(".jrcc-floating-talk-control{margin-bottom:12px!important}"),"floating Talk to JR launcher must be lifted above the navigation edge");
