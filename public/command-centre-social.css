@@ -35,3 +35,8 @@
 @keyframes jrccPulse{from{opacity:.55}to{opacity:1}}
 @media(max-width:680px){.jrcc-compose{flex-direction:column;align-items:stretch}.jrcc-compose-controls{justify-content:space-between}.jrcc-compose-controls button{flex:1}.jr-command-social .grid[style*="grid-template-columns"]{grid-template-columns:1fr!important}.jrcc-message{max-width:96%}.jrcc-contact-actions{margin-left:0}.jrcc-profile-grid{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.jrcc-thinking{animation:none}}
+
+/* The floating JR launcher is represented by the Talk to JR tab while Command Center is open. */
+body.jrcc-command-open .jrcc-floating-talk-control{display:none!important}
+.jrcc-tabs [data-jrcc-tab="jr"]{min-width:112px;font-weight:900}
+@media(max-width:420px){.jrcc-tabs [data-jrcc-tab="jr"]{min-width:108px}.jrcc-tabs{gap:6px}.jrcc-tabs button{padding:10px 12px}}
