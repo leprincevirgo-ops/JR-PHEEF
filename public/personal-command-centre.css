@@ -1,0 +1,20 @@
+/* JR PHEEF personal command centre — member-facing surface only. */
+.jr-personal-centre{margin:0 0 22px;padding:clamp(16px,2.8vw,26px);border:1px solid rgba(66,245,255,.25);border-radius:22px;background:linear-gradient(135deg,rgba(5,29,57,.96),rgba(3,14,31,.98));box-shadow:0 16px 42px #0004}
+.jr-personal-top{display:flex;align-items:center;gap:15px;margin-bottom:18px}
+.jr-personal-avatar{width:76px;height:76px;flex:0 0 76px;overflow:hidden;border-radius:50%;display:grid;place-items:center;border:2px solid #42eaff;background:linear-gradient(145deg,#087fc5,#06335a);color:#eafcff;font-size:24px;font-weight:900;cursor:pointer;box-shadow:0 0 0 5px #42eaff14}
+.jr-personal-avatar img{width:100%;height:100%;object-fit:cover}
+.jr-personal-name{font-size:clamp(18px,3vw,25px);font-weight:850;color:#f3fbff}
+.jr-personal-caption{font-size:12px;color:#9bbbd3;margin-top:4px}
+.jr-personal-edit{margin-left:auto;flex:0 0 auto}
+.jr-personal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.jr-personal-action{min-height:100px;margin:0;padding:14px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:9px;border:1px solid rgba(66,245,255,.2);border-radius:15px;background:linear-gradient(145deg,#0a3156,#04172e);color:#f1fbff}
+.jr-personal-action:hover{border-color:#42f5ff;transform:translateY(-1px)}
+.jr-personal-action span{font-size:21px;color:#55eaff}
+.jr-personal-action strong{font-size:13px}
+.jr-personal-action small{font-size:11px;color:#a1bdd3;line-height:1.35}
+.jp-profile-photo-row{position:relative}
+.jp-profile-photo{cursor:pointer}
+.jp-profile-photo:focus-visible{outline:3px solid #8af8ff;outline-offset:4px}
+.jp-profile-photo-actions input[type=file],.jp-profile-photo-actions button[onclick="uploadProfilePhoto()"]{display:none!important}
+.jp-profile-photo-row:after{content:"Tap your photo to change it";position:absolute;left:0;bottom:-6px;font-size:11px;color:#8feeff;pointer-events:none}
+@media(max-width:620px){.jr-personal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-personal-avatar{width:64px;height:64px;flex-basis:64px}.jr-personal-action{min-height:92px;padding:12px}.jr-personal-edit{font-size:11px;padding:9px}}
