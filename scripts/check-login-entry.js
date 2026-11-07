@@ -20,9 +20,9 @@ assert.match(html,/button\.removeAttribute\("aria-busy"\)/,
   "login must clear its busy state after completion");
 assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
-assert.match(html,/workspace-shell\\.js\\?v=command5/,
+assert.match(html,/workspace-shell\.js\?v=command5/,
   "workspace shell URL must be cache-busted");
-assert.match(html,/install-prompt\\.js\\?v=login-overlay1/,"login-safe install prompt must be cache-busted");
+assert.match(html,/install-prompt\.js\?v=login-overlay1/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(worker,/const VERSION="jr-shell-v15"/,
