@@ -37,7 +37,7 @@
     document.body.appendChild(panel);
     panel.querySelector("button").addEventListener("click",()=>panel.remove());
   }
-  window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredPrompt=event;if(!standalone()&&!authVisible())show();});
+  // Expose an explicit install action so people can install before signing in.\n  window.jrInstallApp=install;\n  window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredPrompt=event;if(!standalone()&&!authVisible())show();});
   window.addEventListener("appinstalled",()=>{remove();deferredPrompt=null;});
   window.addEventListener("load",()=>{if(!standalone()&&!authVisible())show();},{once:true});
   window.addEventListener("pageshow",()=>{if(authVisible())remove();else if(!standalone())show();});
