@@ -13,7 +13,7 @@
     return resolving;
   }
   const key=()=> "jr-pheef:continuity:"+String(memberId||"anonymous");
-  const pageNow=()=>[...document.querySelectorAll("#app .page")].find(p=>!p.classList.contains("hidden"))?.id||"home";
+  const pageNow=()=>{const current=[...document.querySelectorAll("#app .page")].find(p=>!p.classList.contains("hidden"));return current?current.id:"home";};
   const localSave=s=>{try{localStorage.setItem(key(),JSON.stringify(s));}catch{}};
   const localRead=()=>{try{return JSON.parse(localStorage.getItem(key())||"null");}catch{return null;}};
   async function saveNow(){
@@ -44,7 +44,7 @@
     if(nav&&!$("navBusinessGrowth")){const b=document.createElement("button");b.id="navBusinessGrowth";b.className="dark";b.textContent="MY BUSINESS";b.addEventListener("click",()=>window.show("businessgrowth"));nav.appendChild(b);}
   }
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-  const selected=()=> $("bgSelect")?.value||"";
+  const selected=()=> ($("bgSelect")?$("bgSelect").value:"")||"";
   window.jrLoadBusinesses=async function(){
     const select=$("bgSelect"),msg=$("bgMsg");if(!select)return;const prior=select.value;
     const d=await call("/api/business/workspaces");
@@ -77,7 +77,7 @@
     if(d.daily_plan)renderPlan(d.daily_plan);else $("bgPlan").innerHTML='<h3>Today\'s plan</h3><p class="muted">No plan saved for today. Select CREATE TODAY\'S PLAN to prepare one.</p>';
   };
   function renderPlan(row){
-    const p=row?.plan||{},host=$("bgPlan");if(!host)return;
+    const p=(row&&row.plan)||{},host=$("bgPlan");if(!host)return;
     host.innerHTML='<p class="muted">'+esc(p.date||row.plan_date)+' · '+esc(String(row.source||p.source||"template").toUpperCase())+'</p><h2>'+esc(p.headline||("Daily plan for "+(p.business_name||"your business")))+'</h2><p>'+esc(p.summary||"")+'</p><h3>Today\'s priorities</h3>'+
       (p.priorities||[]).map(t=>'<article class="listing"><b>'+esc(t.title)+'</b><p class="muted">'+esc(t.detail)+'</p><p class="muted">'+esc(t.evidence||"")+'</p><p>Status: '+esc(t.status||"pending")+'</p><button class="'+(t.status==="completed"?"dark":"primary")+'" onclick="jrSetDailyTask(\''+esc(row.business_id)+'\',\''+esc(t.id)+'\',\''+(t.status==="completed"?"pending":"completed")+'\')">'+(t.status==="completed"?"MARK PENDING":"MARK COMPLETE")+'</button></article>').join("")+
       '<h3>Numbers to watch</h3><ul>'+(p.numbers_to_watch||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul><h3>Risks and assumptions</h3><ul>'+(p.risks||[]).map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
@@ -88,8 +88,8 @@
   };
   async function restore(){
     if(!await resolveMember())return;restoring=true;let state=localRead();
-    if(navigator.onLine){const r=await call("/api/continuity");if(r.ok&&r.state?.page){state=r.state;localSave(state);}}
-    if(state?.page&&/^[a-z][a-z0-9_-]{0,50}$/.test(state.page)){try{if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(state.page);else if(typeof window.show==="function")window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo({top:Math.max(0,Number(state.scroll_y)||0),behavior:"instant"}));}
+    if(navigator.onLine){const r=await call("/api/continuity");if(r.ok&&(r.state&&r.state.page)){state=r.state;localSave(state);}}
+    if((state&&state.page)&&/^[a-z][a-z0-9_-]{0,50}$/.test(state.page)){try{if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(state.page);else if(typeof window.show==="function")window.show(state.page);}catch{};requestAnimationFrame(()=>window.scrollTo({top:Math.max(0,Number(state.scroll_y)||0),behavior:"instant"}));}
     restoring=false;ready=true;schedule();
   }
   const oldShow=window.show;
