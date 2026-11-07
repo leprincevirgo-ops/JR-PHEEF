@@ -73,7 +73,7 @@ panel.append(el("p",{class:"muted"},"JR PHEEF accessibility commitment: all core
 const close=el("button",{type:"button"},"Close accessibility options");
 close.addEventListener("click",()=>{panel.hidden=true;launcher.setAttribute("aria-expanded","false");launcher.focus()});
 panel.append(close);
-launcher.addEventListener("click",()=>{panel.hidden=!panel.hidden;launcher.setAttribute("aria-expanded",String(!panel.hidden));if(!panel.hidden)panel.querySelector("button")?.focus()});
+launcher.addEventListener("click",()=>{panel.hidden=!panel.hidden;launcher.setAttribute("aria-expanded",String(!panel.hidden));if(!panel.hidden){const first=panel.querySelector("button");if(first)first.focus();}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden){panel.hidden=true;launcher.setAttribute("aria-expanded","false");launcher.focus()}});
 document.body.append(status,launcher,panel);
 apply();
