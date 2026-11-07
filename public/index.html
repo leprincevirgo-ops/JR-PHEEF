@@ -303,44 +303,27 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 @media(max-width:600px){.jr-entry-welcome{margin:8px auto 14px;padding:21px 14px}.jr-entry-orb{width:70px;height:70px}.jr-entry-welcome>p:not(.jr-entry-kicker){font-size:12px}}
 
 
-/* Android 8/WebView sign-in hit-testing safeguard. Keep every credential control above app chrome and avoid transformed stacking contexts. */
-#auth{display:block!important;position:relative!important;z-index:9999!important;isolation:isolate!important;pointer-events:auto!important;visibility:visible!important}
-#auth>.card{position:relative!important;z-index:10000!important;pointer-events:auto!important;overflow:visible}
-#loginBox,#registerBox{position:relative!important;z-index:10001!important;pointer-events:auto!important;transform:none!important;filter:none!important}
-#loginBox *,#registerBox *{pointer-events:auto!important}
-#loginBox input,#registerBox input,#loginBox button,#registerBox button{position:relative!important;z-index:10002!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important}
-#loginBox input,#registerBox input{display:block!important;min-height:50px!important;opacity:1!important;visibility:visible!important}
-.jr-entry-welcome{pointer-events:none!important;position:relative;z-index:0}
-.jp-global-header,.jp-action-rail{z-index:150!important}
-
-/* Isolate the unauthenticated entry screen on older Android WebViews. Sticky headers,
-   injected docks and install prompts must not sit over credential controls. */
+/* Android 8 touch-safe sign-in: normal document flow, no full-screen overlay. */
 body.jr-auth-pending{overflow-x:hidden!important}
 body.jr-auth-pending>header,body.jr-auth-pending>.jp-action-rail{display:none!important}
-body.jr-auth-pending>main{position:relative!important;z-index:2147483000!important;transform:none!important;filter:none!important;isolation:isolate!important;pointer-events:auto!important}
-body.jr-auth-pending>main>#auth{position:relative!important;z-index:2147483001!important;display:block!important;pointer-events:auto!important}
-body.jr-auth-pending>main>#auth~*{display:none!important}
-body.jr-auth-pending>*:not(main){pointer-events:none!important}
-body.jr-auth-pending #auth,body.jr-auth-pending #auth *{pointer-events:auto!important}
-body.jr-auth-pending #jrInstallPrompt{display:none!important}
-/* The unauthenticated entry is a direct body child, not trapped inside the application stacking context. */
 body.jr-auth-pending>#auth{
- position:fixed!important;inset:0!important;width:100%!important;height:100%!important;
- max-width:none!important;margin:0!important;padding:12px 14px 28px!important;
- overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;
- z-index:2147483647!important;display:block!important;background:#020b18!important;
- -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+ display:block!important;position:relative!important;z-index:2!important;
+ width:min(calc(100% - 24px),1120px)!important;max-width:1120px!important;
+ margin:24px auto 40px!important;padding:0 0 24px!important;
+ overflow:visible!important;pointer-events:auto!important;visibility:visible!important;
 }
 body.jr-auth-pending>#auth>.jr-entry-welcome,
 body.jr-auth-pending>#auth>.card{position:relative!important;z-index:1!important;pointer-events:auto!important}
-body.jr-auth-pending>#auth input,
-body.jr-auth-pending>#auth button,
-body.jr-auth-pending>#auth select{
- pointer-events:auto!important;touch-action:manipulation!important;
- -webkit-appearance:none;appearance:none;
+body.jr-auth-pending>#auth input,body.jr-auth-pending>#auth button,body.jr-auth-pending>#auth select{
+ display:block;position:relative;z-index:auto;pointer-events:auto!important;
+ touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important;
 }
-body.jr-auth-pending>main{pointer-events:none!important}
-
+body.jr-auth-pending>#auth input{
+ min-height:50px!important;width:100%!important;opacity:1!important;visibility:visible!important;
+ -webkit-appearance:textfield!important;appearance:auto!important;
+}
+body.jr-auth-pending>main{display:none!important}
+body.jr-auth-pending #jrInstallPrompt{display:none!important}
 .jr-open-external{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:11px 15px;border:1px solid rgba(66,245,255,.5);border-radius:12px;background:rgba(0,139,190,.18);color:#bffaff;font-size:12px;font-weight:800;text-decoration:none}.jr-open-external:hover,.jr-open-external:focus{background:rgba(0,170,220,.3);outline:2px solid rgba(66,245,255,.35);outline-offset:2px}
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
@@ -409,13 +392,10 @@ body.jr-auth-pending>main{pointer-events:none!important}
 <div id="loginBox">
 <h2>Login</h2>
 
-<input id="loginIdentifier"
-placeholder="Phone or email">
+<input id="loginIdentifier" type="text" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Phone or email">
 
 <div style="position:relative">
-<input id="loginPassword"
-type="password"
-placeholder="Password">
+<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
 <button onclick="toggle('loginPassword')">👁</button>
 </div>
 
