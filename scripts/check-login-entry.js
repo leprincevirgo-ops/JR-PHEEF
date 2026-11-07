@@ -9,6 +9,22 @@ const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobileShell=fs.readFileSync("public/mobile-phone-shell.js","utf8");
 const conversationEntry=fs.readFileSync("public/conversation-first-access.js","utf8");
+const frontendScripts=[
+ "market-ui.js","messages-ui.js","extras-ui.js","ecosystem-ui.js","family-ui.js","family-bank-ui.js","jr-ui.js",
+ "continuity-ui.js","jp-contacts-ui.js","jp-identity-ui.js","opportunities-ui.js","themes.js","explore-ui.js",
+ "discover-ui.js","browser-ui.js","apphub-ui.js","preferences-sync.js","command-center.js","notifications-ui.js",
+ "lab-ui.js","projects-ui.js","coordination-studio.js","workspace-shell.js","command-centre-social.js","open-ecosystem.js",
+ "universal-interaction.js","human-environment-ui.js","jr-core.js","accessibility.js","universe-home.js","founder-loader.js",
+ "device-bridge.js","mobile-phone-shell.js","screen-studio.js","immersive-world-home.js","conversation-first-access.js",
+ "human-environment.js","pwa-register.js","install-prompt.js","natural-interaction.js","personal-command-centre.js"
+];
+for(const file of frontendScripts){
+ const source=fs.readFileSync("public/"+file,"utf8");
+ assert.doesNotMatch(source,/\\?\\.|\\?\\?/,"Unsupported modern syntax in "+file);
+ new vm.Script(source,{filename:"public/"+file});
+}
+assert.match(html,/if\\(!String\\.prototype\\.replaceAll\\)/,"String.replaceAll compatibility helper missing");
+assert.match(html,/if\\(window\\.Element&&!Element\\.prototype\\.replaceChildren\\)/,"Element.replaceChildren compatibility helper missing");
 
 // The entry shell must parse on older Android WebViews (Chrome 67-era).
 assert.doesNotMatch(html, /\?\.|\?\?|\.replaceAll\(/,
@@ -17,8 +33,7 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
   const type=(match[0].match(/type=["']([^"']+)/i)||[])[1]||"text/javascript";
   if (/javascript|ecmascript/i.test(type)) new vm.Script(match[1], {filename:"inline JR PHEEF script"});
 }
-assert.doesNotMatch(workspaceShell+mobileShell+conversationEntry, /\?\.|\?\?|\.replaceAll\(/,
-  "core mobile navigation must avoid syntax unsupported by older Android WebViews");
+// All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
