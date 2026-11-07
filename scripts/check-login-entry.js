@@ -1,11 +1,19 @@
 "use strict";
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
+const vm=require("node:vm");
 const html=fs.readFileSync("public/index.html","utf8");
 const worker=fs.readFileSync("public/service-worker.js","utf8");
 const install=fs.readFileSync("public/install-prompt.js","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 
+// The entry shell must parse on older Android WebViews (Chrome 67-era).
+assert.doesNotMatch(html, /\\?\\.|\\?\\?|\\.replaceAll\\(/,
+  "entry HTML must not contain unsupported optional chaining, nullish coalescing or replaceAll syntax");
+for (const match of html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)) {
+  const type=(match[0].match(/type=["']([^"']+)/i)||[])[1]||"text/javascript";
+  if (/javascript|ecmascript/i.test(type)) new vm.Script(match[1], {filename:"inline JR PHEEF script"});
+}
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
@@ -25,7 +33,7 @@ assert.match(html,/workspace-shell\.js\?v=command5/,
 assert.match(html,/install-prompt\.js\?v=login-overlay2/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
-assert.match(worker,/const VERSION="jr-shell-v16"/,
+assert.match(worker,/const VERSION="jr-shell-v17"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
