@@ -8,7 +8,7 @@ async function loadPrivateFounderTools(){
   const response=await fetch("/api/me",{credentials:"include",cache:"no-store"});
   if(!response.ok)return;
   const data=await response.json();
-  if(!data.ok||!data.logged_in||data.member?.is_owner!==true)return;
+  if(!data.ok||!data.logged_in||(data.member&&data.member.is_owner)!==true)return;
   if(document.querySelector('script[data-jr-private-founder="loaded"]')){loaded=true;return;}
   const script=document.createElement("script");
   script.src="/founder-command.js";
