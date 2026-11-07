@@ -21,7 +21,7 @@ assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
 assert.match(html,/workspace-shell\.js\?v=command4/,
   "workspace shell URL must be cache-busted");
-assert.match(worker,/const VERSION="jr-shell-v14"/,
+assert.match(worker,/const VERSION="jr-shell-v15"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
