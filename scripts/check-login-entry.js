@@ -37,11 +37,11 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
   if (/javascript|ecmascript/i.test(type)) new vm.Script(match[1], {filename:"inline JR PHEEF script"});
 }
 // All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
-assert.match(html,/<body class="jr-auth-pending">\\s*<header[\\s\\S]*?<\\/header>\\s*<div class="jp-action-rail"[\\s\\S]*?<\\/div>\\s*<section id="auth">[\\s\\S]*?<\\/section>\\s*<main>\\s*<section id="app"/,
+assert.match(html,/<body class="jr-auth-pending">\s*<header[\s\S]*?<\/header>\s*<div class="jp-action-rail"[\s\S]*?<\/div>\s*<section id="auth">[\s\S]*?<\/section>\s*<main>\s*<section id="app"/,
   "sign-in must be a direct body child outside the application main/stacking context");
-assert.match(html,/body\\.jr-auth-pending>#auth\\{[\\s\\S]*?position:fixed!important;[\\s\\S]*?z-index:2147483647!important/,
+assert.match(html,/body\.jr-auth-pending>#auth\{[\s\S]*?position:fixed!important;[\s\S]*?z-index:2147483647!important/,
   "unauthenticated sign-in must occupy a top-level fixed touch layer");
-assert.match(html,/body\\.jr-auth-pending>main\\{pointer-events:none!important\\}/,
+assert.match(html,/body\.jr-auth-pending>main\{pointer-events:none!important\}/,
   "the hidden application shell must not intercept sign-in touches");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
