@@ -98,7 +98,7 @@ try{
  if($("jpPrefTimezone"))$("jpPrefTimezone").value=saved.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone||"";
  if($("jpPrefStart"))$("jpPrefStart").value=saved.startPage||"home";
 }catch(e){}
-$("jpSavePersonalDefaults")?.addEventListener("click",()=>{
+if($("jpSavePersonalDefaults"))$("jpSavePersonalDefaults").addEventListener("click",()=>{
  const value={language:$("jpPrefLanguage").value,currency:$("jpPrefCurrency").value,timezone:$("jpPrefTimezone").value.trim(),startPage:$("jpPrefStart").value};
  try{localStorage.setItem(prefKey,JSON.stringify(value));$("jpPersonalDefaultsStatus").textContent="Your preferences are saved on this device. JR Assistant language and app-wide currency behaviour will use them only when those integrations are connected.";}
  catch(e){$("jpPersonalDefaultsStatus").textContent="This browser could not save your preferences.";}
@@ -134,9 +134,9 @@ const clear=(key,statusId,label)=>{
  const status=$(statusId);if(!confirm("Clear "+label+" from this browser? This cannot be undone."))return;
  try{localStorage.removeItem(key);status.textContent=label+" cleared from this browser.";}catch(e){status.textContent="This browser did not allow the saved data to be cleared.";}
 };
-$("jpClearAppHub")?.addEventListener("click",()=>clear("jr-pheef-app-hub-v1","jpAppHubStatus","App Hub shortcuts"));
-$("jpClearDiscover")?.addEventListener("click",()=>clear("jr-pheef-discover-saved-v1","jpDiscoverStatus","Discover saved topics"));
-$("jpClearLocalData")?.addEventListener("click",async()=>{
+if($("jpClearAppHub"))$("jpClearAppHub").addEventListener("click",()=>clear("jr-pheef-app-hub-v1","jpAppHubStatus","App Hub shortcuts"));
+if($("jpClearDiscover"))$("jpClearDiscover").addEventListener("click",()=>clear("jr-pheef-discover-saved-v1","jpDiscoverStatus","Discover saved topics"));
+if($("jpClearLocalData"))$("jpClearLocalData").addEventListener("click",async()=>{
  const status=$("jpLocalDataStatus");if(!confirm("Clear JR PHEEF appearance settings, uploaded wallpaper, App Hub shortcuts and Discover saved topics from this browser? Your account and server data will not be deleted."))return;
  try{
   ["jr-pheef-visual-settings-v1","jr-pheef-app-hub-v1","jr-pheef-discover-saved-v1"].forEach(k=>localStorage.removeItem(k));
@@ -145,7 +145,7 @@ $("jpClearLocalData")?.addEventListener("click",async()=>{
   setTimeout(()=>window.location.reload(),900);
  }catch(e){status.textContent="Could not clear all browser-local data. Use your browser's site-data controls to finish.";}
 });
-$("jpCopyDiagnostics")?.addEventListener("click",async()=>{
+if($("jpCopyDiagnostics"))$("jpCopyDiagnostics").addEventListener("click",async()=>{
  const summary=["JR PHEEF diagnostic summary","Page: "+location.pathname,"Browser: "+navigator.userAgent,"Platform: "+(navigator.platform||"Not reported"),"Language: "+(navigator.language||"Not reported"),"Online: "+String(navigator.onLine),"Time: "+new Date().toISOString()].join("\\n");
  const out=$("jpDiagnostics");out.textContent=summary;
  try{await navigator.clipboard.writeText(summary);out.textContent="Diagnostic summary copied. Review it before sharing.\\n\\n"+summary;}
