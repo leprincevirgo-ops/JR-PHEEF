@@ -284,6 +284,17 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 #loginBox input,#registerBox input{display:block!important;min-height:50px!important;opacity:1!important;visibility:visible!important}
 .jr-entry-welcome{pointer-events:none!important;position:relative;z-index:0}
 .jp-global-header,.jp-action-rail{z-index:150!important}
+
+/* Isolate the unauthenticated entry screen on older Android WebViews. Sticky headers,
+   injected docks and install prompts must not sit over credential controls. */
+body.jr-auth-pending{overflow-x:hidden!important}
+body.jr-auth-pending>header,body.jr-auth-pending>.jp-action-rail{display:none!important}
+body.jr-auth-pending>main{position:relative!important;z-index:2147483000!important;transform:none!important;filter:none!important;isolation:isolate!important;pointer-events:auto!important}
+body.jr-auth-pending>main>#auth{position:relative!important;z-index:2147483001!important;display:block!important;pointer-events:auto!important}
+body.jr-auth-pending>main>#auth~*{display:none!important}
+body.jr-auth-pending>*:not(main){pointer-events:none!important}
+body.jr-auth-pending #auth,body.jr-auth-pending #auth *{pointer-events:auto!important}
+body.jr-auth-pending #jrInstallPrompt{display:none!important}
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
@@ -311,7 +322,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 <link rel="stylesheet" href="/personal-command-centre.css?v=1">
 </head>
 
-<body>
+<body class="jr-auth-pending">
 
 <header class="jp-global-header jp-reference-header">
   <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>A World of Possibilities</small></span></a>
@@ -1215,7 +1226,8 @@ async function login(){
       $("loginMsg").textContent="Sign-in succeeded, but this browser could not confirm your session. Enable cookies for JR PHEEF and try again.";
       return;
     }
-    me=session.member;window.jrCurrentMemberId=me.id;
+    document.body.classList.remove("jr-auth-pending");
+  me=session.member;window.jrCurrentMemberId=me.id;
     $("loginMsg").textContent="";
     await openApp();
   }catch(e){
