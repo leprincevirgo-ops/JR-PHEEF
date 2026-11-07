@@ -30,7 +30,7 @@ function addResume(){
   try{
    const response=await fetch("/api/continuity",{credentials:"include"});
    const data=await response.json();
-   const page=data?.state?.page||data?.page;
+   const page=(data&&data.state&&data.state.page)||(data&&data.page);
    if(response.ok&&data.ok!==false&&page&&page!=="home"&&/^[a-z][a-z0-9_-]{0,50}$/.test(page)){
     if(typeof window.jrWorkspaceNavigate==="function")window.jrWorkspaceNavigate(page);
     else if(typeof window.show==="function")window.show(page);
@@ -39,7 +39,7 @@ function addResume(){
  });
  greeting.insertAdjacentElement("afterend",button);
  fetch("/api/continuity",{credentials:"include"}).then(r=>r.json()).then(data=>{
-  const page=data?.state?.page||data?.page;
+  const page=(data&&data.state&&data.state.page)||(data&&data.page);
   if(page&&page!=="home"&&/^[a-z][a-z0-9_-]{0,50}$/.test(page))button.hidden=false;
  }).catch(()=>{});
 }
