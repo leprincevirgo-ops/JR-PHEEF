@@ -30,12 +30,12 @@
         if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
       });
     };
-    document.addEventListener("jr:workspacechange",e=>setActive(e.detail?.id||"home"));
+    document.addEventListener("jr:workspacechange",e=>setActive((e.detail&&e.detail.id)||"home"));
     document.addEventListener("click",e=>{
       const launcher=document.getElementById("jr-accessibility-launcher");
       if(e.target.closest('[data-mobile-destination="accessibility"]')&&launcher){
         const access=dock.querySelector('[data-mobile-destination="accessibility"]');
-        access?.classList.toggle("is-active",launcher.getAttribute("aria-expanded")==="true");
+        if(access)access.classList.toggle("is-active",launcher.getAttribute("aria-expanded")==="true");
       }
     });
     setActive("home");
