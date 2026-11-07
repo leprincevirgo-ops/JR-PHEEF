@@ -57,12 +57,12 @@ function readApps(){try{const a=JSON.parse(localStorage.getItem(APP_KEY)||"[]");
 function openModule(id){
  close();
  if(id==="alerts"){const bell=document.querySelector(".jp-notification-bell");if(bell){bell.click();return;}if(typeof window.show==="function")window.show("messages");return;}
- if(id==="projects"&&!document.getElementById("projects")){const p=document.createElement("section");p.id="projects";p.className="page hidden";p.innerHTML='<div class="card"><h2>Projects</h2><p>Your Projects workspace is loading. Please try again in a moment.</p></div>';document.getElementById("app")?.append(p);}
+ if(id==="projects"&&!document.getElementById("projects")){const p=document.createElement("section");p.id="projects";p.className="page hidden";p.innerHTML='<div class="card"><h2>Projects</h2><p>Your Projects workspace is loading. Please try again in a moment.</p></div>';(function(){var app=document.getElementById("app");if(app)app.appendChild(p);})();}
  if(typeof window.show==="function")window.show(id);else{const p=$(id);if(p){document.querySelectorAll("#app .page").forEach(x=>x.classList.add("hidden"));p.classList.remove("hidden")}}
 }
 function openApp(url){const safe=safeUrl(url);if(!safe)return;close();window.open(safe,"_blank","noopener,noreferrer")}
 function mount(){
- const app=$("app"),header=document.querySelector("body > header"),nav=app?.querySelector(".nav");
+ const app=$("app"),header=document.querySelector("body > header"),nav=app?app.querySelector(".nav"):null;
  if(!app||!header||!nav||$("jpCommandPalette"))return;
  if(!$("jpMobileExperienceCss")){const l=document.createElement("link");l.id="jpMobileExperienceCss";l.rel="stylesheet";l.href="/mobile-experience.css";document.head.append(l);}
  if(!$("jpDownloadsScript")){const sc=document.createElement("script");sc.id="jpDownloadsScript";sc.src="/downloads-ui.js";sc.defer=true;document.body.append(sc);}
