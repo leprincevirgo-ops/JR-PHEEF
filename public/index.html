@@ -322,6 +322,24 @@ body.jr-auth-pending>main>#auth~*{display:none!important}
 body.jr-auth-pending>*:not(main){pointer-events:none!important}
 body.jr-auth-pending #auth,body.jr-auth-pending #auth *{pointer-events:auto!important}
 body.jr-auth-pending #jrInstallPrompt{display:none!important}
+/* The unauthenticated entry is a direct body child, not trapped inside the application stacking context. */
+body.jr-auth-pending>#auth{
+ position:fixed!important;inset:0!important;width:100%!important;height:100%!important;
+ max-width:none!important;margin:0!important;padding:12px 14px 28px!important;
+ overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;
+ z-index:2147483647!important;display:block!important;background:#020b18!important;
+ -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+}
+body.jr-auth-pending>#auth>.jr-entry-welcome,
+body.jr-auth-pending>#auth>.card{position:relative!important;z-index:1!important;pointer-events:auto!important}
+body.jr-auth-pending>#auth input,
+body.jr-auth-pending>#auth button,
+body.jr-auth-pending>#auth select{
+ pointer-events:auto!important;touch-action:manipulation!important;
+ -webkit-appearance:none;appearance:none;
+}
+body.jr-auth-pending>main{pointer-events:none!important}
+
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
@@ -371,8 +389,6 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
   <button type="button" onclick="show('workhub')"><span>＋</span>Create &amp; Work</button>
   <button type="button" onclick="show('connecthub')"><span>▤</span>Connect</button>
 </div>
-
-<main>
 
 <section id="auth">
 <div class="jr-entry-welcome">
@@ -438,6 +454,7 @@ placeholder="Password">
 </div>
 </section>
 
+<main>
 <section id="app" class="hidden">
 
 <nav class="nav jp-primary-nav" aria-label="Main navigation">
