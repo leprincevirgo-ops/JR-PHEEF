@@ -91,11 +91,11 @@ const providers=[
 ["OpenStreetMap","Open map data and geographic tools","https://www.openstreetmap.org"]
 ];
 let history=[],cursor=-1,wrapped=false;
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 function clearChildren(node){while(node&&node.firstChild)node.removeChild(node.firstChild);}
 function replaceChildrenCompat(node,...children){clearChildren(node);for(const child of children)if(child)node.appendChild(child);}
-function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section");p.id=id;p.className="page hidden jr-generated-workspace";$("app")?.append(p);return p;}
+function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section");p.id=id;p.className="page hidden jr-generated-workspace";(function(){var app=$("app");if(app)app.appendChild(p);})();return p;}
 function makeChrome(p,id){return;}
 function renderGenerated(p,id){
  const meta=catalog.find(x=>x[0]===id)||[id,id.replace(/[-_]/g," "),"JR PHEEF workspace","Organise this area and continue with the relevant next step."];
@@ -233,7 +233,7 @@ function renderHub(p,id){
  const groups=hubGroups[id]||[];
  p.innerHTML="";
  const hero=el("section","jr-workspace-hero jr-parent-hub");
- hero.append(el("div","jp-kicker","JR PHEEF · ORGANIZED WORKSPACE"),el("h1","",meta?.[1]||"Workspace"),el("p","",meta?.[2]||""),el("p","jr-workspace-intro",meta?.[3]||""));
+ hero.append(el("div","jp-kicker","JR PHEEF · ORGANIZED WORKSPACE"),el("h1","",(meta&&meta[1])||"Workspace"),el("p","",(meta&&meta[2])||""),el("p","jr-workspace-intro",(meta&&meta[3])||""));
  const content=el("div","jr-hub-categories");
  groups.forEach(([heading,items])=>{
   const section=el("section","jr-hub-category");
@@ -316,17 +316,17 @@ function mount(){
    const icon=el("span","",glyph);icon.setAttribute("aria-hidden","true");
    const name=el("span","",label);b.append(icon,name);b.addEventListener("click",()=>go(id));nav.append(b);
   });
-  nav.querySelector(".jr-desktop-extra")?.remove();
+  var desktopExtra=nav.querySelector(".jr-desktop-extra");if(desktopExtra)desktopExtra.parentNode.removeChild(desktopExtra);
   const home=$("home");
   if(home&&!home.querySelector(".jr-desktop-landscapes")){
    const landscapes=el("section","jr-desktop-landscapes");
    landscapes.innerHTML='<div class="jr-landscape-heading"><div><span>EXPLORE YOUR WORLD</span><h2>Places, possibilities and new horizons</h2></div><button type="button" data-jr-landscape-all>Explore all →</button></div><div class="jr-landscape-grid"><button class="jr-landscape-scene jr-scene-city" data-jr-world-page="explore"><span>01 · PLACES</span><b>Discover places</b><small>Explore cities and destinations</small></button><button class="jr-landscape-scene jr-scene-nature" data-jr-world-page="explore"><span>02 · NATURE</span><b>Find your calm</b><small>Landscapes, nature and inspiration</small></button><button class="jr-landscape-scene jr-scene-future" data-jr-world-page="explore"><span>03 · FUTURE</span><b>Imagine what is next</b><small>Ideas, science and technology</small></button><button class="jr-landscape-scene jr-scene-space" data-jr-world-page="explore"><span>04 · BEYOND</span><b>Go beyond borders</b><small>Explore a wider universe</small></button></div>';
    home.append(landscapes);
-   landscapes.querySelector("[data-jr-landscape-all]")?.addEventListener("click",()=>go("explore"));
+   var landscapeAll=landscapes.querySelector("[data-jr-landscape-all]");if(landscapeAll)landscapeAll.addEventListener("click",()=>go("explore"));
    landscapes.querySelectorAll("[data-jr-world-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.jrWorldPage)));
   }
   const wrap=nav.querySelector(".jp-more-wrap");
-  const menu=wrap?.querySelector("#jpMoreMenu");
+  const menu=wrap?wrap.querySelector("#jpMoreMenu"):null;
   if(wrap&&menu){
    clearChildren(menu);
    const existing=new Set([...nav.querySelectorAll("[data-page]")].map(b=>b.dataset.page));
