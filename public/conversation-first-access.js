@@ -25,7 +25,7 @@ function bind(){
  const toggle=$("jrAccessToggle"),panel=$("jrAccessPanel");
  if(toggle&&panel)toggle.addEventListener("click",()=>{
   const opening=panel.hidden;panel.hidden=!opening;toggle.setAttribute("aria-expanded",String(opening));
-  if(opening)panel.querySelector("input,button")?.focus();
+  if(opening){const firstControl=panel.querySelector("input,button");if(firstControl)firstControl.focus();}
  });
  const config={jrLargeText:"large",jrHighContrast:"contrast",jrReduceMotion:"motion",jrSpeakReplies:"speak"};
  Object.entries(config).forEach(([id,key])=>{const el=$(id);if(el)el.addEventListener("change",()=>{prefs[key]=el.checked;save();apply()})});
