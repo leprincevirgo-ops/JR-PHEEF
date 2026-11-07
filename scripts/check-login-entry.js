@@ -20,11 +20,11 @@ const frontendScripts=[
 ];
 for(const file of frontendScripts){
  const source=fs.readFileSync("public/"+file,"utf8");
- assert.doesNotMatch(source,/\\?\\.|\\?\\?/,"Unsupported modern syntax in "+file);
+ assert.doesNotMatch(source,/\?\.|\?\?/,"Unsupported modern syntax in "+file);
  new vm.Script(source,{filename:"public/"+file});
 }
-assert.match(html,/if\\(!String\\.prototype\\.replaceAll\\)/,"String.replaceAll compatibility helper missing");
-assert.match(html,/if\\(window\\.Element&&!Element\\.prototype\\.replaceChildren\\)/,"Element.replaceChildren compatibility helper missing");
+assert.match(html,/if\(!String\.prototype\.replaceAll\)/,"String.replaceAll compatibility helper missing");
+assert.match(html,/if\(window\.Element&&!Element\.prototype\.replaceChildren\)/,"Element.replaceChildren compatibility helper missing");
 
 // The entry shell must parse on older Android WebViews (Chrome 67-era).
 assert.doesNotMatch(html, /\?\.|\?\?|\.replaceAll\(/,
