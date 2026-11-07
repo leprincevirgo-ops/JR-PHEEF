@@ -1343,6 +1343,7 @@ async function openApp(){
   try{ session=await api("/api/me"); }catch(e){ session=null; }
   if(!session||!session.ok||!session.logged_in||!session.member){
     me=null;
+    document.body.classList.add("jr-auth-pending");
     $("auth").classList.remove("hidden");
     $("app").classList.add("hidden");
     
@@ -1400,6 +1401,7 @@ async function refresh(){
   const data=await api("/api/me");
 
   if(!data.logged_in){
+    document.body.classList.add("jr-auth-pending");
     $("auth").classList.remove("hidden");
     $("app").classList.add("hidden");
     return;
