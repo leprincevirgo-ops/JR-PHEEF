@@ -319,6 +319,9 @@ app.get("/founder-command.js", async (req, res) => {
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
 app.get("/", (req, res) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
