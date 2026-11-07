@@ -275,12 +275,15 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 @media(max-width:600px){.jr-entry-welcome{margin:8px auto 14px;padding:21px 14px}.jr-entry-orb{width:70px;height:70px}.jr-entry-welcome>p:not(.jr-entry-kicker){font-size:12px}}
 
 
-/* Android 8/WebView sign-in hit-testing safeguard. Keep the credential panel above decorative layers. */
-#auth{position:relative;z-index:100;isolation:isolate;pointer-events:auto}
-#auth>.card{position:relative;z-index:1;pointer-events:auto}
-#loginBox,#registerBox{position:relative;z-index:2;pointer-events:auto;transform:translateZ(0)}
-#loginBox input,#registerBox input,#loginBox button,#registerBox button{position:relative;z-index:3;pointer-events:auto;touch-action:manipulation}
-.jr-entry-welcome{pointer-events:none}
+/* Android 8/WebView sign-in hit-testing safeguard. Keep every credential control above app chrome and avoid transformed stacking contexts. */
+#auth{display:block!important;position:relative!important;z-index:9999!important;isolation:isolate!important;pointer-events:auto!important;visibility:visible!important}
+#auth>.card{position:relative!important;z-index:10000!important;pointer-events:auto!important;overflow:visible}
+#loginBox,#registerBox{position:relative!important;z-index:10001!important;pointer-events:auto!important;transform:none!important;filter:none!important}
+#loginBox *,#registerBox *{pointer-events:auto!important}
+#loginBox input,#registerBox input,#loginBox button,#registerBox button{position:relative!important;z-index:10002!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important}
+#loginBox input,#registerBox input{display:block!important;min-height:50px!important;opacity:1!important;visibility:visible!important}
+.jr-entry-welcome{pointer-events:none!important;position:relative;z-index:0}
+.jp-global-header,.jp-action-rail{z-index:150!important}
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
