@@ -6,6 +6,33 @@
 <title>JR PHEEF</title>
 <meta name="theme-color" content="#35e9dc">
 <script>(function(){try{const c=(new URLSearchParams(location.search).get("ref")||"").trim().toUpperCase();if(/^JR-[A-F0-9]{12}$/.test(c))localStorage.setItem("jr_referral_code",c);}catch(e){}})();</script>
+<script>
+/* Small ES5-safe compatibility helpers for older Android WebViews. */
+(function(){
+  if(!String.prototype.replaceAll){
+    String.prototype.replaceAll=function(search,replacement){
+      return this.split(String(search)).join(String(replacement));
+    };
+  }
+  if(window.Element&&!Element.prototype.replaceChildren){
+    Element.prototype.replaceChildren=function(){
+      while(this.firstChild)this.removeChild(this.firstChild);
+      for(var i=0;i<arguments.length;i++){
+        var child=arguments[i];
+        this.appendChild(typeof child==="string"?document.createTextNode(child):child);
+      }
+    };
+  }
+  if(window.Element&&!Element.prototype.toggleAttribute){
+    Element.prototype.toggleAttribute=function(name,force){
+      var present=this.hasAttribute(name);
+      var next=typeof force==="boolean"?force:!present;
+      if(next)this.setAttribute(name,"");else this.removeAttribute(name);
+      return next;
+    };
+  }
+})();
+</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/install-prompt.css?v=login-overlay2">
 <link rel="icon" type="image/svg+xml" href="/jr-pheef-icon.svg">
