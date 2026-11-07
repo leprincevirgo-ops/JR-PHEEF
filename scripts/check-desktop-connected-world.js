@@ -15,5 +15,5 @@ assert.ok(html.includes("/desktop-connected-world.css?v=2"),"desktop stylesheet 
 assert.ok(shell.includes("jr-desktop-extra")&&shell.includes("jr-desktop-landscapes"),"desktop components are not mounted");
 assert.ok(mobile.includes("max-width: 900px"),"existing mobile breakpoint missing");
 assert.ok(mobileCss.includes("@media(max-width:900px)"),"existing mobile styling must remain");
-assert.ok(sw.includes('const VERSION="jr-shell-v14"'),"PWA cache version not updated");
+assert.ok(sw.includes('const VERSION="jr-shell-v15"'),"PWA cache version not updated");
 console.log("PASS: desktop connected-world layout, scenic environments, desktop-only navigation and preserved mobile shell.");
