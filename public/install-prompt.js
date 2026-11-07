@@ -6,16 +6,18 @@
   const standalone=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
   const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
   const escapeText=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const authVisible=()=>{const auth=document.getElementById("auth");return !!auth&&!auth.classList.contains("hidden")&&getComputedStyle(auth).display!=="none";};
+  const dismissed=()=>{try{return sessionStorage.getItem(KEY)==="1";}catch(_){return false;}};
   function remove(){if(banner){banner.remove();banner=null;}}
   function show(){
-    if(standalone()||banner||sessionStorage.getItem(KEY)==="1")return;
+    if(standalone()||authVisible()||banner||dismissed())return;
     banner=document.createElement("section");
     banner.id="jrInstallPrompt";
     banner.setAttribute("role","region");
     banner.setAttribute("aria-label","Install JR PHEEF");
     banner.innerHTML='<div class="jr-install-copy"><strong>Take JR PHEEF with you</strong><span>Install the app experience on this device for quick access.</span></div><div class="jr-install-actions"><button type="button" class="jr-install-primary" id="jrInstallNow">Install</button><button type="button" class="jr-install-later" id="jrInstallLater" aria-label="Not now">Not now</button></div>';
     document.body.appendChild(banner);
-    banner.querySelector("#jrInstallLater").addEventListener("click",()=>{sessionStorage.setItem(KEY,"1");remove();});
+    banner.querySelector("#jrInstallLater").addEventListener("click",()=>{try{sessionStorage.setItem(KEY,"1");}catch(_){}remove();});
     banner.querySelector("#jrInstallNow").addEventListener("click",install);
   }
   async function install(){
@@ -35,8 +37,10 @@
     document.body.appendChild(panel);
     panel.querySelector("button").addEventListener("click",()=>panel.remove());
   }
-  window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredPrompt=event;if(!standalone())show();});
+  window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredPrompt=event;if(!standalone()&&!authVisible())show();});
   window.addEventListener("appinstalled",()=>{remove();deferredPrompt=null;});
-  window.addEventListener("load",()=>{if(!standalone())show();},{once:true});
-  window.addEventListener("pageshow",()=>{if(!standalone())show();});
+  window.addEventListener("load",()=>{if(!standalone()&&!authVisible())show();},{once:true});
+  window.addEventListener("pageshow",()=>{if(authVisible())remove();else if(!standalone())show();});
+  const auth=document.getElementById("auth");
+  if(auth&&typeof MutationObserver==="function")new MutationObserver(()=>{if(authVisible())remove();else show();}).observe(auth,{attributes:true,attributeFilter:["class","style"]});
 })();
