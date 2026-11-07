@@ -37,6 +37,12 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
   if (/javascript|ecmascript/i.test(type)) new vm.Script(match[1], {filename:"inline JR PHEEF script"});
 }
 // All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
+assert.match(html,/<body class="jr-auth-pending">\\s*<header[\\s\\S]*?<\\/header>\\s*<div class="jp-action-rail"[\\s\\S]*?<\\/div>\\s*<section id="auth">[\\s\\S]*?<\\/section>\\s*<main>\\s*<section id="app"/,
+  "sign-in must be a direct body child outside the application main/stacking context");
+assert.match(html,/body\\.jr-auth-pending>#auth\\{[\\s\\S]*?position:fixed!important;[\\s\\S]*?z-index:2147483647!important/,
+  "unauthenticated sign-in must occupy a top-level fixed touch layer");
+assert.match(html,/body\\.jr-auth-pending>main\\{pointer-events:none!important\\}/,
+  "the hidden application shell must not intercept sign-in touches");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
@@ -56,7 +62,7 @@ assert.match(html,/workspace-shell\.js\?v=command5/,
 assert.match(html,/install-prompt\.js\?v=login-overlay2/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
-assert.match(worker,/const VERSION="jr-shell-v17"/,
+assert.match(worker,/const VERSION="jr-shell-v18"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
