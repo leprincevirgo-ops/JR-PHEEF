@@ -298,6 +298,7 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 .jr-entry-welcome h1{margin:0 0 9px;font-size:clamp(30px,5vw,48px);color:#eefaff}
 .jr-entry-welcome h1 span{color:#56eaff}
 .jr-entry-welcome>p:not(.jr-entry-kicker){max-width:590px;margin:0 auto;color:#bad2e6;font-size:14px;line-height:1.65}
+.jr-entry-install{display:inline-flex;align-items:center;justify-content:center;margin-top:16px;padding:12px 18px;border:1px solid rgba(66,245,255,.65);border-radius:12px;background:linear-gradient(110deg,#087fc5,#00b8d4);color:#001522;font-weight:900;letter-spacing:.5px;cursor:pointer}.jr-entry-install:focus-visible{outline:3px solid #8af8ff;outline-offset:3px}
 .jr-entry-prompt{display:inline-block;margin-top:15px;padding:10px 15px;border:1px solid #4adfff4d;border-radius:14px;background:#06284b;color:#e6fbff;font-weight:700}
 @media(max-width:600px){.jr-entry-welcome{margin:8px auto 14px;padding:21px 14px}.jr-entry-orb{width:70px;height:70px}.jr-entry-welcome>p:not(.jr-entry-kicker){font-size:12px}}
 
@@ -397,6 +398,7 @@ body.jr-auth-pending>main{pointer-events:none!important}
   <h1>Start with <span>JR.</span></h1>
   <p>Ask anything. Bring a question, a challenge, an idea, a task or a possibility. JR will first understand what you mean, then help you find a way forward.</p>
   <div class="jr-entry-prompt">“JR, what can you do for me?”</div>
+  <button type="button" class="jr-entry-install" onclick="window.jrInstallApp&&window.jrInstallApp()">INSTALL JR PHEEF AS AN APP</button>
 </div>
 <div class="card">
 <h1>Welcome to JR PHEEF</h1>
