@@ -50,7 +50,7 @@ function bind(){
  const oldShow=window.show;
  if(typeof oldShow==="function"&&!oldShow.__jrCoreWrapped){const wrapped=function(id){const result=oldShow.apply(this,arguments);if(id==="home")load();return result;};wrapped.__jrCoreWrapped=true;window.show=wrapped;}
  document.addEventListener("jr:login",load);
- document.addEventListener("jr:workspacechange",event=>{if(event.detail?.id==="home")load();});
+ document.addEventListener("jr:workspacechange",event=>{if((event.detail&&event.detail.id)==="home")load();});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&$("home")&&!$("home").classList.contains("hidden"))load();});
  if($("home")&&!$("home").classList.contains("hidden"))load();
 }
