@@ -326,11 +326,11 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 
 <header class="jp-global-header jp-reference-header">
   <a class="jp-brand-lockup" href="#" onclick="show('home');return false" aria-label="JR PHEEF home"><span class="jp-brand-mark">JR</span><span><span class="logo">JR <span>PHEEF</span></span><small>A World of Possibilities</small></span></a>
-  <form class="jp-global-search" role="search" onsubmit="event.preventDefault();const q=document.getElementById('globalCommandSearch')?.value||'';show('find');const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
+  <form class="jp-global-search" role="search" onsubmit="event.preventDefault();const q=(document.getElementById('globalCommandSearch')?document.getElementById('globalCommandSearch').value:'');show('find');const target=document.getElementById('searchQ');if(target){target.value=q;searchListings();}">
     <span aria-hidden="true">⌕</span><input id="globalCommandSearch" type="search" placeholder="Search anything in JR PHEEF…" aria-label="Search JR PHEEF"><button class="jp-mic-button" type="button" onclick="jrStartHeaderVoice()" aria-label="Voice search">🎙</button><button type="submit" class="jp-search-submit">SEARCH</button>
   </form>
   <div class="jp-header-actions">
-    <button type="button" class="jp-header-icon" onclick="document.querySelector('.jp-notification-bell')?.click()" aria-label="Notifications">♧</button>
+    <button type="button" class="jp-header-icon" onclick="(function(){var bell=document.querySelector('.jp-notification-bell');if(bell)bell.click();})()" aria-label="Notifications">♧</button>
     <button type="button" class="jp-header-icon" onclick="show('messages');jrMessagesLoad()" aria-label="Messages">▤</button>
     <button type="button" class="jp-header-icon" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Profile menu">▦</button>
     <button type="button" class="jp-profile-trigger" onclick="document.getElementById('jpProfileMenu').hidden=!document.getElementById('jpProfileMenu').hidden" aria-label="Open account menu"><span class="jp-avatar-small">JR</span><span>⌄</span></button>
@@ -1241,15 +1241,20 @@ async function login(){
 
 // Bind sign-in directly rather than relying on an inline HTML click handler.
 // Enter works from either credential field, including on mobile keyboards.
-$("loginSubmit")?.addEventListener("click",()=>{void login();});
-["loginIdentifier","loginPassword"].forEach(id=>$(id)?.addEventListener("keydown",event=>{
+const loginSubmitButton=$("loginSubmit");
+if(loginSubmitButton)loginSubmitButton.addEventListener("click",()=>{void login();});
+["loginIdentifier","loginPassword"].forEach(id=>{
+  const field=$(id);
+  if(field)field.addEventListener("keydown",event=>{
   if(event.key==="Enter"){event.preventDefault();void login();}
-}));
+  });
+});
 
 function suggestRegistrationRegion(){
   const locale=navigator.language||"en";
   const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
-  const region=(locale.match(/[-_]([A-Za-z]{2})$/)||[])[1]?.toUpperCase()||"";
+  const regionMatch=locale.match(/[-_]([A-Za-z]{2})$/);
+  const region=regionMatch?regionMatch[1].toUpperCase():"";
   const zones={"Asia/Kuwait":"KW","Europe/Paris":"FR","Indian/Antananarivo":"MG","Africa/Nairobi":"KE","Europe/London":"GB","America/New_York":"US","America/Los_Angeles":"US","Asia/Dubai":"AE","Asia/Riyadh":"SA","Asia/Tokyo":"JP","Asia/Kolkata":"IN","Africa/Lagos":"NG","Africa/Johannesburg":"ZA","America/Toronto":"CA","Australia/Sydney":"AU","Europe/Berlin":"DE","Europe/Madrid":"ES","Europe/Rome":"IT"};
   const country=zones[timezone]||region||"";
   const money={KE:"KES",GB:"GBP",US:"USD",FR:"EUR",DE:"EUR",ES:"EUR",IT:"EUR",NL:"EUR",BE:"EUR",IE:"EUR",PT:"EUR",FI:"EUR",KW:"KWD",MG:"MGA",AE:"AED",SA:"SAR",JP:"JPY",IN:"INR",NG:"NGN",ZA:"ZAR",CA:"CAD",AU:"AUD",BR:"BRL",NZ:"NZD",CH:"CHF",SG:"SGD",TZ:"TZS",UG:"UGX",RW:"RWF",EG:"EGP",GH:"GHS"};
@@ -1473,7 +1478,7 @@ async function loadLIBRARY(term=""){
     const data=await api("/api/knowledge?q="+encodeURIComponent(String(term||"").trim()));
     if(request!==libraryRequest) return;
     if(!data.ok) throw new Error(data.error||"LIBRARY unavailable");
-    host.innerHTML=(data.articles||[]).map(a=>"<article class='listing library-item'><b>"+escapeHtml(a.title)+"</b><p class='muted'>"+escapeHtml(a.domain)+" · "+escapeHtml(a.evidence_status.replaceAll("_"," "))+"</p><p>"+escapeHtml(a.summary)+"</p><details><summary>Read knowledge note</summary><p>"+escapeHtml(a.content)+"</p>"+(a.source_url?"<p>Source: <a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(a.source_url)+"'>"+escapeHtml(a.source_name||a.source_url)+"</a></p>":"<p class='muted'>No external source attached yet.</p>")+"</details><p>"+(a.tags||[]).map(t=>"<span class='badge'>"+escapeHtml(t)+"</span>").join(" ")+"</p></article>").join("")||"<p>No matching knowledge notes found.</p>";
+    host.innerHTML=(data.articles||[]).map(a=>"<article class='listing library-item'><b>"+escapeHtml(a.title)+"</b><p class='muted'>"+escapeHtml(a.domain)+" · "+escapeHtml(String(a.evidence_status||"").split("_").join(" "))+"</p><p>"+escapeHtml(a.summary)+"</p><details><summary>Read knowledge note</summary><p>"+escapeHtml(a.content)+"</p>"+(a.source_url?"<p>Source: <a target='_blank' rel='noopener noreferrer' href='"+escapeHtml(a.source_url)+"'>"+escapeHtml(a.source_name||a.source_url)+"</a></p>":"<p class='muted'>No external source attached yet.</p>")+"</details><p>"+(a.tags||[]).map(t=>"<span class='badge'>"+escapeHtml(t)+"</span>").join(" ")+"</p></article>").join("")||"<p>No matching knowledge notes found.</p>";
   }catch(e){ if(request===libraryRequest) host.innerHTML="<p>"+escapeHtml(e.message)+" Sign in again or retry shortly.</p>"; }
 }
 
@@ -1528,7 +1533,7 @@ async function loadEcosystemArchitecture(){
       ["Control System","Permissions, approvals, policy enforcement and audit."]
     ];
     const ventures=Array.isArray(data.ventures)?data.ventures:[];
-    const esc=s=>escapeHtml(String(s??""));
+    const esc=s=>escapeHtml(String(s==null?"":s));
     status.textContent="Authorized overview loaded. Architecture readiness is shown as “Design baseline” until each component passes its own implementation tests.";
     grid.innerHTML=environments.map(env=>{
       const v=ventures.find(x=>String(x.slug).toLowerCase()===env.slug || String(x.name).toLowerCase()===env.name.toLowerCase());
@@ -1776,11 +1781,11 @@ async function askJRAI(){
 
 function clearJRAI(){aiHistory=[];renderJRAI();$("aiSources").innerHTML="";$("aiSources").classList.add("hidden");$("aiStatus").textContent="Conversation cleared from this page."; }
 
-async function connectByJP(){const msg=$("jpConnectMsg"),host=$("jpConnectResult");msg.textContent="Sending request…";host.innerHTML="";try{const d=await api("/api/connections/by-jp-number",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jp_number:$("jpNumberInput").value})});if(!d.ok){msg.textContent=d.error||"Could not connect.";return;}msg.textContent=d.message||(d.already_exists?"A request already exists.":"Request sent.");host.innerHTML="<div class='listing'><b>"+escapeHtml(d.member?.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(d.member?.jp_number||"")+" · "+escapeHtml(d.connection?.status||"pending")+"</p></div>";loadConnections();}catch(e){msg.textContent="Network error. Try again.";}}
-async function loadConnections(){const host=$("connectionList");if(!host)return;try{const d=await api("/api/connections");if(!d.ok){host.textContent=d.error||"Could not load.";return;}host.innerHTML=(d.connections||[]).map(x=>{const incoming=String(x.receiver_id)===String(me?.id),p=x.other_member||{};return "<div class='listing'><b>"+escapeHtml(p.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.jp_number||"")+" · "+escapeHtml(x.status||"pending")+"</p>"+(x.status==="pending"&&incoming?"<button onclick=\"updateConnection('"+escapeHtml(x.id)+"','accepted')\">ACCEPT</button><button class='dark' onclick=\"updateConnection('"+escapeHtml(x.id)+"','declined')\">DECLINE</button>":"")+"</div>"}).join("")||"<p class='muted'>No requests yet.</p>";}catch(e){host.textContent="Could not load requests.";}}
+async function connectByJP(){const msg=$("jpConnectMsg"),host=$("jpConnectResult");msg.textContent="Sending request…";host.innerHTML="";try{const d=await api("/api/connections/by-jp-number",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jp_number:$("jpNumberInput").value})});if(!d.ok){msg.textContent=d.error||"Could not connect.";return;}msg.textContent=d.message||(d.already_exists?"A request already exists.":"Request sent.");host.innerHTML="<div class='listing'><b>"+escapeHtml((d.member&&d.member.full_name)||"JR PHEEF Member")+"</b><p>"+escapeHtml((d.member&&d.member.jp_number)||"")+" · "+escapeHtml((d.connection&&d.connection.status)||"pending")+"</p></div>";loadConnections();}catch(e){msg.textContent="Network error. Try again.";}}
+async function loadConnections(){const host=$("connectionList");if(!host)return;try{const d=await api("/api/connections");if(!d.ok){host.textContent=d.error||"Could not load.";return;}host.innerHTML=(d.connections||[]).map(x=>{const incoming=String(x.receiver_id)===String((me&&me.id)),p=x.other_member||{};return "<div class='listing'><b>"+escapeHtml(p.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.jp_number||"")+" · "+escapeHtml(x.status||"pending")+"</p>"+(x.status==="pending"&&incoming?"<button onclick=\"updateConnection('"+escapeHtml(x.id)+"','accepted')\">ACCEPT</button><button class='dark' onclick=\"updateConnection('"+escapeHtml(x.id)+"','declined')\">DECLINE</button>":"")+"</div>"}).join("")||"<p class='muted'>No requests yet.</p>";}catch(e){host.textContent="Could not load requests.";}}
 async function updateConnection(id,status){const d=await api("/api/connections/"+encodeURIComponent(id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});if(!d.ok)alert(d.error||"Update failed.");loadConnections();}
 async function publishSocialPost(){const msg=$("socialMsg");msg.textContent="Publishing…";const d=await api("/api/social/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:$("socialBody").value,visibility:$("socialVisibility").value})});msg.textContent=d.ok?"Post saved.":(d.error||"Could not publish.");if(d.ok){$("socialBody").value="";loadSocialPosts();}}
-async function loadSocialPosts(){const host=$("socialPosts");if(!host)return;const d=await api("/api/social/feed");host.innerHTML=d.ok?(d.posts||[]).map(p=>"<div class='listing'><b>"+escapeHtml(p.author?.full_name||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.body)+"</p><p class='muted'>"+escapeHtml(p.visibility)+" · "+escapeHtml(new Date(p.created_at).toLocaleString())+"</p>"+(String(p.member_id)===String(me?.id)?"<button class='danger' onclick=\"deleteSocialPost('"+escapeHtml(p.id)+"')\">DELETE</button>":"")+"</div>").join("")||"<p class='muted'>No community posts yet. Share the first idea.</p>":escapeHtml(d.error||"Could not load community feed.");}
+async function loadSocialPosts(){const host=$("socialPosts");if(!host)return;const d=await api("/api/social/feed");host.innerHTML=d.ok?(d.posts||[]).map(p=>"<div class='listing'><b>"+escapeHtml((p.author&&p.author.full_name)||"JR PHEEF Member")+"</b><p>"+escapeHtml(p.body)+"</p><p class='muted'>"+escapeHtml(p.visibility)+" · "+escapeHtml(new Date(p.created_at).toLocaleString())+"</p>"+(String(p.member_id)===String((me&&me.id))?"<button class='danger' onclick=\"deleteSocialPost('"+escapeHtml(p.id)+"')\">DELETE</button>":"")+"</div>").join("")||"<p class='muted'>No community posts yet. Share the first idea.</p>":escapeHtml(d.error||"Could not load community feed.");}
 async function deleteSocialPost(id){const d=await api("/api/social/posts/"+encodeURIComponent(id),{method:"DELETE"});if(!d.ok)alert(d.error||"Delete failed.");loadSocialPosts();}
 async function loadRooms(){
   const params=new URLSearchParams();
@@ -1796,7 +1801,7 @@ async function loadRooms(){
   host.innerHTML=(data.rooms||[]).map(room=>`
     <div class="listing">
       <b>${escapeHtml(room.title)}</b>
-      <div class="badge">${escapeHtml(String(room.room_type||"").replaceAll("_"," "))}</div>
+      <div class="badge">${escapeHtml(String(room.room_type||"").split("_").join(" "))}</div>
       <p><b>KSh ${Number(room.rent_ksh||0).toLocaleString()} / month</b></p>
       <p>📍 ${escapeHtml(room.location||"")}</p>
       <p>${escapeHtml(room.description||"No extra details provided.")}</p>
@@ -1964,7 +1969,7 @@ function jrStartHeaderVoice(){
 <link rel="stylesheet" href="/conversation-first-access.css?v=1">
   <script src="/human-environment.js?v=1" defer></script>
 <script src="/pwa-register.js?v=1" defer></script>
-<script src="/install-prompt.js?v=login-overlay1" defer></script>
+<script src="/install-prompt.js?v=login-overlay2" defer></script>
 <script src="/natural-interaction.js?v=1"></script>
 <script src="/personal-command-centre.js?v=1" defer></script>
 </body>
