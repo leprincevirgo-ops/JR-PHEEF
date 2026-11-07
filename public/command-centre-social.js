@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let activeTab="jr",member=null,connections=[],recognition=null,silenceTimer=null,maxTimer=null,statusSection=null,chatGrid=null,mounted=false,floatingObserver=null;
 const api=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",cache:"no-store",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));return r.ok?d:{...d,ok:false};}catch{return{ok:false,error:"Connection unavailable. Please try again."};}};
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
@@ -24,7 +24,7 @@ function startVoice(){
  const stopAfterSilence=()=>{clearTimeout(silenceTimer);silenceTimer=setTimeout(()=>stopVoice("Speech ended. Review your words and send when ready."),1800);};
  r.onresult=e=>{
   heard=true;let interim="";
-  for(let i=e.resultIndex;i<e.results.length;i++){const phrase=e.results[i][0]?.transcript||"";if(e.results[i].isFinal)finalText+=phrase;else interim+=phrase;}
+  for(let i=e.resultIndex;i<e.results.length;i++){const phrase=(e.results[i][0]&&e.results[i][0].transcript)||"";if(e.results[i].isFinal)finalText+=phrase;else interim+=phrase;}
   input.value=(finalText+interim).trim();stopAfterSilence();
  };
  r.onerror=e=>stopVoice(e.error==="not-allowed"?"Microphone permission was not granted. You can type instead.":"Voice input stopped. You can continue by typing.");
@@ -40,7 +40,7 @@ function appendBubble(kind,title,content){
  host.append(item);host.scrollTop=host.scrollHeight;
 }
 async function askJR(){
- const input=$("jrccInput"),text=input?.value.trim();if(!text)return;
+ const input=$("jrccInput"),text=(input?input.value.trim():"");if(!text)return;
  stopVoice("Microphone is off.");
  appendBubble("user","YOU",text);input.value="";
  const send=$("jrccSend");if(send)send.disabled=true;
@@ -59,14 +59,14 @@ async function askJR(){
   const bubble=$("jrccTranscript").lastElementChild;
   bubble.append(node("strong","jrcc-message-label","JR"),response);
  }catch{thinking.replaceWith(node("article","jrcc-message is-jr","JR could not respond just now. Please try again."));}
- finally{if(send)send.disabled=false;input?.focus();}
+ finally{if(send)send.disabled=false;if(input)input.focus();}
 }
 function switchTab(tab){
  activeTab=tab;const root=$("jrCommandSocial");if(!root)return;
  root.querySelectorAll("[data-jrcc-tab]").forEach(b=>{const on=b.dataset.jrccTab===tab;b.classList.toggle("is-active",on);b.setAttribute("aria-selected",String(on));});
  root.querySelectorAll("[data-jrcc-panel]").forEach(p=>p.hidden=p.dataset.jrccPanel!==tab);
- if(tab==="chats"){window.jrMessagesLoad?.();if(window.jrCommandCentreChatActive){}}
- if(tab==="status")window.jrLoadStatuses?.();
+ if(tab==="chats"){if(window.jrMessagesLoad)window.jrMessagesLoad();if(window.jrCommandCentreChatActive){}}
+ if(tab==="status")if(window.jrLoadStatuses)window.jrLoadStatuses();
  if(tab==="contacts")loadContacts();
  if(tab==="profile")loadProfile();
 }
@@ -76,7 +76,7 @@ async function loadContacts(){
  connections=d.connections||[];renderContacts();
 }
 function renderContacts(){
- const host=$("jrccContacts");if(!host)return;const q=($("jrccContactSearch")?.value||"").trim().toLowerCase();host.replaceChildren();
+ const host=$("jrccContacts");if(!host)return;const q=(($("jrccContactSearch")?$("jrccContactSearch").value:"")||"").trim().toLowerCase();host.replaceChildren();
  const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name,o.jp_number].join(" ").toLowerCase().includes(q);});
  if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Add someone using their JP number, or accept an incoming request."));return;}
  rows.forEach(c=>{
@@ -85,7 +85,7 @@ function renderContacts(){
   const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","",o.jp_number||"JP identity unavailable"));
   const top=node("div","jrcc-contact-top");top.append(avatar,info,node("span","jrcc-contact-state",c.status==="accepted"?"CONNECTED":c.status==="pending"?"PENDING":String(c.status||"").toUpperCase()));card.append(top);
   const actions=node("div","jrcc-contact-actions");
-  if(c.status==="pending"&&String(c.receiver_id)===String(member?.id)){
+  if(c.status==="pending"&&String(c.receiver_id)===String((member&&member.id))){
    const accept=node("button","primary","ACCEPT");accept.onclick=()=>changeConnection(c.id,"accepted");
    const decline=node("button","dark","DECLINE");decline.onclick=()=>changeConnection(c.id,"declined");actions.append(accept,decline);
   }else if(c.status==="pending"){
@@ -112,7 +112,7 @@ async function loadProfile(){
  [["Account",member.status||"Active"],["Verification",member.verified===true?"Platform verified":"Not verified"],["Membership",member.plan||"Standard"],["Email",member.email||"Not added"]].forEach(([k,v])=>{const cell=node("div","jrcc-profile-cell");cell.append(node("small","",k),node("strong","",v));grid.append(cell);});
  host.append(grid);
  const note=node("p","jrcc-note",member.verified===true?"Your account has a platform verification flag.":"Founder or JP identity status does not itself verify a person's identity. Verification must be completed through an evidence-based process.");host.append(note);
- const edit=node("button","primary","EDIT FULL PROFILE");edit.onclick=()=>window.jrWorkspaceNavigate?.("profile");host.append(edit);
+ const edit=node("button","primary","EDIT FULL PROFILE");edit.onclick=()=>{if(window.jrWorkspaceNavigate)window.jrWorkspaceNavigate("profile");};host.append(edit);
 }
 function syncFloatingTalkControl(){
  const page=$("command"),open=!!page&&!page.hidden&&!page.classList.contains("hidden");
@@ -167,13 +167,13 @@ function mount(){
  mounted=true;loadProfile();observeFloatingTalkControl();
 }
 document.addEventListener("jr:workspacechange",e=>{
- if(e.detail?.id==="command"){mounted=false;mount();switchTab(activeTab);}syncFloatingTalkControl();
- if(e.detail?.id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");}
- if(e.detail?.id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");}
+ if((e.detail&&e.detail.id)==="command"){mounted=false;mount();switchTab(activeTab);}syncFloatingTalkControl();
+ if((e.detail&&e.detail.id)==="messages"){if(window.jrWorkspaceNavigate)window.jrWorkspaceNavigate("command");switchTab("chats");}
+ if((e.detail&&e.detail.id)==="jpconnect"){if(window.jrWorkspaceNavigate)window.jrWorkspaceNavigate("command");switchTab("contacts");}
 });
 window.jrCommandCentreChatActive=()=>{const page=$("command"),root=$("jrCommandSocial");return activeTab==="chats"&&!!page&&!page.hidden&&!page.classList.contains("hidden")&&!!root&&!root.hidden;};
 window.jrCommandCentreOpen=switchTab;
-const originalShow=window.show;if(typeof originalShow==="function"){window.show=function(id){if(id==="messages"){window.jrWorkspaceNavigate?.("command");switchTab("chats");return;}if(id==="jpconnect"){window.jrWorkspaceNavigate?.("command");switchTab("contacts");return;}return originalShow(id);};}
+const originalShow=window.show;if(typeof originalShow==="function"){window.show=function(id){if(id==="messages"){if(window.jrWorkspaceNavigate)window.jrWorkspaceNavigate("command");switchTab("chats");return;}if(id==="jpconnect"){if(window.jrWorkspaceNavigate)window.jrWorkspaceNavigate("command");switchTab("contacts");return;}return originalShow(id);};}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{if($("command"))mount();observeFloatingTalkControl();});else{mount();observeFloatingTalkControl();}
 window.addEventListener("beforeunload",()=>stopVoice("Microphone is off."));
 })();
