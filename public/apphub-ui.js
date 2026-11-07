@@ -10,7 +10,7 @@ function safeUrl(raw){try{const u=new URL(String(raw||"").trim());return (u.prot
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 function mount(){
  const app=$("app"),home=$("home");if(!app||!home||$("apphub"))return;
- const tile=node("button","jp-dash-tile");tile.type="button";tile.append(node("span","jp-dash-icon","▦"));const title=node("span");title.append(node("span","jp-dash-title","JR PHEEF APP HUB"),document.createElement("br"),node("span","jp-dash-sub","Organise and open your other apps"));tile.append(title);tile.addEventListener("click",()=>window.show&&window.show("apphub"));home.querySelector(".jp-dashboard-grid")?.append(tile);
+ const tile=node("button","jp-dash-tile");tile.type="button";tile.append(node("span","jp-dash-icon","▦"));const title=node("span");title.append(node("span","jp-dash-title","JR PHEEF APP HUB"),document.createElement("br"),node("span","jp-dash-sub","Organise and open your other apps"));tile.append(title);tile.addEventListener("click",()=>window.show&&window.show("apphub"));(function(){var grid=home.querySelector(".jp-dashboard-grid");if(grid)grid.appendChild(tile);})();
  const page=node("section","page hidden");page.id="apphub";page.setAttribute("aria-label","JR PHEEF App Hub");
  const head=node("div","jp-section-head");const intro=node("div");intro.append(node("div","jp-kicker","JR PHEEF · YOUR APPLICATIONS"),node("h2","","App Hub"),node("p","muted","Organise the web apps and services you already use. Shortcuts open the original service; they do not imply an integration."));head.append(intro);page.append(head);
  const form=node("form","card jp-apphub-form");form.id="jpAppHubForm";form.append(node("h3","","Add an application"));
@@ -26,7 +26,7 @@ function mount(){
 }
 function render(){
  const host=$("jpAppHubList");if(!host)return;host.replaceChildren();
- const q=($("jpAppSearch")?.value||"").trim().toLowerCase(),c=$("jpAppFilter")?.value||"All categories";
+ const q=(($("jpAppSearch")?$("jpAppSearch").value:"")||"").trim().toLowerCase(),c=($("jpAppFilter")?$("jpAppFilter").value:"All categories")||"All categories";
  const shown=apps.filter(a=>(c==="All categories"||a.category===c)&&(!q||(a.name+" "+a.category+" "+a.url).toLowerCase().includes(q))).sort((a,b)=>Number(b.favorite)-Number(a.favorite)||a.name.localeCompare(b.name));
  if(!shown.length){host.append(node("div","card jp-apphub-empty",apps.length?"No applications match this search. Add or select another category.":"Your App Hub is empty. Add a website or web application above to get started."));return}
  shown.forEach(a=>{
