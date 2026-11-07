@@ -3,6 +3,7 @@ const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const html=fs.readFileSync("public/index.html","utf8");
 const worker=fs.readFileSync("public/service-worker.js","utf8");
+const install=fs.readFileSync("public/install-prompt.js","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
@@ -21,6 +22,9 @@ assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
 assert.match(html,/workspace-shell\.js\?v=command4/,
   "workspace shell URL must be cache-busted");
+assert.match(html,/install-prompt\\.js\\?v=login-overlay1/,"login-safe install prompt must be cache-busted");
+assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
+assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(worker,/const VERSION="jr-shell-v15"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
