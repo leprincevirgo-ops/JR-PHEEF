@@ -325,6 +325,12 @@ body.jr-auth-pending>#auth input{
 body.jr-auth-pending>main{display:none!important}
 body.jr-auth-pending #jrInstallPrompt{display:none!important}
 .jr-open-external{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:11px 15px;border:1px solid rgba(66,245,255,.5);border-radius:12px;background:rgba(0,139,190,.18);color:#bffaff;font-size:12px;font-weight:800;text-decoration:none}.jr-open-external:hover,.jr-open-external:focus{background:rgba(0,170,220,.3);outline:2px solid rgba(66,245,255,.35);outline-offset:2px}
+
+/* Fail-safe sign-in touch layer: keep login interactive even if session recovery changes body state. */
+#auth:not(.hidden){position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;margin:0!important;padding:12px 14px 28px!important;overflow-x:hidden!important;overflow-y:auto!important;z-index:2147483647!important;isolation:isolate!important;background:radial-gradient(ellipse at 50% 0%,rgba(0,170,255,.2),transparent 48%),linear-gradient(145deg,#020714,#061a31 55%,#020b18)!important;pointer-events:auto!important;touch-action:pan-y!important}
+#auth:not(.hidden),#auth:not(.hidden) *{pointer-events:auto!important}
+#auth:not(.hidden) input,#auth:not(.hidden) button,#auth:not(.hidden) select,#auth:not(.hidden) textarea{position:relative!important;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:text!important;user-select:text!important}
+#auth:not(.hidden)~main{pointer-events:none!important}
 </style>
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
@@ -1251,6 +1257,7 @@ async function login(){
     const session=await api("/api/me");
     if(!session.ok||!session.logged_in||!session.member){
       me=null;
+      document.body.classList.add("jr-auth-pending");
       $("loginMsg").textContent="Sign-in succeeded, but this browser could not confirm your session. Enable cookies for JR PHEEF and try again.";
       return;
     }
