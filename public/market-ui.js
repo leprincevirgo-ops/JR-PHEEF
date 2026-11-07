@@ -229,7 +229,7 @@
     msg.textContent = "";
     host.innerHTML = (d.deals || []).map(r => `
       <div class="listing"><b>${esc(r.listing ? r.listing.item_name : "Listing")}</b> <span class="badge">${esc(r.status)}</span><br>
-      You are the ${esc(r.role)} · Offer ${KSH(r.offer_amount ?? r.amount)}<br><span class="muted">${esc(when(r.updated_at || r.created_at))}</span><br>
+      You are the ${esc(r.role)} · Offer ${KSH((r.offer_amount==null?r.amount:r.offer_amount))}<br><span class="muted">${esc(when(r.updated_at || r.created_at))}</span><br>
       <button class="primary" onclick="openDealRoom('${esc(r.id)}')">OPEN</button></div>`).join("") || "<p class='muted'>No deals yet. Open a deal from FIND.</p>";
   }
   window.closeDealRoom = showDealList;
@@ -252,11 +252,11 @@
     $("dealHead").innerHTML = `
       <h2>${esc(d.listing ? d.listing.item_name : "Deal")}</h2>
       <p>With <b>${esc(other.name)}</b>${other.verified ? " ✔" : ""} · You are the ${esc(d.role)} · <span class="badge">${esc(r.status)}</span></p>
-      <p>Listed: ${KSH(d.listing ? d.listing.price : r.amount)} · <b>Current offer: ${KSH(r.offer_amount ?? r.amount)}</b></p>
+      <p>Listed: ${KSH(d.listing ? d.listing.price : r.amount)} · <b>Current offer: ${KSH((r.offer_amount==null?r.amount:r.offer_amount))}</b></p>
       <p class="muted">Buyer agreed: ${r.buyer_agreed ? "yes" : "no"} · Seller agreed: ${r.seller_agreed ? "yes" : "no"}</p>`;
     const youAgreed = buyer ? r.buyer_agreed : r.seller_agreed;
     let actions = "";
-    if (r.status === "open") actions += youAgreed ? `<p class="muted">You agreed. Waiting for the other side.</p>` : `<button class="primary" onclick="dealAction('agree')">AGREE TO ${KSH(r.offer_amount ?? r.amount)}</button>`;
+    if (r.status === "open") actions += youAgreed ? `<p class="muted">You agreed. Waiting for the other side.</p>` : `<button class="primary" onclick="dealAction('agree')">AGREE TO ${KSH((r.offer_amount==null?r.amount:r.offer_amount))}</button>`;
     if (r.status === "agreed" && buyer) actions += `<button class="primary" onclick="dealAction('complete')">I RECEIVED THE ITEM · COMPLETE</button>`;
     if (r.status === "agreed" && !buyer) actions += `<p class="muted">Agreed. The buyer confirms once the item is received.</p>`;
     if (["open", "agreed"].includes(r.status)) actions += `<button class="danger" onclick="dealAction('cancel')">CANCEL DEAL</button>`;
