@@ -16,7 +16,7 @@ function render(data){
  host.innerHTML=worlds.map(w=>{
   const p=w.progress||{},stage=p.stage||"discovering",position=p.last_position||{};
   const page=position.page||w.page||pages[w.key]||"explore";
-  return '<button type="button" class="jr-journey-world" data-world="'+esc(w.key)+'" data-page="'+esc(page)+'"><span class="jr-journey-world-top"><b>'+esc(w.title)+'</b><small>'+esc(stageLabel(stage))+'</small></span><span>'+esc(w.description)+'</span><i><em style="width:'+Math.max(0,Math.min(100,Number(p.progress?.completion_percent)||0))+'%"></em></i><small>Continue exploring →</small></button>';
+  return '<button type="button" class="jr-journey-world" data-world="'+esc(w.key)+'" data-page="'+esc(page)+'"><span class="jr-journey-world-top"><b>'+esc(w.title)+'</b><small>'+esc(stageLabel(stage))+'</small></span><span>'+esc(w.description)+'</span><i><em style="width:'+Math.max(0,Math.min(100,Number((p.progress&&p.progress.completion_percent))||0))+'%"></em></i><small>Continue exploring →</small></button>';
  }).join("");
  host.querySelectorAll("[data-world]").forEach(button=>button.addEventListener("click",()=>openWorld(button.dataset.world,button.dataset.page)));
  if(journal){
