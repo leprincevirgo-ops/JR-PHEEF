@@ -8,6 +8,7 @@ const install=fs.readFileSync("public/install-prompt.js","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobileShell=fs.readFileSync("public/mobile-phone-shell.js","utf8");
+const founderCommand=fs.readFileSync("private/founder-command.js","utf8");
 const conversationEntry=fs.readFileSync("public/conversation-first-access.js","utf8");
 const frontendScripts=[
  "market-ui.js","messages-ui.js","extras-ui.js","ecosystem-ui.js","family-ui.js","family-bank-ui.js","jr-ui.js",
@@ -26,6 +27,8 @@ for(const file of frontendScripts){
 assert.match(html,/if\(!String\.prototype\.replaceAll\)/,"String.replaceAll compatibility helper missing");
 assert.match(html,/if\(window\.Element&&!Element\.prototype\.replaceChildren\)/,"Element.replaceChildren compatibility helper missing");
 
+assert.doesNotMatch(founderCommand, /\?\.|\?\?|\.replaceAll\(/, "Founder command must remain compatible with older Android WebViews");
+new vm.Script(founderCommand,{filename:"private/founder-command.js"});
 // The entry shell must parse on older Android WebViews (Chrome 67-era).
 assert.doesNotMatch(html, /\?\.|\?\?|\.replaceAll\(/,
   "entry HTML must not contain unsupported optional chaining, nullish coalescing or replaceAll syntax");
