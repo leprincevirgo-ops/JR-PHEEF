@@ -72,7 +72,7 @@ async function loadOverview(){
  try{
   const response=await fetch("/api/admin/overview",{credentials:"include",cache:"no-store"});
   const data=response.ok?await response.json():null;
-  if(!data||!data.ok)throw new Error(data?.error||"Overview unavailable");
+  if(!data||!data.ok)throw new Error((data&&data.error)||"Overview unavailable");
   const m=data.metrics||{};
   const cards=[
    ["Members",m.members_total],["Verified members",m.members_verified],
@@ -90,7 +90,7 @@ async function loadOverview(){
    const caption=document.createElement("span");caption.textContent=label;
    article.append(number,caption);host.append(article);
   });
-  if(note)note.textContent=data.financials?.revenue_available
+  if(note)note.textContent=(data.financials&&data.financials.revenue_available)
    ?"Revenue data is available from the verified financial ledger."
    :"Financial totals are not shown as revenue yet. Counts above are operational records, not income or profit.";
   if(updated)updated.textContent="Updated "+new Date(data.generated_at).toLocaleString();
@@ -108,7 +108,7 @@ async function open(){
  try{
   const response=await fetch("/api/me",{credentials:"include",cache:"no-store"});
   const data=response.ok?await response.json():null;
-  if(!data||!data.ok||!data.logged_in||data.member?.is_owner!==true){removeFounderAccess();return;}
+  if(!data||!data.ok||!data.logged_in||(data.member&&data.member.is_owner)!==true){removeFounderAccess();return;}
   install(data.member);
   const pages=document.querySelectorAll("#app .page");pages.forEach(p=>{p.classList.add("hidden");p.hidden=true;p.setAttribute("aria-hidden","true");if("inert" in p)p.inert=true;});
   const p=$("founder-command");if(!p)return;
@@ -126,7 +126,7 @@ function install(member){
   const page=document.createElement("section");page.id="founder-command";page.className="page hidden jpf-page";page.hidden=true;page.setAttribute("aria-hidden","true");page.inert=true;
   page.innerHTML='<div class="jpf-top"><div><span class="jpf-eyebrow">PRIVATE · OWNER ACCESS ONLY</span><h1>Founder Command Structure</h1><p>Three companies. One founder-led group. Distinct mandates, teams, records and accountability.</p></div><span class="jpf-private">🔒 PRIVATE</span></div><section class="jpf-block jpf-live-overview"><div class="jpf-block-head"><div><span class="jpf-eyebrow">LIVE OPERATING OVERVIEW</span><h3>JR PHEEF activity &amp; ecosystem health</h3><p>Verified counts from the operating database. No estimated revenue or invented figures.</p></div><button type="button" id="jpfOverviewRefresh">REFRESH</button></div><div id="jpfOverviewStats" class="jpf-live-stats" aria-live="polite">Loading verified operating counts…</div><p id="jpfOverviewNote" class="jpf-overview-note">Financial totals are shown only when settled payments can be verified and reconciled.</p><small id="jpfOverviewUpdated" class="jpf-overview-updated"></small></section><div class="jpf-tabs" role="group" aria-label="Choose company command centre">'+GROUPS.map(g=>'<button type="button" data-jpf-group="'+g.key+'" aria-pressed="false">'+g.name+'</button>').join("")+'</div><div id="jpFounderContent" aria-live="polite"></div>';
   app.append(page);
-  page.querySelector("#jpfOverviewRefresh")?.addEventListener("click",loadOverview);
+  const overviewRefresh=page.querySelector("#jpfOverviewRefresh");if(overviewRefresh)overviewRefresh.addEventListener("click",loadOverview);
   page.querySelectorAll("[data-jpf-group]").forEach(b=>b.addEventListener("click",()=>{current=b.dataset.jpfGroup;query="";render();}));
  }
  if(!document.querySelector(".jp-founder-top-access")){
@@ -137,7 +137,7 @@ async function checkOwner(){
  try{
   const r=await fetch("/api/me",{credentials:"include",cache:"no-store"});
   const d=r.ok?await r.json():null;
-  if(d&&d.ok&&d.logged_in&&d.member?.is_owner===true)install(d.member);
+  if(d&&d.ok&&d.logged_in&&(d.member&&d.member.is_owner)===true)install(d.member);
   else removeFounderAccess();
  }catch(e){removeFounderAccess();}
 }
