@@ -1,0 +1,5 @@
+-- Historical migration 20261023094029 (marketplace_core_fixes).
+-- This version is already recorded as applied in the JR PHEEF production database.
+-- Its original SQL was applied before migration source files were version-controlled here.
+-- This no-op file preserves Supabase migration-history alignment for cloned preview databases.
+-- Do not treat this file as a schema bootstrap or remove it without a verified baseline.
