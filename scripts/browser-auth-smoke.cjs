@@ -91,10 +91,27 @@ async function main() {
     });
     console.log("LOGIN FIELD HIT TEST " + JSON.stringify(hitTest));
     await page.waitForTimeout(400);
-    const rectBefore = await identifier.boundingBox();
-    await page.waitForTimeout(250);
-    const rectAfter = await identifier.boundingBox();
-    console.log("LOGIN FIELD STABILITY " + JSON.stringify({ before: rectBefore, after: rectAfter }));
+    const stateAfterWait = await page.evaluate(() => {
+      const auth = document.getElementById("auth");
+      const input = document.getElementById("loginIdentifier");
+      const rect = input && input.getBoundingClientRect();
+      return {
+        bodyClass: document.body.className,
+        authClass: auth && auth.className,
+        authDisplay: auth && getComputedStyle(auth).display,
+        authVisibility: auth && getComputedStyle(auth).visibility,
+        inputDisplay: input && getComputedStyle(input).display,
+        inputVisibility: input && getComputedStyle(input).visibility,
+        inputPointerEvents: input && getComputedStyle(input).pointerEvents,
+        inputRect: rect && { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        activeElement: document.activeElement && (document.activeElement.id || document.activeElement.tagName),
+        viewport: { width: innerWidth, height: innerHeight },
+        scroll: { x: scrollX, y: scrollY },
+        documentHeight: document.documentElement.scrollHeight
+      };
+    });
+    console.log("LOGIN FIELD STATE AFTER WAIT " + JSON.stringify(stateAfterWait));
+    await page.screenshot({ path: "jr-auth-diagnostic.png", fullPage: true }).catch(error => console.log("Screenshot unavailable: " + error.message));
     await identifier.click({ timeout: 10000 });
     await identifier.fill("browser-test@example.invalid");
     assert.equal(await identifier.evaluate(el => document.activeElement === el), true, "identifier field must receive real browser focus");
