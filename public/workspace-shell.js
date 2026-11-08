@@ -309,7 +309,7 @@ function mount(){
  // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
  const nav=app.querySelector(".nav");
  if(nav){
-  const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]];
+  const primary=[["home","⌂","Home"],["worlds","✧","Explore"],["assistant","✦","JR"],["messages","✉","Messages"],["command","▦","Command"]];
   clearChildren(nav);
   primary.forEach(([id,glyph,label],index)=>{
    const b=el("button",index===0?"jp-nav-active":"");b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);

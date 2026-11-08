@@ -1,0 +1,17 @@
+/* Mobile-first access to JR PHEEF's real workspaces. */
+#app>.jp-primary-nav{display:flex!important;position:sticky!important;top:0!important;bottom:auto!important;z-index:60!important;align-items:center;justify-content:flex-start;gap:7px;overflow-x:auto;overscroll-behavior-x:contain;padding:10px 4px;margin:0 0 14px;background:rgba(2,10,25,.96)!important;border:1px solid rgba(104,211,255,.2);border-radius:15px;backdrop-filter:blur(16px);scrollbar-width:thin}
+#app>.jp-primary-nav button{display:flex!important;flex:0 0 auto;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 13px;border:1px solid rgba(105,190,255,.24);border-radius:12px;background:linear-gradient(145deg,#0b3156,#07172f);color:#eafaff;font-size:12px;font-weight:750;touch-action:manipulation}
+#app>.jp-primary-nav button.jp-nav-active,#app>.jp-primary-nav button[aria-current=page]{border-color:#69efff;background:linear-gradient(120deg,#087fba,#1265a1);color:#fff;box-shadow:0 0 18px rgba(44,210,255,.18)}
+#app>.jp-primary-nav button:focus-visible,.jr-workspace-launcher button:focus-visible{outline:3px solid #9af8ff;outline-offset:2px}
+.jr-workspace-launcher{margin:16px 0 22px;padding:clamp(15px,3vw,24px);border:1px solid rgba(101,207,255,.27);border-radius:20px;background:radial-gradient(ellipse at 100% 0%,rgba(25,166,230,.16),transparent 48%),linear-gradient(145deg,rgba(7,29,57,.94),rgba(3,13,30,.97));box-shadow:0 14px 38px rgba(0,0,0,.2)}
+.jr-workspace-launcher-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.jr-workspace-launcher-head h2{margin:5px 0 0;font-size:clamp(19px,3vw,25px);color:#effaff}
+.jr-workspace-launcher-head>span{font-size:11px;color:#9dc8df;white-space:nowrap}
+.jr-workspace-launcher-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.jr-workspace-launcher-grid button{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;min-height:105px;margin:0;padding:14px;border:1px solid rgba(105,205,255,.23);border-radius:15px;background:linear-gradient(145deg,rgba(11,48,82,.96),rgba(4,19,40,.98));color:#f1fbff;text-align:left;touch-action:manipulation}
+.jr-workspace-launcher-grid button>span{display:grid;place-items:center;width:31px;height:31px;border:1px solid rgba(91,225,255,.28);border-radius:10px;background:rgba(0,195,238,.1);color:#79f1ff;font-size:18px}
+.jr-workspace-launcher-grid button b{font-size:13px}
+.jr-workspace-launcher-grid button small{font-size:11px;color:#a5c5dc;line-height:1.35}
+.jr-workspace-launcher-grid button:active{transform:scale(.985);border-color:#73f1ff}
+@media(max-width:620px){#app>.jp-primary-nav{position:sticky!important;top:0!important;margin:0 -1px 12px;border-radius:12px;padding:8px 4px}#app>.jp-primary-nav button{min-height:44px;padding:9px 11px;font-size:11px}.jr-workspace-launcher{margin:12px 0 18px;padding:14px}.jr-workspace-launcher-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.jr-workspace-launcher-grid button{min-height:98px;padding:12px}}
+@media(prefers-reduced-motion:reduce){.jr-workspace-launcher-grid button{transition:none!important}}

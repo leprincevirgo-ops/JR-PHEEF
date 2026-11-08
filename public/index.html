@@ -462,9 +462,10 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 
 <nav class="nav jp-primary-nav" aria-label="Main navigation">
 <button class="jp-nav-active" data-page="home" onclick="show('home')"><span aria-hidden="true">⌂</span><span>Home</span></button>
-<button data-page="worlds" onclick="show('worlds')"><span aria-hidden="true">✧</span><span>Worlds</span></button>
+<button data-page="worlds" onclick="show('worlds')"><span aria-hidden="true">✧</span><span>Explore</span></button>
 <button class="jp-nav-assistant" data-page="assistant" onclick="show('assistant')"><span aria-hidden="true">✦</span><span>JR</span></button>
-<button data-page="command" onclick="show('command')"><span aria-hidden="true">▦</span><span>Command Center</span></button>
+<button data-page="messages" onclick="show('messages')"><span aria-hidden="true">✉</span><span>Messages</span></button>
+<button data-page="command" onclick="show('command')"><span aria-hidden="true">▦</span><span>Command</span></button>
 </nav>
 
 <div id="messages" class="page hidden">
@@ -497,6 +498,17 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
       <div class="jr-world-assistant" aria-hidden="true"><div class="jr-bot-aura"></div><div class="jr-bot-head"><i></i><i></i><b></b></div><div class="jr-bot-body"><span>JR</span></div><div class="jr-bot-arm"></div></div>
       <div class="jr-world-ground"></div>
     </div>
+    <section class="jr-workspace-launcher" aria-label="JR PHEEF workspaces">
+      <div class="jr-workspace-launcher-head"><div><span class="jp-kicker">YOUR WORKSPACES</span><h2>Where would you like to go?</h2></div><span>Tap to open</span></div>
+      <div class="jr-workspace-launcher-grid">
+        <button type="button" data-workspace="dgbo" onclick="show('dgbo')"><span>▧</span><b>DGBO</b><small>Ideas &amp; business</small></button>
+        <button type="button" data-workspace="family" onclick="show('family')"><span>⌂</span><b>FAMILY</b><small>Goals &amp; finances</small></button>
+        <button type="button" data-workspace="teacher" onclick="show('teacher')"><span>◈</span><b>Learn</b><small>Knowledge &amp; skills</small></button>
+        <button type="button" data-workspace="create" onclick="show('create')"><span>✧</span><b>Create</b><small>Build something</small></button>
+        <button type="button" data-workspace="messages" onclick="show('messages')"><span>✉</span><b>People</b><small>Messages &amp; calls</small></button>
+        <button type="button" data-workspace="command" onclick="show('command')"><span>▦</span><b>Command Centre</b><small>Your personal overview</small></button>
+      </div>
+    </section>
     <div class="jr-world-greeting"><span class="jr-greeting-spark">✦</span><div><strong id="jrWorldGreeting">Hello! What would you like to make happen?</strong><small>Start anywhere. JR will help you find the right path.</small></div></div>
     <section class="jr-intent-console" aria-label="Tell JR what you want to do">
       <form class="jp-universe-compose jr-intent-compose" id="jpUniversalForm">
@@ -2017,6 +2029,7 @@ function jrStartHeaderVoice(){
 <script src="/immersive-world-home.js?v=1" defer></script>
 <script src="/conversation-first-access.js?v=1" defer></script>
 <link rel="stylesheet" href="/conversation-first-access.css?v=1">
+<link rel="stylesheet" href="/mobile-workspace-access.css?v=1">
   <script src="/human-environment.js?v=1" defer></script>
 <script src="/pwa-register.js?v=1" defer></script>
 <script src="/install-prompt.js?v=login-safe3" defer></script>
