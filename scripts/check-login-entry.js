@@ -16,7 +16,7 @@ const frontendScripts=[
  "discover-ui.js","browser-ui.js","apphub-ui.js","preferences-sync.js","command-center.js","notifications-ui.js",
  "lab-ui.js","projects-ui.js","coordination-studio.js","workspace-shell.js","command-centre-social.js","open-ecosystem.js",
  "universal-interaction.js","human-environment-ui.js","jr-core.js","accessibility.js","universe-home.js","founder-loader.js",
- "device-bridge.js","mobile-phone-shell.js","screen-studio.js","immersive-world-home.js","conversation-first-access.js",
+ "device-bridge.js","mobile-phone-shell.js","jr-everywhere.js","screen-studio.js","immersive-world-home.js","conversation-first-access.js",
  "human-environment.js","pwa-register.js","install-prompt.js","natural-interaction.js","personal-command-centre.js"
 ];
 for(const file of frontendScripts){
