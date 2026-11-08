@@ -10,7 +10,7 @@ for(const id of ["discoverhub","workhub","connecthub","personalhub","morehub"])a
 for(const id of ["find","discover","explore","teacher","library","lab","browser","create","projects","opportunities","messages","social","jpconnect","profile","jrsettings","devices","themes","alerts","dgbo","family","developers","partners"])assert.ok(shell.includes('"'+id+'"'),"child destination retained: "+id);
 for(const id of ["discoverhub","workhub","connecthub"])assert.ok(html.includes("show('"+id+"')"),"upper quick access opens "+id);
 assert.ok(!html.includes("show('personalhub')"),"separate My Space quick access is removed");
-assert.ok(shell.includes("menu.replaceChildren()"),"legacy individual More destinations are cleared");
+assert.ok(shell.includes("function clearChildren(node){while(node&&node.firstChild)node.removeChild(node.firstChild);}")&&shell.includes("clearChildren(menu);"),"legacy individual More destinations are cleared safely before the grouped menu is rendered");
 assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
 assert.ok(shell.includes('addEventListener("click",()=>go(target))'),"child sections open their existing workspace");
 assert.ok(shell.includes("catalogSeen.has(catalog[i][0])"),"duplicate workspace IDs are removed from the canonical catalog");
