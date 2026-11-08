@@ -145,6 +145,8 @@ async function testGroup(browser, name, allowedScripts) {
               tag: element.tagName,
               id: element.id || "",
               className: typeof element.className === "string" ? element.className : "",
+              hidden: element.hidden,
+              style: element.getAttribute("style"),
               display: getComputedStyle(element).display,
               visibility: getComputedStyle(element).visibility,
               opacity: getComputedStyle(element).opacity,
