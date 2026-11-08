@@ -47,7 +47,7 @@ async function testGroup(browser, name, allowedScripts) {
   let authenticated = false;
   const errors = [];
   page.setDefaultTimeout(5000);
-  page.on("pageerror", error => errors.push(error.message));
+  page.on("pageerror", error => errors.push({ message: error.message, stack: error.stack }));
 
   await page.route("**/api/**", async route => {
     const request = route.request();
