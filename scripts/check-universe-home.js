@@ -14,7 +14,7 @@ for(const id of ["jpUniversalForm","jpUniversalRequest","jpUniversalVoice","jpUn
 const navStart=html.indexOf('<nav class="nav jp-primary-nav"'),navEnd=html.indexOf("</nav>",navStart);
 assert.ok(navStart>=0&&navEnd>navStart,"single primary navigation missing");
 const primary=[...html.slice(navStart,navEnd).matchAll(/<button([^>]*)data-page="([^"]+)"/g)].map(m=>m[2]);
-assert.deepEqual(primary,["home","worlds","assistant","command"],"Primary navigation must follow Home, Worlds, JR and Command Center.");
+assert.deepEqual(primary,["home","worlds","assistant","messages","command"],"Primary navigation must follow Home, Explore, JR, Messages and Command Centre.");
 assert.ok(!html.includes('id="jpMoreMenu"')&&!html.includes('class="jp-more-wrap"'),"technical More menu must remain removed from the user interface");
 assert.ok(!html.includes("jp-quick-panel")&&!html.includes("Explore JR PHEEF worlds"),"duplicate dashboard shortcut grids remain");
 assert.ok(html.includes("jr-world-greeting")&&html.includes("jr-intent-console"),"conversation-first home greeting and request composer must be present");
@@ -42,4 +42,4 @@ assert.ok(intent.includes("window.jrIntentCameraFile=photo||null")&&intent.inclu
 assert.ok(server.includes("if (phone) {")&&server.includes("if (!p) return [];"),"phone duplicate checks must be skipped for email-only registration and normalisation must be stable");
 assert.ok(html.includes("Phone number with country code (optional)")&&html.includes("Email address (optional if phone supplied)")&&!html.includes('id="regBirth"'),"registration must be minimal and avoid collecting birth year at entry");
 for(const area of ["Your Command Center","01 · LEAD","02 · EXECUTE","03 · GROW","04 · YOUR RESOURCES","05 · IMPROVE","Daily Operations & Projects","Opportunities & Partnerships","External Connections"])assert.ok(workspaceShell.includes(area),"Command Centre area missing: "+area);
-console.log("PASS: JR universe home, natural-language routing and four-destination navigation.");
+console.log("PASS: JR universe home, natural-language routing and five-destination navigation.");
