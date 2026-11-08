@@ -71,8 +71,8 @@ function mount(){
  if(!home.querySelector(".jp-screen-studio-launch")){
   const btn=make("button","jp-screen-studio-launch","✎ Customize my screen");
   btn.type="button";btn.onclick=open;
-  const hero=home.querySelector(".jp-home-hero .jp-hero-copy")||home;
-  hero.append(btn);changed=true;
+  const heading=home.querySelector(".jp-section-head");
+  if(heading&&heading.parentElement===home)home.insertBefore(btn,heading.nextSibling);else home.append(btn);changed=true;
  }
  if(changed)apply();
  return true;
