@@ -138,6 +138,23 @@ async function testGroup(browser, name, allowedScripts) {
           return !!active && !active.classList.contains("hidden") && active.hidden !== true;
         }, pageId, { timeout: 8000 });
         if (button === "home") {
+          const studioState = await page.evaluate(() => {
+            const button = document.querySelector(".jp-screen-studio-launch");
+            const home = document.getElementById("home");
+            const describe = element => element ? {
+              tag: element.tagName,
+              id: element.id || "",
+              className: typeof element.className === "string" ? element.className : "",
+              display: getComputedStyle(element).display,
+              visibility: getComputedStyle(element).visibility,
+              opacity: getComputedStyle(element).opacity,
+              rect: (() => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; })()
+            } : null;
+            const ancestors = [];
+            for (let node = button; node && ancestors.length < 8; node = node.parentElement) ancestors.push(describe(node));
+            return { home: describe(home), button: describe(button), ancestors };
+          });
+          console.log("SCREEN STUDIO VISIBILITY " + JSON.stringify(studioState));
           const studioButton = page.locator(".jp-screen-studio-launch");
           await studioButton.waitFor({ state: "visible", timeout: 8000 });
           await studioButton.click({ timeout: 5000 });
