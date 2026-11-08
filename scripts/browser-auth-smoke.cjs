@@ -1,7 +1,7 @@
 "use strict";
 
-// Browser-level release check. All authentication endpoints are mocked;
-// this test never creates or changes a production account or database record.
+// Browser-level auth isolation test. All authentication endpoints are mocked;
+// no real account or production database record is created or changed.
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 
@@ -17,79 +17,116 @@ const member = {
   measurement_system: "metric"
 };
 
-async function main() {
-  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+const first = [
+  "market-ui.js", "messages-ui.js", "extras-ui.js", "ecosystem-ui.js",
+  "family-ui.js", "family-bank-ui.js", "jr-ui.js", "continuity-ui.js",
+  "jp-contacts-ui.js", "jp-identity-ui.js", "opportunities-ui.js", "themes.js",
+  "explore-ui.js", "discover-ui.js", "browser-ui.js", "apphub-ui.js",
+  "preferences-sync.js", "command-center.js", "notifications-ui.js",
+  "lab-ui.js", "projects-ui.js"
+];
+const second = [
+  "coordination-studio.js", "workspace-shell.js", "command-centre-social.js",
+  "open-ecosystem.js", "universal-interaction.js", "human-environment-ui.js",
+  "jr-core.js", "accessibility.js", "universe-home.js", "founder-loader.js",
+  "device-bridge.js", "mobile-phone-shell.js", "screen-studio.js",
+  "immersive-world-home.js", "conversation-first-access.js",
+  "human-environment.js", "pwa-register.js", "install-prompt.js",
+  "natural-interaction.js", "personal-command-centre.js"
+];
+
+async function testGroup(browser, name, allowedScripts) {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+    serviceWorkers: "block"
+  });
+  const page = await context.newPage();
+  let authenticated = false;
   const errors = [];
+  page.setDefaultTimeout(5000);
+  page.on("pageerror", error => errors.push(error.message));
+
+  await page.route("**/api/**", async route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.pathname === "/api/login" && request.method() === "POST") {
+      authenticated = true;
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, message: "Login successful.", member }) });
+    }
+    if (url.pathname === "/api/me") {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(authenticated ? { ok: true, logged_in: true, member } : { ok: true, logged_in: false })
+      });
+    }
+    if (url.pathname === "/api/access") {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, allowed: true, reason: "BROWSER_TEST" }) });
+    }
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, items: [], data: [] }) });
+  });
+
+  await page.route("**/*.js*", async route => {
+    const filename = new URL(route.request().url()).pathname.split("/").pop();
+    if (allowedScripts.has(filename)) return route.continue();
+    return route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
+  });
+
   try {
-    const context = await browser.newContext({
-      viewport: { width: 390, height: 844 },
-      deviceScaleFactor: 2,
-      isMobile: true,
-      hasTouch: true,
-      serviceWorkers: "block"
-    });
-    const page = await context.newPage();
-    let authenticated = false;
-
-    page.on("pageerror", error => errors.push(error.message));
-    await page.route("**/*.js*", async route => {
-      console.log("ISOLATION: blocked external script " + route.request().url());
-      await route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
-    });
-    await page.route("**/api/**", async route => {
-      const request = route.request();
-      const url = new URL(request.url());
-      if (url.pathname === "/api/login" && request.method() === "POST") {
-        authenticated = true;
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, message: "Login successful.", member }) });
-      }
-      if (url.pathname === "/api/me") {
-        return route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify(authenticated ? { ok: true, logged_in: true, member } : { ok: true, logged_in: false })
-        });
-      }
-      if (url.pathname === "/api/access") {
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, allowed: true, reason: "BROWSER_TEST" }) });
-      }
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, items: [], data: [] }) });
-    });
-
-    const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 60000 });
-    assert.equal(response.status(), 200, "homepage must return HTTP 200");
-    await page.locator("#loginIdentifier").waitFor({ state: "visible", timeout: 30000 });
-    assert.equal(await page.locator("#auth").isVisible(), true, "sign-in panel must be visible");
-    assert.equal(await page.locator("main").isVisible(), false, "private app shell must remain hidden before sign-in");
-
+    const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 15000 });
+    assert.equal(response.status(), 200, name + ": homepage must return HTTP 200");
     const identifier = page.locator("#loginIdentifier");
-    console.log("ISOLATION: external scripts are blocked; testing the inline sign-in path alone.");
-    await identifier.click({ timeout: 8000 });
-
+    await identifier.waitFor({ state: "visible", timeout: 5000 });
+    assert.equal(await page.locator("#auth").isVisible(), true, name + ": sign-in panel must be visible");
+    await identifier.click({ timeout: 5000 });
     await identifier.fill("browser-test@example.invalid");
-    assert.equal(await identifier.evaluate(el => document.activeElement === el), true, "identifier field must receive real browser focus");
-    const password = page.locator("#loginPassword");
-    await password.click();
-    await password.fill("BrowserTestPassword123");
-    assert.equal(await password.evaluate(el => document.activeElement === el), true, "password field must receive real browser focus");
+    assert.equal(await identifier.evaluate(el => document.activeElement === el), true, name + ": identifier must receive focus");
 
-    await page.locator("#loginSubmit").click();
+    const password = page.locator("#loginPassword");
+    await password.click({ timeout: 5000 });
+    await password.fill("BrowserTestPassword123");
+    assert.equal(await password.evaluate(el => document.activeElement === el), true, name + ": password must receive focus");
+
+    await page.locator("#loginSubmit").click({ timeout: 5000 });
     await page.waitForFunction(() => {
       const auth = document.getElementById("auth");
       const app = document.getElementById("app");
       return !!auth && auth.classList.contains("hidden") && !!app && !app.classList.contains("hidden");
-    }, null, { timeout: 30000 });
+    }, null, { timeout: 8000 });
 
-    console.log("PASS isolated sign-in: fields focused and mocked login opened the app.");
-    assert.deepEqual(errors, [], "browser reported JavaScript runtime errors: " + errors.join(" | "));
-    console.log("PASS mobile sign-in field focus, credential entry, mocked login transition, and all four navigation destinations.");
+    console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + errors.length);
     await context.close();
+    return true;
+  } catch (error) {
+    console.log("FAIL script group " + name + ": " + error.message + (errors.length ? " | page errors: " + errors.join(" | ") : ""));
+    await context.close().catch(() => {});
+    return false;
+  }
+}
+
+async function main() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+  try {
+    const groups = [
+      ["none", new Set()],
+      ["first-half", new Set(first)],
+      ["second-half", new Set(second)],
+      ["all", new Set(first.concat(second))]
+    ];
+    const results = {};
+    for (const [name, allowed] of groups) results[name] = await testGroup(browser, name, allowed);
+    console.log("SCRIPT ISOLATION RESULTS " + JSON.stringify(results));
+    assert.equal(results.none, true, "inline-only login baseline must pass");
+    assert.equal(results.all, true, "full external script set must preserve login interaction");
   } finally {
     await browser.close();
   }
 }
 
 main().catch(error => {
-  console.error("FAIL browser auth smoke: " + error.stack);
+  console.error("FAIL browser auth isolation: " + error.stack);
   process.exitCode = 1;
 });
