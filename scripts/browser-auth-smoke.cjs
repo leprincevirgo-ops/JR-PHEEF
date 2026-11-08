@@ -97,7 +97,7 @@ async function testGroup(browser, name, allowedScripts) {
       return !!auth && auth.classList.contains("hidden") && !!app && !app.classList.contains("hidden");
     }, null, { timeout: 8000 });
 
-    console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + errors.length);
+    console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + JSON.stringify(errors));
     if (name === "all") {
       await page.evaluate(() => {
         const event = new Event("beforeinstallprompt", { cancelable: true });
