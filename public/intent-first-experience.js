@@ -82,7 +82,7 @@ function build(){
  camera.addEventListener("click",()=>file.click());
  file.addEventListener("change",()=>{const photo=file.files&&file.files[0];window.jrIntentCameraFile=photo||null;if(photo){setStatus("Photo ready. It will be sent to JR’s AI provider only when you submit your request.");}else setStatus("No photo selected.");});
  document.addEventListener("keydown",event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="k"){event.preventDefault();input.focus();}});
- document.addEventListener("jr:workspacechange",event=>{const id=event.detail?.id||"home";bar.dataset.workspace=id;});
+ document.addEventListener("jr:workspacechange",event=>{const id=(event.detail&&event.detail.id)||"home";bar.dataset.workspace=id;});
  // Keep legacy navigation and shortcut rails out of the way; all destinations remain addressable by command.
  document.body.classList.add("jr-intent-first");
 }
