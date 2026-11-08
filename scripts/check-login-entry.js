@@ -45,7 +45,8 @@ assert.match(html,/body\.jr-auth-pending>main\{[\s\S]*?pointer-events:none!impor
 assert.match(html,/if\(!session\|\|!session\.ok\|\|!session\.logged_in\|\|!session\.member\)\{[\s\S]*?document\.body\.classList\.add\("jr-auth-pending"\)/,"failed session restoration must restore the sign-in interaction state");
 assert.match(html,/autocomplete="username"/,"login identifier must expose native username autofill");
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
-assert.match(html,/<a class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer">Open JR PHEEF outside this window/, "entry page must provide a separate-window escape link for in-app browsers");
+assert.match(html,/<a id="jrOpenChrome" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer"/,"entry page must provide a separate-window escape link for in-app browsers");
+assert.ok(html.includes("intent://jr-pheef-marketplace.onrender.com/")&&html.includes("package=com.android.chrome")&&html.includes("S.browser_fallback_url="),"Android users must have a direct Chrome launch with a safe browser fallback");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
