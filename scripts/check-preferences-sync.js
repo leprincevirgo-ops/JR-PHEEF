@@ -2,7 +2,7 @@
 const fs=require("node:fs"),assert=require("node:assert/strict");
 const api=fs.readFileSync("routes/operations.js","utf8");
 const client=fs.readFileSync("public/preferences-sync.js","utf8");
-const migration=fs.readFileSync("supabase/migrations/20261030195000_jr_member_preferences_private_cross_device_sync.sql","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261030215617_jr_member_preferences_private_cross_device_sync.sql","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 const continuity=fs.readFileSync("routes/operations.js","utf8");
 for(const x of ['app.get("/api/preferences"','app.put("/api/preferences"',"jr_member_preferences","cleanPreferences","app_hub","discover_saved","appearance","requireMember"])assert.ok(api.includes(x),"missing API feature "+x);
