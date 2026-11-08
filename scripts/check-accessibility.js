@@ -5,4 +5,5 @@ assert.match(html,/<link rel="stylesheet" href="\/accessibility\.css">/);
 assert.match(html,/<script src="\/accessibility\.js"(?: defer)?><\/script>/);
 for(const token of ["aria-live","aria-expanded","aria-controls","Skip to main content","Larger text","High contrast","Reduce motion","Reading spacing","Dictate into a text field","Read this page aloud","Stop reading","Quick communication phrases","speechSynthesis","SpeechRecognition","webkitSpeechRecognition","clipboard.writeText","Review it before sending"])assert.ok(js.includes(token),"Missing accessibility feature: "+token);
 assert.match(js,/prefers-reduced-motion/);
+assert.ok(js.includes('document.body.classList.toggle("jr-a11y-spacing"'),"reading-spacing preference must apply without a runtime reference error");
 console.log("JR PHEEF accessibility checks passed.");
