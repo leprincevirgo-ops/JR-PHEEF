@@ -99,6 +99,9 @@ async function testGroup(browser, name, allowedScripts) {
 
     console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + JSON.stringify(errors));
     if (name === "all") {
+      const appErrors = errors.filter(error => !error.message.includes("Service worker is disabled because the context is sandboxed"));
+      assert.deepEqual(appErrors, [], "full application runtime errors: " + JSON.stringify(appErrors));
+      assert.equal(await page.evaluate(() => typeof window.jrOpenScreenStudio), "function", "Screen Studio must initialize without runtime errors");
       await page.evaluate(() => {
         const event = new Event("beforeinstallprompt", { cancelable: true });
         event.prompt = () => Promise.resolve();
@@ -130,6 +133,14 @@ async function testGroup(browser, name, allowedScripts) {
         const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
         await control.waitFor({ state: "visible", timeout: 8000 });
         await control.click({ timeout: 5000 });
+        if (button === "home") {
+          const studioButton = page.locator(".jp-screen-studio-launch");
+          await studioButton.waitFor({ state: "visible", timeout: 8000 });
+          await studioButton.click({ timeout: 5000 });
+          await page.locator("#jpScreenStudio").waitFor({ state: "visible", timeout: 5000 });
+          await page.locator("#jpScreenStudio .jp-studio-close").click({ timeout: 5000 });
+          console.log("PASS Screen Studio opens and closes from Home.");
+        }
         await page.waitForFunction(id => {
           const active = document.getElementById(id);
           return !!active && !active.classList.contains("hidden") && active.hidden !== true;

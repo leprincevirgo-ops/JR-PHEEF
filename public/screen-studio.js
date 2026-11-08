@@ -4,9 +4,9 @@
 const KEY="jr-pheef-screen-studio-v1";
 const HOME=[".jp-home-hero",".jp-universe-start",".jp-home-stat-row",".jp-home-columns"];
 const DEFAULT={homeOrder:HOME,homeHidden:[],dockOrder:["more","business","social","accessibility","settings"],dockHidden:[],dockLabels:{},railOrder:[0,1,2,3],railHidden:[],notes:[]};
-let state=load(),dialog=null,voice=null,dragged=null;
 const $=s=>document.querySelector(s);
 const clone=x=>JSON.parse(JSON.stringify(x));
+let state=load(),dialog=null,voice=null,dragged=null;
 function load(){try{return {...clone(DEFAULT),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return clone(DEFAULT)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));apply();const s=$("#jpScreenStudioStatus");if(s)s.textContent="Saved on this device."}
 function apply(){

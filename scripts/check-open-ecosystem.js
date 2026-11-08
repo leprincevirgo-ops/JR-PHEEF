@@ -6,6 +6,7 @@ const shell=fs.readFileSync("public/workspace-shell.js","utf8");
 const command=fs.readFileSync("public/command-center.js","utf8");
 const intent=fs.readFileSync("public/intent-first-experience.js","utf8");
 const js=fs.readFileSync("public/open-ecosystem.js","utf8");
+const ecoUi=fs.readFileSync("public/ecosystem-ui.js","utf8");
 const css=fs.readFileSync("public/open-ecosystem.css","utf8");
 for(const asset of ['href="/open-ecosystem.css"','src="/open-ecosystem.js"'])assert.ok(html.includes(asset),"Open Ecosystem asset missing: "+asset);
 for(const id of ["partners","developers"])assert.ok(shell.includes('["'+id+'"'),"Workspace route missing: "+id);
@@ -19,4 +20,6 @@ assert.ok(command.includes('["companies","My companies"'),"Command Centre compan
 for(const name of ["Safaricom","Airtel","Stripe","PayPal","Shopify","Google Maps Platform","OpenStreetMap","Twilio"])assert.ok(js.includes(name),"Integration candidate missing: "+name);
 for(const marker of [".jr-open-hero",".jr-open-grid",".jr-open-steps","@media"])assert.ok(css.includes(marker),"Open Ecosystem styling missing: "+marker);
 new Function(js);
+assert.match(ecoUi,/async function loadDgbo\(\) \{[\s\S]*?const businesses = intelligence\.ok[\s\S]*?host\.insertAdjacentHTML\("beforeend"[\s\S]*?\);\s*\}\s*window\.load_dgbo = loadDgbo;/,"DGBO business intelligence rendering must remain inside the owner loader scope");
+new Function(ecoUi);
 console.log("PASS: Partner Centre and Developer Centre routes, integration disclosures, candidate directory and responsive styles.");

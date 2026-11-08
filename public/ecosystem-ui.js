@@ -152,7 +152,6 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
 <div class="card"><h3>FAMILY requests waiting</h3>${apps.ok ? ((apps.requests || []).map(r => `<div class="listing"><b>${esc(r.kind)} · ${KSH(r.amount)}</b><br>${esc(r.purpose)}<br>
   <span class="muted">${esc(r.applicant.name)}${r.applicant.jp_number ? " · " + esc(r.applicant.jp_number) : ""}${r.applicant.phone ? " · " + esc(r.applicant.phone) : ""}${r.applicant.email ? " · " + esc(r.applicant.email) : ""}${r.applicant.contact_consented ? "" : " · contact not shared"} · ${esc(when(r.created_at))}</span><br>
   <button class="primary" onclick="reqMove('${esc(r.id)}','referred')">REFERRED TO PARTNER</button><button class="dark" onclick="reqMove('${esc(r.id)}','closed')">CLOSE</button></div>`).join("") || "<p class='muted'>Nothing waiting.</p>") : ""}</div>`;
-  }
     const businesses = intelligence.ok ? (intelligence.businesses || []) : [];
     const businessOptions = businesses.map(b => `<option value="${esc(b.id)}">${esc(b.business_name)} · ${esc(b.sector)}</option>`).join("");
     const portfolio = intelligence.ok ? (businesses.map(b => {
@@ -174,6 +173,7 @@ ${mine ? `<div class="card"><h3>My whole picture</h3><div class="grid">
  <textarea id="dgboRecRisk" rows="2" maxlength="500" placeholder="Risks and safeguards"></textarea>
  <button class="primary" onclick="dgboRecommendationAdd()">SUBMIT PROPOSAL FOR REVIEW</button><p id="dgboRecMsg" class="muted" aria-live="polite"></p>
 </div>`);
+  }
   window.load_dgbo = loadDgbo;
   window.ventureSet = async function (slug, licenceOnly, status) {
     const body = {}; const lic = $("lic-" + slug);
