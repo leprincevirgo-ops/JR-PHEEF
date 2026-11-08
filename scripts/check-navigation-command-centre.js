@@ -5,8 +5,8 @@ const shell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobile=fs.readFileSync("public/mobile-phone-shell.js","utf8");
 const css=fs.readFileSync("public/desktop-connected-world.css","utf8");
 const sw=fs.readFileSync("public/service-worker.js","utf8");
-const primary='const primary=[["home","⌂","Home"],["worlds","✧","Worlds"],["assistant","✦","JR"],["command","▦","Command Center"]]';
-assert.ok(shell.includes(primary),"primary destinations must be Home, Worlds, JR, Command Center in that order");
+const primary='const primary=[["home","⌂","Home"],["worlds","✧","Explore"],["assistant","✦","JR"],["messages","✉","Messages"],["command","▦","Command"]]';
+assert.ok(shell.includes(primary),"primary destinations must be Home, Explore, JR, Messages, Command in that order");
 assert.ok(html.includes('data-page="command"'),"Command Center must be a first-class destination");
 assert.ok(shell.includes(" worlds:[")&&shell.includes("if(hubGroups[id])"),"Worlds must render its own organised hub");
 assert.ok(!shell.includes('if(id==="worlds")id="morehub"'),"Worlds must open its own hub, not redirect to More Services");
@@ -20,4 +20,4 @@ assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"secondary desktop navigation must remain removed");
 const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v(\d+)"/)||[])[1]||0);
 assert.ok(cacheVersion>=20,"PWA cache version must be current");
-console.log("PASS: Home → Worlds → JR → Command Center, mobile dock alignment, and five-level Command Center hierarchy.");
+console.log("PASS: Home → Explore → JR → Messages → Command Centre, mobile dock alignment, and five-level Command Center hierarchy.");
