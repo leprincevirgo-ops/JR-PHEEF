@@ -47,12 +47,14 @@ assert.match(html,/body\.jr-auth-pending>main\{[\s\S]*?pointer-events:none!impor
 assert.match(html,/if\(!session\|\|!session\.ok\|\|!session\.logged_in\|\|!session\.member\)\{[\s\S]*?document\.body\.classList\.add\("jr-auth-pending"\)/,"failed session restoration must restore the sign-in interaction state");
 assert.match(html,/autocomplete="username"/,"login identifier must expose native username autofill");
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
-assert.match(html,/<a id="jrOpenChrome" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer">/,"entry page must provide a normal HTTPS new-tab link that works in Android Chrome");
-assert.match(html,/<a id="jrOpenChromeDirect" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer">/,"Chrome entry action must use a standard HTTPS link, not an Android intent URL");
+assert.match(html,/<a id="jrContinueEntry" class="jr-open-external" href="#loginIdentifier" aria-label="Continue to JR PHEEF sign in">/,"entry action must stay in the current page and jump directly to the sign-in field");
+assert.doesNotMatch(html,/jrOpenChromeDirect|jrOpenChrome|target="_blank"/,"entry flow must not depend on popup/new-tab behavior that Android in-app browsers can block");
+assert.match(html,/jr-entry-browser-note[\s\S]*?Open in Chrome/,"entry page must explain how to open Chrome when embedded in another app");
 assert.doesNotMatch(html,/intent:\/\//,"mobile entry links must not rely on Android intent URLs that can be blocked by browsers");
 assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme must be loaded on the entry page");
 assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welcome must use a layered luminous background");
 assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
+assert.match(entryVisual,/#jrContinueEntry[\s\S]*?touch-action:manipulation[\s\S]*?pointer-events:auto/,"the primary entry action must accept mobile touch input");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
