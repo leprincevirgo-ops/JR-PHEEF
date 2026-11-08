@@ -1,0 +1,32 @@
+name: JR PHEEF browser interaction smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install application dependencies
+        run: npm ci
+      - name: Install pinned browser test runner
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test real mobile browser interactions against the deployed entry page
+        env:
+          BASE_URL: https://jr-pheef-marketplace.onrender.com
+        run: node scripts/browser-auth-smoke.cjs

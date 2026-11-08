@@ -1,0 +1,105 @@
+"use strict";
+
+// Browser-level release check. All authentication endpoints are mocked;
+// this test never creates or changes a production account or database record.
+const assert = require("node:assert/strict");
+const { chromium } = require("playwright");
+
+const base = (process.env.BASE_URL || "https://jr-pheef-marketplace.onrender.com").replace(/\/$/, "");
+const member = {
+  id: "browser-smoke-member",
+  full_name: "JR PHEEF Browser Test",
+  dgbo_id: "DGBO-SMOKE",
+  jp_number: "JP-SMOKE",
+  verified: false,
+  reward_points: 0,
+  theme: "ocean",
+  measurement_system: "metric"
+};
+
+async function main() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+  const errors = [];
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+      serviceWorkers: "block"
+    });
+    const page = await context.newPage();
+    let authenticated = false;
+
+    page.on("pageerror", error => errors.push(error.message));
+    await page.route("**/api/**", async route => {
+      const request = route.request();
+      const url = new URL(request.url());
+      if (url.pathname === "/api/login" && request.method() === "POST") {
+        authenticated = true;
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, message: "Login successful.", member }) });
+      }
+      if (url.pathname === "/api/me") {
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(authenticated ? { ok: true, logged_in: true, member } : { ok: true, logged_in: false })
+        });
+      }
+      if (url.pathname === "/api/access") {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, allowed: true, reason: "BROWSER_TEST" }) });
+      }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, items: [], data: [] }) });
+    });
+
+    const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 60000 });
+    assert.equal(response.status(), 200, "homepage must return HTTP 200");
+    await page.locator("#loginIdentifier").waitFor({ state: "visible", timeout: 30000 });
+    assert.equal(await page.locator("#auth").isVisible(), true, "sign-in panel must be visible");
+    assert.equal(await page.locator("main").isVisible(), false, "private app shell must remain hidden before sign-in");
+
+    const identifier = page.locator("#loginIdentifier");
+    await identifier.click();
+    await identifier.fill("browser-test@example.invalid");
+    assert.equal(await identifier.evaluate(el => document.activeElement === el), true, "identifier field must receive real browser focus");
+    const password = page.locator("#loginPassword");
+    await password.click();
+    await password.fill("BrowserTestPassword123");
+    assert.equal(await password.evaluate(el => document.activeElement === el), true, "password field must receive real browser focus");
+
+    await page.locator("#loginSubmit").click();
+    await page.waitForFunction(() => {
+      const auth = document.getElementById("auth");
+      const app = document.getElementById("app");
+      return !!auth && auth.classList.contains("hidden") && !!app && !app.classList.contains("hidden");
+    }, null, { timeout: 30000 });
+
+    const destinations = [
+      ["home", "home"],
+      ["worlds", "worlds"],
+      ["jr", "assistant"],
+      ["command", "command"]
+    ];
+    for (const [button, pageId] of destinations) {
+      const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
+      await control.waitFor({ state: "visible", timeout: 15000 });
+      await control.click();
+      await page.waitForFunction(id => {
+        const active = document.getElementById(id);
+        return !!active && !active.classList.contains("hidden") && active.hidden !== true;
+      }, pageId, { timeout: 15000 });
+      console.log("PASS mobile navigation: " + button + " opens #" + pageId);
+    }
+
+    assert.deepEqual(errors, [], "browser reported JavaScript runtime errors: " + errors.join(" | "));
+    console.log("PASS mobile sign-in field focus, credential entry, mocked login transition, and all four navigation destinations.");
+    await context.close();
+  } finally {
+    await browser.close();
+  }
+}
+
+main().catch(error => {
+  console.error("FAIL browser auth smoke: " + error.stack);
+  process.exitCode = 1;
+});
