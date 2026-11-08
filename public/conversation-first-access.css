@@ -1,6 +1,6 @@
 /* Conversation-first shell: JR coordinates the hidden workspaces. */
 #app>.nav,#app>.jp-primary-nav,.jp-primary-nav,#jpMoreMenu,.jp-more-wrap{display:none!important}
-#home>*:not(.jr-world-home){display:none!important}
+#home>*:not(.jr-world-home):not(.jp-screen-studio-launch){display:none!important}
 .jr-world-header,.jr-world-link,.jr-world-ground,.jr-orbit{display:none!important}
 .jr-world-home{min-height:min(78vh,850px);display:flex;flex-direction:column;justify-content:center;padding:clamp(14px,3vw,36px)}
 .jr-world-universe{height:clamp(220px,36vh,390px);max-width:760px}
