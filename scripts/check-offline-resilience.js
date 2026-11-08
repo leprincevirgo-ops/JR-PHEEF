@@ -12,6 +12,9 @@ assert.ok(sw.includes('request.method!=="GET"'),"offline cache must never interc
 assert.ok(sw.includes('url.pathname.startsWith("/api/")'),"authenticated API responses must never be cached");
 assert.ok(sw.includes('request.mode==="navigate"')&&sw.includes('caches.match(OFFLINE_URL)'),"offline navigation fallback missing");
 assert.ok(sw.includes('["script","style","image","font"]'),"only static app assets should be cached");
+assert.ok(sw.includes('const VERSION="jr-shell-v21"'),"new releases must activate a fresh cache namespace and remove stale assets");
+assert.ok(sw.includes('fetch(request,{cache:"no-cache"})'),"scripts and styles must check the live server before using cached assets");
+assert.ok(sw.indexOf("const response=await fetch(request,{cache:\"no-cache\"})")<sw.indexOf("const cached=await cache.match(request)"),"cached assets must be fallback-only when the network fails");
 assert.ok(sw.includes('const VERSION="jr-shell-v21"'),"service worker must invalidate stale cached app assets after the touch fix");
 assert.match(sw,/const response=await fetch\(request,\{cache:"no-cache"\}\)[\s\S]*?await cache\.put\(request,response\.clone\(\)\)[\s\S]*?const cached=await cache\.match\(request\)/,"static scripts and styles must be network-first, with cache used only as offline fallback");
 assert.ok(register.includes('navigator.serviceWorker.register("/service-worker.js"'),"service worker registration missing");
