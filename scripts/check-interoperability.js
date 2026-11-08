@@ -17,7 +17,8 @@ assert.ok(html.includes('/device-bridge.css'),"device bridge styles are loaded")
 assert.ok(settings.includes("Notifications & voice")&&settings.includes("Accessibility")&&settings.includes("Devices & connected services")&&settings.includes("Your JR PHEEF defaults"),"settings consolidates personal controls");
 assert.ok(shell.includes('["YOUR IDENTITY & SPACE"')&&shell.includes('if(id==="personalhub")id="connecthub"')&&!shell.includes('["PRIVATE FOUNDER ACCESS",["command"]]'),"member identity and personal tools are consolidated into Connect; founder command remains excluded");
 assert.ok(founder.includes('member.is_owner!==true')&&founder.includes("Private Founder Command Centre"),"founder control is only installed for verified owner account");
-assert.ok(founderLoader.includes("member?.is_owner!==true")&&server.includes('app.get("/founder-command.js"')&&server.includes('path.join(__dirname, "private", "founder-command.js")'),"founder script is loaded only after client and server owner checks.");
+const clientOwnerGate=founderLoader.includes("member?.is_owner!==true")||founderLoader.includes("(data.member&&data.member.is_owner)!==true");
+assert.ok(clientOwnerGate&&server.includes('app.get("/founder-command.js"')&&server.includes('path.join(__dirname, "private", "founder-command.js")')&&server.includes('String(value || "").toLowerCase() === "owner"'),"founder script is loaded only after client and server owner checks.");
 for(const api of ["requestDevice","requestPort","Notification.requestPermission"]) assert.ok(bridge.includes(api),"user-triggered browser permission flow exists: "+api);
 assert.ok(bridge.includes("does not scan nearby devices in the background"),"no background device discovery");
 assert.equal(manifest.inbound.api_status,"LIMITED_MEMBER_SCOPED_EVENT_INGESTION");
