@@ -154,7 +154,19 @@ async function testGroup(browser, name, allowedScripts) {
             } : null;
             const ancestors = [];
             for (let node = button; node && ancestors.length < 8; node = node.parentElement) ancestors.push(describe(node));
-            return { home: describe(home), button: describe(button), ancestors };
+            const hideRules = [];
+            const walk = (rules, source) => {
+              for (const rule of Array.from(rules || [])) {
+                if (rule.cssRules) walk(rule.cssRules, source);
+                else if (rule.selectorText && rule.style && rule.style.getPropertyValue("display") === "none") {
+                  try { if (button && button.matches(rule.selectorText)) hideRules.push({ source, selector: rule.selectorText, css: rule.cssText }); } catch {}
+                }
+              }
+            };
+            for (const sheet of Array.from(document.styleSheets)) {
+              try { walk(sheet.cssRules, sheet.href || "inline-style"); } catch {}
+            }
+            return { home: describe(home), button: describe(button), ancestors, hideRules };
           });
           console.log("SCREEN STUDIO VISIBILITY " + JSON.stringify(studioState));
           const studioButton = page.locator(".jp-screen-studio-launch");
