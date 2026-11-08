@@ -20,7 +20,7 @@
       const glyph=make("span","jp-mobile-dock-icon",icon);glyph.setAttribute("aria-hidden","true");
       const text=make("span","jp-mobile-dock-label",label);b.append(glyph,text);b.addEventListener("click",run);dock.append(b);
     });
-    app.append(dock);
+    // Mount outside #app so transforms, clipping and app-level stacking contexts cannot intercept taps.\n    dock.style.pointerEvents="auto";\n    dock.style.touchAction="manipulation";\n    document.body.append(dock);
     const setActive=id=>{
       const worldDestinations=new Set(["worlds","explore","morehub","discoverhub","teacher","universe","find","workhub","create","economy","projects","family","dgbo","ecosystem","partners","social","discover","scifi","fixedit"]);
       const active=id==="home"?"home":id==="assistant"?"jr":worldDestinations.has(id)?"worlds":"command";
