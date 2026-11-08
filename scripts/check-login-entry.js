@@ -5,6 +5,7 @@ const vm=require("node:vm");
 const html=fs.readFileSync("public/index.html","utf8");
 const worker=fs.readFileSync("public/service-worker.js","utf8");
 const install=fs.readFileSync("public/install-prompt.js","utf8");
+const installCss=fs.readFileSync("public/install-prompt.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobileShell=fs.readFileSync("public/mobile-phone-shell.js","utf8");
@@ -64,9 +65,11 @@ assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
 assert.match(html,/workspace-shell\.js\?v=command5/,
   "workspace shell URL must be cache-busted");
-assert.match(html,/install-prompt\.js\?v=login-overlay2/,"login-safe install prompt must be cache-busted");
+assert.match(html,/install-prompt\.js\?v=login-safe3/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
+assert.match(install,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"install banner must wait for a real browser installability event");
+assert.match(installCss,/@media\(max-width:900px\)\{#jrInstallPrompt\{bottom:calc\(76px \+ env\(safe-area-inset-bottom\)\)!important;z-index:1100!important/,"mobile install banner must sit above, not over, the navigation dock");
 assert.match(worker,/const VERSION="jr-shell-v21"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),

@@ -10,7 +10,7 @@
   const dismissed=()=>{try{return sessionStorage.getItem(KEY)==="1";}catch(_){return false;}};
   function remove(){if(banner){banner.remove();banner=null;}}
   function show(){
-    if(standalone()||authVisible()||banner||dismissed())return;
+    if(!deferredPrompt||standalone()||authVisible()||banner||dismissed())return;
     banner=document.createElement("section");
     banner.id="jrInstallPrompt";
     banner.setAttribute("role","region");
@@ -41,8 +41,8 @@
   window.jrInstallApp=install;
   window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredPrompt=event;if(!standalone()&&!authVisible())show();});
   window.addEventListener("appinstalled",()=>{remove();deferredPrompt=null;});
-  window.addEventListener("load",()=>{if(!standalone()&&!authVisible())show();},{once:true});
-  window.addEventListener("pageshow",()=>{if(authVisible())remove();else if(!standalone())show();});
+  window.addEventListener("load",()=>{if(deferredPrompt&&!standalone()&&!authVisible())show();},{once:true});
+  window.addEventListener("pageshow",()=>{if(authVisible()||standalone()||!deferredPrompt)remove();else show();});
   const auth=document.getElementById("auth");
-  if(auth&&typeof MutationObserver==="function")new MutationObserver(()=>{if(authVisible())remove();else show();}).observe(auth,{attributes:true,attributeFilter:["class","style"]});
+  if(auth&&typeof MutationObserver==="function")new MutationObserver(()=>{if(authVisible()||!deferredPrompt)remove();else show();}).observe(auth,{attributes:true,attributeFilter:["class","style"]});
 })();
