@@ -30,3 +30,10 @@ jobs:
         env:
           BASE_URL: https://jr-pheef-marketplace.onrender.com
         run: node scripts/browser-auth-smoke.cjs
+      - name: Upload browser diagnostic screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jr-pheef-browser-diagnostic
+          path: jr-auth-diagnostic.png
+          if-no-files-found: ignore
