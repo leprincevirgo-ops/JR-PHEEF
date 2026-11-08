@@ -65,8 +65,21 @@ function runCommand(raw){const q=String(raw||"").trim();if(!q)return;const s=q.t
  $("#jpScreenStudioStatus").textContent='I could not apply that instruction. Try "hide Social", "show Settings", "move More down", or use the controls.'}
 function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("#jpScreenStudioStatus").textContent="Voice input is not supported by this browser. You can type the same instruction.";return}if(voice){voice.stop();voice=null}voice=new SR();voice.lang=navigator.language||"en-US";voice.interimResults=false;voice.onresult=e=>{const t=e.results[0][0].transcript;$("#jpStudioCommand").value=t;runCommand(t)};voice.onerror=()=>$("#jpScreenStudioStatus").textContent="Voice input did not complete. Please try again or type.";voice.start();$("#jpScreenStudioStatus").textContent="Listening… describe the screen change."}
 function mount(){
- const home=$("#home");if(!home)return;const btn=make("button","jp-screen-studio-launch","✎ Customize my screen");btn.type="button";btn.onclick=open;const hero=home.querySelector(".jp-home-hero .jp-hero-copy");if(hero)hero.append(btn);
+ const home=$("#home");
+ if(!home)return false;
+ if(dialog||document.getElementById("jpScreenStudio"))return true;
+ const btn=make("button","jp-screen-studio-launch","✎ Customize my screen");
+ btn.type="button";btn.onclick=open;
+ const hero=home.querySelector(".jp-home-hero .jp-hero-copy")||home;
+ hero.append(btn);
  createDialog();apply();window.jrOpenScreenStudio=open;window.jrScreenStudioApplyCommand=runCommand;
+ return true;
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
+function startMount(){
+ if(mount())return;
+ const observer=new MutationObserver(()=>{if(mount())observer.disconnect()});
+ observer.observe(document.body||document.documentElement,{childList:true,subtree:true});
+ document.addEventListener("DOMContentLoaded",()=>{if(mount())observer.disconnect();},{once:true});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",startMount,{once:true});else startMount();
 })();
