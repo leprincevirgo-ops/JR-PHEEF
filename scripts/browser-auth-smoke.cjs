@@ -111,7 +111,7 @@ async function main() {
       };
     });
     console.log("LOGIN FIELD STATE AFTER WAIT " + JSON.stringify(stateAfterWait));
-    await page.screenshot({ path: "jr-auth-diagnostic.png", fullPage: true }).catch(error => console.log("Screenshot unavailable: " + error.message));
+    await page.screenshot({ path: "jr-auth-diagnostic.png", fullPage: false, timeout: 8000 }).catch(error => console.log("Screenshot unavailable: " + error.message));
     await identifier.click({ timeout: 10000 });
     await identifier.fill("browser-test@example.invalid");
     assert.equal(await identifier.evaluate(el => document.activeElement === el), true, "identifier field must receive real browser focus");
