@@ -343,6 +343,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 }
 #auth:not(.hidden)~main{pointer-events:none!important}
 </style>
+<link rel="stylesheet" href="/entry-visual-refresh.css?v=1">
 <link rel="stylesheet" href="/jp-identity.css">
 <link rel="stylesheet" href="/themes.css">
   <link rel="stylesheet" href="/explore.css?v=1">
@@ -399,8 +400,8 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
   <h1>Start with <span>JR.</span></h1>
   <p>Ask anything. Bring a question, a challenge, an idea, a task or a possibility. JR will first understand what you mean, then help you find a way forward.</p>
   <div class="jr-entry-prompt">“JR, what can you do for me?”</div>
-  <a id="jrOpenChrome" class="jr-open-external" href="https://jr-pheef-marketplace.onrender.com/" target="_blank" rel="noopener noreferrer" onclick="if(/Android/i.test(navigator.userAgent)){this.href='intent://jr-pheef-marketplace.onrender.com/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fjr-pheef-marketplace.onrender.com%2F;end';this.removeAttribute('target');}">Open JR PHEEF outside this window ↗</a>
-  <a id="jrOpenChromeDirect" class="jr-open-external" href="intent://jr-pheef-marketplace.onrender.com/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fjr-pheef-marketplace.onrender.com%2F;end">OPEN DIRECTLY IN GOOGLE CHROME ↗</a>
+  <a id="jrOpenChrome" class="jr-open-external" href="https://jr-pheef-marketplace.onrender.com/" target="_blank" rel="noopener noreferrer">Open JR PHEEF in a new tab ↗</a>
+  <a id="jrOpenChromeDirect" class="jr-open-external" href="https://jr-pheef-marketplace.onrender.com/" target="_blank" rel="noopener noreferrer">OPEN JR PHEEF IN CHROME ↗</a>
   <button type="button" class="jr-entry-install" onclick="window.jrInstallApp&&window.jrInstallApp()">INSTALL JR PHEEF AS AN APP</button>
 </div>
 <div class="card">
