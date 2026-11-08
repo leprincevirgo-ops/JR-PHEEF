@@ -99,6 +99,27 @@ async function testGroup(browser, name, allowedScripts) {
 
     console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + errors.length);
     if (name === "all") {
+      await page.evaluate(() => {
+        const event = new Event("beforeinstallprompt", { cancelable: true });
+        event.prompt = () => Promise.resolve();
+        event.userChoice = Promise.resolve({ outcome: "dismissed" });
+        window.dispatchEvent(event);
+      });
+      const installBanner = page.locator("#jrInstallPrompt");
+      await installBanner.waitFor({ state: "visible", timeout: 5000 });
+      const placement = await page.evaluate(() => {
+        const banner = document.getElementById("jrInstallPrompt").getBoundingClientRect();
+        const dock = document.getElementById("jpMobileDock").getBoundingClientRect();
+        return {
+          bannerBottom: banner.bottom,
+          dockTop: dock.top,
+          bannerZ: Number(getComputedStyle(document.getElementById("jrInstallPrompt")).zIndex),
+          dockZ: Number(getComputedStyle(document.getElementById("jpMobileDock")).zIndex)
+        };
+      });
+      assert.ok(placement.bannerBottom <= placement.dockTop, "install banner must sit above the mobile navigation dock: " + JSON.stringify(placement));
+      assert.ok(placement.bannerZ < placement.dockZ, "mobile navigation dock must stay above the install banner: " + JSON.stringify(placement));
+      console.log("PASS install banner placement: " + JSON.stringify(placement));
       const destinations = [
         ["home", "home"],
         ["worlds", "worlds"],
