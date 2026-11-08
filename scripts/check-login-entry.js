@@ -6,6 +6,7 @@ const html=fs.readFileSync("public/index.html","utf8");
 const worker=fs.readFileSync("public/service-worker.js","utf8");
 const install=fs.readFileSync("public/install-prompt.js","utf8");
 const installCss=fs.readFileSync("public/install-prompt.css","utf8");
+const entryVisual=fs.readFileSync("public/entry-visual-refresh.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const workspaceShell=fs.readFileSync("public/workspace-shell.js","utf8");
 const mobileShell=fs.readFileSync("public/mobile-phone-shell.js","utf8");
@@ -46,9 +47,12 @@ assert.match(html,/body\.jr-auth-pending>main\{[\s\S]*?pointer-events:none!impor
 assert.match(html,/if\(!session\|\|!session\.ok\|\|!session\.logged_in\|\|!session\.member\)\{[\s\S]*?document\.body\.classList\.add\("jr-auth-pending"\)/,"failed session restoration must restore the sign-in interaction state");
 assert.match(html,/autocomplete="username"/,"login identifier must expose native username autofill");
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
-assert.match(html,/<a id="jrOpenChrome" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer"/,"entry page must provide a separate-window escape link for in-app browsers");
-assert.ok(html.includes("intent://jr-pheef-marketplace.onrender.com/")&&html.includes("package=com.android.chrome")&&html.includes("S.browser_fallback_url="),"Android users must have a direct Chrome launch with a safe browser fallback");
-assert.match(html,/<a id="jrOpenChromeDirect" class="jr-open-external" href="intent:\/\/jr-pheef-marketplace\.onrender\.com\//,"Chrome launch must work as a native link without JavaScript click handling");
+assert.match(html,/<a id="jrOpenChrome" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer">/,"entry page must provide a normal HTTPS new-tab link that works in Android Chrome");
+assert.match(html,/<a id="jrOpenChromeDirect" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer">/,"Chrome entry action must use a standard HTTPS link, not an Android intent URL");
+assert.doesNotMatch(html,/intent:\/\//,"mobile entry links must not rely on Android intent URLs that can be blocked by browsers");
+assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme must be loaded on the entry page");
+assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welcome must use a layered luminous background");
+assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
