@@ -8,6 +8,8 @@ assert.match(js,/window\.addEventListener\("beforeinstallprompt"/,"browser-nativ
 assert.ok(js.includes("appinstalled"),"Installed state handling missing");
 assert.ok(js.includes("Add to Home Screen"),"iOS/manual installation guidance missing");
 assert.ok(js.includes("display-mode: standalone"),"Already-installed state detection missing");
-assert.ok(html.includes("/install-prompt.js?v=login-overlay2")&&html.includes("/install-prompt.css?v=login-overlay2"),"Install invitation not wired into app shell");
+assert.ok(html.includes("/install-prompt.js?v=login-safe3")&&html.includes("/install-prompt.css?v=login-safe3"),"Install invitation not wired into app shell");
 assert.ok(css.includes("#jrInstallPrompt"),"Install invitation styles missing");
+assert.match(js,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"automatic install invitation must wait for browser installability");
+assert.match(css,/@media\(max-width:900px\)\{#jrInstallPrompt\{bottom:calc\(76px \+ env\(safe-area-inset-bottom\)\)!important;z-index:1100!important/,"mobile install invitation must stay above the navigation dock");
 console.log("PASS: JR PHEEF install invitation, browser-native prompt, iOS/Android guidance and standalone handling.");
