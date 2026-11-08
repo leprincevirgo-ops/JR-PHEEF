@@ -47,6 +47,7 @@ assert.match(html,/autocomplete="username"/,"login identifier must expose native
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
 assert.match(html,/<a id="jrOpenChrome" class="jr-open-external" href="https:\/\/jr-pheef-marketplace\.onrender\.com\/" target="_blank" rel="noopener noreferrer"/,"entry page must provide a separate-window escape link for in-app browsers");
 assert.ok(html.includes("intent://jr-pheef-marketplace.onrender.com/")&&html.includes("package=com.android.chrome")&&html.includes("S.browser_fallback_url="),"Android users must have a direct Chrome launch with a safe browser fallback");
+assert.match(html,/<a id="jrOpenChromeDirect" class="jr-open-external" href="intent:\/\/jr-pheef-marketplace\.onrender\.com\//,"Chrome launch must work as a native link without JavaScript click handling");
 assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
