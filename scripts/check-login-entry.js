@@ -67,7 +67,7 @@ assert.match(html,/workspace-shell\.js\?v=command5/,
 assert.match(html,/install-prompt\.js\?v=login-overlay2/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
-assert.match(worker,/const VERSION="jr-shell-v20"/,
+assert.match(worker,/const VERSION="jr-shell-v21"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
