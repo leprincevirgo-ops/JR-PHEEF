@@ -39,13 +39,9 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
 // All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
 const authPosition=html.indexOf('<section id="auth">'),appPosition=html.indexOf('<main id="app"');
 assert.ok(authPosition>=0&&appPosition>authPosition,"sign-in must remain before the app shell in the document");
-assert.match(html,/#auth:not\\(\\.hidden\\)\\{[\\s\\S]*?position:relative!important;[\\s\\S]*?pointer-events:auto!important/,
 assert.match(html,/#auth:not\(\.hidden\)\{[\s\S]*?position:relative!important;[\s\S]*?pointer-events:auto!important/,"visible sign-in must stay in normal document flow and preserve native touch handling");
-assert.doesNotMatch(html,/#auth:not\\(\\.hidden\\)\\{position:fixed!important/,
 assert.doesNotMatch(html,/#auth:not\(\.hidden\)\{position:fixed!important/,"sign-in must not use a fixed full-screen overlay that can break native input focus");
-assert.match(html,/body\\.jr-auth-pending>main\\{[\\s\\S]*?pointer-events:none!important\\}/,
 assert.match(html,/body\.jr-auth-pending>main\{[\s\S]*?pointer-events:none!important\}/,"the app shell must not intercept touches while signed out");
-assert.match(html,/if\\(!session\\|\\|!session\\.ok\\|\\|!session\\.logged_in\\|\\|!session\\.member\\)\\{[\\s\\S]*?document\\.body\\.classList\\.add\\("jr-auth-pending"\\)/,
 assert.match(html,/if\(!session\|\|!session\.ok\|\|!session\.logged_in\|\|!session\.member\)\{[\s\S]*?document\.body\.classList\.add\("jr-auth-pending"\)/,"failed session restoration must restore the sign-in interaction state");
 assert.match(html,/autocomplete="username"/,"login identifier must expose native username autofill");
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
