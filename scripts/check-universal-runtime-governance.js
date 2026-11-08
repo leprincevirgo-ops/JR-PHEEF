@@ -6,7 +6,7 @@ const server=fs.readFileSync("server.js","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 const ui=fs.readFileSync("public/human-environment-ui.js","utf8");
 const css=fs.readFileSync("public/human-environment-ui.css","utf8");
-const migration=fs.readFileSync("supabase/migrations/202611030002_jr_execution_governance.sql","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261103073056_jr_execution_governance.sql","utf8");
 new Function("require","module","exports",route);
 new Function(ui);
 assert.ok(!route.includes("\\\\b")&&!route.includes("\\\\s")&&!route.includes("\\\\w"),"World intent expressions must use actual regular-expression boundaries.");
@@ -31,7 +31,7 @@ assert.ok(css.includes(".jr-proposal-card")&&css.includes("@media(max-width:560p
 assert.equal(html.split('human-environment-ui.js?v=4').length-1,1,"Human environment UI script must load exactly once.");
 assert.ok(html.includes('human-environment-ui.css?v=4'),"Human environment CSS cache version missing.");
 
-const gateway=fs.readFileSync("supabase/migrations/20261103084000_jr_partner_event_gateway.sql","utf8");
+const gateway=fs.readFileSync("supabase/migrations/20261103084659_jr_partner_event_gateway.sql","utf8");
 assert.ok(route.includes('require("node:crypto")'),"Partner tokens must use explicit Node crypto.");
 for(const endpoint of ['/api/jr/integrations','/api/jr/integrations/:id','/api/jr/integrations/events','/api/inbound/jr/events'])assert.ok(route.includes(endpoint),"Missing partner gateway endpoint "+endpoint);
 for(const guard of ['createHash("sha256")','events:write','eq("member_id", member.id)','eq("token_hash", tokenHash)','eq("active", true)','external_event_id','executed_action: false'])assert.ok(route.includes(guard),"Missing partner gateway security guard "+guard);
