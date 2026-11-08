@@ -37,7 +37,7 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
   if (/javascript|ecmascript/i.test(type)) new vm.Script(match[1], {filename:"inline JR PHEEF script"});
 }
 // All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
-const authPosition=html.indexOf('<section id="auth">'),appPosition=html.indexOf('<main id="app"');
+const authPosition=html.indexOf('<section id="auth">'),appPosition=html.indexOf("<main>");
 assert.ok(authPosition>=0&&appPosition>authPosition,"sign-in must remain before the app shell in the document");
 assert.match(html,/#auth:not\(\.hidden\)\{[\s\S]*?position:relative!important;[\s\S]*?pointer-events:auto!important/,"visible sign-in must stay in normal document flow and preserve native touch handling");
 assert.doesNotMatch(html,/#auth:not\(\.hidden\)\{position:fixed!important/,"sign-in must not use a fixed full-screen overlay that can break native input focus");
