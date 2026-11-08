@@ -133,6 +133,10 @@ async function testGroup(browser, name, allowedScripts) {
         const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
         await control.waitFor({ state: "visible", timeout: 8000 });
         await control.click({ timeout: 5000 });
+        await page.waitForFunction(id => {
+          const active = document.getElementById(id);
+          return !!active && !active.classList.contains("hidden") && active.hidden !== true;
+        }, pageId, { timeout: 8000 });
         if (button === "home") {
           const studioButton = page.locator(".jp-screen-studio-launch");
           await studioButton.waitFor({ state: "visible", timeout: 8000 });
@@ -141,10 +145,6 @@ async function testGroup(browser, name, allowedScripts) {
           await page.locator("#jpScreenStudio .jp-studio-close").click({ timeout: 5000 });
           console.log("PASS Screen Studio opens and closes from Home.");
         }
-        await page.waitForFunction(id => {
-          const active = document.getElementById(id);
-          return !!active && !active.classList.contains("hidden") && active.hidden !== true;
-        }, pageId, { timeout: 8000 });
         console.log("PASS mobile navigation " + button + " -> #" + pageId);
       }
     }
