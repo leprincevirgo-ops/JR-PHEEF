@@ -1,5 +1,5 @@
 "use strict";
-const VERSION="jr-shell-v20";
+const VERSION="jr-shell-v21";
 const SHELL_CACHE=VERSION+"-shell";
 const ASSET_CACHE=VERSION+"-assets";
 const OFFLINE_URL="/offline.html";
@@ -34,9 +34,15 @@ self.addEventListener("fetch",event=>{
  }
  if(["script","style","image","font"].includes(request.destination)){
   event.respondWith((async()=>{
-   const cache=await caches.open(ASSET_CACHE),cached=await cache.match(request);
-   const network=fetch(request).then(response=>{if(response.ok&&response.type==="basic")cache.put(request,response.clone());return response;}).catch(()=>null);
-   return cached||await network||Response.error();
+   const cache=await caches.open(ASSET_CACHE);
+   try{
+    const response=await fetch(request,{cache:"no-cache"});
+    if(response.ok&&response.type==="basic")await cache.put(request,response.clone());
+    return response;
+   }catch(error){
+    const cached=await cache.match(request);
+    return cached||Response.error();
+   }
   })());
  }
 });
