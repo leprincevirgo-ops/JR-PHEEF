@@ -39,8 +39,10 @@ for (const match of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/scri
 // All shipped frontend scripts are parsed and checked against the Android 8 syntax baseline.
 assert.match(html,/<body class="jr-auth-pending">[\\s\\S]*?<section id="auth">[\\s\\S]*?<main>/,
   "sign-in must remain before the app shell in the document");
-assert.match(html,/#auth:not\\(\\.hidden\\)\\{position:fixed!important;[\\s\\S]*?z-index:2147483647!important/,
-  "visible sign-in must remain the topmost touch layer even if the auth-pending body class is lost");
+assert.match(html,/#auth:not\\(\\.hidden\\)\\{[\\s\\S]*?position:relative!important;[\\s\\S]*?pointer-events:auto!important/,
+  "visible sign-in must stay in normal document flow and preserve native touch handling");
+assert.doesNotMatch(html,/#auth:not\\(\\.hidden\\)\\{position:fixed!important/,
+  "sign-in must not use a fixed full-screen overlay that can break native input focus");
 assert.match(html,/body\\.jr-auth-pending>main\\{[\\s\\S]*?pointer-events:none!important\\}/,
   "the app shell must not intercept touches while signed out");
 assert.match(html,/if\\(!session\\|\\|!session\\.ok\\|\\|!session\\.logged_in\\|\\|!session\\.member\\)\\{[\\s\\S]*?document\\.body\\.classList\\.add\\("jr-auth-pending"\\)/,
