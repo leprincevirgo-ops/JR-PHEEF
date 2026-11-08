@@ -1,0 +1,11 @@
+"use strict";
+const fs=require("node:fs");
+const html=fs.readFileSync("public/index.html","utf8");
+const css=fs.readFileSync("public/mobile-workspace-access.css","utf8");
+const nav=html.match(/<nav class="nav jp-primary-nav"[\s\S]*?<\/nav>/);
+if(!nav)throw new Error("Primary workspace navigation is missing");
+for(const page of ["home","worlds","assistant","messages","command"])if(!nav[0].includes("show('"+page+"')"))throw new Error("Primary navigation cannot open "+page);
+for(const page of ["dgbo","family","teacher","create","messages","command"])if(!html.includes("show('"+page+"')"))throw new Error("Direct workspace launcher cannot open "+page);
+for(const token of ["#app>.jp-primary-nav{display:flex!important","touch-action:manipulation","@media(max-width:620px)"])if(!css.includes(token))throw new Error("Missing mobile navigation behavior: "+token);
+if(!html.includes("mobile-workspace-access.css?v=1"))throw new Error("Mobile workspace stylesheet is not loaded");
+console.log("PASS: signed-in primary navigation and direct DGBO, FAMILY, Learn, Create, People and Command Centre launchers are present and mobile-accessible.");
