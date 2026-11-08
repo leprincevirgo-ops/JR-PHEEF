@@ -59,7 +59,43 @@ async function main() {
     assert.equal(await page.locator("main").isVisible(), false, "private app shell must remain hidden before sign-in");
 
     const identifier = page.locator("#loginIdentifier");
-    await identifier.click();
+    const hitTest = await identifier.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const describe = node => node ? {
+        tag: node.tagName,
+        id: node.id || "",
+        className: typeof node.className === "string" ? node.className : "",
+        pointerEvents: getComputedStyle(node).pointerEvents,
+        position: getComputedStyle(node).position,
+        zIndex: getComputedStyle(node).zIndex,
+        opacity: getComputedStyle(node).opacity,
+        animationName: getComputedStyle(node).animationName,
+        transform: getComputedStyle(node).transform
+      } : null;
+      const ancestors = [];
+      for (let node = el; node && ancestors.length < 8; node = node.parentElement) ancestors.push(describe(node));
+      return {
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        center: { x, y },
+        hit: describe(document.elementFromPoint(x, y)),
+        stack: document.elementsFromPoint(x, y).slice(0, 8).map(describe),
+        ancestors,
+        animations: el.getAnimations({ subtree: true }).map(animation => ({
+          target: describe(animation.effect && animation.effect.target),
+          state: animation.playState,
+          timing: animation.effect && animation.effect.getComputedTiming()
+        }))
+      };
+    });
+    console.log("LOGIN FIELD HIT TEST " + JSON.stringify(hitTest));
+    await page.waitForTimeout(400);
+    const rectBefore = await identifier.boundingBox();
+    await page.waitForTimeout(250);
+    const rectAfter = await identifier.boundingBox();
+    console.log("LOGIN FIELD STABILITY " + JSON.stringify({ before: rectBefore, after: rectAfter }));
+    await identifier.click({ timeout: 10000 });
     await identifier.fill("browser-test@example.invalid");
     assert.equal(await identifier.evaluate(el => document.activeElement === el), true, "identifier field must receive real browser focus");
     const password = page.locator("#loginPassword");
