@@ -75,7 +75,7 @@ function build(){
   if(!Speech){setStatus("Voice input is not supported by this browser. You can type instead.");return;}
   const recognition=new Speech();recognition.lang=navigator.language||"en";recognition.interimResults=false;recognition.maxAlternatives=1;
   setStatus("Listening…");
-  recognition.onresult=event=>{const transcript=event.results?.[0]?.[0]?.transcript||"";input.value=transcript;if(transcript)submit(transcript);};
+  recognition.onresult=event=>{const results=event.results,first=results&&results[0],alternative=first&&first[0],transcript=alternative&&alternative.transcript||"";input.value=transcript;if(transcript)submit(transcript);};
   recognition.onerror=()=>setStatus("Voice input is unavailable. You can type instead.");
   try{recognition.start();}catch(error){setStatus("Voice input could not start. You can type instead.");}
  });
