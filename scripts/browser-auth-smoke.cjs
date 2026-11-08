@@ -98,6 +98,24 @@ async function testGroup(browser, name, allowedScripts) {
     }, null, { timeout: 8000 });
 
     console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + errors.length);
+    if (name === "all") {
+      const destinations = [
+        ["home", "home"],
+        ["worlds", "worlds"],
+        ["jr", "assistant"],
+        ["command", "command"]
+      ];
+      for (const [button, pageId] of destinations) {
+        const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
+        await control.waitFor({ state: "visible", timeout: 8000 });
+        await control.click({ timeout: 5000 });
+        await page.waitForFunction(id => {
+          const active = document.getElementById(id);
+          return !!active && !active.classList.contains("hidden") && active.hidden !== true;
+        }, pageId, { timeout: 8000 });
+        console.log("PASS mobile navigation " + button + " -> #" + pageId);
+      }
+    }
     await context.close();
     return true;
   } catch (error) {
