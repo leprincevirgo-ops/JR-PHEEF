@@ -24,7 +24,7 @@
  };
  document.querySelectorAll(".world-template-button").forEach(button=>button.addEventListener("click",()=>{
   const type=button.dataset.worldType,template=worldTemplates[type];form.elements.worldType.value=type;
-  if(template){form.elements.name.value=template.name;form.elements.description.value=template.description;form.elements.intendedMembers.value=template.members;form.elements.workflows.value=template.workflows.join("\\n");}
+  if(template){form.elements.name.value=template.name;form.elements.description.value=template.description;form.elements.intendedMembers.value=template.members;form.elements.workflows.value=template.workflows.join("\n");}
   form.scrollIntoView({behavior:"smooth",block:"start"});form.elements.name.focus({preventScroll:true});
   $("createWorldFeedback").textContent="Loaded the "+button.closest("article").querySelector("h3").textContent+" starter template. Review or edit the details, then create your world.";
  }));
