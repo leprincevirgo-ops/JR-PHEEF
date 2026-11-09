@@ -12,7 +12,7 @@ test("workspace browser script parses without syntax errors", () => {
 });
 
 test("member workspace exposes connected opportunity, marketplace, messaging and FAMILY workflows", () => {
-  for (const action of ["create_listing", "create_opportunity", "express_interest", "create_business", "create_project", "create_family_goal", "create_delivery", "create_room_listing", "create_status", "update_profile", "search_members", "create_conversation", "send_message"]) {
+  for (const action of ["create_listing", "create_opportunity", "express_interest", "create_business", "create_project", "create_family_goal", "create_delivery", "create_room_listing", "create_deal_room", "deal_room_messages", "send_deal_message", "confirm_deal_terms", "create_status", "update_profile", "search_members", "create_conversation", "send_message"]) {
     assert.ok(app.includes(action), "missing workspace action: " + action);
   }
   for (const id of ["liveHub", "marketFeed", "opportunityFeed", "conversationList", "messageList", "myGoals"]) {
