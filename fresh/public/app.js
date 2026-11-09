@@ -73,4 +73,75 @@
    $("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
   }).catch(error=>{showAuth("login");setMessage(error.message||"Email confirmation failed. Please request a new link.");});
  }
+"use strict";
+(()=> {
+ const $=id=>document.getElementById(id);
+ let me=null,selectedMember=null,selectedConversation=null,hubLoaded=false;
+ const hub= $("liveHub");
+ if(!hub)return;
+ hub.innerHTML=`
+ <div class="hub-intro"><div><p class="eyebrow">YOUR CONNECTED WORKSPACE</p><h2>Make something happen</h2><p class="view-copy">Create, connect, organise and participate. Your account controls what belongs to you.</p></div><button type="button" class="hub-refresh" id="hubRefresh">Refresh</button></div>
+ <div class="hub-grid">
+  <section class="hub-card"><h3>Sell or offer something</h3><form data-hub-action="create_listing"><label>Title<input name="title" required minlength="3" maxlength="120" placeholder="What are you offering?"></label><label>Category<input name="category" maxlength="60" placeholder="Goods, service, property…"></label><div class="hub-two"><label>Price<input name="price" type="number" min="0" step="0.01" required></label><label>Location<input name="location" required maxlength="180" placeholder="City or area"></label></div><label>Description<textarea name="description" maxlength="2000" rows="2"></textarea></label><label class="hub-check"><input name="negotiable" type="checkbox"> Price is negotiable</label><button class="hub-submit">Publish listing</button><p class="hub-feedback" aria-live="polite"></p></form></section>
+  <section class="hub-card"><h3>Share an opportunity</h3><form data-hub-action="create_opportunity"><label>Opportunity title<input name="title" required minlength="3" maxlength="140" placeholder="Job, partnership, project…"></label><label>Type<select name="opportunityType"><option value="business_opportunity">Business opportunity</option><option value="job">Job</option><option value="service">Service</option><option value="goods">Goods</option><option value="partnership">Partnership</option><option value="property">Property</option></select></label><label>Location<input name="location" maxlength="180" placeholder="Optional / remote"></label><label>Details<textarea name="description" required minlength="10" maxlength="3000" rows="3"></textarea></label><button class="hub-submit">Publish opportunity</button><p class="hub-feedback" aria-live="polite"></p></form></section>
+  <section class="hub-card"><h3>Build a business</h3><form data-hub-action="create_business"><label>Business name<input name="businessName" required minlength="2" maxlength="140"></label><label>Sector<input name="sector" maxlength="80" placeholder="Retail, technology, agriculture…"></label><label>Location<input name="location" maxlength="180"></label><label>What do you want to achieve?<textarea name="goals" maxlength="1000" rows="2"></textarea></label><button class="hub-submit">Create business workspace</button><p class="hub-feedback" aria-live="polite"></p></form><div id="myBusinesses" class="hub-list"></div></section>
+  <section class="hub-card"><h3>Plan a project</h3><form data-hub-action="create_project"><label>Project name<input name="title" required minlength="3" maxlength="140"></label><label>Goal<textarea name="goal" required minlength="5" maxlength="1500" rows="2"></textarea></label><label>Estimated budget (optional)<input name="budget" type="number" min="0" step="0.01"></label><button class="hub-submit">Save project</button><p class="hub-feedback" aria-live="polite"></p></form><div id="myProjects" class="hub-list"></div></section>
+  <section class="hub-card"><h3>FAMILY · Save towards a goal</h3><p class="hub-muted">FAMILY serves the whole ecosystem. This is a planning record only; no money is deposited or moved.</p><form data-hub-action="create_family_goal"><label>Goal<input name="title" required minlength="3" maxlength="140" placeholder="Education, equipment, emergency…"></label><label>Target amount<input name="targetAmount" type="number" min="0.01" step="0.01" required></label><label>Target date (optional)<input name="targetDate" type="date"></label><button class="hub-submit">Save FAMILY goal</button><p class="hub-feedback" aria-live="polite"></p></form><div id="myGoals" class="hub-list"></div></section>
+  <section class="hub-card"><h3>Delivery request</h3><form data-hub-action="create_delivery"><label>Pickup<input name="pickup" required maxlength="180"></label><label>Destination<input name="destination" required maxlength="180"></label><label>What needs moving?<textarea name="description" maxlength="1000" rows="2"></textarea></label><button class="hub-submit">Record delivery request</button><p class="hub-feedback" aria-live="polite"></p></form><p class="hub-muted">Request recording is active. Rider assignment, live tracking and fare estimates are not connected.</p></section>
+  <section class="hub-card"><h3>Share a status</h3><form data-hub-action="create_status"><label>Your update<textarea name="body" required maxlength="500" rows="3"></textarea></label><label>Who can see it?<select name="visibility"><option value="connections">Connections</option><option value="public">Public</option><option value="private">Only me</option></select></label><button class="hub-submit">Post update</button><p class="hub-feedback" aria-live="polite"></p></form><div id="myStatuses" class="hub-list"></div></section>
+  <section class="hub-card"><h3>Profile & privacy</h3><form data-hub-action="update_profile"><label>About me<textarea name="bio" maxlength="500" rows="2"></textarea></label><div class="hub-two"><label>City<input name="city" maxlength="120"></label><label>Country<input name="country" maxlength="120"></label></div><label>Profile visibility<select name="profile_visibility"><option value="public">Public</option><option value="connections">Connections</option><option value="private">Private</option></select></label><label class="hub-check"><input name="public_phone" type="checkbox"> Show phone publicly (off by default)</label><label class="hub-check"><input name="show_email" type="checkbox"> Show email publicly (off by default)</label><label class="hub-check"><input name="show_location" type="checkbox"> Show location</label><button class="hub-submit">Save profile settings</button><p class="hub-feedback" aria-live="polite"></p></form></section>
+  <section class="hub-card hub-card-wide"><h3>People & conversations</h3><form id="memberSearchForm"><label>Find a member by name or JP number<input id="memberSearchQuery" minlength="2" maxlength="80" required placeholder="Name or JP-…"></label><button class="hub-submit">Search members</button></form><div id="memberSearchResults" class="hub-list"></div><div class="hub-chat-layout"><div><h4>Your conversations</h4><div id="conversationList" class="hub-list"></div></div><div><h4>Messages</h4><div id="messageList" class="hub-message-list">Choose a conversation to view messages.</div><form id="messageSendForm"><label>Message<textarea id="messageBody" maxlength="4000" rows="2" required></textarea></label><button class="hub-submit">Send message</button><p id="messageFeedback" class="hub-feedback"></p></form></div></div></section>
+  <section class="hub-card hub-card-wide"><h3>Explore opportunities</h3><div id="opportunityFeed" class="hub-list"></div></section>
+  <section class="hub-card hub-card-wide"><h3>Your listings</h3><div id="myListings" class="hub-list"></div></section>
+  <section class="hub-card hub-card-wide"><h3>Notifications</h3><div id="myNotifications" class="hub-list"></div></section>
+ </div>`;
+ const call=async(action,extra={})=>{const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"That action could not be completed.");return d.data;};
+ const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
+ const render=(id,items,make)=>{const box=$(id);box.replaceChildren();if(!items?.length){box.append(node("p","hub-muted","Nothing here yet."));return;}items.forEach(item=>box.append(make(item)));};
+ const item=(title,detail,meta)=>{const e=node("article","hub-list-item");e.append(node("strong","",title||"Untitled"),node("p","",detail||""),node("small","",meta||""));return e;};
+ async function refresh(){
+  try{
+   const d=await call("overview");me=d.member;hubLoaded=true;
+   const pf=hub.querySelector('[data-hub-action="update_profile"]');
+   for(const k of ["bio","city","country","profile_visibility"])if(pf.elements[k])pf.elements[k].value=me[k]||({profile_visibility:"public"}[k]||"");
+   for(const k of ["public_phone","show_email","show_location"])pf.elements[k].checked=!!me[k];
+   render("myListings",d.listings,x=>item(x.title,x.description,"KSh "+(x.price??"—")+" · "+(x.location||"No location")+" · "+x.status));
+   render("opportunityFeed",d.opportunities,x=>{const e=item(x.title,x.description,(x.opportunity_type||"Opportunity")+" · "+(x.location||"Remote / unspecified")+" · "+x.verification_status);if(x.owner_user_id!==me.id){const b=node("button","hub-small-button","I'm interested");b.type="button";b.addEventListener("click",async()=>{try{await call("express_interest",{opportunityId:x.id,message:"I would like to learn more."});b.textContent="Interest sent";b.disabled=true;}catch(err){b.textContent=err.message;}});e.append(b);}return e;});
+   render("myProjects",d.projects,x=>item(x.title,x.goal,"Project · "+x.status));
+   render("myGoals",d.familyGoals,x=>item(x.title,"Target: "+x.target_amount+" · Saved: "+x.saved_amount,"FAMILY goal · "+x.status));
+   render("myBusinesses",d.businesses,x=>item(x.business_name,x.sector+" · "+(x.location||"Location not set"),x.status+" · "+x.plan_tier));
+   render("myStatuses",d.statuses,x=>item(x.body,"Visibility: "+x.visibility,new Date(x.created_at).toLocaleString()));
+   render("myNotifications",d.notifications,x=>item(x.title,x.message,new Date(x.created_at).toLocaleString()));
+   await loadConversations();
+  }catch(err){hub.prepend(node("p","hub-error",err.message));}
+ }
+ async function loadConversations(){
+  try{const list=await call("list_conversations");render("conversationList",list,c=>{const peer=c.peers?.[0];const b=node("button","hub-conversation-button",(peer?.full_name||"Conversation")+" · "+(peer?.jp_number||""));b.type="button";b.addEventListener("click",()=>openConversation(c.id));return b;});}
+  catch(e){$("conversationList").textContent=e.message;}
+ }
+ async function openConversation(id){
+  selectedConversation=id;
+  try{const messages=await call("list_messages",{conversationId:id});render("messageList",messages,m=>item(m.sender_id===me.id?"You":"Member",m.body,new Date(m.created_at).toLocaleString()));}
+  catch(e){$("messageList").textContent=e.message;}
+ }
+ hub.addEventListener("submit",async event=>{
+  const form=event.target.closest("form[data-hub-action]");if(!form)return;
+  event.preventDefault();const action=form.dataset.hubAction,fd=new FormData(form),payload={};
+  for(const [k,v] of fd.entries())payload[k]=v;
+  if(action==="create_listing"){payload.price=Number(payload.price);payload.negotiable=fd.has("negotiable");}
+  if(action==="create_project"&&payload.budget!=="")payload.budget=Number(payload.budget);
+  if(action==="create_family_goal")payload.targetAmount=Number(payload.targetAmount);
+  const feedback=form.querySelector(".hub-feedback");const button=form.querySelector("button[type=submit],button:not([type])");
+  if(button){button.disabled=true;}
+  try{const result=await call(action,payload);if(feedback)feedback.textContent=result?.note||"Saved successfully.";form.reset();await refresh();}
+  catch(err){if(feedback)feedback.textContent=err.message;}
+  finally{if(button)button.disabled=false;}
+ });
+ $("hubRefresh").addEventListener("click",refresh);
+ $("memberSearchForm").addEventListener("submit",async e=>{e.preventDefault();const box=$("memberSearchResults");box.textContent="Searching…";try{const results=await call("search_members",{query:$("memberSearchQuery").value});render("memberSearchResults",results,m=>{const e=item(m.full_name,m.bio,m.jp_number+" · "+(m.city||""));const b=node("button","hub-small-button","Start chat");b.type="button";b.addEventListener("click",async()=>{try{const c=await call("create_conversation",{otherMemberId:m.id,title:"Chat"});await loadConversations();await openConversation(c.id);b.textContent="Conversation opened";}catch(err){b.textContent=err.message;}});e.append(b);return e;});}catch(err){box.textContent=err.message;}});
+ $("messageSendForm").addEventListener("submit",async e=>{e.preventDefault();if(!selectedConversation){$("messageFeedback").textContent="Choose a conversation first.";return;}try{await call("send_message",{conversationId:selectedConversation,body:$("messageBody").value});$("messageBody").value="";$("messageFeedback").textContent="Message sent.";await openConversation(selectedConversation);}catch(err){$("messageFeedback").textContent=err.message;}});
+ window.addEventListener("jr:member-signed-in",event=>{me=event.detail||null;refresh();});
+ const existing=$("accountName");if(existing&&!$("workspace").hidden){me={id:null};refresh();}
+})();
+
 })();
