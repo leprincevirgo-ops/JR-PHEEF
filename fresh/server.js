@@ -3,6 +3,11 @@ const express=require("express");
 const path=require("node:path");
 const app=express();
 const PORT=Number(process.env.PORT)||10000;
+const SUPABASE_URL=(process.env.SUPABASE_URL||"").replace(/\/$/,"");
+const SUPABASE_KEY=process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY||"";
+const ACCESS_COOKIE="jr_access";
+const REFRESH_COOKIE="jr_refresh";
+const AUTH_ORIGIN="https://"+(process.env.RENDER_EXTERNAL_HOSTNAME||"jr-pheef-foundation.onrender.com");
 
 app.disable("x-powered-by");
 app.use((req,res,next)=>{
@@ -10,15 +15,130 @@ app.use((req,res,next)=>{
   res.setHeader("X-Frame-Options","DENY");
   res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy","camera=(self), microphone=(self), geolocation=(self)");
+  res.setHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'");
+  if(req.secure||req.headers["x-forwarded-proto"]==="https") res.setHeader("Strict-Transport-Security","max-age=31536000; includeSubDomains");
   next();
 });
+app.use(express.json({limit:"16kb",type:"application/json"}));
+
+const rateBuckets=new Map();
+function rateLimit(req,res,next){
+  const now=Date.now(),key=(req.ip||"unknown")+":"+req.path;
+  const entry=rateBuckets.get(key)||{start:now,count:0};
+  if(now-entry.start>60000){entry.start=now;entry.count=0;}
+  entry.count++;rateBuckets.set(key,entry);
+  if(entry.count>12)return res.status(429).json({ok:false,error:"Too many attempts. Please wait a minute and try again."});
+  next();
+}
+function cookies(req){
+  const out={};
+  for(const part of (req.headers.cookie||"").split(";")){
+    const i=part.indexOf("=");
+    if(i>0){const k=part.slice(0,i).trim();try{out[k]=decodeURIComponent(part.slice(i+1).trim());}catch{}}
+  }
+  return out;
+}
+function setCookie(res,name,value,maxAge){
+  res.append("Set-Cookie",name+"="+encodeURIComponent(value)+"; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age="+maxAge);
+}
+function clearAuthCookies(res){
+  for(const name of [ACCESS_COOKIE,REFRESH_COOKIE])res.append("Set-Cookie",name+"=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
+}
+function sameOrigin(req,res,next){
+  const origin=req.headers.origin;
+  if(origin){
+    const host=req.headers.host;
+    const expected=(req.headers["x-forwarded-proto"]==="http"?"http":"https")+"://"+host;
+    if(origin!==expected)return res.status(403).json({ok:false,error:"Request origin was not accepted."});
+  }
+  next();
+}
+async function supabaseAuth(pathname,body,accessToken){
+  if(!SUPABASE_URL||!SUPABASE_KEY)throw new Error("Account service is not configured yet.");
+  const headers={"Content-Type":"application/json","apikey":SUPABASE_KEY};
+  if(accessToken)headers.Authorization="Bearer "+accessToken;
+  const response=await fetch(SUPABASE_URL+"/auth/v1/"+pathname,{method:"POST",headers,body:JSON.stringify(body||{})});
+  let data={};try{data=await response.json();}catch{}
+  return {ok:response.ok,status:response.status,data};
+}
+function authError(data){
+  const msg=String(data?.msg||data?.message||data?.error_description||data?.error||"");
+  if(/already registered|already exists/i.test(msg))return "An account with this email already exists. Try logging in.";
+  if(/invalid login credentials/i.test(msg))return "Email or password is incorrect.";
+  if(/email not confirmed/i.test(msg))return "Please verify your email before logging in.";
+  if(/password/i.test(msg)&&/weak|short|least/i.test(msg))return "Choose a stronger password with at least 8 characters.";
+  if(/rate limit/i.test(msg))return "Too many attempts. Please wait and try again.";
+  return "We could not complete that request. Check your details and try again.";
+}
+function saveSession(res,data){
+  if(data?.access_token)setCookie(res,ACCESS_COOKIE,data.access_token,Math.max(60,Number(data.expires_in)||3600));
+  if(data?.refresh_token)setCookie(res,REFRESH_COOKIE,data.refresh_token,60*60*24*30);
+}
+async function currentUser(req,res){
+  const c=cookies(req);
+  if(!c[ACCESS_COOKIE]&&!c[REFRESH_COOKIE])return null;
+  if(c[ACCESS_COOKIE]){
+    const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+c[ACCESS_COOKIE]};
+    const response=await fetch(SUPABASE_URL+"/auth/v1/user",{headers});
+    if(response.ok)return await response.json();
+    if(response.status!==401)throw new Error("Could not check your session.");
+  }
+  if(c[REFRESH_COOKIE]){
+    const refreshed=await supabaseAuth("token?grant_type=refresh_token",{refresh_token:c[REFRESH_COOKIE]});
+    if(refreshed.ok&&refreshed.data.access_token){saveSession(res,refreshed.data);return refreshed.data.user||null;}
+  }
+  clearAuthCookies(res);
+  return null;
+}
+
 app.get("/healthz",(_req,res)=>res.status(200).json({
-  ok:true,product:"JR PHEEF",identity:"JR",stage:"foundation",
+  ok:true,product:"JR PHEEF",identity:"JR",stage:"foundation-auth",
+  authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),paymentsEnabled:false,
   timestamp:new Date().toISOString()
 }));
+app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const {fullName,email,password,phone,birthYear}=req.body||{};
+    if(typeof fullName!=="string"||fullName.trim().length<2||fullName.trim().length>100)return res.status(400).json({ok:false,error:"Enter your full name."});
+    if(typeof email!=="string"||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter a valid email address."});
+    if(typeof password!=="string"||password.length<8||password.length>128)return res.status(400).json({ok:false,error:"Password must be between 8 and 128 characters."});
+    if(typeof phone!=="string"||phone.trim().length<7||phone.trim().length>25)return res.status(400).json({ok:false,error:"Enter your phone number, including country code."});
+    const year=Number(birthYear),currentYear=new Date().getUTCFullYear();
+    if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
+    const result=await supabaseAuth("signup",{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year}});
+    if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
+    if(result.data.access_token)saveSession(res,result.data);
+    return res.status(201).json({ok:true,authenticated:Boolean(result.data.access_token),emailVerificationRequired:!result.data.access_token,message:result.data.access_token?"Your JR PHEEF account has been created.":"Check your email for a verification link to activate your JR PHEEF account."});
+  }catch(err){console.error("JR PHEEF signup service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
+});
+app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const {email,password}=req.body||{};
+    if(typeof email!=="string"||typeof password!=="string"||!email.trim()||!password)return res.status(400).json({ok:false,error:"Enter your email and password."});
+    const result=await supabaseAuth("token?grant_type=password",{email:email.trim().toLowerCase(),password});
+    if(!result.ok)return res.status(result.status===429?429:401).json({ok:false,error:authError(result.data)});
+    saveSession(res,result.data);
+    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email},message:"Welcome back to JR PHEEF."});
+  }catch(err){console.error("JR PHEEF login service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
+});
+app.get("/api/auth/session",async(req,res)=>{
+  try{
+    if(!SUPABASE_URL||!SUPABASE_KEY)return res.status(503).json({ok:false,configured:false});
+    const user=await currentUser(req,res);
+    return res.json({ok:true,authenticated:Boolean(user),user:user?{id:user.id,email:user.email,fullName:user.user_metadata?.full_name||""}:null});
+  }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
+});
+app.post("/api/auth/logout",sameOrigin,async(req,res)=>{
+  try{
+    const c=cookies(req);
+    if(c[ACCESS_COOKIE]){
+      try{await fetch(SUPABASE_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+c[ACCESS_COOKIE]}});}catch{}
+    }
+    clearAuthCookies(res);
+    return res.json({ok:true,message:"You have been logged out."});
+  }catch{clearAuthCookies(res);return res.json({ok:true});}
+});
 app.use(express.static(path.join(__dirname,"public"),{extensions:["html"]}));
-// Express 5 uses path-to-regexp v8; a bare "*" route is invalid.
-// A final middleware provides the SPA fallback without wildcard syntax.
 app.use((_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.use((err,_req,res,_next)=>{
   console.error("JR PHEEF request error:",err.message);
