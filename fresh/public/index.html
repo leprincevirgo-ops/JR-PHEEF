@@ -16,7 +16,28 @@
  </div>
  <div class="workspace-view" id="view-worlds" hidden><p class="eyebrow">WORLDS</p><h2>Explore connected worlds</h2><p class="view-copy">Worlds will organise experiences around what you want to do—not confine you to a fixed list of apps. The world spaces are being built and are not active yet.</p><div class="world-preview"><span>01</span><div><strong>Learning & discovery</strong><small>Knowledge, skills and research</small></div></div><div class="world-preview"><span>02</span><div><strong>Business & opportunity</strong><small>Ideas, work, trade and services</small></div></div><div class="world-preview"><span>03</span><div><strong>People & everyday life</strong><small>Communication, community and daily needs</small></div></div></div>
  <div class="workspace-view" id="view-jr" hidden><p class="eyebrow">JR · YOUR STARTING POINT</p><h2>Talk to JR</h2><p class="view-copy">The conversation interface is ready for the next integration. Live JR AI intelligence is not connected yet, so messages are not sent to an AI service at this stage.</p><div class="connection-note"><span class="status-dot"></span> JR intelligence connection pending</div></div>
- <div class="workspace-view" id="view-command" hidden><p class="eyebrow">COMMAND CENTER</p><h2>Your account & activity</h2><div class="account-card"><div class="account-avatar">JR</div><div><strong id="accountName">JR PHEEF member</strong><small id="accountEmail"></small><small>Account created · Email verified at sign-in</small></div></div><div class="connection-note">Your personal controls and activity tools will appear here as they are activated.</div></div>
+ <div class="workspace-view" id="view-command" hidden><p class="eyebrow">COMMAND CENTER</p>
+  <div id="memberCommand"><h2>Your account & activity</h2><div class="account-card"><div class="account-avatar">JR</div><div><strong id="accountName">JR PHEEF member</strong><small id="accountEmail"></small><small>Account created · Email verified at sign-in</small></div></div><div class="connection-note">Your personal controls and activity tools will appear here as they are activated.</div></div>
+  <div id="founderCommand" hidden><div class="founder-head"><div><p class="eyebrow">DGBO · FOUNDER STEWARDSHIP</p><h2>Founder Command Center</h2><p class="view-copy">Welcome, <strong id="founderName">Founder</strong>. Identity: <strong id="founderJp">JP-01</strong></p></div><span class="founder-stamp">PRIVATE ACCESS</span></div>
+   <p id="founderLoadState" class="connection-note">Loading protected founder overview…</p>
+   <div class="founder-grid">
+    <article class="founder-card"><small>MEMBER ACCOUNTS</small><strong id="founderMembers">—</strong><span>Staging database count</span></article>
+    <article class="founder-card"><small>REGISTERED VENTURES</small><strong id="founderVentures">—</strong><span>Staging database count</span></article>
+    <article class="founder-card"><small>ACCOUNT VERIFICATION</small><strong id="founderVerified">—</strong><span>Identity status, not email status</span></article>
+    <article class="founder-card"><small>ENVIRONMENT</small><strong id="founderEnvironment">—</strong><span>Production remains separate</span></article>
+   </div>
+   <h3 class="founder-section-title">Ecosystem stewardship</h3>
+   <div class="founder-ventures">
+    <article><b>DGBO</b><p>Parent governance, ownership, strategy, corporate records and stewardship across ventures.</p><small>Governance foundation · operational controls still being built</small></article>
+    <article><b>JR PHEEF</b><p>Flagship technology ecosystem. JR is the human-facing gateway to learning, creation, connection and action.</p><small>Member authentication live · AI and service integrations pending</small></article>
+    <article><b>FAMILY</b><p>Financial access and participation serving the entire ecosystem—not a JR-only wallet.</p><small>Not activated · financial operations remain disabled</small></article>
+   </div>
+   <h3 class="founder-section-title">System safeguards</h3>
+   <div class="founder-safeguards"><div><span>Payments</span><strong id="founderPayments">—</strong></div><div><span>Live JR intelligence</span><strong id="founderAi">—</strong></div><div><span>Production access</span><strong>Not connected</strong></div></div>
+   <div class="founder-philosophy"><p class="eyebrow">FOUNDING PRINCIPLE</p><p>We build an ecosystem that serves humanity. Humanity contributes to its growth. Its companies strengthen one another, and together they learn, grow and adapt to the changing needs of humanity.</p></div>
+   <p class="workspace-footnote">This is the first protected founder overview, not a claim that all business controls or services are operational. Sensitive actions, financial operations and production changes remain unavailable until separately implemented and verified.</p>
+  </div>
+ </div>
  <p class="workspace-footnote">JR PHEEF Foundation preview · Some capabilities are still under development. No payment or live AI actions are enabled.</p>
 </section>
 <section class="conversation" id="conversation" hidden aria-live="polite"><div class="jr-label"><span class="dot"></span> JR is here</div><h2>What would you like to do?</h2><form id="promptForm"><label class="sr-only" for="prompt">Talk to JR</label><input id="prompt" maxlength="500" placeholder="JR, what can you do for me?" autocomplete="off"><button class="send" type="submit" aria-label="Send to JR">↑</button></form><p class="note" id="promptReply">Your JR PHEEF journey starts here.</p></section>
