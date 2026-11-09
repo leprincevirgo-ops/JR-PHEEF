@@ -119,7 +119,7 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     if(result.data.access_token&&result.data.user?.email_confirmed_at){
       const member=await provisionMember(result.data.access_token);
       saveSession(res,result.data);
-      return res.status(201).json({ok:true,authenticated:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified},message:"Your JR PHEEF account has been created."});
+      return res.status(201).json({ok:true,authenticated:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your JR PHEEF account has been created."});
     }
     return res.status(201).json({ok:true,authenticated:false,emailVerificationRequired:true,message:"Check your email for a verification link to activate your JR PHEEF account."});
   }catch(err){console.error("JR PHEEF signup service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
@@ -133,7 +133,7 @@ app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
     if(!result.data.user?.email_confirmed_at)return res.status(403).json({ok:false,error:"Please verify your email before logging in."});
     const member=await provisionMember(result.data.access_token);
     saveSession(res,result.data);
-    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified},message:"Welcome back to JR PHEEF."});
+    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Welcome back to JR PHEEF."});
   }catch(err){console.error("JR PHEEF login service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
 });
 app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
@@ -158,6 +158,15 @@ app.get("/api/auth/session",async(req,res)=>{
     const member=await provisionMember(req.jrAccessToken);
     return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
+});
+app.post("/api/workspace",sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Please sign in with a verified email first."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify(req.body||{})});
+    let data={};try{data=await response.json();}catch{}
+    return res.status(response.status).json(data);
+  }catch(err){console.error("JR PHEEF workspace service:",err.message);return res.status(503).json({ok:false,error:"Workspace service is temporarily unavailable."});}
 });
 app.get("/api/founder/overview",async(req,res)=>{
   try{
