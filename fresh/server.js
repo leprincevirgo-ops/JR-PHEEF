@@ -116,8 +116,12 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
     const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year}});
     if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
-    if(result.data.access_token)saveSession(res,result.data);
-    return res.status(201).json({ok:true,authenticated:Boolean(result.data.access_token),emailVerificationRequired:!result.data.access_token,message:result.data.access_token?"Your JR PHEEF account has been created.":"Check your email for a verification link to activate your JR PHEEF account."});
+    if(result.data.access_token){
+      saveSession(res,result.data);
+      const member=await provisionMember(result.data.access_token);
+      return res.status(201).json({ok:true,authenticated:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified},message:"Your JR PHEEF account has been created."});
+    }
+    return res.status(201).json({ok:true,authenticated:false,emailVerificationRequired:true,message:"Check your email for a verification link to activate your JR PHEEF account."});
   }catch(err){console.error("JR PHEEF signup service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
 });
 app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
