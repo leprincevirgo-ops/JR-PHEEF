@@ -49,3 +49,31 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .jr-media-status{font-size:12px;color:var(--muted);min-height:1.5em}
 .jr-theme-note{font-size:11px;color:#9eb4ca;margin-top:12px}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Communication-centre refinement: familiar inbox hierarchy without copying another brand */
+#memberCommand{max-width:100%;min-width:0}
+.member-profile-panel{padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(24,58,82,.82),rgba(8,22,39,.8));backdrop-filter:blur(16px)}
+.member-profile-main{display:flex;align-items:center;gap:13px}
+.member-profile-copy{display:grid;gap:5px;min-width:0}
+.member-profile-copy strong{font-size:16px}
+.member-profile-copy small{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.profile-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:3px}
+.profile-meta span{font-size:10px;color:#b9d4e8;padding:5px 8px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.035)}
+.command-shortcuts{position:sticky;top:0;z-index:4;margin:10px 0 16px;padding:9px 0;background:linear-gradient(180deg,rgba(7,17,30,.94),rgba(7,17,30,.72));backdrop-filter:blur(12px)}
+.command-shortcuts button{min-height:40px;border-radius:999px;padding-inline:15px}
+#memberChatsPanel,#memberContactsPanel,#memberStatusPanel,#memberUpdatesPanel,#memberTalkPanel{padding:16px 0;border-bottom:1px solid var(--line)}
+#memberChatsPanel .hub-chat-layout{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.4fr);gap:14px}
+#memberChatsPanel #conversationList{gap:5px}
+#memberChatsPanel .hub-conversation-button{display:flex;align-items:center;min-height:58px;border:0;border-bottom:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);padding:13px}
+#memberChatsPanel #messageList{padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(3,12,24,.3);min-height:150px}
+#memberChatsPanel #messageList .hub-list-item{max-width:88%;border-radius:14px;background:rgba(48,99,127,.2)}
+#memberChatsPanel #messageSendForm{margin-top:10px}
+#memberStatusPanel .hub-card,#memberUpdatesPanel .hub-card{background:transparent}
+#memberCommand button:focus-visible,#memberCommand a:focus-visible,#memberCommand input:focus-visible,#memberCommand textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.jr-media-actions label:focus-within{outline:2px solid var(--cyan);outline-offset:3px}
+@media(max-width:680px){
+ #memberChatsPanel .hub-chat-layout{grid-template-columns:1fr}
+ #memberChatsPanel #messageList{max-height:34vh}
+ .command-shortcuts{top:0}
+}
+@media(prefers-reduced-transparency:reduce){.member-profile-panel,.command-shortcuts{backdrop-filter:none}}
