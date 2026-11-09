@@ -85,4 +85,13 @@
   $("promptReply").textContent="JR's live conversation intelligence is the next service being connected. This message has not been sent to an AI service yet.";
  });
  api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
+
+ const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
+ const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
+ if(confirmationToken){
+  window.history.replaceState({},document.title,window.location.pathname+window.location.search);
+  api("/api/auth/session/establish",{access_token:confirmationToken,refresh_token:confirmationRefresh}).then(result=>{
+   setSignedIn(result.user||null);$("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
+  }).catch(error=>{showAuth("login");setMessage(error.message||"Email confirmation failed. Please request a new link.");});
+ }
 })();
