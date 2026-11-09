@@ -27,9 +27,9 @@
  const statuses=statusCard?.querySelector("#myStatuses");
  mount("commandStatusMount","Share an update",[statusForm,statuses]);
  if(statusCard)statusCard.remove();
- const statusForm=member.querySelector('[data-hub-action="create_status"]');
- if(statusForm){
-  const gallery=statusForm.querySelector('[data-status-media="gallery"]'),camera=statusForm.querySelector('[data-status-media="camera"]'),preview=$("statusMediaPreview");
+ const mediaStatusForm=member.querySelector('[data-hub-action="create_status"]');
+ if(mediaStatusForm){
+  const gallery=mediaStatusForm.querySelector('[data-status-media="gallery"]'),camera=mediaStatusForm.querySelector('[data-status-media="camera"]'),preview=$("statusMediaPreview");
   let objectUrls=[];
   const showMedia=()=>{
    objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls=[];
