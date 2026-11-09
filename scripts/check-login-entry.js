@@ -47,8 +47,9 @@ assert.match(html,/body\.jr-auth-pending>main\{[\s\S]*?pointer-events:none!impor
 assert.match(html,/if\(!session\|\|!session\.ok\|\|!session\.logged_in\|\|!session\.member\)\{[\s\S]*?document\.body\.classList\.add\("jr-auth-pending"\)/,"failed session restoration must restore the sign-in interaction state");
 assert.match(html,/autocomplete="username"/,"login identifier must expose native username autofill");
 assert.match(html,/autocomplete="current-password"/,"password must expose native password autofill");
-assert.match(html,/<a id="jrContinueEntry" class="jr-open-external" href="#loginIdentifier" aria-label="Continue to JR PHEEF sign in">/,"entry action must stay in the current page and jump directly to the sign-in field");
+assert.match(html,/<button id="jrContinueEntry" class="jr-open-external" type="button" data-jr-entry-action="continue" aria-label="Continue to JR PHEEF sign in">/,"entry action must be a native button handled without hash navigation");
 assert.doesNotMatch(html,/jrOpenChromeDirect|jrOpenChrome|target="_blank"/,"entry flow must not depend on popup/new-tab behavior that Android in-app browsers can block");
+assert.match(html,/data-jr-entry-action="login"/,"login action must be delegated through the resilient entry interaction layer");
 assert.match(html,/jr-entry-browser-note[\s\S]*?Open in Chrome/,"entry page must explain how to open Chrome when embedded in another app");
 assert.doesNotMatch(html,/intent:\/\//,"mobile entry links must not rely on Android intent URLs that can be blocked by browsers");
 assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme must be loaded on the entry page");
