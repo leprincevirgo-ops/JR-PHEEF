@@ -19,7 +19,7 @@
    $("founderMembers").textContent=data.metrics.memberAccounts===null?"—":String(data.metrics.memberAccounts);
    $("founderVentures").textContent=data.metrics.registeredVentures===null?"—":String(data.metrics.registeredVentures);
    $("founderVerified").textContent=data.founder.verified?"Verified":"Verification pending";
-   $("founderEnvironment").textContent=data.environment;$("founderPayments").textContent=data.controls.paymentsEnabled?"Enabled":"Disabled";
+   $("founderEnvironment").textContent=data.environment;$("founderOpportunities").textContent=data.metrics.opportunities??"—";$("founderListings").textContent=data.metrics.listings??"—";$("founderConversations").textContent=data.metrics.conversations??"—";$("founderDeliveries").textContent=data.metrics.deliveryRequests??"—";$("founderPayments").textContent=data.controls.paymentsEnabled?"Enabled":"Disabled";
    $("founderAi").textContent=data.controls.liveAiConnected?"Connected":"Not connected";
    const ventureBox=$("founderVentureList");ventureBox.replaceChildren();
    (data.ventures||[]).forEach(v=>{const card=document.createElement("article");card.className="founder-data-row";const name=document.createElement("strong");name.textContent=v.name;const detail=document.createElement("p");detail.textContent=v.description||"";const meta=document.createElement("small");meta.textContent=v.kind+" · "+v.status+(v.regulated?" · regulated services not activated":"");card.append(name,detail,meta);ventureBox.append(card);});
