@@ -110,7 +110,7 @@
  async function refresh(){
   try{
    const d=await call("overview");me=d.member;hubLoaded=true;
-   const pf=hub.querySelector('[data-hub-action="update_profile"]');
+   const pf=document.querySelector('[data-hub-action="update_profile"]');
    for(const k of ["bio","city","country","profile_visibility"])if(pf.elements[k])pf.elements[k].value=me[k]||({profile_visibility:"public"}[k]||"");
    for(const k of ["public_phone","show_email","show_location"])pf.elements[k].checked=!!me[k];
    render("myListings",d.listings,x=>item(x.title,x.description,"KSh "+(x.price??"—")+" · "+(x.location||"No location")+" · "+x.status));
@@ -141,7 +141,7 @@
   try{const messages=await call("list_messages",{conversationId:id});render("messageList",messages,m=>item(m.sender_id===me.id?"You":"Member",m.body,new Date(m.created_at).toLocaleString()));}
   catch(e){$("messageList").textContent=e.message;}
  }
- hub.addEventListener("submit",async event=>{
+ document.addEventListener("submit",async event=>{
   const form=event.target.closest("form[data-hub-action]");if(!form)return;
   event.preventDefault();const action=form.dataset.hubAction,fd=new FormData(form),payload={};
   for(const [k,v] of fd.entries())payload[k]=v;
