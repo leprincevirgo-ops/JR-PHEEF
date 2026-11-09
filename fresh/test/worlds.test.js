@@ -1,0 +1,12 @@
+"use strict";
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const vm=require("node:vm");
+const html=fs.readFileSync("fresh/public/index.html","utf8");
+const script=fs.readFileSync("fresh/public/worlds.js","utf8");
+const fn=fs.readFileSync("fresh/supabase/functions/jr-workspace-api/index.ts","utf8");
+test("WORLDS view loads its interactive module",()=>{assert.match(html,/id="view-worlds"/);assert.match(html,/worlds\.js/);assert.match(script,/createWorldForm/);assert.match(script,/Enter world/);});
+test("WORLDS offers all seven ecosystem discovery categories",()=>{for(const label of ["Global World","Personal Worlds","Business Worlds","Education & Knowledge","Commerce & Services","FAMILY","Creativity & Community"])assert.ok(html.includes(label));});
+test("WORLDS client module parses",()=>{assert.doesNotThrow(()=>new vm.Script(script));});
+test("Workspace API has authenticated world list/create/read/update actions",()=>{for(const action of ["list_worlds","create_world","get_world","update_world"])assert.ok(fn.includes('action==="'+action+'"'));assert.match(fn,/owner_member_id=eq\.\"\+mid/);});
