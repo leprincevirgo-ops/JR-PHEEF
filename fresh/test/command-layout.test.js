@@ -17,3 +17,16 @@ test("Command Center exposes all expected shortcuts",()=>{
  for(const label of ["Profile","Chats","Contacts","Status","Updates","Talk to JR"])assert.ok(html.includes(label));
  assert.ok(html.includes("command-layout.js"));
 });
+
+test("Status supports camera and gallery selection with a local preview",()=>{
+ const app=fs.readFileSync("fresh/public/app.js","utf8");
+ assert.match(app,/data-status-media="gallery"/);
+ assert.match(app,/data-status-media="camera"/);
+ assert.match(app,/capture="environment"/);
+ assert.match(app,/statusMediaPreview/);
+ assert.match(app,/secure photo\/video publishing is not enabled yet/);
+});
+test("Command Center includes speaker and accessibility preferences",()=>{
+ for(const id of ["jrSpeakerVoice","jrSpeakerRate","jrSpeakTest","jrStopSpeech","jrVoiceInput","jrLargeText","jrHighContrast","jrReduceMotion"])assert.ok(html.includes(id));
+ for(const feature of ["SpeechSynthesisUtterance","SpeechRecognition","jr-large-text","jr-high-contrast","jr-reduce-motion"])assert.ok(source.includes(feature));
+});
