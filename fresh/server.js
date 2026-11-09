@@ -146,7 +146,7 @@ app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
     if(!user.email_confirmed_at)return res.status(403).json({ok:false,error:"Your email address is not confirmed yet."});
     const member=await provisionMember(access_token);
     saveSession(res,{access_token,refresh_token:typeof refresh_token==="string"?refresh_token:undefined,expires_in:3600});
-    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
+    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF email confirmation:",err.message);return res.status(503).json({ok:false,error:"Could not complete email confirmation. Please try again."});}
 });
 app.get("/api/auth/session",async(req,res)=>{
@@ -156,7 +156,7 @@ app.get("/api/auth/session",async(req,res)=>{
     if(!user)return res.json({ok:true,authenticated:false,user:null});
     if(!user.email_confirmed_at)return res.json({ok:true,authenticated:false,emailVerificationRequired:true,user:null});
     const member=await provisionMember(req.jrAccessToken);
-    return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
+    return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
 app.post("/api/workspace",sameOrigin,async(req,res)=>{
