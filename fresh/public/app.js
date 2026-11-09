@@ -134,6 +134,7 @@
   if(action==="create_listing"){payload.price=Number(payload.price);payload.negotiable=fd.has("negotiable");}
   if(action==="create_project"&&payload.budget!=="")payload.budget=Number(payload.budget);
   if(action==="create_family_goal")payload.targetAmount=Number(payload.targetAmount);
+  if(action==="update_profile"){payload.public_phone=fd.has("public_phone");payload.show_email=fd.has("show_email");payload.show_location=fd.has("show_location");}
   const feedback=form.querySelector(".hub-feedback");const button=form.querySelector("button[type=submit],button:not([type])");
   if(button){button.disabled=true;}
   try{const result=await call(action,payload);if(feedback)feedback.textContent=result?.note||"Saved successfully.";form.reset();await refresh();}
