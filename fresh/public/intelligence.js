@@ -10,8 +10,8 @@
  const result=$("jrIntentResult"),camera=$("jrCameraFiles"),gallery=$("jrGalleryFiles"),preview=$("jrMediaPreview");
  let objectUrls=[];
  const routes=[
-  {type:"family_personal",label:"Family World",keys:["family","relatives","children","parents","family plans","family event","family chat"]},
-  {type:"family_finance",label:"FAMILY World · Financial Participation",keys:["saving","savings","investment","investing","financial goal","budget","money market","stocks","etf"]},
+  {type:"family_finance",label:"FAMILY World · Financial Participation",keys:["saving","savings","investment","investing","financial goal","budget","money market","stocks","etf","family finance","family financial"]},
+  {type:"family_personal",label:"Family World",keys:["family life","relatives","children","parents","family plans","family event","family chat","family coordination"]},
   {type:"business",label:"Business World",keys:["business","company","staff","employee","shop","supermarket","venture","operations"]},
   {type:"education",label:"Education & Knowledge",keys:["learn","learning","study","school","teacher","course","research","lesson","homework"]},
   {type:"commerce",label:"Commerce & Services",keys:["sell","buy","advertise","listing","product","service","property","job","delivery","room","rent"]},
