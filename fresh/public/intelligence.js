@@ -66,7 +66,7 @@
     }
    }
    actions.push(external);
-   renderResponse("JR has matched your request to "+intents.map(x=>x.label).join(" and ")+". Open the relevant worlds below. If a world is missing, JR can prepare its starter structure for you to review; it is not created automatically. External research opens separately.",actions);
+   renderResponse("JR has matched your request to "+intents.map(x=>x.label).join(" and ")+". Open the relevant worlds below. If a world is missing, JR can prepare its starter structure for you to review; it is not created automatically; it will not be created until you submit the world form. External research opens separately.",actions);
   }catch(e){renderResponse(e.message+" Sign in again if your session has expired.",[external]);}
  }
  document.addEventListener("submit",event=>{
