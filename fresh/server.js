@@ -19,7 +19,7 @@ app.use((req,res,next)=>{
   if(req.secure||req.headers["x-forwarded-proto"]==="https") res.setHeader("Strict-Transport-Security","max-age=31536000; includeSubDomains");
   next();
 });
-app.use(express.json({limit:"16kb",type:"application/json"}));
+app.use(express.json({limit:"12mb",type:"application/json"}));
 
 const rateBuckets=new Map();
 function rateLimit(req,res,next){
