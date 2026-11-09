@@ -77,3 +77,16 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
  .command-shortcuts{top:0}
 }
 @media(prefers-reduced-transparency:reduce){.member-profile-panel,.command-shortcuts{backdrop-filter:none}}
+
+/* Signed-in JR conversation entry and organised communication mounts */
+.jr-workspace-prompt{display:flex;gap:9px;align-items:stretch;max-width:900px;margin:18px 0 8px}
+.jr-workspace-prompt input{flex:1;min-width:0;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:rgba(4,15,28,.76);color:var(--text);font:inherit}
+.jr-workspace-prompt button{border:0;border-radius:14px;padding:0 18px;background:linear-gradient(110deg,#8bf2ef,#7c9cff);color:#07111e;font-weight:800;cursor:pointer}
+.jr-workspace-prompt input:focus-visible,.jr-workspace-prompt button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.command-panel{scroll-margin-top:76px;min-width:0}
+.command-mounted-card{margin:12px 0;background:linear-gradient(145deg,rgba(25,53,79,.76),rgba(9,22,40,.7));backdrop-filter:blur(12px)}
+.command-mounted-card h4{margin:0 0 12px;color:var(--text);font-size:14px}
+#commandContactsMount #memberSearchForm{max-width:560px}
+#commandContactsMount #memberSearchResults{margin-top:10px}
+#commandChatMount .hub-chat-layout{margin-top:0}
+@media(max-width:560px){.jr-workspace-prompt{gap:6px}.jr-workspace-prompt button{padding:0 12px}.command-mounted-card{padding:12px}}
