@@ -16,16 +16,16 @@
  if(profileForm)mount("memberProfilePanel","Profile settings",[profileForm]);
  if(profileCard)profileCard.remove();
  const peopleCard=findCard("#memberSearchForm");
- const searchForm=peopleCard?.querySelector("#memberSearchForm");
+ const contactSearchForm=peopleCard?.querySelector("#memberSearchForm");
  const searchResults=peopleCard?.querySelector("#memberSearchResults");
  const chatLayout=peopleCard?.querySelector(".hub-chat-layout");
- mount("commandContactsMount","Find and connect",[searchForm,searchResults]);
+ mount("commandContactsMount","Find and connect",[contactSearchForm,searchResults]);
  mount("commandChatMount","Your conversations",[chatLayout]);
  if(peopleCard)peopleCard.remove();
  const statusCard=findCard('[data-hub-action="create_status"]');
- const statusForm=statusCard?.querySelector('[data-hub-action="create_status"]');
+ const statusCreateForm=statusCard?.querySelector('[data-hub-action="create_status"]');
  const statuses=statusCard?.querySelector("#myStatuses");
- mount("commandStatusMount","Share an update",[statusForm,statuses]);
+ mount("commandStatusMount","Share an update",[statusCreateForm,statuses]);
  if(statusCard)statusCard.remove();
  const mediaStatusForm=member.querySelector('[data-hub-action="create_status"]');
  if(mediaStatusForm){
