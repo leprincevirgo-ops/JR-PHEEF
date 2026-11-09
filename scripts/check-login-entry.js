@@ -56,7 +56,8 @@ assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme m
 assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welcome must use a layered luminous background");
 assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
 assert.match(entryVisual,/#jrContinueEntry[\s\S]*?touch-action:manipulation[\s\S]*?pointer-events:auto/,"the primary entry action must accept mobile touch input");
-assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
+// Allow the delegated action attribute; it is required by entry-interactions.js.
+assert.match(html,/<button id="loginSubmit" class="primary" type="button"(?:\s+data-jr-entry-action="login")?>LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
   "login must not depend on an inline onclick handler");
