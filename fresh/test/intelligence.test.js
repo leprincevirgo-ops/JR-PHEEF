@@ -1,0 +1,15 @@
+"use strict";
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const vm=require("node:vm");
+const html=fs.readFileSync("fresh/public/index.html","utf8");
+const css=fs.readFileSync("fresh/public/styles.css","utf8");
+const js=fs.readFileSync("fresh/public/intelligence.js","utf8");
+test("JR intelligence module is loaded after worlds",()=>{assert.match(html,/worlds\.js[^>]*defer><script src="\/intelligence\.js/);});
+test("JR routes personal and financial family worlds separately",()=>{assert.match(js,/family_personal/);assert.match(js,/family_finance/);assert.match(js,/Family World/);assert.match(js,/FAMILY World/);});
+test("JR can find existing worlds and proposes rather than auto-creates missing worlds",()=>{assert.match(js,/list_worlds/);assert.match(js,/status==="active"/);assert.match(js,/will not be created until you submit the world form/);});
+test("JR exposes external search separately from internal world lookup",()=>{assert.match(js,/Also search outside JR PHEEF/);assert.match(js,/wider web/);});
+test("camera and gallery media selection previews locally without claiming upload",()=>{assert.match(js,/capture="environment"/);assert.match(js,/jrGalleryFiles/);assert.match(js,/Nothing has been uploaded or published/);});
+test("JR intent module parses",()=>{assert.doesNotThrow(()=>new vm.Script(js));});
+test("solid colour styling is replaced by layered atmospheric background",()=>{assert.match(css,/radial-gradient\(ellipse at 12% 12%/);assert.match(css,/backdrop-filter:blur/);assert.match(css,/prefers-reduced-motion/);});
