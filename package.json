@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "JR PHEEF — a fresh foundation for the JR-led connected world",
-  "main": "server.js",
-  "scripts": { "start": "node server.js", "test": "node --test" },
+  "main": "fresh/server.js",
+  "scripts": { "start": "node fresh/server.js", "test": "node --test fresh/test/*.test.js" },
   "engines": { "node": ">=22" },
   "dependencies": { "express": "5.1.0" }
 }
