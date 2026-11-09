@@ -90,3 +90,22 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 #commandContactsMount #memberSearchResults{margin-top:10px}
 #commandChatMount .hub-chat-layout{margin-top:0}
 @media(max-width:560px){.jr-workspace-prompt{gap:6px}.jr-workspace-prompt button{padding:0 12px}.command-mounted-card{padding:12px}}
+
+/* Status media picker: local preview only until secure upload is enabled */
+.status-media-tools{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(7,19,34,.5)}
+.status-media-label{display:block;font-weight:700;margin-bottom:9px}
+.status-media-actions,.accessibility-actions{display:flex;flex-wrap:wrap;gap:8px}
+.media-picker{position:relative;overflow:hidden;display:inline-flex;align-items:center;cursor:pointer}
+.media-picker input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.status-media-preview{display:flex;gap:9px;overflow-x:auto;margin-top:10px}
+.status-media-tile{flex:0 0 112px;display:grid;gap:5px;font-size:11px;color:var(--muted);overflow:hidden}
+.status-media-tile img,.status-media-tile video{width:112px;height:96px;object-fit:cover;border-radius:10px;background:#050b13}
+.accessibility-controls{display:grid;gap:12px;max-width:560px}
+.accessibility-controls>label:not(.hub-check){display:grid;gap:6px}
+.accessibility-controls select{padding:10px;border:1px solid var(--line);border-radius:10px;background:#10243a;color:var(--text)}
+.accessibility-actions button{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#18334b;color:var(--text)}
+.jr-large-text{font-size:112%}
+.jr-high-contrast{--text:#fff;--muted:#e1eaf5;--line:rgba(255,255,255,.42)}
+.jr-high-contrast .hub-card,.jr-high-contrast .command-mounted-card{border-color:rgba(255,255,255,.48)}
+.jr-reduce-motion *, .jr-reduce-motion *::before,.jr-reduce-motion *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+@media(max-width:560px){.status-media-actions .media-picker{min-height:42px}.accessibility-actions button{min-height:42px}}
