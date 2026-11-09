@@ -153,7 +153,10 @@ app.get("/api/auth/session",async(req,res)=>{
   try{
     if(!SUPABASE_URL||!SUPABASE_KEY)return res.status(503).json({ok:false,configured:false});
     const user=await currentUser(req,res);
-    return res.json({ok:true,authenticated:Boolean(user),user:user?{id:user.id,email:user.email,fullName:user.user_metadata?.full_name||""}:null});
+    if(!user)return res.json({ok:true,authenticated:false,user:null});
+    if(!user.email_confirmed_at)return res.json({ok:true,authenticated:false,emailVerificationRequired:true,user:null});
+    const member=await provisionMember(cookies(req)[ACCESS_COOKIE]);
+    return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
 app.post("/api/auth/logout",sameOrigin,async(req,res)=>{
