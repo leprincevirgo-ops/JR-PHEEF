@@ -5,7 +5,7 @@ const fs=require("node:fs");
 const vm=require("node:vm");
 const html=fs.readFileSync("fresh/public/index.html","utf8");
 const script=fs.readFileSync("fresh/public/worlds.js","utf8");
-test("WORLDS view loads its interactive module",()=>{assert.match(html,/id="view-worlds"/);assert.match(html,/worlds\.js/);assert.match(script,/createWorldForm/);assert.match(script,/Enter world/);});
+test("WORLDS view loads its interactive module",()=>{assert.match(html,/id="view-worlds"/);assert.match(html,/worlds\.js/);assert.match(script,/createWorldForm/);assert.match(script,/Enter world/);assert.equal((html.match(/class="world-template-button"/g)||[]).length,7);assert.match(script,/world-template-button/);});
 test("WORLDS offers all seven ecosystem discovery categories",()=>{for(const label of ["Global World","Personal Worlds","Business Worlds","Education & Knowledge","Commerce & Services","FAMILY","Creativity & Community"])assert.ok(html.includes(label));});
 test("WORLDS client module parses",()=>{assert.doesNotThrow(()=>new vm.Script(script));});
 test("WORLDS connects list, create, read and status actions",()=>{for(const action of ["list_worlds","create_world","get_world","update_world"])assert.ok(script.includes('"'+action+'"'));});
