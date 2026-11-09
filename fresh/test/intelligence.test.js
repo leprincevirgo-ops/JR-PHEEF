@@ -7,7 +7,7 @@ const html=fs.readFileSync("fresh/public/index.html","utf8");
 const css=fs.readFileSync("fresh/public/styles.css","utf8");
 const js=fs.readFileSync("fresh/public/intelligence.js","utf8");
 test("JR intelligence module is loaded after worlds",()=>{assert.match(html,/worlds\.js[^>]*defer><\/script><script src="\/intelligence\.js/);});
-test("family finance intent takes priority over personal family intent",()=>{const finance=js.indexOf('type:"family_finance"');const personal=js.indexOf('type:"family_personal"');assert.ok(finance>=0&&personal>finance);assert.match(js,/family coordination/);assert.doesNotMatch(js,/type:"family_personal"[^
+test("family finance intent takes priority over personal family intent",()=>{const finance=js.indexOf('type:"family_finance"');const personal=js.indexOf('type:"family_personal"');assert.ok(finance>=0&&personal>finance);assert.match(js,/family coordination/);const personalRoute=js.slice(personal,js.indexOf("},",personal));assert.doesNotMatch(personalRoute,/keys:\["family"/);});
 ]*keys:\["family"/);});
 test("JR routes personal and financial family worlds separately",()=>{assert.match(js,/family_personal/);assert.match(js,/family_finance/);assert.match(js,/Family World/);assert.match(js,/FAMILY World/);});
 test("JR can find existing worlds and proposes rather than auto-creates missing worlds",()=>{assert.match(js,/list_worlds/);assert.match(js,/status==="active"/);assert.match(js,/will not be created until you submit the world form/);});
