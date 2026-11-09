@@ -1,1 +1,88 @@
-"use strict";(()=>{const $=id=>document.getElementById(id),panel=$("authPanel"),conversation=$("conversation");let mode="login";function showAuth(next){mode=next;panel.hidden=false;conversation.hidden=true;$("authMessage").textContent="";$("authTitle").textContent=mode==="login"?"Welcome back":"Create your JR PHEEF identity";$("loginTab").classList.toggle("selected",mode==="login");$("signupTab").classList.toggle("selected",mode==="signup");$("loginTab").setAttribute("aria-pressed",String(mode==="login"));$("signupTab").setAttribute("aria-pressed",String(mode==="signup"));$("nameLabel").hidden=mode==="login";$("fullName").hidden=mode==="login";$("fullName").required=mode==="signup";$("password").autocomplete=mode==="login"?"current-password":"new-password";$("authSubmit").textContent=mode==="login"?"Log in":"Create account";$("authMessage").textContent="Secure account access is being connected. This preview does not transmit your details.";$("email").focus({preventScroll:true});panel.scrollIntoView({behavior:"smooth",block:"center"});} $("openLogin").addEventListener("click",()=>showAuth("login"));$("openSignup").addEventListener("click",()=>showAuth("signup"));$("loginTab").addEventListener("click",()=>showAuth("login"));$("signupTab").addEventListener("click",()=>showAuth("signup"));$("closeAuth").addEventListener("click",()=>{panel.hidden=true;});$("startWithJr").addEventListener("click",()=>{conversation.hidden=false;panel.hidden=true;conversation.scrollIntoView({behavior:"smooth",block:"center"});$("prompt").focus({preventScroll:true});});$("promptForm").addEventListener("submit",e=>{e.preventDefault();const value=$("prompt").value.trim();if(!value){$("prompt").focus();return;}$("promptReply").textContent="JR's conversation service is the next foundation layer. Your message has not been transmitted.";});$("authForm").addEventListener("submit",e=>{e.preventDefault();$("authMessage").textContent="Account services are not connected yet. No credentials were transmitted or saved. Do not enter a real password on this preview.";});})();
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const panel=$("authPanel"),conversation=$("conversation"),form=$("authForm");
+ let mode="login",busy=false;
+ const setMessage=(message)=>{$("authMessage").textContent=message||"";};
+ function showAuth(next){
+  mode=next;panel.hidden=false;conversation.hidden=true;setMessage("");
+  $("authTitle").textContent=mode==="login"?"Welcome back":"Create your JR PHEEF identity";
+  $("loginTab").classList.toggle("selected",mode==="login");
+  $("signupTab").classList.toggle("selected",mode==="signup");
+  $("loginTab").setAttribute("aria-pressed",String(mode==="login"));
+  $("signupTab").setAttribute("aria-pressed",String(mode==="signup"));
+  for(const [id,visible] of [["nameLabel",mode==="signup"],["fullName",mode==="signup"],["phoneLabel",mode==="signup"],["phone",mode==="signup"],["birthLabel",mode==="signup"],["birthYear",mode==="signup"]]){
+   $(id).hidden=!visible;
+  }
+  $("fullName").required=mode==="signup";
+  $("phone").required=mode==="signup";
+  $("birthYear").required=mode==="signup";
+  $("password").autocomplete=mode==="login"?"current-password":"new-password";
+  $("authSubmit").textContent=mode==="login"?"Log in":"Create account";
+  $("email").focus({preventScroll:true});
+  panel.scrollIntoView({behavior:"smooth",block:"center"});
+ }
+ function setSignedIn(user){
+  $("memberGreeting").hidden=!user;
+  $("logoutButton").hidden=!user;
+  $("openLogin").hidden=!!user;
+  $("openSignup").hidden=!!user;
+  $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
+ }
+ async function api(path,body){
+  const response=await fetch(path,{method:body?"POST":"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});
+  let data={};try{data=await response.json();}catch{}
+  if(!response.ok)throw new Error(data.error||"JR PHEEF could not complete that request.");
+  return data;
+ }
+ $("openLogin").addEventListener("click",()=>showAuth("login"));
+ $("openSignup").addEventListener("click",()=>showAuth("signup"));
+ $("loginTab").addEventListener("click",()=>showAuth("login"));
+ $("signupTab").addEventListener("click",()=>showAuth("signup"));
+ $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
+ $("startWithJr").addEventListener("click",()=>{
+  conversation.hidden=false;panel.hidden=true;
+  conversation.scrollIntoView({behavior:"smooth",block:"center"});
+  $("prompt").focus({preventScroll:true});
+ });
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();if(busy)return;
+  if(!form.reportValidity())return;
+  busy=true;$("authSubmit").disabled=true;$("authSubmit").textContent=mode==="login"?"Signing in…":"Creating account…";setMessage("");
+  const payload={email:$("email").value.trim(),password:$("password").value};
+  if(mode==="signup"){
+   payload.fullName=$("fullName").value.trim();
+   payload.phone=$("phone").value.trim();
+   payload.birthYear=$("birthYear").value;
+  }
+  try{
+   const result=await api(mode==="login"?"/api/auth/login":"/api/auth/signup",payload);
+   $("password").value="";
+   if(mode==="login"&&result.ok){
+    const session=await api("/api/auth/session");
+    setSignedIn(session.user||{email:payload.email});
+    panel.hidden=true;
+    $("promptReply").textContent="Welcome to JR PHEEF. Your account is signed in.";
+   }else if(result.emailVerificationRequired){
+    setMessage(result.message+" Then return here and log in.");
+   }else{
+    const session=await api("/api/auth/session");
+    setSignedIn(session.user||{email:payload.email,fullName:payload.fullName});
+    panel.hidden=true;
+   }
+  }catch(error){setMessage(error.message||"Something went wrong. Please try again.");}
+  finally{busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent=mode==="login"?"Log in":"Create account";}
+ });
+ $("logoutButton").addEventListener("click",async()=>{
+  $("logoutButton").disabled=true;
+  try{await api("/api/auth/logout",{});}catch{}
+  setSignedIn(null);$("logoutButton").disabled=false;
+  $("promptReply").textContent="You have been logged out of JR PHEEF.";
+ });
+ $("promptForm").addEventListener("submit",event=>{
+  event.preventDefault();const value=$("prompt").value.trim();
+  if(!value){$("prompt").focus();return;}
+  $("promptReply").textContent="JR's live conversation intelligence is the next service being connected. This message has not been sent to an AI service yet.";
+ });
+ api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
+})();
