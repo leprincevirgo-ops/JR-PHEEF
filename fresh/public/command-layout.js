@@ -45,7 +45,6 @@
     const card = cards.find(function (item) { return item.querySelector(selector); });
     if (!card) return;
     card.id = id;
-    card.style.order = String(arguments.length);
     const heading = card.querySelector("h3");
     if (heading && title) heading.textContent = title;
   }
