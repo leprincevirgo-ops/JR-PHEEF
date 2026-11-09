@@ -89,12 +89,12 @@ async function currentUser(req,res){
   if(c[ACCESS_COOKIE]){
     const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+c[ACCESS_COOKIE]};
     const response=await fetch(SUPABASE_URL+"/auth/v1/user",{headers});
-    if(response.ok){const user=await response.json();return user;}
+    if(response.ok){const user=await response.json();req.jrAccessToken=c[ACCESS_COOKIE];return user;}
     if(response.status!==401)throw new Error("Could not check your session.");
   }
   if(c[REFRESH_COOKIE]){
     const refreshed=await supabaseAuth("token?grant_type=refresh_token",{refresh_token:c[REFRESH_COOKIE]});
-    if(refreshed.ok&&refreshed.data.access_token){saveSession(res,refreshed.data);return refreshed.data.user||null;}
+    if(refreshed.ok&&refreshed.data.access_token){saveSession(res,refreshed.data);req.jrAccessToken=refreshed.data.access_token;return refreshed.data.user||null;}
   }
   clearAuthCookies(res);
   return null;
@@ -155,7 +155,7 @@ app.get("/api/auth/session",async(req,res)=>{
     const user=await currentUser(req,res);
     if(!user)return res.json({ok:true,authenticated:false,user:null});
     if(!user.email_confirmed_at)return res.json({ok:true,authenticated:false,emailVerificationRequired:true,user:null});
-    const member=await provisionMember(cookies(req)[ACCESS_COOKIE]);
+    const member=await provisionMember(req.jrAccessToken);
     return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
