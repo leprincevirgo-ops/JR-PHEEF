@@ -1,105 +1,49 @@
 "use strict";
-(function () {
-  const byId = function (id) { return document.getElementById(id); };
-  const hub = byId("liveHub");
-  const member = byId("memberCommand");
-  if (!hub || !member) return;
-
-  const intro = document.createElement("div");
-  intro.className = "member-command-intro";
-  intro.innerHTML = "<p class='eyebrow'>YOUR COMMAND CENTER</p><h2>Your profile. Your people. Your conversations.</h2><p class='view-copy'>Your identity, messages and daily connections, organised in one place.</p>";
-  member.insertBefore(intro, member.firstChild);
-
-  const shortcuts = document.createElement("nav");
-  shortcuts.className = "command-shortcuts";
-  shortcuts.setAttribute("aria-label", "Command Center shortcuts");
-  const targets = [
-    ["Profile", "memberProfileCard"],
-    ["Chats", "memberChatsCard"],
-    ["Contacts", "memberContactsCard"],
-    ["Status", "memberStatusCard"],
-    ["Updates", "memberUpdatesCard"],
-    ["Talk to JR", "memberTalkCard"]
-  ];
-  targets.forEach(function (entry) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = entry[0];
-    button.addEventListener("click", function () {
-      if (entry[1] === "memberTalkCard") {
-        const jrTab = document.querySelector('[data-view="jr"]');
-        if (jrTab) jrTab.click();
-        return;
-      }
-      const target = byId(entry[1]);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    shortcuts.appendChild(button);
-  });
-  member.insertBefore(shortcuts, hub);
-
-  const grid = hub.querySelector(".hub-grid");
-  if (!grid) return;
-  const cards = Array.from(grid.querySelectorAll(".hub-card"));
-  function moveCard(selector, id, title) {
-    const card = cards.find(function (item) { return item.querySelector(selector); });
-    if (!card) return;
-    card.id = id;
-    const heading = card.querySelector("h3");
-    if (heading && title) heading.textContent = title;
-  }
-  moveCard('[data-hub-action="update_profile"]', "memberProfileCard", "Profile & privacy");
-  moveCard("#memberSearchForm", "memberChatsCard", "Chats & conversations");
-  moveCard('[data-hub-action="create_status"]', "memberStatusCard", "Status");
-  moveCard("#myNotifications", "memberUpdatesCard", "Updates & notifications");
-
-  const people = byId("memberChatsCard");
-  if (people) {
-    const search = people.querySelector("#memberSearchForm");
-    if (search) {
-      const heading = document.createElement("p");
-      heading.className = "hub-muted";
-      heading.textContent = "Find people by name or JP number, then start a private conversation.";
-      search.parentNode.insertBefore(heading, search);
-    }
-  }
-
-  const profile = byId("memberProfileCard");
-  if (profile) {
-    const account = document.createElement("div");
-    account.className = "member-profile-summary";
-    const avatar = document.createElement("div");
-    avatar.className = "profile-photo-button";
-    avatar.id = "memberProfileInitials";
-    avatar.textContent = "JR";
-    const details = document.createElement("div");
-    const name = document.createElement("strong");
-    name.id = "memberProfileName";
-    name.textContent = byId("accountName") ? byId("accountName").textContent : "JR PHEEF member";
-    const email = document.createElement("small");
-    email.id = "memberProfileEmail";
-    email.textContent = byId("accountEmail") ? byId("accountEmail").textContent : "";
-    const status = document.createElement("small");
-    status.id = "memberProfileStatus";
-    status.textContent = "Email-confirmed account · Identity verification status shown by the system";
-    details.append(name, email, status);
-    account.append(avatar, details);
-    profile.insertBefore(account, profile.querySelector("form"));
-  }
-
-  const commandHeading = document.createElement("div");
-  commandHeading.className = "command-panel-heading";
-  commandHeading.innerHTML = "<p class='eyebrow'>YOUR CONNECTED WORKSPACE</p><span class='command-panel-note'>Profile · Chats · Status · Updates</span>";
-  hub.insertBefore(commandHeading, hub.firstChild);
-
-  window.addEventListener("jr:member-signed-in", function (event) {
-    const user = event.detail || {};
-    const name = user.fullName || user.full_name || user.email || "JR PHEEF member";
-    if (byId("memberProfileName")) byId("memberProfileName").textContent = name;
-    if (byId("memberProfileEmail")) byId("memberProfileEmail").textContent = user.email || "";
-    if (byId("memberProfileInitials")) {
-      byId("memberProfileInitials").textContent = name.split(/\\s+/).slice(0, 2).map(function (part) { return part.charAt(0); }).join("").toUpperCase();
-    }
-    if (byId("memberProfileStatus")) byId("memberProfileStatus").textContent = user.verified ? "Identity verified" : "Email confirmed · Identity verification pending";
-  });
+(()=>{
+ const $=id=>document.getElementById(id);
+ const hub=$("liveHub"),member=$("memberCommand");
+ if(!hub||!member)return;
+ const mount=(id,title,nodes)=>{
+  const target=$(id);if(!target)return;
+  const card=document.createElement("section");card.className="hub-card command-mounted-card";
+  const heading=document.createElement("h4");heading.textContent=title;card.append(heading);
+  nodes.filter(Boolean).forEach(node=>card.append(node));
+  target.append(card);
+ };
+ const findCard=selector=>hub.querySelector(selector)?.closest(".hub-card")||null;
+ const profileCard=findCard('[data-hub-action="update_profile"]');
+ const profileForm=profileCard?.querySelector('[data-hub-action="update_profile"]');
+ if(profileForm)mount("memberProfilePanel","Profile settings",[profileForm]);
+ if(profileCard)profileCard.remove();
+ const peopleCard=findCard("#memberSearchForm");
+ const searchForm=peopleCard?.querySelector("#memberSearchForm");
+ const searchResults=peopleCard?.querySelector("#memberSearchResults");
+ const chatLayout=peopleCard?.querySelector(".hub-chat-layout");
+ mount("commandContactsMount","Find and connect",[searchForm,searchResults]);
+ mount("commandChatMount","Your conversations",[chatLayout]);
+ if(peopleCard)peopleCard.remove();
+ const statusCard=findCard('[data-hub-action="create_status"]');
+ const statusForm=statusCard?.querySelector('[data-hub-action="create_status"]');
+ const statuses=statusCard?.querySelector("#myStatuses");
+ mount("commandStatusMount","Share an update",[statusForm,statuses]);
+ if(statusCard)statusCard.remove();
+ const updatesCard=findCard("#myNotifications");
+ const notifications=updatesCard?.querySelector("#myNotifications");
+ mount("commandUpdatesMount","Your notifications",[notifications]);
+ if(updatesCard)updatesCard.remove();
+ member.querySelectorAll("[data-command-target]").forEach(button=>button.addEventListener("click",()=>{
+  const target=$(button.dataset.commandTarget);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+ }));
+ const openJr=$("openJrFromCommand");
+ if(openJr)openJr.addEventListener("click",()=>{const tab=document.querySelector('.workspace-tab[data-view="jr"]');if(tab)tab.click();});
+ const viewer=$("profilePhotoViewer"),actions=$("profilePhotoActions"),hide=$("profilePhotoHide");
+ if(viewer&&actions)viewer.addEventListener("click",()=>{actions.hidden=!actions.hidden;});
+ if(hide&&viewer)hide.addEventListener("click",()=>{viewer.hidden=!viewer.hidden;hide.textContent=viewer.hidden?"Show photo":"Hide photo";});
+ window.addEventListener("jr:member-signed-in",event=>{
+  const user=event.detail||{},name=user.fullName||user.full_name||user.email||"JR PHEEF member";
+  const initials=$("profileInitials"),jp=$("profileJpNumber"),verification=$("profileVerification");
+  if(initials)initials.textContent=name.split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join("").toUpperCase();
+  if(jp)jp.textContent=user.jpNumber||user.jp_number||"JP number pending";
+  if(verification)verification.textContent=user.verified?"Identity verified":"Email confirmed · Identity verification pending";
+ });
 })();
