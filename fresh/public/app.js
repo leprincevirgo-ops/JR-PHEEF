@@ -11,10 +11,22 @@
   const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
  }
+ async function loadFounderOverview(){
+  const panel=$("founderCommand");if(panel.hidden)return;
+  $("founderLoadState").textContent="Checking your protected founder permissions…";
+  try{const data=await api("/api/founder/overview");if(!data.ok)throw new Error(data.error||"Founder overview unavailable.");
+   $("founderName").textContent=data.founder.fullName||"Founder";$("founderJp").textContent=data.founder.jpNumber;
+   $("founderMembers").textContent=data.metrics.memberAccounts===null?"—":String(data.metrics.memberAccounts);
+   $("founderVentures").textContent=data.metrics.registeredVentures===null?"—":String(data.metrics.registeredVentures);
+   $("founderVerified").textContent=data.founder.verified?"Verified":"Verification pending";
+   $("founderEnvironment").textContent=data.environment;$("founderPayments").textContent=data.controls.paymentsEnabled?"Enabled":"Disabled";
+   $("founderAi").textContent=data.controls.liveAiConnected?"Connected":"Not connected";$("founderLoadState").textContent="Founder access verified on the server. Staging environment only.";
+  }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
+ }
  function setSignedIn(user){
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
-  if(user){$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";showWorkspace("home");}
+  if(user){$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=isFounder;showWorkspace("home");if(isFounder)loadFounderOverview();}
   else{workspace.hidden=true;if(hero)hero.hidden=false;panel.hidden=true;conversation.hidden=true;}
  }
  function showAuth(next){
