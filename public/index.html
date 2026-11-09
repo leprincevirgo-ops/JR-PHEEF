@@ -400,7 +400,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
   <h1>Start with <span>JR.</span></h1>
   <p>Ask anything. Bring a question, a challenge, an idea, a task or a possibility. JR will first understand what you mean, then help you find a way forward.</p>
   <div class="jr-entry-prompt">“JR, what can you do for me?”</div>
-  <a id="jrContinueEntry" class="jr-open-external" href="#loginIdentifier" aria-label="Continue to JR PHEEF sign in">CONTINUE TO JR PHEEF ↓</a>
+  <button id="jrContinueEntry" class="jr-open-external" type="button" data-jr-entry-action="continue" aria-label="Continue to JR PHEEF sign in">CONTINUE TO JR PHEEF ↓</button>
   <p class="jr-entry-browser-note">Already in JR PHEEF. If this page opened inside another app, use that browser's menu and choose “Open in Chrome”.</p>
   <button type="button" class="jr-entry-install" onclick="window.jrInstallApp&&window.jrInstallApp()">INSTALL JR PHEEF AS AN APP</button>
 </div>
@@ -418,8 +418,8 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 <button onclick="toggle('loginPassword')">👁</button>
 </div>
 
-<button id="loginSubmit" class="primary" type="button">LOGIN</button>
-<button class="dark" onclick="showRegister()">CREATE ACCOUNT</button>
+<button id="loginSubmit" class="primary" type="button" data-jr-entry-action="login">LOGIN</button>
+<button class="dark" type="button" data-jr-entry-action="register">CREATE ACCOUNT</button>
 
 <p id="loginMsg" role="status" aria-live="polite"></p>
 </div>
@@ -448,8 +448,8 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 <button onclick="toggle('regPassword')">👁</button>
 </div>
 
-<button class="primary" onclick="register()">CREATE ACCOUNT</button>
-<button class="dark" onclick="showLogin()">BACK TO LOGIN</button>
+<button class="primary" type="button" data-jr-entry-action="create-account">CREATE ACCOUNT</button>
+<button class="dark" type="button" data-jr-entry-action="back-to-login">BACK TO LOGIN</button>
 
 <p id="regMsg"></p>
 
@@ -1985,6 +1985,7 @@ function jrStartHeaderVoice(){
  try{recognition.start();}catch(e){if(mic){mic.disabled=false;mic.textContent="🎙";}}
 }
 </script>
+<script src="/entry-interactions.js?v=2" defer></script>
 <script src="/market-ui.js" defer></script>
 <script src="/messages-ui.js" defer></script>
 <script src="/extras-ui.js" defer></script>
