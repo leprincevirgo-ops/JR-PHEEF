@@ -43,7 +43,7 @@
   const external=document.createElement("a");
   external.href="https://www.google.com/search?q="+encodeURIComponent(value);
   external.target="_blank";external.rel="noopener noreferrer";
-  external.textContent="Research this outside JR PHEEF";external.className="jr-primary-action";
+  external.textContent="Also search outside JR PHEEF";external.className="jr-primary-action";
   if(!intents.length){
    renderResponse("I haven't confidently identified a JR PHEEF world for that request. I won't guess or open private information. You can research the wider web separately, or describe the task another way.",[external]);return;
   }
