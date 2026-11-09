@@ -70,6 +70,15 @@ function authError(data){
   if(/rate limit/i.test(msg))return "Too many attempts. Please wait and try again.";
   return "We could not complete that request. Check your details and try again.";
 }
+async function provisionMember(accessToken){
+  const response=await fetch(SUPABASE_URL+"/functions/v1/jr-member-provision",{
+    method:"POST",
+    headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+accessToken,"Content-Type":"application/json"}
+  });
+  let data={};try{data=await response.json();}catch{}
+  if(!response.ok||!data.ok)throw new Error(data.error||"Could not prepare your member profile.");
+  return data.member;
+}
 function saveSession(res,data){
   if(data?.access_token)setCookie(res,ACCESS_COOKIE,data.access_token,Math.max(60,Number(data.expires_in)||3600));
   if(data?.refresh_token)setCookie(res,REFRESH_COOKIE,data.refresh_token,60*60*24*30);
@@ -80,7 +89,7 @@ async function currentUser(req,res){
   if(c[ACCESS_COOKIE]){
     const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+c[ACCESS_COOKIE]};
     const response=await fetch(SUPABASE_URL+"/auth/v1/user",{headers});
-    if(response.ok)return await response.json();
+    if(response.ok){const user=await response.json();return user;}
     if(response.status!==401)throw new Error("Could not check your session.");
   }
   if(c[REFRESH_COOKIE]){
@@ -118,7 +127,8 @@ app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
     const result=await supabaseAuth("token?grant_type=password",{email:email.trim().toLowerCase(),password});
     if(!result.ok)return res.status(result.status===429?429:401).json({ok:false,error:authError(result.data)});
     saveSession(res,result.data);
-    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email},message:"Welcome back to JR PHEEF."});
+    const member=await provisionMember(result.data.access_token);
+    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified},message:"Welcome back to JR PHEEF."});
   }catch(err){console.error("JR PHEEF login service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
 });
 app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
@@ -129,7 +139,8 @@ app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
     if(!response.ok)return res.status(401).json({ok:false,error:"Your email confirmation could not be verified. Please request a new link."});
     const user=await response.json();
     saveSession(res,{access_token,refresh_token:typeof refresh_token==="string"?refresh_token:undefined,expires_in:3600});
-    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:user.user_metadata?.full_name||""}});
+    const member=await provisionMember(access_token);
+    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified}});
   }catch(err){console.error("JR PHEEF email confirmation:",err.message);return res.status(503).json({ok:false,error:"Could not complete email confirmation. Please try again."});}
 });
 app.get("/api/auth/session",async(req,res)=>{
