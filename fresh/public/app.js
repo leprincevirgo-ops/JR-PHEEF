@@ -20,7 +20,12 @@
    $("founderVentures").textContent=data.metrics.registeredVentures===null?"—":String(data.metrics.registeredVentures);
    $("founderVerified").textContent=data.founder.verified?"Verified":"Verification pending";
    $("founderEnvironment").textContent=data.environment;$("founderPayments").textContent=data.controls.paymentsEnabled?"Enabled":"Disabled";
-   $("founderAi").textContent=data.controls.liveAiConnected?"Connected":"Not connected";$("founderLoadState").textContent="Founder access verified on the server. Staging environment only.";
+   $("founderAi").textContent=data.controls.liveAiConnected?"Connected":"Not connected";
+   const ventureBox=$("founderVentureList");ventureBox.replaceChildren();
+   (data.ventures||[]).forEach(v=>{const card=document.createElement("article");card.className="founder-data-row";const name=document.createElement("strong");name.textContent=v.name;const detail=document.createElement("p");detail.textContent=v.description||"";const meta=document.createElement("small");meta.textContent=v.kind+" · "+v.status+(v.regulated?" · regulated services not activated":"");card.append(name,detail,meta);ventureBox.append(card);});
+   const decisionBox=$("founderDecisionList");decisionBox.replaceChildren();
+   (data.decisions||[]).forEach(d=>{const card=document.createElement("article");card.className="founder-data-row";const name=document.createElement("strong");name.textContent=d.title;const detail=document.createElement("p");detail.textContent=d.details||"No additional details.";const meta=document.createElement("small");meta.textContent=(d.venture||"DGBO")+" · "+d.status;card.append(name,detail,meta);if(d.status==="proposed"){for(const state of ["approved","rejected"]){const b=document.createElement("button");b.type="button";b.className="hub-small-button";b.textContent=state==="approved"?"Approve decision":"Reject decision";b.addEventListener("click",async()=>{b.disabled=true;try{await api("/api/founder/overview",{action:"decide_decision",id:d.id,status:state});await loadFounderOverview();}catch(err){b.textContent=err.message;b.disabled=false;}});card.append(b);}}decisionBox.append(card);});
+   $("founderLoadState").textContent="Founder access verified on the server. Staging environment only.";
   }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
  }
  function setSignedIn(user){
@@ -63,6 +68,7 @@
  });
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
  $("promptForm").addEventListener("submit",event=>{event.preventDefault();const value=$("prompt").value.trim();if(!value){$("prompt").focus();return;}$("promptReply").textContent="JR's live conversation intelligence is the next service being connected. This message has not been sent to an AI service yet.";});
+ $("founderDecisionForm").addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget;const fd=new FormData(form);const button=form.querySelector("button[type=submit]");button.disabled=true;$("founderDecisionFeedback").textContent="Saving proposed decision…";try{await api("/api/founder/overview",{action:"create_decision",title:fd.get("title"),venture:fd.get("venture"),details:fd.get("details")});form.reset();$("founderDecisionFeedback").textContent="Decision recorded for founder review.";await loadFounderOverview();}catch(error){$("founderDecisionFeedback").textContent=error.message;}finally{button.disabled=false;}});
  document.querySelectorAll(".workspace-tab").forEach(button=>button.addEventListener("click",()=>showWorkspace(button.dataset.view)));
  api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
