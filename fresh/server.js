@@ -159,6 +159,16 @@ app.get("/api/auth/session",async(req,res)=>{
     return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
+app.get("/api/founder/overview",async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at)return res.status(401).json({ok:false,error:"Sign in with your verified founder account."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-founder-overview",{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken}});
+    let data={};try{data=await response.json();}catch{}
+    if(!response.ok||!data.ok)return res.status(response.status===403?403:502).json({ok:false,error:data.error||"Founder overview is unavailable."});
+    return res.json(data);
+  }catch(err){console.error("JR PHEEF founder overview:",err.message);return res.status(503).json({ok:false,error:"Founder overview is temporarily unavailable."});}
+});
 app.post("/api/auth/logout",sameOrigin,async(req,res)=>{
   try{
     const c=cookies(req);
