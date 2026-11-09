@@ -1,8 +1,8 @@
 "use strict";
 (()=>{
  const $=id=>document.getElementById(id);
- const view=$("view-jr"),form=$("promptForm");
- if(!view||!form)return;
+ const view=$("view-jr"),forms=[$("promptForm"),$("workspacePromptForm")].filter(Boolean);
+ if(!view||!forms.length)return;
  const panel=document.createElement("section");
  panel.className="jr-intelligence";
  panel.innerHTML='<p class="eyebrow">JR INTELLIGENCE · STAGING FOUNDATION</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Tell JR what you need. This foundation recognises several common intents, checks your world names and prepares relevant workspaces. Full open-ended AI reasoning and live external research still require an AI and research-service connection.</p><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>Try asking JR to organise family plans, build a business, study a subject, advertise something or plan a financial goal.</p></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
@@ -70,10 +70,12 @@
   }catch(e){renderResponse(e.message+" Sign in again if your session has expired.",[external]);}
  }
  document.addEventListener("submit",event=>{
-  if(event.target!==form)return;
+  const form=event.target;
+  if(!forms.includes(form))return;
   event.preventDefault();event.stopImmediatePropagation();
-  const input=$("prompt"),value=input?.value.trim();if(!value)return;
-  const reply=$("promptReply");if(reply)reply.textContent="JR is organising your request…";
+  const workspace=form.id==="workspacePromptForm";
+  const input=$(workspace?"workspacePrompt":"prompt"),value=input?.value.trim();if(!value)return;
+  const reply=$(workspace?"workspacePromptReply":"promptReply");if(reply)reply.textContent="JR is organising your request…";
   input.value="";routeRequest(value);
  },true);
  function setFiles(files){
