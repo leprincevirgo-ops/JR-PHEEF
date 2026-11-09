@@ -105,7 +105,7 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     if(typeof phone!=="string"||phone.trim().length<7||phone.trim().length>25)return res.status(400).json({ok:false,error:"Enter your phone number, including country code."});
     const year=Number(birthYear),currentYear=new Date().getUTCFullYear();
     if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
-    const result=await supabaseAuth("signup",{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year}});
+    const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year}});
     if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
     if(result.data.access_token)saveSession(res,result.data);
     return res.status(201).json({ok:true,authenticated:Boolean(result.data.access_token),emailVerificationRequired:!result.data.access_token,message:result.data.access_token?"Your JR PHEEF account has been created.":"Check your email for a verification link to activate your JR PHEEF account."});
@@ -120,6 +120,17 @@ app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
     saveSession(res,result.data);
     return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email},message:"Welcome back to JR PHEEF."});
   }catch(err){console.error("JR PHEEF login service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
+});
+app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
+  try{
+    const {access_token,refresh_token}=req.body||{};
+    if(typeof access_token!=="string"||access_token.length<20||access_token.length>8192)return res.status(400).json({ok:false,error:"The email confirmation link is invalid or expired."});
+    const response=await fetch(SUPABASE_URL+"/auth/v1/user",{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+access_token}});
+    if(!response.ok)return res.status(401).json({ok:false,error:"Your email confirmation could not be verified. Please request a new link."});
+    const user=await response.json();
+    saveSession(res,{access_token,refresh_token:typeof refresh_token==="string"?refresh_token:undefined,expires_in:3600});
+    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:user.user_metadata?.full_name||""}});
+  }catch(err){console.error("JR PHEEF email confirmation:",err.message);return res.status(503).json({ok:false,error:"Could not complete email confirmation. Please try again."});}
 });
 app.get("/api/auth/session",async(req,res)=>{
   try{
