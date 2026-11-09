@@ -43,7 +43,7 @@ Deno.serve(async (req: Request) => {
     }
     const rows = await response.json();
     const member = rows[0] || {};
-    return Response.json({ ok: true, member: { id: member.id || user.id, jpNumber: member.jp_number || null, fullName: member.full_name || fullName, email: member.email || user.email, verified: Boolean(member.verified), emailVerified: Boolean(user.email_confirmed_at) } }, { headers: corsHeaders });
+    return Response.json({ ok: true, member: { id: member.id || user.id, jpNumber: member.jp_number || null, role: member.role || "person", accountType: member.account_type || "individual", fullName: member.full_name || fullName, email: member.email || user.email, verified: Boolean(member.verified), emailVerified: Boolean(user.email_confirmed_at) } }, { headers: corsHeaders });
   } catch (error) {
     console.error("Member profile function failed:", error instanceof Error ? error.message : "unknown");
     return Response.json({ ok: false, error: "Member profile service is temporarily unavailable." }, { status: 500, headers: corsHeaders });
