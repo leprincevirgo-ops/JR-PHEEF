@@ -52,6 +52,7 @@
  if(viewer&&actions)viewer.addEventListener("click",()=>{actions.hidden=!actions.hidden;});
  if(hide&&viewer)hide.addEventListener("click",()=>{viewer.hidden=!viewer.hidden;hide.textContent=viewer.hidden?"Show photo":"Hide photo";});
 
+ {
  // Member media, status management, groups and channels.
  const workspaceCall=async(action,extra={})=>{const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"This action could not be completed.");return d.data;};
  const fileData=async file=>{if(file.size>8*1024*1024)throw new Error("Each photo or video must be 8 MB or smaller.");return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=()=>reject(new Error("Could not read the selected file."));reader.readAsDataURL(file);});};
@@ -102,6 +103,7 @@
  const scenes={global:"🌐",personal:"✨",family_personal:"🏡",business:"🏙️",education:"📚",commerce:"🛍️",family_finance:"🌱",creative:"🎨"};
  document.querySelectorAll(".world-category-grid article").forEach(card=>{const type=card.querySelector("[data-world-type]")?.dataset.worldType||"global";card.dataset.scene=type;const scene=document.createElement("div");scene.className="world-scene-art";scene.setAttribute("aria-hidden","true");scene.textContent=scenes[type]||"✦";card.prepend(scene);});
 
+ }
  // Device-level accessibility preferences and optional speech tools.
  const root=document.documentElement;
  const prefs=[["jrLargeText","jr-large-text"],["jrHighContrast","jr-high-contrast"],["jrReduceMotion","jr-reduce-motion"]];
