@@ -30,3 +30,13 @@ test("Command Center includes speaker and accessibility preferences",()=>{
  for(const id of ["jrSpeakerVoice","jrSpeakerRate","jrSpeakTest","jrStopSpeech","jrVoiceInput","jrLargeText","jrHighContrast","jrReduceMotion"])assert.ok(html.includes(id));
  for(const feature of ["SpeechSynthesisUtterance","SpeechRecognition","jr-large-text","jr-high-contrast","jr-reduce-motion"])assert.ok(source.includes(feature));
 });
+
+test("Member media, status, group and channel workflows are present",()=>{
+ for(const token of ["upload_media","list_my_statuses","update_status","delete_status","create_group","list_channels","create_channel","publish_channel_post"])assert.ok(source.includes(token));
+ for(const token of ["profilePhotoGallery","profilePhotoCamera","jrGroupForm","jrChannelCreate","status-own-actions","world-scene-art"])assert.ok(source.includes(token));
+});
+test("Status image previews do not expose file names or image descriptions",()=>{
+ assert.match(source,/Photo selected/);
+ assert.match(source,/Status photo/);
+ assert.doesNotMatch(source,/alt=.*file\.name/);
+});
