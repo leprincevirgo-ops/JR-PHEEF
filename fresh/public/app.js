@@ -1,7 +1,7 @@
 "use strict";
 (()=>{
  const $=id=>document.getElementById(id);
- const panel=$("authPanel"),conversation=$("conversation"),form=$("authForm");
+ const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
  let mode="login",busy=false;
  const setMessage=(message)=>{$("authMessage").textContent=message||"";};
  function showAuth(next){
@@ -84,14 +84,14 @@
   if(!value){$("prompt").focus();return;}
   $("promptReply").textContent="JR's live conversation intelligence is the next service being connected. This message has not been sent to an AI service yet.";
  });
- api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
+ api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});\n document.querySelectorAll(".workspace-tab").forEach(button=>button.addEventListener("click",()=>showWorkspace(button.dataset.view)));
 
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
  if(confirmationToken){
   window.history.replaceState({},document.title,window.location.pathname+window.location.search);
   api("/api/auth/session/establish",{access_token:confirmationToken,refresh_token:confirmationRefresh}).then(result=>{
-   setSignedIn(result.user||null);$("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
+   setSignedIn(result.user||null);showWorkspace("home");$("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
   }).catch(error=>{showAuth("login");setMessage(error.message||"Email confirmation failed. Please request a new link.");});
  }
 })();
