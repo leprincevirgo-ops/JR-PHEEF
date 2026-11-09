@@ -24,6 +24,7 @@
   }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
  }
  function setSignedIn(user){
+  window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
   if(user){$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=isFounder;showWorkspace("home");if(isFounder)loadFounderOverview();}
