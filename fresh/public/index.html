@@ -19,10 +19,11 @@
 <div class="world-category-grid">
  <article><span>◎</span><h3>Global World</h3><p>Explore the connected ecosystem and discover what is available.</p><button type="button" class="world-template-button" data-world-type="global">Create this world</button></article>
  <article><span>⌂</span><h3>Personal Worlds</h3><p>Organise personal goals, routines, projects and everyday life.</p><button type="button" class="world-template-button" data-world-type="personal">Create this world</button></article>
+ <article><span>♡</span><h3>Family World</h3><p>A private or shared space for relatives, family communication, plans, memories and everyday coordination — not a financial service.</p><button type="button" class="world-template-button" data-world-type="family_personal">Create this world</button></article>
  <article><span>◇</span><h3>Business Worlds</h3><p>Build and manage ventures, teams, workflows and opportunities.</p><button type="button" class="world-template-button" data-world-type="business">Create this world</button></article>
  <article><span>✦</span><h3>Education & Knowledge</h3><p>Learning spaces for study, skills, research and teaching.</p><button type="button" class="world-template-button" data-world-type="education">Create this world</button></article>
  <article><span>⇄</span><h3>Commerce & Services</h3><p>Goods, services, jobs, property and delivery opportunities.</p><button type="button" class="world-template-button" data-world-type="commerce">Create this world</button></article>
- <article><span>♡</span><h3>FAMILY · Participation</h3><p>Financial access and participation serving the whole ecosystem. No money movement is enabled here.</p><button type="button" class="world-template-button" data-world-type="family">Create this world</button></article>
+ <article><span>◇</span><h3>FAMILY World · Financial Participation</h3><p>The ecosystem-wide financial access layer for saving, investment access and participation. Separate from Family World; no money movement is enabled here.</p><button type="button" class="world-template-button" data-world-type="family_finance">Create this world</button></article>
  <article><span>✧</span><h3>Creativity & Community</h3><p>Create, share, collaborate and grow with others.</p><button type="button" class="world-template-button" data-world-type="creative">Create this world</button></article>
 </div>
 <div class="worlds-workspace">
@@ -31,7 +32,7 @@
  <section class="world-create"><p class="eyebrow">CREATE A WORLD</p><h3>What kind of world do you want to build?</h3>
  <form id="createWorldForm">
  <label>World name<input name="name" required minlength="2" maxlength="120" placeholder="e.g. My Supermarket World"></label>
- <label>World type<select name="worldType" required><option value="personal">Personal</option><option value="business">Business</option><option value="education">Education & Knowledge</option><option value="commerce">Commerce & Services</option><option value="family">FAMILY · Participation</option><option value="creative">Creativity</option><option value="community">Community</option><option value="global">Global</option></select></label>
+ <label>World type<select name="worldType" required><option value="personal">Personal</option><option value="family_personal">Family World · Personal & shared family life</option><option value="business">Business</option><option value="education">Education & Knowledge</option><option value="commerce">Commerce & Services</option><option value="family_finance">FAMILY World · Financial participation</option><option value="creative">Creativity</option><option value="community">Community</option><option value="global">Global</option></select></label>
  <label>What is this world for?<textarea name="description" rows="3" maxlength="2000" placeholder="Describe what you want to do, build or organise…"></textarea></label>
  <label>Who should be involved?<input name="intendedMembers" maxlength="500" placeholder="Just me, my family, staff, invited members…"></label>
  <label>Workflows or activities<textarea name="workflows" rows="2" maxlength="1000" placeholder="e.g. manage stock, assign tasks, track progress"></textarea></label>
