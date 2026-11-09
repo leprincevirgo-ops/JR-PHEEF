@@ -6,13 +6,14 @@
  <nav class="workspace-nav" aria-label="JR PHEEF navigation">
   <button class="workspace-tab selected" data-view="home" type="button">HOME</button><button class="workspace-tab" data-view="worlds" type="button">WORLDS</button><button class="workspace-tab" data-view="jr" type="button">JR</button><button class="workspace-tab" data-view="command" type="button">COMMAND CENTER</button>
  </nav>
- <div class="workspace-view" id="view-home"><div class="section-heading"><div><p class="eyebrow">YOUR STARTING POINT</p><h2>What would you like to do today?</h2></div><span class="status-pill">Foundation preview</span></div>
+ <div class="workspace-view" id="view-home"><div class="section-heading"><div><p class="eyebrow">YOUR STARTING POINT</p><h2>What would you like to do today?</h2></div><span class="status-pill">Connected workspace</span></div>
   <div class="capability-grid">
    <article class="capability-card"><span class="cap-icon">✦</span><h3>Learn & grow</h3><p>Explore learning, skills, research and personal development.</p><span class="card-state">Being connected</span></article>
    <article class="capability-card"><span class="cap-icon">◎</span><h3>People & opportunities</h3><p>Discover ways to connect around goods, services, work and ideas.</p><span class="card-state">Being built</span></article>
    <article class="capability-card"><span class="cap-icon">◇</span><h3>Business & creation</h3><p>Develop ideas, organise ventures and build with others.</p><span class="card-state">Being built</span></article>
    <article class="capability-card"><span class="cap-icon">⌂</span><h3>FAMILY</h3><p>Financial access and participation serving the wider ecosystem.</p><span class="card-state">Not activated</span></article>
   </div>
+  <div id="liveHub" class="live-hub"></div>
  </div>
  <div class="workspace-view" id="view-worlds" hidden><p class="eyebrow">WORLDS</p><h2>Explore connected worlds</h2><p class="view-copy">Worlds will organise experiences around what you want to do—not confine you to a fixed list of apps. The world spaces are being built and are not active yet.</p><div class="world-preview"><span>01</span><div><strong>Learning & discovery</strong><small>Knowledge, skills and research</small></div></div><div class="world-preview"><span>02</span><div><strong>Business & opportunity</strong><small>Ideas, work, trade and services</small></div></div><div class="world-preview"><span>03</span><div><strong>People & everyday life</strong><small>Communication, community and daily needs</small></div></div></div>
  <div class="workspace-view" id="view-jr" hidden><p class="eyebrow">JR · YOUR STARTING POINT</p><h2>Talk to JR</h2><p class="view-copy">The conversation interface is ready for the next integration. Live JR AI intelligence is not connected yet, so messages are not sent to an AI service at this stage.</p><div class="connection-note"><span class="status-dot"></span> JR intelligence connection pending</div></div>
@@ -38,7 +39,7 @@
    <p class="workspace-footnote">This is the first protected founder overview, not a claim that all business controls or services are operational. Sensitive actions, financial operations and production changes remain unavailable until separately implemented and verified.</p>
   </div>
  </div>
- <p class="workspace-footnote">JR PHEEF Foundation preview · Some capabilities are still under development. No payment or live AI actions are enabled.</p>
+ <p class="workspace-footnote">JR PHEEF staging workspace · Connected member services are in testing. Payments and live AI remain disabled.</p>
 </section>
 <section class="conversation" id="conversation" hidden aria-live="polite"><div class="jr-label"><span class="dot"></span> JR is here</div><h2>What would you like to do?</h2><form id="promptForm"><label class="sr-only" for="prompt">Talk to JR</label><input id="prompt" maxlength="500" placeholder="JR, what can you do for me?" autocomplete="off"><button class="send" type="submit" aria-label="Send to JR">↑</button></form><p class="note" id="promptReply">Your JR PHEEF journey starts here.</p></section>
 <section class="auth" id="authPanel" hidden><button class="back" id="closeAuth" type="button">← Back</button><p class="eyebrow">Your JR PHEEF identity</p><h2 id="authTitle">Welcome</h2><div class="switch"><button id="loginTab" class="selected" type="button" aria-pressed="true">Log in</button><button id="signupTab" type="button" aria-pressed="false">Create account</button></div>
