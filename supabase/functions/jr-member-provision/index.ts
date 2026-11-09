@@ -27,10 +27,12 @@ Deno.serve(async (req: Request) => {
     const fullName = String(meta.full_name || "").trim().slice(0, 100);
     const phone = String(meta.phone || "").trim().slice(0, 25);
     const birthYear = Number(meta.birth_year);
-    if (!user.email || !fullName || !phone || !Number.isInteger(birthYear)) return Response.json({ ok: false, error: "Your verified account is missing profile details. Please contact support." }, { status: 422, headers: corsHeaders });
+    const currentYear = new Date().getUTCFullYear();
+    if (!user.email_confirmed_at) return Response.json({ ok: false, error: "Confirm your email address before continuing." }, { status: 403, headers: corsHeaders });
+    if (!user.email || !fullName || !phone || !Number.isInteger(birthYear) || birthYear < 1900 || birthYear > currentYear - 18) return Response.json({ ok: false, error: "Your verified account is missing valid profile details. Please contact support." }, { status: 422, headers: corsHeaders });
 
-    const profile = { id: user.id, email: String(user.email).toLowerCase(), full_name: fullName, phone, birth_year: birthYear, status: "active", account_type: "individual", country: "Kenya" };
-    const response = await fetch(supabaseUrl + "/rest/v1/members?on_conflict=id", {
+    const profile = { auth_user_id: user.id, email: String(user.email).toLowerCase(), full_name: fullName, phone, birth_year: birthYear, status: "active", account_type: "individual", country: "Kenya" };
+    const response = await fetch(supabaseUrl + "/rest/v1/members?on_conflict=auth_user_id", {
       method: "POST",
       headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
       body: JSON.stringify(profile),
@@ -41,7 +43,7 @@ Deno.serve(async (req: Request) => {
     }
     const rows = await response.json();
     const member = rows[0] || {};
-    return Response.json({ ok: true, member: { id: member.id || user.id, jpNumber: member.jp_number || null, fullName: member.full_name || fullName, email: member.email || user.email, verified: Boolean(user.email_confirmed_at) } }, { headers: corsHeaders });
+    return Response.json({ ok: true, member: { id: member.id || user.id, jpNumber: member.jp_number || null, fullName: member.full_name || fullName, email: member.email || user.email, verified: Boolean(member.verified), emailVerified: Boolean(user.email_confirmed_at) } }, { headers: corsHeaders });
   } catch (error) {
     console.error("Member profile function failed:", error instanceof Error ? error.message : "unknown");
     return Response.json({ ok: false, error: "Member profile service is temporarily unavailable." }, { status: 500, headers: corsHeaders });
