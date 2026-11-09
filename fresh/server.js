@@ -15,7 +15,7 @@ app.use((req,res,next)=>{
   res.setHeader("X-Frame-Options","DENY");
   res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy","camera=(self), microphone=(self), geolocation=(self)");
-  res.setHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'");
+  res.setHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'");
   if(req.secure||req.headers["x-forwarded-proto"]==="https") res.setHeader("Strict-Transport-Security","max-age=31536000; includeSubDomains");
   next();
 });
