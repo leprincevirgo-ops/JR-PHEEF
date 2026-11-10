@@ -18,7 +18,6 @@
   {type:"creative",label:"Creativity & Community",keys:["design","create","photo","video","content","music","community","publish","post","brainstorm"]},
   {type:"personal",label:"Personal World",keys:["my goal","routine","personal plan","organise my day","organize my day","remind me"]}
  ];
- const normalise=s=>String(s||"").toLocaleLowerCase().trim();
  function detectIntents(value){const s=normalise(value);return routes.filter(r=>r.keys.some(k=>s.includes(k)));}
  function classifyConversation(value){
   const s=normalise(value);
