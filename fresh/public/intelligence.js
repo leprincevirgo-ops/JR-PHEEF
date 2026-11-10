@@ -5,7 +5,7 @@
  if(!view||!forms.length)return;
  const panel=document.createElement("section");
  panel.className="jr-intelligence";
- panel.innerHTML='<p class="eyebrow">JR INTELLIGENCE · STAGING FOUNDATION</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Start with a need, a question, a curious thought, a random idea or simply hello. JR recognises the kind of conversation and can connect requests to available worlds. Full open-ended AI reasoning and live research are not connected yet.</p><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>You do not need a category or a plan. Ask, wonder, imagine or just talk.</p></div><div class="jr-starter-prompts"><span>Try: “Why do people dream?”</span><span>“What if cities floated?”</span><span>“I'm bored.”</span><span>“I have an idea.”</span></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
+ panel.innerHTML='<p class="eyebrow">JR INTELLIGENCE · STAGING FOUNDATION</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Start with a need, a question, a curious thought, a random idea or simply hello. JR recognises the kind of conversation and can connect requests to available worlds. Full open-ended AI reasoning and live research are not connected yet.</p><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>You do not need a category or a plan. Ask, wonder, imagine or just talk.</p></div><div class="jr-starter-prompts"><span>Try: “Why do people dream?”</span><span>“What if cities floated?”</span><span>“I am bored.”</span><span>“I have an idea.”</span></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
  view.append(panel);
  const result=$("jrIntentResult"),camera=$("jrCameraFiles"),gallery=$("jrGalleryFiles"),preview=$("jrMediaPreview");
  let objectUrls=[];
@@ -34,7 +34,7 @@
  function actionButton(label,fn,primary=false){const b=document.createElement("button");b.type="button";b.textContent=label;if(primary)b.className="jr-primary-action";b.addEventListener("click",fn);return b;}
  function renderResponse(message,actions=[]){result.replaceChildren();const p=document.createElement("p");p.textContent=message;result.append(p);if(actions.length){const row=document.createElement("div");row.className="jr-response-actions";actions.forEach(a=>row.append(a));result.append(row);}}
  function openWorlds(){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
- function externalSearch(value){const a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent(value);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Search the wider web";a.className="jr-primary-action";return a;}
+ function externalSearch(value){const a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent(value);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Also search outside JR PHEEF";a.className="jr-primary-action";return a;}
  function conversationResponse(value){
   const kind=classifyConversation(value),search=externalSearch(value),actions=[search];
   if(kind==="greeting"){renderResponse("Hello! You don't need to arrive with a plan. You can ask a question, share a thought, imagine something, or tell me what is happening in your day. The full live JR reasoning service is still being connected.",[]);return;}
@@ -50,7 +50,7 @@
   const intents=detectIntents(value);
   if(!intents.length){conversationResponse(value);return;}
   const external=externalSearch(value);
-  renderResponse("I identified "+intents.map(x=>x.label).join(" + ")+". I'm checking which of your worlds are available. I will not read private records from another world without your permission.");
+  renderResponse("I identified "+intents.map(x=>x.label).join(" + ")+". I'm checking which of your worlds are available. I will not read records across worlds without your permission.");
   try{
    const worlds=await workspaceRequest("list_worlds"),actions=[];
    for(const intent of intents){
@@ -59,7 +59,7 @@
     else{actions.push(actionButton("Prepare "+intent.label,()=>{openWorlds();setTimeout(()=>{const b=document.querySelector('.world-template-button[data-world-type="'+intent.type+'"]');if(b)b.click();},120);},actions.length===0));}
    }
    actions.push(external);
-   renderResponse("JR matched your request to "+intents.map(x=>x.label).join(" and ")+". Open an existing world, or prepare a starter structure for review. JR will not create a world or share records without your action.",actions);
+   renderResponse("JR matched your request to "+intents.map(x=>x.label).join(" and ")+". Open an existing world, or prepare a starter structure for review. A missing world is not created automatically. JR will not create a world or share records without your action.",actions);
   }catch(e){
    const login=actionButton("Log in",()=>document.getElementById("openLogin")?.click());
    renderResponse(e.message+" Sign in to open private worlds. Your request has not been stored.",[login,external]);
