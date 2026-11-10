@@ -53,6 +53,55 @@
  {
  // Member media, status management, groups and channels.
  const workspaceCall=async(action,extra={})=>{const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"This action could not be completed.");return d.data;};
+ // Personal command intelligence: concise, data-backed guidance from the member's own workspace.
+ const intelligence=document.createElement("section");
+ intelligence.id="memberCommandIntelligence";
+ intelligence.className="command-intelligence";
+ intelligence.innerHTML='<div class="command-intelligence-head"><div><span class="command-intelligence-kicker">JR COMMAND INTELLIGENCE</span><h3>Your next useful move</h3><p>Practical suggestions based on your account activity—not guesses or financial promises.</p></div><span class="command-intelligence-orb" aria-hidden="true">✦</span></div><div id="commandIntelligenceSummary" class="command-intelligence-summary" aria-live="polite">Reviewing your workspace…</div><div class="command-intelligence-actions"><button type="button" data-jr-prompt="Help me organise my priorities and choose one useful next action.">Plan my next move</button><button type="button" data-jr-prompt="Help me turn an idea into a practical step-by-step plan.">Develop an idea</button><button type="button" data-jr-prompt="Help me review my profile and improve how people understand what I offer.">Improve my profile</button></div><p class="command-intelligence-note">Your records stay within your account permissions. Suggestions do not publish, message, spend or change anything automatically.</p>';
+ const profilePanel=$("memberProfilePanel");
+ if(profilePanel?.parentNode)profilePanel.parentNode.insertBefore(intelligence,profilePanel);
+ const summaryBox=$("commandIntelligenceSummary");
+ const refreshCommandIntelligence=async()=>{
+  if(!summaryBox)return;
+  summaryBox.textContent="Reviewing your workspace…";
+  try{
+   const data=await workspaceCall("overview");
+   const memberData=data?.member||{};
+   const listings=Array.isArray(data?.listings)?data.listings:[];
+   const projects=Array.isArray(data?.projects)?data.projects:[];
+   const goals=Array.isArray(data?.familyGoals)?data.familyGoals:[];
+   const notices=Array.isArray(data?.notifications)?data.notifications:[];
+   const unread=notices.filter(n=>!n.read).length;
+   const tiles=[
+    ["Listings",String(listings.length),"Your current offers"],
+    ["Projects",String(projects.length),"Plans in progress"],
+    ["FAMILY goals",String(goals.length),"Personal saving goals recorded"],
+    ["Unread updates",String(unread),"Notifications to review"]
+   ];
+   summaryBox.replaceChildren();
+   const grid=document.createElement("div");grid.className="command-intelligence-metrics";
+   tiles.forEach(([label,value,detail])=>{const item=document.createElement("article");item.className="command-intelligence-metric";const strong=document.createElement("strong");strong.textContent=value;const title=document.createElement("span");title.textContent=label;const small=document.createElement("small");small.textContent=detail;item.append(strong,title,small);grid.append(item);});
+   summaryBox.append(grid);
+   const suggestions=[];
+   if(!memberData.profile_photo)suggestions.push("Add a profile photo so people can recognise your account.");
+   if(!(memberData.bio||"").trim())suggestions.push("Write a short introduction explaining who you are or what you do.");
+   if(unread)suggestions.push("Review "+unread+" unread update"+(unread===1?"":"s")+" so you don't miss a response.");
+   if(!listings.length)suggestions.push("If you have something to offer, create one clear listing with a useful description.");
+   if(!projects.length)suggestions.push("Record one goal as a project and break it into a first action.");
+   if(!suggestions.length)suggestions.push("Your workspace has useful activity. Review your updates and choose what deserves attention next.");
+   const list=document.createElement("ul");list.className="command-intelligence-suggestions";
+   suggestions.slice(0,3).forEach(value=>{const li=document.createElement("li");li.textContent=value;list.append(li);});
+   summaryBox.append(list);
+  }catch(error){summaryBox.textContent="Your private workspace summary is temporarily unavailable. "+error.message;}
+ };
+ intelligence.querySelectorAll("[data-jr-prompt]").forEach(button=>button.addEventListener("click",()=>{
+  const prompt=button.dataset.jrPrompt||"";
+  const tab=document.querySelector('.workspace-tab[data-view="jr"]');
+  if(tab)tab.click();
+  const target=$("workspacePrompt")||$("prompt");
+  if(target){target.value=prompt;target.focus();target.dispatchEvent(new Event("input",{bubbles:true}));}
+ }));
+
  const fileData=async file=>{if(file.size>8*1024*1024)throw new Error("Each photo or video must be 8 MB or smaller.");return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=()=>reject(new Error("Could not read the selected file."));reader.readAsDataURL(file);});};
  const uploadFile=async(file,purpose)=>workspaceCall("upload_media",{purpose,fileName:file.name,contentType:file.type,fileBase64:await fileData(file)});
  const profileViewer=$("profilePhotoViewer");
@@ -102,7 +151,7 @@
  const openChannel=async ch=>{channelOpen.hidden=false;channelOpen.replaceChildren();const h=document.createElement("h4");h.textContent=ch.name;const p=document.createElement("p");p.textContent=ch.description||"Channel";channelOpen.append(h,p);if(ch.role==="owner"||ch.role==="moderator"){const form=document.createElement("form");form.innerHTML='<label>Publish an update<textarea name="body" maxlength="4000" rows="3"></textarea></label><button class="hub-submit">Publish to channel</button><p class="hub-feedback"></p>';form.addEventListener("submit",async e=>{e.preventDefault();const button=form.querySelector("button");button.disabled=true;try{await workspaceCall("publish_channel_post",{channelId:ch.id,body:form.elements.body.value});form.reset();form.querySelector(".hub-feedback").textContent="Published.";await openChannel(ch);}catch(err){form.querySelector(".hub-feedback").textContent=err.message;}finally{button.disabled=false;}});channelOpen.append(form);}const posts=await workspaceCall("list_channel_posts",{channelId:ch.id});const feed=document.createElement("div");feed.className="hub-list";posts.forEach(post=>{const item=document.createElement("article");item.className="hub-list-item";const body=document.createElement("p");body.textContent=post.body||"Media update";item.append(body);(post.media||[]).forEach(m=>{const el=m.kind==="video"?document.createElement("video"):document.createElement("img");el.src=m.url;el.alt=m.kind==="video"?"Channel video":"Channel photo";el.controls=m.kind==="video";item.append(el);});feed.append(item);});channelOpen.append(feed);};
  $("jrChannelCreate")?.addEventListener("submit",async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),feedback=f.querySelector(".hub-feedback"),button=f.querySelector("button");button.disabled=true;try{const ch=await workspaceCall("create_channel",{name:fd.get("name"),description:fd.get("description"),category:fd.get("category"),visibility:fd.get("visibility")});f.reset();ch.role="owner";feedback.textContent="Channel created.";await loadChannels();openChannel(ch);}catch(err){feedback.textContent=err.message;}finally{button.disabled=false;}});
  // Initial signed-in load and refresh.
- const signedInLoad=()=>{refreshProfilePhoto();renderStatuses();loadChannels();};
+ const signedInLoad=()=>{refreshProfilePhoto();renderStatuses();loadChannels();refreshCommandIntelligence();};
  window.addEventListener("jr:member-signed-in",signedInLoad);
  if(!$("workspace").hidden)signedInLoad();
  // Visually rich world cards: each has a distinct atmospheric scene and clear invitation.
