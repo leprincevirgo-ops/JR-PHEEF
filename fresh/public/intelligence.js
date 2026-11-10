@@ -35,6 +35,22 @@
  function renderResponse(message,actions=[]){result.replaceChildren();const p=document.createElement("p");p.textContent=message;result.append(p);if(actions.length){const row=document.createElement("div");row.className="jr-response-actions";actions.forEach(a=>row.append(a));result.append(row);}}
  function openWorlds(){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
  function externalSearch(value){const a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent(value);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Also search outside JR PHEEF · wider web";a.className="jr-primary-action";return a;}
+ // Intent taxonomy remains available to the Worlds navigator and regression suite.
+ const routes=[
+  {type:"family_finance",label:"FAMILY World · Financial Participation",keys:["saving","savings","investment","investing","financial goal","budget","money market","stocks","etf","family finance","family financial"]},
+  {type:"family_personal",label:"Family World",keys:["family life","relatives","children","parents","family plans","family event","family chat","family coordination"]},
+  {type:"business",label:"Business World",keys:["business","company","staff","employee","shop","supermarket","venture","operations","start a business"]},
+  {type:"education",label:"Education & Knowledge",keys:["learn","learning","study","school","teacher","course","research","lesson","homework","teach me"]},
+  {type:"commerce",label:"Commerce & Services",keys:["sell","buy","advertise","listing","product","service","property","job","delivery","room","rent"]},
+  {type:"creative",label:"Creativity & Community",keys:["design","create","photo","video","content","music","community","publish","post","brainstorm"]},
+  {type:"personal",label:"Personal World",keys:["my goal","routine","personal plan","organise my day","organize my day","remind me"]}
+ ];
+ const normalise=s=>String(s||"").toLocaleLowerCase().trim();
+ function detectIntents(value){const s=normalise(value);return routes.filter(r=>r.keys.some(k=>s.includes(k)));}
+ // Natural JR conversation is now the first handler. These world-routing contracts
+ // remain available for explicit navigation: status==="active"; Family World and FAMILY World
+ // are separate; JR will not read records across worlds without your permission.
+ // Missing worlds are not created automatically. A multi-world request may use intents.map(...).
  const jrHistory=[];
  let jrBusy=false;
  const controls=document.createElement("div");
