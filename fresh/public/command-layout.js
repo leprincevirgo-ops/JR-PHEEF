@@ -102,6 +102,35 @@
   if(target){target.value=prompt;target.focus();target.dispatchEvent(new Event("input",{bubbles:true}));}
  }));
 
+
+ // Dedicated member-facing AI Secretary using the authenticated JR AI service.
+ const secretary=document.createElement("section");
+ secretary.id="jrAISecretary";
+ secretary.className="jr-ai-secretary";
+ secretary.innerHTML='<div class="jr-secretary-head"><div><span class="command-intelligence-kicker">PERSONAL AI WORKFORCE</span><h3>Your AI Secretary</h3><p>Organise your day, prepare correspondence, structure decisions and coordinate specialist agents when needed.</p></div><span class="jr-secretary-symbol" aria-hidden="true">✧</span></div><div class="jr-secretary-tools"><button type="button" data-secretary-prompt="Help me organise my day. Ask only for essential details, then prepare a prioritised schedule.">Organise my day</button><button type="button" data-secretary-prompt="Help me prepare a clear professional email or letter. Ask me for the recipient and purpose if missing.">Prepare correspondence</button><button type="button" data-secretary-prompt="Help me review my priorities and prepare a concise executive briefing with decisions I need to make.">Executive briefing</button><button type="button" data-secretary-prompt="Choose the specialist AI roles needed for this task, coordinate their contributions and return one consolidated result: ">Coordinate AI agents</button></div><div id="jrSecretaryTranscript" class="jr-secretary-transcript" aria-live="polite"><p>Your Secretary is ready. Give it a task in your own words.</p></div><form id="jrSecretaryForm" class="jr-secretary-form"><textarea id="jrSecretaryPrompt" rows="3" maxlength="5000" placeholder="Tell your AI Secretary what you need organised, prepared or coordinated…"></textarea><div><span class="hub-muted">Private to your signed-in JR PHEEF account</span><button type="submit" class="hub-submit">Ask my Secretary</button></div></form><p class="jr-secretary-note">Your Secretary can prepare and advise. It will not send messages, make bookings, spend money, publish or change important records without an authorised workflow and your confirmation. Scheduled reminders and background agent execution are not yet connected.</p>';
+ const intelligenceAnchor=$("memberCommandIntelligence");
+ if(intelligenceAnchor?.parentNode)intelligenceAnchor.after(secretary);
+ const secretaryTranscript=secretary.querySelector("#jrSecretaryTranscript");
+ const secretaryForm=secretary.querySelector("#jrSecretaryForm");
+ const secretaryInput=secretary.querySelector("#jrSecretaryPrompt");
+ const secretaryHistory=[];
+ let secretaryBusy=false;
+ const secretaryMessage=(role,value)=>{const item=document.createElement("article");item.className="jr-secretary-message jr-secretary-"+role;const who=document.createElement("strong");who.textContent=role==="assistant"?"AI Secretary":"You";const body=document.createElement("p");body.textContent=value;item.append(who,body);secretaryTranscript.append(item);item.scrollIntoView({behavior:"smooth",block:"nearest"});};
+ const askSecretary=async value=>{
+  if(secretaryBusy||!value.trim())return;
+  secretaryBusy=true;const send=secretaryForm.querySelector("button[type=submit]");send.disabled=true;
+  secretaryMessage("user",value);const waiting=document.createElement("p");waiting.className="hub-muted";waiting.textContent="Your Secretary is working…";secretaryTranscript.append(waiting);
+  try{
+   const response=await fetch("/api/ai/chat",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:value,history:secretaryHistory.slice(-8),mode:"secretary",use_web:false})});
+   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Your Secretary is temporarily unavailable.");
+   if(typeof data.answer!=="string"||!data.answer.trim())throw new Error("Your Secretary did not return a usable response.");
+   waiting.remove();secretaryHistory.push({role:"user",content:value},{role:"assistant",content:data.answer});secretaryMessage("assistant",data.answer);
+  }catch(error){waiting.textContent=error.message;}
+  finally{secretaryBusy=false;send.disabled=false;}
+ };
+ secretaryForm.addEventListener("submit",event=>{event.preventDefault();const value=secretaryInput.value.trim();if(!value)return;secretaryInput.value="";askSecretary(value);});
+ secretary.querySelectorAll("[data-secretary-prompt]").forEach(button=>button.addEventListener("click",()=>{secretaryInput.value=button.dataset.secretaryPrompt||"";secretaryInput.focus();}));
+
  const fileData=async file=>{if(file.size>8*1024*1024)throw new Error("Each photo or video must be 8 MB or smaller.");return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=()=>reject(new Error("Could not read the selected file."));reader.readAsDataURL(file);});};
  const uploadFile=async(file,purpose)=>workspaceCall("upload_media",{purpose,fileName:file.name,contentType:file.type,fileBase64:await fileData(file)});
  const profileViewer=$("profilePhotoViewer");
