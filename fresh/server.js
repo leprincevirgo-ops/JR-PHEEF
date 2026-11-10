@@ -204,7 +204,7 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     const body=req.body||{};
     const message=typeof body.message==="string"?body.message.trim().slice(0,5000):"";
     if(!message)return res.status(400).json({ok:false,error:"Tell JR what is on your mind."});
-    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities"]);
+    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team"]);
     const mode=allowedModes.has(body.mode)?body.mode:"universe";
     const history=Array.isArray(body.history)?body.history.slice(-8).map(item=>({
       role:item?.role==="assistant"?"assistant":"user",
@@ -213,7 +213,7 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     const input=[...history,{role:"user",content:message}];
     const payload={
       model:process.env.OPENAI_MODEL||"gpt-5.4",
-      instructions:JR_SYSTEM_PROMPT+"\nCurrent focus: "+mode+". Answer the user's actual request first; offer relevant JR PHEEF capabilities only when they genuinely help.",
+      instructions:JR_SYSTEM_PROMPT+"\\nCurrent focus: "+mode+". "+(mode==="secretary"?"Act as a discreet personal AI Secretary: organise priorities, prepare drafts, create action lists, brief the member and coordinate specialist roles when useful. Ask before consequential actions. Do not claim to schedule reminders, contact people, book services or execute background work unless a connected tool confirms it.":mode==="agent_team"?"Act as an AI workforce coordinator: identify useful specialist roles such as research, business, learning, finance education, operations, communications, creative or opportunity discovery; divide the work conceptually, synthesise one coherent answer and distinguish advice from executed work. Never pretend separate agents or background jobs ran when they did not.":"Answer the user's actual request first; offer relevant JR PHEEF capabilities only when they genuinely help."),
       input,
       max_output_tokens:1400,
       store:false
