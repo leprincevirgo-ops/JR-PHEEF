@@ -8,6 +8,9 @@ const SUPABASE_KEY=process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_AN
 const ACCESS_COOKIE="jr_access";
 const REFRESH_COOKIE="jr_refresh";
 const AUTH_ORIGIN="https://"+(process.env.RENDER_EXTERNAL_HOSTNAME||"jr-pheef-foundation.onrender.com");
+const ALLOWED_ORIGINS=new Set([AUTH_ORIGIN,...(process.env.JR_ALLOWED_ORIGINS||"").split(",")]
+  .map(value=>{try{return new URL(value.trim()).origin;}catch{return "";}})
+  .filter(Boolean));
 
 app.disable("x-powered-by");
 app.use((req,res,next)=>{
@@ -47,9 +50,14 @@ function clearAuthCookies(res){
 function sameOrigin(req,res,next){
   const origin=req.headers.origin;
   if(origin){
-    const host=req.headers.host;
-    const expected=(req.headers["x-forwarded-proto"]==="http"?"http":"https")+"://"+host;
-    if(origin!==expected)return res.status(403).json({ok:false,error:"Request origin was not accepted."});
+    let normalized;
+    try{normalized=new URL(origin).origin;}catch{}
+    if(!normalized||!ALLOWED_ORIGINS.has(normalized))
+      return res.status(403).json({ok:false,error:"Request origin was not accepted."});
+  }else{
+    const fetchSite=String(req.headers["sec-fetch-site"]||"").toLowerCase();
+    if(fetchSite&&fetchSite!=="same-origin"&&fetchSite!=="none")
+      return res.status(403).json({ok:false,error:"Cross-site requests are not accepted."});
   }
   next();
 }
