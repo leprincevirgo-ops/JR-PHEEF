@@ -111,11 +111,45 @@
  profileViewer?.append(profileImage);
  const refreshProfilePhoto=async()=>{try{const data=await workspaceCall("get_profile_photo");profileUrl=data.url;if(profileUrl){profileImage.src=profileUrl;profileImage.hidden=false;$("profileInitials").hidden=true;}else{profileImage.hidden=true;$("profileInitials").hidden=false;}}catch{}};
  const photoTools=document.createElement("div");photoTools.className="profile-photo-tools";
- photoTools.innerHTML='<label class="hub-small-button media-picker">Choose profile photo<input id="profilePhotoGallery" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="hub-small-button media-picker">Take a photo<input id="profilePhotoCamera" type="file" accept="image/*" capture="user"></label><button type="button" class="hub-small-button" id="profilePhotoShow">Show photo</button>';
+ photoTools.innerHTML='<label class="hub-small-button media-picker">Choose from gallery<input id="profilePhotoGallery" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="hub-small-button media-picker">Take photo<input id="profilePhotoCamera" type="file" accept="image/*" capture="user"></label><button type="button" class="hub-small-button" id="profilePhotoEdit">Edit / crop</button><button type="button" class="hub-small-button" id="profilePhotoShow">Show photo</button>';
  $("memberProfilePanel")?.append(photoTools);
  const photoFeedback=document.createElement("p");photoFeedback.className="hub-feedback";photoFeedback.setAttribute("aria-live","polite");photoTools.after(photoFeedback);
- const applyProfilePhoto=async file=>{if(!file)return;photoFeedback.textContent="Uploading your private profile photo…";try{const uploaded=await uploadFile(file,"profile");await workspaceCall("update_profile",{profile_photo:uploaded.path,profile_photo_hidden:false});await refreshProfilePhoto();photoFeedback.textContent="Profile photo updated.";}catch(e){photoFeedback.textContent=e.message;}};
- ["profilePhotoGallery","profilePhotoCamera"].forEach(id=>$(id)?.addEventListener("change",e=>applyProfilePhoto(e.target.files?.[0])));
+ const cropDialog=document.createElement("dialog");cropDialog.className="profile-crop-dialog";
+ cropDialog.innerHTML='<div class="profile-crop-inner"><div><p class="eyebrow">PROFILE PHOTO STUDIO</p><h3>Adjust your photo</h3><p class="hub-muted">Move and zoom the crop before saving it to your profile.</p></div><div class="profile-crop-stage"><canvas id="profileCropCanvas" width="512" height="512"></canvas></div><label>Zoom <input id="profileCropZoom" type="range" min="1" max="3" step=".05" value="1"></label><label>Horizontal position <input id="profileCropX" type="range" min="0" max="100" value="50"></label><div class="profile-crop-actions"><button type="button" id="profileCropCancel">Cancel</button><button type="button" id="profileCropSave" class="hub-submit">Save photo</button></div></div>';
+ document.body.append(cropDialog);
+ const cropCanvas=cropDialog.querySelector("#profileCropCanvas"),cropCtx=cropCanvas.getContext("2d"),zoomInput=cropDialog.querySelector("#profileCropZoom"),xInput=cropDialog.querySelector("#profileCropX");
+ let cropImage=null,cropFileName="profile.jpg";
+ const drawCrop=()=>{
+  if(!cropImage)return;const size=512,scale=Math.max(size/cropImage.width,size/cropImage.height)*Number(zoomInput.value);
+  const w=cropImage.width*scale,h=cropImage.height*scale,extraX=Math.max(0,w-size),x=-extraX*(Number(xInput.value)/100),y=-(h-size)/2;
+  cropCtx.clearRect(0,0,size,size);cropCtx.drawImage(cropImage,x,y,w,h);
+ };
+ [zoomInput,xInput].forEach(el=>el.addEventListener("input",drawCrop));
+ const applyProfilePhoto=async file=>{
+  if(!file)return;
+  if(!file.type.startsWith("image/")){photoFeedback.textContent="A profile photo must be an image.";return;}
+  if(file.size>8*1024*1024){photoFeedback.textContent="Choose a photo under 8 MB.";return;}
+  cropFileName=file.name||"profile.jpg";
+  const url=URL.createObjectURL(file),image=new Image();
+  image.onload=()=>{cropImage=image;zoomInput.value="1";xInput.value="50";drawCrop();URL.revokeObjectURL(url);if(cropDialog.showModal)cropDialog.showModal();else cropDialog.setAttribute("open","");};
+  image.onerror=()=>{URL.revokeObjectURL(url);photoFeedback.textContent="This image could not be opened.";};
+  image.src=url;
+ };
+ ["profilePhotoGallery","profilePhotoCamera"].forEach(id=>$(id)?.addEventListener("change",e=>{applyProfilePhoto(e.target.files?.[0]);e.target.value="";}));
+ cropDialog.querySelector("#profileCropCancel").addEventListener("click",()=>cropDialog.close());
+ cropDialog.querySelector("#profileCropSave").addEventListener("click",async()=>{
+  const save=cropDialog.querySelector("#profileCropSave");save.disabled=true;photoFeedback.textContent="Saving your adjusted profile photo…";
+  try{
+   const blob=await new Promise(resolve=>cropCanvas.toBlob(resolve,"image/jpeg",.9));
+   if(!blob)throw new Error("Could not prepare the cropped image.");
+   const file=new File([blob],cropFileName.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"});
+   const uploaded=await uploadFile(file,"profile");
+   await workspaceCall("update_profile",{profile_photo:uploaded.path,profile_photo_hidden:false});
+   await refreshProfilePhoto();photoFeedback.textContent="Your adjusted profile photo is saved.";cropDialog.close();
+  }catch(e){photoFeedback.textContent=e.message;}
+  finally{save.disabled=false;}
+ });
+ $("profilePhotoEdit")?.addEventListener("click",()=>{if(!profileUrl){photoFeedback.textContent="Choose a photo first to edit it.";return;}fetch(profileUrl).then(r=>r.blob()).then(blob=>applyProfilePhoto(new File([blob],"profile.jpg",{type:blob.type||"image/jpeg"}))).catch(()=>photoFeedback.textContent="Could not load the current photo for editing.");});
  $("profilePhotoShow")?.addEventListener("click",async()=>{try{await workspaceCall("update_profile",{profile_photo_hidden:false});await refreshProfilePhoto();if(profileViewer)profileViewer.hidden=false;if(hide)hide.textContent="Hide photo";photoFeedback.textContent="Your profile photo is visible again.";}catch(e){photoFeedback.textContent=e.message;}});
  $("profilePhotoHide")?.addEventListener("click",async()=>{try{await workspaceCall("update_profile",{profile_photo_hidden:true});await refreshProfilePhoto();if(profileViewer)profileViewer.hidden=false;if(hide)hide.textContent="Hide photo";photoFeedback.textContent="Your profile photo is hidden from others.";}catch(e){photoFeedback.textContent=e.message;}});
  $("profilePhotoRemove")?.addEventListener("click",async()=>{if(!confirm("Remove your profile photo?"))return;try{await workspaceCall("update_profile",{profile_photo:"",profile_photo_hidden:false,profile_photo_hidden_url:""});await refreshProfilePhoto();photoFeedback.textContent="Profile photo removed."; }catch(e){photoFeedback.textContent=e.message;}});
