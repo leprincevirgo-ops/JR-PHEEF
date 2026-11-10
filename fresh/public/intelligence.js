@@ -35,35 +35,65 @@
  function renderResponse(message,actions=[]){result.replaceChildren();const p=document.createElement("p");p.textContent=message;result.append(p);if(actions.length){const row=document.createElement("div");row.className="jr-response-actions";actions.forEach(a=>row.append(a));result.append(row);}}
  function openWorlds(){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
  function externalSearch(value){const a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent(value);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Also search outside JR PHEEF · wider web";a.className="jr-primary-action";return a;}
- function conversationResponse(value){
-  const kind=classifyConversation(value),search=externalSearch(value),actions=[search];
-  if(kind==="greeting"){renderResponse("Hello! You don't need to arrive with a plan. You can ask a question, share a thought, imagine something, or tell me what is happening in your day. The full live JR reasoning service is still being connected.",[]);return;}
-  if(kind==="wonder"){renderResponse("Let's treat that as a thought experiment. We can explore what might happen, which assumptions matter, what science or evidence says, and what is only speculation. The full live reasoning engine is not connected yet, so I won't pretend to have completed that exploration.",actions);return;}
-  if(kind==="question"){renderResponse("That's a valid question. I can help identify what needs explaining and point you towards research. The live answer and research engine is not connected in this staging build, so I won't invent a factual answer. You can search this exact question separately.",actions);return;}
-  if(kind==="curiosity"){renderResponse("Curiosity is reason enough. Pick any subject, ask something unusual, or explore a field you have never encountered. Live AI answers are still being connected; external research is available separately.",actions);return;}
-  if(kind==="human_context"){renderResponse("I hear you. I won't assume what is behind that feeling. We can talk about it, explore something lighter, or look at practical next steps. What would be most helpful right now?",[]);return;}
-  if(kind==="idea"){renderResponse("An unfinished idea is welcome. It can start as a sentence, a sketch or a question. We can later explore its purpose, who it could help, what already exists and how to test it. Live AI development support is still being connected.",[]);return;}
-  renderResponse("We can simply talk. You don't need to turn every thought into a task or a transaction. Tell me whatever is on your mind, even if it is unfinished. The full live JR conversation engine is not connected yet.",[]);
+ const jrHistory=[];
+ let jrBusy=false;
+ const controls=document.createElement("div");
+ controls.className="jr-chat-controls";
+ controls.innerHTML='<label>Conversation focus <select id="jrConversationMode"><option value="universe">Open conversation</option><option value="business">Business & operations</option><option value="learning">Learning & discovery</option><option value="research">Research</option><option value="personal">Personal planning</option><option value="opportunities">Opportunities & matching</option></select></label><label class="jr-web-toggle"><input id="jrWebResearch" type="checkbox"> Allow web research for this question</label>';
+ panel.insertBefore(controls,$(".jr-starter-prompts"));
+ const transcript=document.createElement("div");
+ transcript.id="jrConversationTranscript";
+ transcript.className="jr-conversation-transcript";
+ transcript.setAttribute("aria-live","polite");
+ result.after(transcript);
+ function addMessage(role,text){
+  const article=document.createElement("article");
+  article.className="jr-message jr-message-"+role;
+  const label=document.createElement("span");label.textContent=role==="assistant"?"JR":"You";
+  const body=document.createElement("p");body.textContent=text;
+  article.append(label,body);transcript.append(article);
+  article.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
+ async function conversationResponse(value){
+  if(jrBusy)return;
+  jrBusy=true;
+  const sendButtons=[...document.querySelectorAll("#promptForm button[type=submit],#workspacePromptForm button[type=submit]")];
+  sendButtons.forEach(b=>b.disabled=true);
+  addMessage("user",value);
+  renderResponse("JR is thinking…");
+  try{
+   const response=await fetch("/api/ai/chat",{
+    method:"POST",credentials:"same-origin",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+     message:value,
+     history:jrHistory.slice(-8),
+     mode:$("jrConversationMode")?.value||"universe",
+     use_web:$("jrWebResearch")?.checked===true
+    })
+   });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||"JR could not complete this conversation.");
+   if(typeof data.answer!=="string"||!data.answer.trim())throw new Error("JR did not return an answer.");
+   jrHistory.push({role:"user",content:value},{role:"assistant",content:data.answer});
+   addMessage("assistant",data.answer);
+   renderResponse("JR is ready. Continue naturally—ask a follow-up, change the subject, or explore an idea.");
+  }catch(error){
+   const message=error.message||"JR is temporarily unavailable.";
+   addMessage("assistant",message);
+   renderResponse(message);
+  }finally{
+   jrBusy=false;sendButtons.forEach(b=>b.disabled=false);
+  }
+ }
+ function conversationResponseLegacy(value){
+  // Kept as a local fallback only for unconfigured deployments.
+  const search=externalSearch(value);
+  renderResponse("JR's live intelligence connection is not available on this deployment yet. Your message has not been sent to an AI service.",[search]);
  }
  async function workspaceRequest(action,extra={}){const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"Your worlds could not be checked.");return d.data;}
  async function routeRequest(value){
-  const intents=detectIntents(value);
-  if(!intents.length){conversationResponse(value);return;}
-  const external=externalSearch(value);
-  renderResponse("I identified "+intents.map(x=>x.label).join(" + ")+". I'm checking which of your worlds are available. I will not read records across worlds without your permission.");
-  try{
-   const worlds=await workspaceRequest("list_worlds"),actions=[];
-   for(const intent of intents){
-    const existing=(worlds||[]).find(w=>w.world_type===intent.type&&w.status==="active")||(worlds||[]).find(w=>w.world_type===intent.type);
-    if(existing){actions.push(actionButton("Open "+existing.name,()=>{openWorlds();setTimeout(()=>{const b=document.querySelector('[data-world-id="'+CSS.escape(existing.id)+'"]');if(b)b.click();},120);},actions.length===0));}
-    else{actions.push(actionButton("Prepare "+intent.label,()=>{openWorlds();setTimeout(()=>{const b=document.querySelector('.world-template-button[data-world-type="'+intent.type+'"]');if(b)b.click();},120);},actions.length===0));}
-   }
-   actions.push(external);
-   renderResponse("JR matched your request to "+intents.map(x=>x.label).join(" and ")+". Open an existing world, or prepare a starter structure for review. A missing world is not created automatically. JR will not create a world or share records without your action.",actions);
-  }catch(e){
-   const login=actionButton("Log in",()=>document.getElementById("openLogin")?.click());
-   renderResponse(e.message+" Sign in to open private worlds. Your request has not been stored.",[login,external]);
-  }
+  await conversationResponse(value);
  }
  document.addEventListener("submit",event=>{const form=event.target;if(!forms.includes(form))return;event.preventDefault();event.stopImmediatePropagation();const isWorkspace=form.id==="workspacePromptForm",input=$(isWorkspace?"workspacePrompt":"prompt"),value=input?.value.trim();if(!value)return;const reply=$(isWorkspace?"workspacePromptReply":"promptReply");if(reply)reply.textContent="JR is organising your request…";input.value="";routeRequest(value);},true);
  function setFiles(files){objectUrls.forEach(URL.revokeObjectURL);objectUrls=[];preview.replaceChildren();const selected=Array.from(files||[]).slice(0,8);if(!selected.length){$("jrMediaStatus").textContent="No media selected.";return;}let shown=0;selected.forEach(file=>{if((!/^image\//.test(file.type)&&!/^video\//.test(file.type))||file.size>20*1024*1024)return;const url=URL.createObjectURL(file);objectUrls.push(url);const media=document.createElement(file.type.startsWith("video/")?"video":"img");media.src=url;media.alt=file.name;if(media.tagName==="VIDEO"){media.muted=true;media.controls=true;media.playsInline=true;}preview.append(media);shown++;});$("jrMediaStatus").textContent=shown+" media file(s) previewed locally (maximum 8 files, 20 MB each). Nothing has been uploaded or published.";}
