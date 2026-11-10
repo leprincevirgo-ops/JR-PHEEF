@@ -176,6 +176,79 @@ app.post("/api/partner-inquiry",rateLimit,sameOrigin,async(req,res)=>{
     return res.status(response.status).json(data);
   }catch(err){console.error("JR PHEEF partner enquiry:",err.message);return res.status(503).json({ok:false,error:"Partner enquiry service is temporarily unavailable."});}
 });
+
+// JR PHEEF live conversation runtime. Provider secrets remain server-side.
+// The assistant can reason and research, but cannot execute account, payment,
+// messaging, or external actions from a chat response.
+const JR_SYSTEM_PROMPT = [
+  "You are JR, the conversational intelligence at the centre of JR PHEEF.",
+  "JR PHEEF is a connected environment for learning, creating, connecting and getting things done.",
+  "Welcome open-ended questions, curiosity, imagination, everyday conversation and practical requests.",
+  "Understand the user's intent before suggesting a world or feature. Do not force fixed command words or categories.",
+  "Respond in the language and register the user uses where possible, including natural multilingual conversation.",
+  "Be honest about uncertainty, current capabilities and whether external information has been verified.",
+  "Never claim to have taken an action, sent a message, made a booking, moved money, published content or changed an account unless a separate authorised service confirms it.",
+  "Do not reveal private founder, DGBO, FAMILY, other-member or internal system information to unauthorised users.",
+  "Respect consent, privacy, human dignity and user ownership of their original ideas. Do not promise investment returns or provide regulated financial, legal or medical determinations.",
+  "For consequential actions, explain the proposed action and require explicit confirmation through the relevant JR PHEEF workflow.",
+  "Be warm, curious, useful and concise. Ask only the most important clarification when necessary."
+].join(" ");
+
+app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)
+      return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account to talk with JR."});
+    if(!process.env.OPENAI_API_KEY)
+      return res.status(503).json({ok:false,error:"JR's live intelligence service is not activated on this server yet."});
+    const body=req.body||{};
+    const message=typeof body.message==="string"?body.message.trim().slice(0,5000):"";
+    if(!message)return res.status(400).json({ok:false,error:"Tell JR what is on your mind."});
+    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities"]);
+    const mode=allowedModes.has(body.mode)?body.mode:"universe";
+    const history=Array.isArray(body.history)?body.history.slice(-8).map(item=>({
+      role:item?.role==="assistant"?"assistant":"user",
+      content:typeof item?.content==="string"?item.content.trim().slice(0,2500):""
+    })).filter(item=>item.content):[];
+    const input=[...history,{role:"user",content:message}];
+    const payload={
+      model:process.env.OPENAI_MODEL||"gpt-5.4",
+      instructions:JR_SYSTEM_PROMPT+"\nCurrent focus: "+mode+". Answer the user's actual request first; offer relevant JR PHEEF capabilities only when they genuinely help.",
+      input,
+      max_output_tokens:1400,
+      store:false
+    };
+    if(body.use_web===true)payload.tools=[{type:"web_search"}];
+    const upstream=await fetch("https://api.openai.com/v1/responses",{
+      method:"POST",
+      headers:{"Authorization":"Bearer "+process.env.OPENAI_API_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify(payload),
+      signal:AbortSignal.timeout(30000)
+    });
+    const result=await upstream.json().catch(()=>({}));
+    if(!upstream.ok){
+      const providerCode=String(result?.error?.code||result?.error?.type||"provider_error").slice(0,80);
+      console.error("JR AI provider error:",upstream.status,providerCode);
+      return res.status(upstream.status===429?429:502).json({
+        ok:false,
+        error:upstream.status===429?"JR is temporarily at its AI provider's usage limit. Please try again shortly.":"JR could not reach its intelligence service. Please try again shortly."
+      });
+    }
+    let answer=typeof result.output_text==="string"?result.output_text:"";
+    if(!answer&&Array.isArray(result.output)){
+      answer=result.output.flatMap(item=>Array.isArray(item.content)?item.content:[])
+        .filter(part=>part.type==="output_text"&&typeof part.text==="string")
+        .map(part=>part.text).join("\n");
+    }
+    if(!answer.trim())return res.status(502).json({ok:false,error:"JR did not receive a usable answer. Please try again."});
+    res.setHeader("Cache-Control","no-store");
+    return res.json({ok:true,answer:answer.trim(),model:process.env.OPENAI_MODEL||"gpt-5.4",webResearch:body.use_web===true});
+  }catch(error){
+    console.error("JR AI request failed:",String(error?.message||error).slice(0,160));
+    if(!res.headersSent)return res.status(503).json({ok:false,error:"JR's intelligence service is temporarily unavailable."});
+  }
+});
+
 app.post("/api/workspace",sameOrigin,async(req,res)=>{
   try{
     const user=await currentUser(req,res);
