@@ -182,3 +182,18 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .command-intelligence-actions button:active{transform:translateY(1px)}
 .command-intelligence-note{border-top:1px solid var(--line);padding-top:10px}
 @media(max-width:560px){.command-intelligence{padding:14px}.command-intelligence-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.command-intelligence-head h3{font-size:17px}}
+
+/* JR live conversation experience */
+.jr-chat-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.jr-chat-controls>label:first-child{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.jr-chat-controls select{max-width:220px;min-height:38px;border:1px solid var(--line);border-radius:10px;background:#081625;color:var(--text);padding:7px 10px}
+.jr-web-toggle{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+.jr-web-toggle input{accent-color:var(--cyan)}
+.jr-conversation-transcript{display:grid;gap:10px;margin:14px 0}
+.jr-message{max-width:min(92%,680px);padding:13px 15px;border:1px solid var(--line);border-radius:16px;background:rgba(8,22,37,.82)}
+.jr-message-user{justify-self:end;border-color:rgba(105,227,239,.3);background:rgba(48,102,130,.18)}
+.jr-message-assistant{justify-self:start}
+.jr-message>span{display:block;color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.jr-message p{white-space:pre-wrap;line-height:1.65;margin:0;color:var(--text)}
+.jr-chat-controls button:disabled{opacity:.55;cursor:wait}
+@media(max-width:560px){.jr-chat-controls{align-items:flex-start;flex-direction:column}.jr-chat-controls select{max-width:100%;width:100%}.jr-message{max-width:100%}}
