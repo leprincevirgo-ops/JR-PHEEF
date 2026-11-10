@@ -60,7 +60,8 @@
    }catch(error){b.textContent=error.message;}
    finally{b.disabled=false;if(b.textContent==="Enter this world"||b.textContent==="Preparing your world…")b.textContent="Enter this world";}
   });
-  card.append(eyebrow,h,p,tags,b);starterGrid.append(card);
+  const agentNote=document.createElement("small");agentNote.className="world-agent-note";agentNote.textContent="JR can bring in specialist AI agents here when the task needs them.";
+  card.append(eyebrow,h,p,tags,agentNote,b);starterGrid.append(card);
  });
  // Offer studio: camera/gallery selection, local preview, upload and publication.
  const offerStudio=document.createElement("section");
