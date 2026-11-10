@@ -37,3 +37,11 @@ test("JR distinguishes questions, curiosity, wondering and casual conversation",
  for(const term of ["classifyConversation","wonder","question","curiosity","open_chat","human_context"])assert.ok(js.includes(term),"missing "+term);
  assert.match(js,/live answer and research engine is not connected/);
 });
+test("origin protection uses configured canonical origins and supports explicit custom domains",()=>{
+ const server=read("server.js");
+ assert.match(server,/JR_ALLOWED_ORIGINS/);
+ assert.match(server,/new URL\(origin\)\.origin/);
+ assert.match(server,/ALLOWED_ORIGINS\.has\(normalized\)/);
+ assert.match(server,/sec-fetch-site/);
+ assert.doesNotMatch(server,/const expected=.*req\.headers\["host"\]/);
+});
