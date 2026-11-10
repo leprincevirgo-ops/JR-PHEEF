@@ -22,6 +22,115 @@
   community:{name:"My Community World",description:"A shared space for a community and its activities.",members:"Invited community members",workflows:["Community announcements","Events and activities","Shared tasks and initiatives"]},
   global:{name:"My Global World",description:"A starting space to explore and connect with the wider JR PHEEF ecosystem.",members:"Owner and invited collaborators",workflows:["Discover ecosystem opportunities","Connect relevant worlds","Track exploration and ideas"]}
  };
+
+ // Ready-to-enter world experiences: practical starter content appears before a member creates anything.
+ const starterCatalog=[
+  ["global","Global World","Discover available services, useful guides and connected opportunities.","Explore opportunities · Learn · Connect"],
+  ["personal","Personal World","A personal planner with goals, routines, projects and a daily review.","My goals · Daily plan · Project tracker"],
+  ["family_personal","Family World","A private family organiser for events, shared plans, memories and responsibilities.","Family calendar · Tasks · Announcements"],
+  ["business","Business World","A business starter desk for business plans, operations, team tasks and customer enquiries.","Business canvas · Operations · Team"],
+  ["education","Education & Knowledge","A learning space with guided study paths, skill plans, reading lists and practice.","Learning paths · Study planner · Research notes"],
+  ["commerce","Commerce & Services","A marketplace entry point for products, services, jobs, property and local offers.","Offer publisher · Opportunity feed · Enquiries"],
+  ["family_finance","FAMILY World · Financial Participation","Financial education, goal planning and transparent participation information. No deposits or investment transactions.","Money basics · Goal planner · Participation records"],
+  ["creative","Creativity & Community","A creator desk for ideas, drafts, media, collaboration and community channels.","Idea board · Media studio · Community"],
+  ["community","Community World","A shared place for announcements, events, volunteer activities and group projects.","Events · Announcements · Shared projects"]
+ ];
+ const starterSection=document.createElement("section");
+ starterSection.className="world-starter-section";
+ starterSection.innerHTML='<div class="worlds-section-head"><div><p class="eyebrow">READY TO EXPLORE</p><h3>Worlds with a starting point</h3><p class="hub-muted">Each world opens with useful starter activities. You can personalise it later.</p></div></div><div class="world-starter-grid" id="worldStarterGrid"></div>';
+ const categoryGrid=view.querySelector(".world-category-grid");
+ categoryGrid?.after(starterSection);
+ const starterGrid=starterSection.querySelector("#worldStarterGrid");
+ const starterNodes=[];
+ starterCatalog.forEach(([type,title,desc,features])=>{
+  const card=document.createElement("article");card.className="world-starter-card";
+  const eyebrow=document.createElement("span");eyebrow.className="eyebrow";eyebrow.textContent="STARTER EXPERIENCE";
+  const h=document.createElement("h4");h.textContent=title;
+  const p=document.createElement("p");p.textContent=desc;
+  const tags=document.createElement("small");tags.textContent=features;
+  const b=document.createElement("button");b.type="button";b.className="hub-small-button";b.textContent="Enter this world";
+  b.addEventListener("click",async()=>{
+   const template=worldTemplates[type];if(!template)return;
+   b.disabled=true;b.textContent="Preparing your world…";
+   try{
+    const existing=worlds.find(w=>w.world_type===type&&w.status==="active");
+    if(existing){await openWorld(existing.id);return;}
+    const created=await api("create_world",{name:template.name,worldType:type,description:template.description,intendedMembers:template.members,workflows:template.workflows});
+    await refresh();if(created?.id)await openWorld(created.id);
+   }catch(error){b.textContent=error.message;}
+   finally{b.disabled=false;if(b.textContent==="Enter this world"||b.textContent==="Preparing your world…")b.textContent="Enter this world";}
+  });
+  card.append(eyebrow,h,p,tags,b);starterGrid.append(card);
+ });
+ // Offer studio: camera/gallery selection, local preview, upload and publication.
+ const offerStudio=document.createElement("section");
+ offerStudio.className="offer-studio";
+ offerStudio.innerHTML='<div class="worlds-section-head"><div><p class="eyebrow">COMMERCE · OFFER STUDIO</p><h3>Have something to offer?</h3><p class="hub-muted">Photograph it, choose media from your device, preview it and publish an offer.</p></div></div><form id="jrOfferForm" class="jr-offer-form"><label>What are you offering?<select name="category" required><option value="goods">Goods / products</option><option value="services">Services</option><option value="jobs">Jobs / work</option><option value="property">Property / rooms</option><option value="transport">Transport / delivery</option><option value="business">Business opportunity</option><option value="other">Something else</option></select></label><label>Offer title<input name="title" required minlength="3" maxlength="120" placeholder="e.g. Handmade dining table"></label><label>Description<textarea name="description" required minlength="10" maxlength="2000" rows="3" placeholder="Describe what it is, condition, features, requirements or service details…"></textarea></label><div class="jr-offer-fields"><label>Price / amount (KSh)<input name="price" type="number" min="0" step="0.01" required placeholder="0"></label><label>Location<input name="location" required maxlength="180" placeholder="Town, city or remote"></label></div><div class="jr-media-actions"><label class="hub-small-button media-picker">Choose from gallery<input id="jrOfferGallery" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple></label><label class="hub-small-button media-picker">Use camera<input id="jrOfferCamera" type="file" accept="image/*" capture="environment"></label><span class="hub-muted">Up to 8 photos/videos · 8 MB each</span></div><div id="jrOfferPreview" class="jr-offer-preview" aria-live="polite"></div><label class="jr-offer-check"><input name="negotiable" type="checkbox"> Price is negotiable</label><button class="hub-submit" type="submit">Preview & publish offer</button><p id="jrOfferFeedback" class="hub-feedback" aria-live="polite"></p></form><div class="offer-feed"><div class="worlds-section-head"><div><p class="eyebrow">DISCOVER</p><h3>Offers in JR PHEEF</h3></div><button id="jrOfferRefresh" type="button" class="hub-small-button">Refresh offers</button></div><div id="jrOfferFeed" class="jr-offer-feed"><p class="hub-muted">Loading available offers…</p></div></div>';
+ starterSection.after(offerStudio);
+ const offerForm=offerStudio.querySelector("#jrOfferForm"),gallery=offerStudio.querySelector("#jrOfferGallery"),camera=offerStudio.querySelector("#jrOfferCamera"),preview=offerStudio.querySelector("#jrOfferPreview"),feedback=offerStudio.querySelector("#jrOfferFeedback"),feed=offerStudio.querySelector("#jrOfferFeed");
+ let selectedFiles=[],previewUrls=[];
+ const renderPreview=()=>{
+  previewUrls.forEach(URL.revokeObjectURL);previewUrls=[];preview.replaceChildren();
+  selectedFiles.slice(0,8).forEach((file,index)=>{
+   const tile=document.createElement("div");tile.className="jr-offer-media-tile";
+   const url=URL.createObjectURL(file);previewUrls.push(url);
+   const media=file.type.startsWith("video/")?document.createElement("video"):document.createElement("img");
+   if(media.tagName==="VIDEO"){media.controls=true;media.muted=true;}else media.alt="Offer image preview";
+   media.src=url;const remove=document.createElement("button");remove.type="button";remove.textContent="Remove";remove.addEventListener("click",()=>{selectedFiles.splice(index,1);renderPreview();});
+   tile.append(media,remove);preview.append(tile);
+  });
+ };
+ const addFiles=input=>{
+  const files=[...(input.files||[])];input.value="";
+  for(const file of files){
+   if(selectedFiles.length>=8){feedback.textContent="You can attach up to 8 files.";break;}
+   if(!["image/jpeg","image/png","image/webp","video/mp4","video/webm","video/quicktime"].includes(file.type)){feedback.textContent="Choose JPG, PNG, WEBP, MP4, WEBM or MOV files.";continue;}
+   if(file.size>8*1024*1024){feedback.textContent=file.name+" is over the 8 MB limit.";continue;}
+   selectedFiles.push(file);
+  }
+  renderPreview();
+ };
+ gallery?.addEventListener("change",()=>addFiles(gallery));camera?.addEventListener("change",()=>addFiles(camera));
+ const bytesOf=async file=>await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(",")[1]);r.onerror=()=>reject(new Error("Could not read "+file.name));r.readAsDataURL(file);});
+ async function refreshOffers(){
+  feed.textContent="Loading offers…";
+  try{
+   const data=await api("overview");const offers=Array.isArray(data.marketListings)?data.marketListings:[];
+   feed.replaceChildren();
+   if(!offers.length){const p=document.createElement("p");p.className="hub-muted";p.textContent="No member offers have been published yet. Your offer will appear here after publication.";feed.append(p);return;}
+   offers.forEach(item=>{
+    const card=document.createElement("article");card.className="jr-offer-card";
+    const title=document.createElement("h4");title.textContent=item.title;
+    const desc=document.createElement("p");desc.textContent=item.description||"";
+    const meta=document.createElement("small");meta.textContent=[item.category,item.location,"KSh "+Number(item.price||0).toLocaleString()].filter(Boolean).join(" · ");
+    card.append(title,desc,meta);
+    (item.media||[]).forEach(m=>{if(!m.url)return;const el=m.kind==="video"?document.createElement("video"):document.createElement("img");el.src=m.url;if(el.tagName==="VIDEO"){el.controls=true;el.muted=true;}else el.alt=item.title;card.append(el);});
+    feed.append(card);
+   });
+  }catch(error){feed.textContent=error.message;}
+ }
+ offerForm?.addEventListener("submit",async event=>{
+  event.preventDefault();if(!offerForm.reportValidity())return;
+  const button=offerForm.querySelector('button[type="submit"]');button.disabled=true;
+  feedback.textContent="Uploading your selected media securely…";
+  try{
+   const media=[];
+   for(const file of selectedFiles){
+    const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"upload_media",purpose:"listing",fileName:file.name,contentType:file.type,fileBase64:await bytesOf(file)})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||"Media upload failed.");media.push(d.data);
+   }
+   const fd=new FormData(offerForm);
+   const category=String(fd.get("category"));
+   const payload={action:"create_listing",title:fd.get("title"),description:fd.get("description"),price:fd.get("price"),location:fd.get("location"),category,negotiable:fd.get("negotiable")==="on",media};
+   const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+   const d=await r.json();if(!r.ok)throw new Error(d.error||"Offer could not be published.");
+   feedback.textContent="Your offer has been published to JR PHEEF.";
+   offerForm.reset();selectedFiles=[];renderPreview();await refreshOffers();
+  }catch(error){feedback.textContent=error.message;}
+  finally{button.disabled=false;}
+ });
+ offerStudio.querySelector("#jrOfferRefresh")?.addEventListener("click",refreshOffers);
+
  document.querySelectorAll(".world-template-button").forEach(button=>button.addEventListener("click",()=>{
   const type=button.dataset.worldType,template=worldTemplates[type];form.elements.worldType.value=type;
   if(template){form.elements.name.value=template.name;form.elements.description.value=template.description;form.elements.intendedMembers.value=template.members;form.elements.workflows.value=template.workflows.join("\n");}
