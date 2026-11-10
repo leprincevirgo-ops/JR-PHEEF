@@ -110,7 +110,7 @@ async function currentUser(req,res){
 
 app.get("/healthz",(_req,res)=>res.status(200).json({
   ok:true,product:"JR PHEEF",identity:"JR",stage:"foundation-auth",
-  authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),paymentsEnabled:false,
+  authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),aiConfigured:Boolean(process.env.OPENAI_API_KEY),paymentsEnabled:false,
   timestamp:new Date().toISOString()
 }));
 app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
