@@ -143,3 +143,22 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .world-category-grid article h3{font-size:16px}
 .world-category-grid article .world-template-button{margin-top:auto}
 @media(max-width:560px){.world-category-grid article{min-height:205px}.world-scene-art{height:78px}.profile-photo-tools .media-picker{min-height:42px}}
+
+/* Public onboarding, partner enquiries and in-app profile photo viewer */
+.public-info{padding:8px 0 30px}
+.public-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.public-info-card,.partner-inquiry-card{border:1px solid var(--line);border-radius:18px;padding:20px;background:linear-gradient(145deg,rgba(24,48,70,.86),rgba(10,24,39,.86))}
+.public-info-card h2,.partner-inquiry-card h2{margin:8px 0 12px;font-size:22px}
+.public-info-card p,.public-info-card li{color:var(--muted);font-size:13px;line-height:1.65}
+.public-info-card ol{padding-left:20px}
+.public-info-note{padding:11px;border-left:2px solid var(--cyan);background:rgba(105,227,239,.06);border-radius:0 10px 10px 0}
+.partner-inquiry-card{margin:18px 0}
+.partner-inquiry-card form{display:grid;gap:12px;max-width:760px}
+.partner-inquiry-card label{display:grid;gap:6px;color:var(--muted);font-size:13px}
+.partner-inquiry-card input,.partner-inquiry-card select,.partner-inquiry-card textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#091727;color:var(--text);font:inherit}
+.profile-photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.profile-photo-dialog{width:min(92vw,760px);max-width:760px;max-height:90vh;padding:14px;border:1px solid rgba(105,227,239,.35);border-radius:18px;background:#07111e;color:var(--text);box-shadow:0 25px 90px rgba(0,0,0,.65)}
+.profile-photo-dialog::backdrop{background:rgba(1,7,15,.82);backdrop-filter:blur(7px)}
+.profile-photo-dialog-inner{display:grid;gap:12px;justify-items:end}
+.profile-photo-dialog-inner img{display:block;max-width:100%;max-height:78vh;object-fit:contain;border-radius:12px;justify-self:center}
+@media(max-width:680px){.public-info-grid{grid-template-columns:1fr}.public-info{padding-bottom:18px}.profile-photo-dialog{padding:10px}}

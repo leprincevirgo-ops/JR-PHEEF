@@ -29,6 +29,7 @@
   }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
  }
  function setSignedIn(user){
+  const publicInfo=$("publicInfo");if(publicInfo)publicInfo.hidden=!!user;
   window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
@@ -49,7 +50,7 @@
   const response=await fetch(path,{method:body?"POST":"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});
   let data={};try{data=await response.json();}catch{}if(!response.ok)throw new Error(data.error||"JR PHEEF could not complete that request.");return data;
  }
- $("openLogin").addEventListener("click",()=>showAuth("login"));$("openSignup").addEventListener("click",()=>showAuth("signup"));
+ $("openLogin").addEventListener("click",()=>showAuth("login"));$("openSignup").addEventListener("click",()=>showAuth("signup"));$("openPartnerSignup")?.addEventListener("click",()=>showAuth("signup"));
  $("loginTab").addEventListener("click",()=>showAuth("login"));$("signupTab").addEventListener("click",()=>showAuth("signup"));
  $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
  $("startWithJr").addEventListener("click",()=>{conversation.hidden=false;panel.hidden=true;conversation.scrollIntoView({behavior:"smooth",block:"center"});$("prompt").focus({preventScroll:true});});
@@ -69,6 +70,14 @@
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
  $("promptForm").addEventListener("submit",event=>{event.preventDefault();const value=$("prompt").value.trim();if(!value){$("prompt").focus();return;}$("promptReply").textContent="JR's live conversation intelligence is the next service being connected. This message has not been sent to an AI service yet.";});
  $("founderDecisionForm").addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget;const fd=new FormData(form);const button=form.querySelector("button[type=submit]");button.disabled=true;$("founderDecisionFeedback").textContent="Saving proposed decision…";try{await api("/api/founder/overview",{action:"create_decision",title:fd.get("title"),venture:fd.get("venture"),details:fd.get("details")});form.reset();$("founderDecisionFeedback").textContent="Decision recorded for founder review.";await loadFounderOverview();}catch(error){$("founderDecisionFeedback").textContent=error.message;}finally{button.disabled=false;}});
+ $("partnerInquiryForm")?.addEventListener("submit",async event=>{
+  event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;
+  const button=form.querySelector('button[type="submit"]'),feedback=$("partnerInquiryFeedback"),fd=new FormData(form);
+  button.disabled=true;feedback.textContent="Sending your enquiry securely…";
+  try{const result=await api("/api/partner-inquiry",{organizationName:fd.get("organizationName"),partnerType:fd.get("partnerType"),details:fd.get("details")});form.reset();feedback.textContent=result.message||"Your partnership enquiry has been received for review.";}
+  catch(error){feedback.textContent=error.message||"The enquiry could not be sent. Please try again.";}
+  finally{button.disabled=false;}
+ });
  document.querySelectorAll(".workspace-tab").forEach(button=>button.addEventListener("click",()=>showWorkspace(button.dataset.view)));
  api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");

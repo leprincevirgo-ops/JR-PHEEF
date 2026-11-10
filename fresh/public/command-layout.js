@@ -48,16 +48,15 @@
  }));
  const openJr=$("openJrFromCommand");
  if(openJr)openJr.addEventListener("click",()=>{const tab=document.querySelector('.workspace-tab[data-view="jr"]');if(tab)tab.click();});
- const viewer=$("profilePhotoViewer"),actions=$("profilePhotoActions"),hide=$("profilePhotoHide");
- if(viewer&&actions)viewer.addEventListener("click",()=>{actions.hidden=!actions.hidden;});
- if(hide&&viewer)hide.addEventListener("click",()=>{viewer.hidden=!viewer.hidden;hide.textContent=viewer.hidden?"Show photo":"Hide photo";});
+ const hide=$("profilePhotoHide");
 
  {
  // Member media, status management, groups and channels.
  const workspaceCall=async(action,extra={})=>{const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"This action could not be completed.");return d.data;};
  const fileData=async file=>{if(file.size>8*1024*1024)throw new Error("Each photo or video must be 8 MB or smaller.");return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=()=>reject(new Error("Could not read the selected file."));reader.readAsDataURL(file);});};
  const uploadFile=async(file,purpose)=>workspaceCall("upload_media",{purpose,fileName:file.name,contentType:file.type,fileBase64:await fileData(file)});
- const profileViewer=$("profilePhotoViewer"),profileActions=$("profilePhotoActions");
+ const profileViewer=$("profilePhotoViewer");
+ const photoDialog=$("profilePhotoDialog"),photoDialogImage=$("profilePhotoDialogImage");
  let profileUrl=null;
  const profileImage=document.createElement("img");profileImage.alt="Your profile photo";profileImage.hidden=true;profileImage.className="profile-avatar-image";
  profileViewer?.append(profileImage);
@@ -66,12 +65,19 @@
  photoTools.innerHTML='<label class="hub-small-button media-picker">Choose profile photo<input id="profilePhotoGallery" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="hub-small-button media-picker">Take a photo<input id="profilePhotoCamera" type="file" accept="image/*" capture="user"></label><button type="button" class="hub-small-button" id="profilePhotoShow">Show photo</button>';
  $("memberProfilePanel")?.append(photoTools);
  const photoFeedback=document.createElement("p");photoFeedback.className="hub-feedback";photoFeedback.setAttribute("aria-live","polite");photoTools.after(photoFeedback);
- const applyProfilePhoto=async file=>{if(!file)return;photoFeedback.textContent="Uploading your private profile photo…";try{const uploaded=await uploadFile(file,"profile");await workspaceCall("update_profile",{profile_photo:uploaded.path,profile_photo_hidden:false});await refreshProfilePhoto();photoFeedback.textContent="Profile photo updated.";if(profileActions)profileActions.hidden=true;}catch(e){photoFeedback.textContent=e.message;}};
+ const applyProfilePhoto=async file=>{if(!file)return;photoFeedback.textContent="Uploading your private profile photo…";try{const uploaded=await uploadFile(file,"profile");await workspaceCall("update_profile",{profile_photo:uploaded.path,profile_photo_hidden:false});await refreshProfilePhoto();photoFeedback.textContent="Profile photo updated.";}catch(e){photoFeedback.textContent=e.message;}};
  ["profilePhotoGallery","profilePhotoCamera"].forEach(id=>$(id)?.addEventListener("change",e=>applyProfilePhoto(e.target.files?.[0])));
  $("profilePhotoShow")?.addEventListener("click",async()=>{try{await workspaceCall("update_profile",{profile_photo_hidden:false});await refreshProfilePhoto();if(profileViewer)profileViewer.hidden=false;if(hide)hide.textContent="Hide photo";photoFeedback.textContent="Your profile photo is visible again.";}catch(e){photoFeedback.textContent=e.message;}});
  $("profilePhotoHide")?.addEventListener("click",async()=>{try{await workspaceCall("update_profile",{profile_photo_hidden:true});await refreshProfilePhoto();if(profileViewer)profileViewer.hidden=false;if(hide)hide.textContent="Hide photo";photoFeedback.textContent="Your profile photo is hidden from others.";}catch(e){photoFeedback.textContent=e.message;}});
  $("profilePhotoRemove")?.addEventListener("click",async()=>{if(!confirm("Remove your profile photo?"))return;try{await workspaceCall("update_profile",{profile_photo:"",profile_photo_hidden:false,profile_photo_hidden_url:""});await refreshProfilePhoto();photoFeedback.textContent="Profile photo removed."; }catch(e){photoFeedback.textContent=e.message;}});
- profileViewer?.addEventListener("click",()=>{if(profileUrl){const win=window.open("","_blank");if(win){const img=win.document.createElement("img");img.src=profileUrl;img.alt="Profile photo";img.style="max-width:100%;height:auto;display:block;margin:auto";win.document.body.style="margin:0;background:#07111e";win.document.body.append(img);}}});
+ $("closeProfilePhotoDialog")?.addEventListener("click",()=>photoDialog?.close());
+ photoDialog?.addEventListener("click",event=>{if(event.target===photoDialog)photoDialog.close();});
+ profileViewer?.addEventListener("click",()=>{
+  if(!profileUrl){photoFeedback.textContent="Add a profile photo first, then tap it to view the enlarged image.";return;}
+  if(photoDialogImage)photoDialogImage.src=profileUrl;
+  if(typeof photoDialog?.showModal==="function")photoDialog.showModal();
+  else photoDialog?.setAttribute("open","");
+ });
  // Keep photo metadata private: previews use generic labels and no image analysis is run.
  const socialStatusForm=member.querySelector('[data-hub-action="create_status"]');
  const statusFiles=()=>[...(socialStatusForm?.querySelector('[data-status-media="gallery"]')?.files||[]),...(socialStatusForm?.querySelector('[data-status-media="camera"]')?.files||[])];
