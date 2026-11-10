@@ -67,7 +67,7 @@
  offerStudio.className="offer-studio";
  offerStudio.innerHTML='<div class="worlds-section-head"><div><p class="eyebrow">COMMERCE · OFFER STUDIO</p><h3>Have something to offer?</h3><p class="hub-muted">Photograph it, choose media from your device, preview it and publish an offer.</p></div></div><form id="jrOfferForm" class="jr-offer-form"><label>What are you offering?<select name="category" required><option value="goods">Goods / products</option><option value="services">Services</option><option value="jobs">Jobs / work</option><option value="property">Property / rooms</option><option value="transport">Transport / delivery</option><option value="business">Business opportunity</option><option value="other">Something else</option></select></label><label>Offer title<input name="title" required minlength="3" maxlength="120" placeholder="e.g. Handmade dining table"></label><label>Description<textarea name="description" required minlength="10" maxlength="2000" rows="3" placeholder="Describe what it is, condition, features, requirements or service details…"></textarea></label><div class="jr-offer-fields"><label>Price / amount (KSh)<input name="price" type="number" min="0" step="0.01" required placeholder="0"></label><label>Location<input name="location" required maxlength="180" placeholder="Town, city or remote"></label></div><div class="jr-media-actions"><label class="hub-small-button media-picker">Choose from gallery<input id="jrOfferGallery" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple></label><label class="hub-small-button media-picker">Use camera<input id="jrOfferCamera" type="file" accept="image/*" capture="environment"></label><span class="hub-muted">Up to 8 photos/videos · 8 MB each</span></div><div id="jrOfferPreview" class="jr-offer-preview" aria-live="polite"></div><label class="jr-offer-check"><input name="negotiable" type="checkbox"> Price is negotiable</label><button class="hub-submit" type="submit">Preview & publish offer</button><p id="jrOfferFeedback" class="hub-feedback" aria-live="polite"></p></form><div class="offer-feed"><div class="worlds-section-head"><div><p class="eyebrow">DISCOVER</p><h3>Offers in JR PHEEF</h3></div><button id="jrOfferRefresh" type="button" class="hub-small-button">Refresh offers</button></div><div id="jrOfferFeed" class="jr-offer-feed"><p class="hub-muted">Loading available offers…</p></div></div>';
  starterSection.after(offerStudio);
- const offerForm=offerStudio.querySelector("#jrOfferForm"),gallery=offerStudio.querySelector("#jrOfferGallery"),camera=offerStudio.querySelector("#jrOfferCamera"),preview=offerStudio.querySelector("#jrOfferPreview"),feedback=offerStudio.querySelector("#jrOfferFeedback"),feed=offerStudio.querySelector("#jrOfferFeed");
+ const offerForm=offerStudio.querySelector("#jrOfferForm"),gallery=offerStudio.querySelector("#jrOfferGallery"),camera=offerStudio.querySelector("#jrOfferCamera"),preview=offerStudio.querySelector("#jrOfferPreview"),offerFeedback=offerStudio.querySelector("#jrOfferFeedback"),feed=offerStudio.querySelector("#jrOfferFeed");
  let selectedFiles=[],previewUrls=[];
  const renderPreview=()=>{
   previewUrls.forEach(URL.revokeObjectURL);previewUrls=[];preview.replaceChildren();
@@ -83,9 +83,9 @@
  const addFiles=input=>{
   const files=[...(input.files||[])];input.value="";
   for(const file of files){
-   if(selectedFiles.length>=8){feedback.textContent="You can attach up to 8 files.";break;}
-   if(!["image/jpeg","image/png","image/webp","video/mp4","video/webm","video/quicktime"].includes(file.type)){feedback.textContent="Choose JPG, PNG, WEBP, MP4, WEBM or MOV files.";continue;}
-   if(file.size>8*1024*1024){feedback.textContent=file.name+" is over the 8 MB limit.";continue;}
+   if(selectedFiles.length>=8){offerFeedback.textContent="You can attach up to 8 files.";break;}
+   if(!["image/jpeg","image/png","image/webp","video/mp4","video/webm","video/quicktime"].includes(file.type)){offerFeedback.textContent="Choose JPG, PNG, WEBP, MP4, WEBM or MOV files.";continue;}
+   if(file.size>8*1024*1024){offerFeedback.textContent=file.name+" is over the 8 MB limit.";continue;}
    selectedFiles.push(file);
   }
   renderPreview();
@@ -112,7 +112,7 @@
  offerForm?.addEventListener("submit",async event=>{
   event.preventDefault();if(!offerForm.reportValidity())return;
   const button=offerForm.querySelector('button[type="submit"]');button.disabled=true;
-  feedback.textContent="Uploading your selected media securely…";
+  offerFeedback.textContent="Uploading your selected media securely…";
   try{
    const media=[];
    for(const file of selectedFiles){
@@ -124,9 +124,9 @@
    const payload={action:"create_listing",title:fd.get("title"),description:fd.get("description"),price:fd.get("price"),location:fd.get("location"),category,negotiable:fd.get("negotiable")==="on",media};
    const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    const d=await r.json();if(!r.ok)throw new Error(d.error||"Offer could not be published.");
-   feedback.textContent="Your offer has been published to JR PHEEF.";
+   offerFeedback.textContent="Your offer has been published to JR PHEEF.";
    offerForm.reset();selectedFiles=[];renderPreview();await refreshOffers();
-  }catch(error){feedback.textContent=error.message;}
+  }catch(error){offerFeedback.textContent=error.message;}
   finally{button.disabled=false;}
  });
  offerStudio.querySelector("#jrOfferRefresh")?.addEventListener("click",refreshOffers);
