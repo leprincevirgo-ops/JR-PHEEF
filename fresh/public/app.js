@@ -5,6 +5,7 @@
  let mode="login",busy=false;
  const setMessage=message=>{$("authMessage").textContent=message||"";};
  function showWorkspace(view="home"){
+  document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   document.querySelectorAll(".workspace-tab").forEach(button=>button.classList.toggle("selected",button.dataset.view===view));
   document.querySelectorAll(".workspace-view").forEach(section=>{section.hidden=section.id!=="view-"+view;});
