@@ -67,7 +67,7 @@ test("authenticated users receive a real workspace with working navigation views
 test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{
  const css=read("public/styles.css"),h=read("public/index.html");
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
- assert.match(h,/jr-living-worlds-20261111-v2/);
+ assert.match(h,/jr-multiwindow-continuity-20261112-v1/);
 });
 
 test("worlds switch the living environment according to world type",()=>{
@@ -75,4 +75,26 @@ test("worlds switch the living environment according to world type",()=>{
  assert.match(w,/dataset\.jrEnvironment=w\.world_type/);assert.match(w,/dataset\.jrWorld=w\.world_type/);
  assert.match(a,/dataset\.jrWorld=view/);
  for(const world of ["business","education","creative","community","family_personal","family_finance","personal","commerce"])assert.match(c,new RegExp("data-jr-world=."+world));
+});
+
+test("members can open multiple live workspace panels",()=>{
+ const a=read("public/app.js"),c=read("public/styles.css");
+ for(const key of ["jrWorkspaceWindowGrid","jrWorkspaceWindowToolbar","jrAddWindow","jrWindowColumns","jrWindowReset","openWindows","multiWindowMode"])assert.match(a,new RegExp(key));
+ assert.match(c,/jr-workspace-window-grid\.is-multiple/);
+ assert.match(c,/jr-workspace-window-head/);
+});
+test("members can edit their own worlds and save activities",()=>{
+ const w=read("public/worlds.js");
+ assert.match(w,/Shape this world/);
+ assert.match(w,/update_world/);
+ assert.match(w,/intendedMembers/);
+ assert.match(w,/workflows/);
+});
+test("JR conversations persist across sessions and members control memory consent",()=>{
+ const i=read("public/intelligence.js"),s=read("server.js");
+ for(const action of ["list_ai_conversations","create_ai_conversation","list_ai_messages","save_ai_message","list_jr_memories","create_jr_memory","update_jr_memory","delete_jr_memory"])assert.match(i,new RegExp(action));
+ assert.match(i,/consentAiContext/);
+ assert.match(i,/jrSavedConversation/);
+ assert.match(s,/list_ai_memories/);
+ assert.match(s,/Member-approved continuity context/);
 });
