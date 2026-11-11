@@ -50,6 +50,32 @@
   const response=await fetch(path,{method:body?"POST":"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});
   let data={};try{data=await response.json();}catch{}if(!response.ok)throw new Error(data.error||"JR PHEEF could not complete that request.");return data;
  }
+ function showEmailVerification(email){
+  let tools=$("emailVerificationTools");
+  if(!tools){
+   tools=document.createElement("section");tools.id="emailVerificationTools";tools.className="email-verification-tools";
+   const heading=document.createElement("h3");heading.textContent="Verify your email";
+   const copy=document.createElement("p");copy.textContent="Enter the six-digit code in your confirmation email. If your email contains a confirmation link instead, open that link.";
+   const code=document.createElement("input");code.id="emailVerificationCode";code.inputMode="numeric";code.autocomplete="one-time-code";code.maxLength=6;code.pattern="[0-9]{6}";code.placeholder="6-digit email code";code.setAttribute("aria-label","Six-digit email verification code");
+   const verify=document.createElement("button");verify.type="button";verify.className="primary wide";verify.id="verifyEmailCode";verify.textContent="Verify email";
+   const resend=document.createElement("button");resend.type="button";resend.className="secondary wide";resend.id="resendVerificationEmail";resend.textContent="Resend confirmation email";
+   const status=document.createElement("p");status.id="emailVerificationStatus";status.className="form-message";status.setAttribute("role","status");status.setAttribute("aria-live","polite");
+   tools.append(heading,copy,code,verify,resend,status);$("authMessage").insertAdjacentElement("afterend",tools);
+   verify.addEventListener("click",async()=>{
+    verify.disabled=true;status.textContent="Verifying your email…";
+    try{const result=await api("/api/auth/verify-email",{email:tools.dataset.email,token:code.value});setSignedIn(result.user);status.textContent=result.message||"Email verified."; $("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";}
+    catch(error){status.textContent=error.message;}
+    finally{verify.disabled=false;}
+   });
+   resend.addEventListener("click",async()=>{
+    resend.disabled=true;status.textContent="Requesting a fresh confirmation email…";
+    try{const result=await api("/api/auth/resend",{email:tools.dataset.email});status.textContent=result.message;}
+    catch(error){status.textContent=error.message;}
+    finally{resend.disabled=false;}
+   });
+  }
+  tools.dataset.email=email;tools.hidden=false;$("emailVerificationCode").value="";$("emailVerificationCode").focus({preventScroll:true});
+ }
  $("openLogin").addEventListener("click",()=>showAuth("login"));$("openSignup").addEventListener("click",()=>showAuth("signup"));$("openPartnerSignup")?.addEventListener("click",()=>showAuth("signup"));
  $("loginTab").addEventListener("click",()=>showAuth("login"));$("signupTab").addEventListener("click",()=>showAuth("signup"));
  $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
@@ -60,7 +86,7 @@
   if(mode==="signup"){payload.fullName=$("fullName").value.trim();payload.phone=$("phone").value.trim();payload.birthYear=$("birthYear").value;}
   try{
    const result=await api(mode==="login"?"/api/auth/login":"/api/auth/signup",payload);$("password").value="";
-   if(result.emailVerificationRequired){setMessage(result.message+" Then return here and log in.");return;}
+   if(result.emailVerificationRequired){setMessage(result.message+" You can enter the six-digit code below or open the confirmation link.");showEmailVerification(payload.email);return;}
    const session=await api("/api/auth/session");
    if(!session.authenticated)throw new Error("Your account is created, but email confirmation is still required. Confirm your email, then log in.");
    setSignedIn(session.user||{email:payload.email,fullName:payload.fullName});$("promptReply").textContent="Welcome to JR PHEEF. Your account is signed in.";
@@ -82,6 +108,8 @@
  api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
+ const confirmationError=fragment.get("error_description")||fragment.get("error");
+ if(confirmationError){window.history.replaceState({},document.title,window.location.pathname+window.location.search);showAuth("login");setMessage("Email confirmation could not be completed: "+confirmationError.replace(/\+/g," ")+". Request a fresh confirmation email.");}
  if(confirmationToken){
   window.history.replaceState({},document.title,window.location.pathname+window.location.search);
   api("/api/auth/session/establish",{access_token:confirmationToken,refresh_token:confirmationRefresh}).then(result=>{
