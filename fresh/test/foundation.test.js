@@ -67,12 +67,12 @@ test("authenticated users receive a real workspace with working navigation views
 test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{
  const css=read("public/styles.css"),h=read("public/index.html");
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
- assert.match(h,/jr-living-wallpaper-20261111-v1/);
+ assert.match(h,/jr-living-worlds-20261111-v2/);
 });
 
 test("worlds switch the living environment according to world type",()=>{
  const w=read("public/worlds.js"),a=read("public/app.js"),c=read("public/styles.css");
- assert.match(w,/data-jr-environment/);assert.match(w,/dataset\.jrWorld=w\.world_type/);
+ assert.match(w,/dataset\.jrEnvironment=w\.world_type/);assert.match(w,/dataset\.jrWorld=w\.world_type/);
  assert.match(a,/dataset\.jrWorld=view/);
  for(const world of ["business","education","creative","community","family_personal","family_finance","personal","commerce"])assert.match(c,new RegExp("data-jr-world=."+world));
 });
