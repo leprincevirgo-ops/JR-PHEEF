@@ -336,3 +336,39 @@ body>*{position:relative;z-index:1}
  body::before{inset:-12%;opacity:.72;filter:blur(28px)}
  body::after{opacity:.26}
 }
+
+
+/* Distinct living environments for each JR PHEEF world */
+body[data-jr-world="global"]{--world-aura-one:rgba(36,190,201,.25);--world-aura-two:rgba(95,99,220,.25);--world-aura-three:rgba(38,133,177,.22)}
+body[data-jr-world="personal"]{--world-aura-one:rgba(220,154,91,.20);--world-aura-two:rgba(125,99,190,.22);--world-aura-three:rgba(74,145,165,.18)}
+body[data-jr-world="family_personal"],body[data-jr-world="family_finance"]{--world-aura-one:rgba(224,169,105,.24);--world-aura-two:rgba(91,157,133,.20);--world-aura-three:rgba(177,117,166,.18)}
+body[data-jr-world="business"],body[data-jr-world="commerce"]{--world-aura-one:rgba(45,176,171,.24);--world-aura-two:rgba(56,110,190,.25);--world-aura-three:rgba(174,143,83,.18)}
+body[data-jr-world="education"]{--world-aura-one:rgba(105,149,231,.25);--world-aura-two:rgba(127,107,195,.22);--world-aura-three:rgba(64,180,196,.18)}
+body[data-jr-world="creative"]{--world-aura-one:rgba(190,103,204,.25);--world-aura-two:rgba(80,128,220,.23);--world-aura-three:rgba(231,139,119,.19)}
+body[data-jr-world="community"]{--world-aura-one:rgba(87,183,137,.24);--world-aura-two:rgba(76,142,200,.22);--world-aura-three:rgba(221,172,101,.18)}
+body[data-jr-world="jr"]{--world-aura-one:rgba(45,193,211,.27);--world-aura-two:rgba(87,117,227,.26);--world-aura-three:rgba(157,103,208,.18)}
+body[data-jr-world="command"]{--world-aura-one:rgba(73,151,191,.22);--world-aura-two:rgba(103,119,173,.22);--world-aura-three:rgba(70,188,166,.18)}
+body::before{
+ background:
+  radial-gradient(ellipse 38% 28% at 16% 30%,var(--world-aura-one,rgba(25,190,190,.26)),transparent 72%),
+  radial-gradient(ellipse 36% 32% at 78% 24%,var(--world-aura-two,rgba(87,101,222,.30)),transparent 74%),
+  radial-gradient(ellipse 44% 28% at 52% 78%,var(--world-aura-three,rgba(31,127,178,.25)),transparent 72%),
+  radial-gradient(ellipse 24% 18% at 90% 76%,rgba(173,103,210,.13),transparent 74%);
+}
+.world-card,.world-starter-card{position:relative;overflow:hidden}
+.world-card::before,.world-starter-card::before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+ background:radial-gradient(ellipse at 90% 0%,var(--world-aura-one,rgba(45,160,190,.22)),transparent 65%);
+}
+.world-card>* ,.world-starter-card>*{position:relative}
+.world-card[data-jr-environment="education"],.world-starter-card[data-jr-environment="education"]{background:linear-gradient(145deg,rgba(37,54,99,.76),rgba(11,28,48,.78))}
+.world-card[data-jr-environment="creative"],.world-starter-card[data-jr-environment="creative"]{background:linear-gradient(145deg,rgba(76,38,92,.72),rgba(22,22,52,.8))}
+.world-card[data-jr-environment="business"],.world-starter-card[data-jr-environment="commerce"]{background:linear-gradient(145deg,rgba(18,76,79,.72),rgba(12,30,52,.8))}
+.world-card[data-jr-environment="family_personal"],.world-starter-card[data-jr-environment="family_personal"]{background:linear-gradient(145deg,rgba(102,72,47,.64),rgba(30,42,50,.82))}
+.world-card[data-jr-environment="community"],.world-starter-card[data-jr-environment="community"]{background:linear-gradient(145deg,rgba(34,83,72,.72),rgba(16,35,50,.8))}
+.world-card[data-jr-environment="personal"],.world-starter-card[data-jr-environment="personal"]{background:linear-gradient(145deg,rgba(83,60,81,.70),rgba(24,31,52,.8))}
+.world-card[data-jr-environment="family_finance"],.world-starter-card[data-jr-environment="family_finance"]{background:linear-gradient(145deg,rgba(85,74,39,.7),rgba(27,43,49,.82))}
+@media(prefers-reduced-motion:no-preference){
+ .world-card,.world-starter-card{transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
+ .world-card:hover,.world-starter-card:hover{transform:translateY(-3px);border-color:rgba(150,225,239,.38);box-shadow:0 16px 36px rgba(0,0,0,.2)}
+}
