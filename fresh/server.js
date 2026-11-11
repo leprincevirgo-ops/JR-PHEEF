@@ -132,6 +132,30 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     return res.status(201).json({ok:true,authenticated:false,emailVerificationRequired:true,message:"Check your email for a verification link to activate your JR PHEEF account."});
   }catch(err){console.error("JR PHEEF signup service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
 });
+app.post("/api/auth/resend",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const email=typeof req.body?.email==="string"?req.body.email.trim().toLowerCase():"";
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter the email address used to create your account."});
+    const result=await supabaseAuth("resend",{type:"signup",email,options:{emailRedirectTo:AUTH_ORIGIN+"/"}});
+    if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
+    return res.json({ok:true,message:"A fresh confirmation email has been requested. Check your inbox and spam folder."});
+  }catch(err){console.error("JR PHEEF resend confirmation:",err.message);return res.status(503).json({ok:false,error:"We could not resend the confirmation email. Please try again shortly."});}
+});
+app.post("/api/auth/verify-email",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const email=typeof req.body?.email==="string"?req.body.email.trim().toLowerCase():"";
+    const token=typeof req.body?.token==="string"?req.body.token.trim().replace(/\s/g,""):"";
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||! /^\d{6}$/.test(token))
+      return res.status(400).json({ok:false,error:"Enter the email address and the six-digit code from your confirmation email."});
+    const result=await supabaseAuth("verify",{type:"signup",email,token});
+    if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)||"That confirmation code is invalid or expired. Request a new email."});
+    if(!result.data.access_token||!result.data.user?.email_confirmed_at)
+      return res.status(400).json({ok:false,error:"Email confirmation could not be completed. Request a fresh code."});
+    const member=await provisionMember(result.data.access_token);
+    saveSession(res,result.data);
+    return res.json({ok:true,user:{id:result.data.user.id,email:result.data.user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your email is verified. Welcome to JR PHEEF."});
+  }catch(err){console.error("JR PHEEF OTP verification:",err.message);return res.status(503).json({ok:false,error:"Email verification is temporarily unavailable. Please try again."});}
+});
 app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const {email,password}=req.body||{};
