@@ -69,3 +69,5 @@ test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
  assert.match(h,/jr-living-wallpaper-20261111-v1/);
 });
+
+test("worlds switch the living environment according to world type",()=>{\n const w=read("public/worlds.js"),a=read("public/app.js"),c=read("public/styles.css");\n assert.match(w,/data-jr-environment/);assert.match(w,/dataset\.jrWorld=w\.world_type/);\n assert.match(a,/dataset\.jrWorld=view/);\n for(const world of ["business","education","creative","community","family_personal","family_finance","personal","commerce"])assert.match(c,new RegExp("data-jr-world=."+world));\n});\n
