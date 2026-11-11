@@ -132,7 +132,6 @@
  }
  $("jrSavedConversation")?.addEventListener("change",async()=>{const id=$("jrSavedConversation").value;if(!id){activeAiConversation=null;jrHistory.length=0;transcript.replaceChildren();return;}try{await loadAiConversation(id);}catch(error){renderResponse(error.message);}});
  $("jrNewConversation")?.addEventListener("click",async()=>{try{const c=await workspaceRequest("create_ai_conversation",{title:"New conversation"});await loadAiConversations(c.id);renderResponse("A new JR conversation is ready.");}catch(error){renderResponse(error.message);}});
- window.addEventListener("jr:member-signed-in",event=>{if(event.detail)loadAiConversations();});
  async function refreshJrMemories(){
   const list=$("jrMemoryList");if(!list)return;
   try{
