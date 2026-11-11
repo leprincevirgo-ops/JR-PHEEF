@@ -414,3 +414,7 @@ body::before{
 .jr-world-editor input,.jr-world-editor textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:rgba(3,12,24,.78);color:var(--text)}
 @media(max-width:1050px){.jr-workspace-window-grid.is-multiple{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.jr-workspace-window-grid.is-multiple{grid-template-columns:1fr}.jr-window-toolbar-actions{width:100%}.jr-window-toolbar-actions select{flex:1;min-width:0}.jr-workspace-window-grid.is-multiple .workspace-welcome{align-items:flex-start}.jr-workspace-window-grid.is-multiple .founder-grid{grid-template-columns:1fr 1fr}}
+
+.founder-build-studio{margin:22px 0;padding:16px;border:1px solid rgba(98,187,205,.25);border-radius:15px;background:rgba(4,18,31,.48)}
+.founder-capability-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.founder-capability-actions button:disabled{opacity:.45;cursor:default}
