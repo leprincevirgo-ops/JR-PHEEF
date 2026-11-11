@@ -67,7 +67,7 @@ test("authenticated users receive a real workspace with working navigation views
 test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{
  const css=read("public/styles.css"),h=read("public/index.html");
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
- assert.match(h,/jr-multiwindow-continuity-20261112-v1/);
+ assert.match(h,/jr-multiwindow-continuity-20261112-v2/);
 });
 
 test("worlds switch the living environment according to world type",()=>{
