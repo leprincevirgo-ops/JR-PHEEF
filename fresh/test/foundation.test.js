@@ -59,4 +59,5 @@ test("authenticated users receive a real workspace with working navigation views
  assert.match(intelligence,/fetch\("\/healthz"/);
  assert.match(intelligence,/aiConfigured/);
  assert.match(intelligence,/jrRuntimeStatus/);
+ assert.match(intelligence,/value="secretary"/);\n assert.match(intelligence,/value="agent_team"/);
 });
