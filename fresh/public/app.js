@@ -41,15 +41,15 @@
  function closeWorkspaceWindow(key){
   openWindows=openWindows.filter(x=>x!==key);
   if(!openWindows.length)openWindows=["home"];
-  renderWorkspaceWindows();
+  if(multiWindowMode)showWorkspace(openWindows[0]);else renderWorkspaceWindows();
  }
  $("jrAddWindow")?.addEventListener("click",()=>{
   const key=$("jrAddWindowSelect").value;
   if(!openWindows.includes(key)){if(openWindows.length>=4){$("jrAddWindow").textContent="Maximum 4 panels";setTimeout(()=>{$("jrAddWindow").textContent="Open panel";},1800);return;}openWindows.push(key);}
-  multiWindowMode=true;renderWorkspaceWindows();
+  multiWindowMode=true;showWorkspace(key);
  });
  $("jrWindowColumns")?.addEventListener("change",renderWorkspaceWindows);
- $("jrWindowReset")?.addEventListener("click",()=>{multiWindowMode=false;openWindows=["home"];renderWorkspaceWindows();});
+ $("jrWindowReset")?.addEventListener("click",()=>{multiWindowMode=false;showWorkspace("home");});
  function showWorkspace(view="home"){
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
