@@ -58,7 +58,7 @@
  let jrBusy=false;
  const controls=document.createElement("div");
  controls.className="jr-chat-controls";
- controls.innerHTML='<label>Conversation focus <select id="jrConversationMode"><option value="universe">Open conversation</option><option value="business">Business & operations</option><option value="learning">Learning & discovery</option><option value="research">Research</option><option value="personal">Personal planning</option><option value="opportunities">Opportunities & matching</option></select></label><label class="jr-web-toggle"><input id="jrWebResearch" type="checkbox"> Allow web research for this question</label>';
+ controls.innerHTML='<label>Conversation focus <select id="jrConversationMode"><option value="universe">Open conversation</option><option value="business">Business & operations</option><option value="learning">Learning & discovery</option><option value="research">Research</option><option value="personal">Personal planning</option><option value="opportunities">Opportunities & matching</option><option value="secretary">Personal AI Secretary</option><option value="agent_team">Specialist team coordination</option></select></label><label class="jr-web-toggle"><input id="jrWebResearch" type="checkbox"> Allow web research for this question</label>';
  panel.insertBefore(controls,$(".jr-starter-prompts"));
  const transcript=document.createElement("div");
  transcript.id="jrConversationTranscript";
