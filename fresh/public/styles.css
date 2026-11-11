@@ -243,3 +243,96 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .jr-secretary-form{display:grid;gap:9px;margin-top:12px}.jr-secretary-form textarea{width:100%;min-height:78px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(1,12,23,.65);color:var(--text)}.jr-secretary-form>div{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.jr-secretary-note{font-size:11px;color:var(--muted);margin:12px 0 0}
 
 .world-agent-note{display:block;color:var(--cyan);font-size:10px;line-height:1.45;margin-top:2px}
+
+
+/* JR PHEEF living wallpaper — layered aurora, drifting light and distant horizons */
+:root{
+ --wallpaper-speed:34s;
+ --wallpaper-glow:rgba(57,210,226,.28);
+}
+html,body{background:#050c19!important}
+body{
+ position:relative;
+ isolation:isolate;
+ background:
+  radial-gradient(ellipse at 50% 110%,rgba(16,76,116,.42),transparent 58%),
+  linear-gradient(180deg,#050c19 0%,#0a1730 48%,#101b36 100%)!important;
+ background-size:100% 100%;
+}
+body::before{
+ content:"";
+ position:fixed;
+ z-index:0;
+ inset:-24%;
+ pointer-events:none;
+ opacity:.82;
+ background:
+  radial-gradient(ellipse 38% 28% at 16% 30%,rgba(25,190,190,.26),transparent 72%),
+  radial-gradient(ellipse 36% 32% at 78% 24%,rgba(87,101,222,.30),transparent 74%),
+  radial-gradient(ellipse 44% 28% at 52% 78%,rgba(31,127,178,.25),transparent 72%),
+  radial-gradient(ellipse 24% 18% at 90% 76%,rgba(173,103,210,.15),transparent 74%);
+ filter:blur(22px);
+ transform:translate3d(0,0,0);
+ animation:jrAuroraDrift var(--wallpaper-speed) ease-in-out infinite alternate;
+}
+body::after{
+ content:"";
+ position:fixed;
+ z-index:0;
+ inset:0;
+ pointer-events:none;
+ opacity:.38;
+ background-image:
+  radial-gradient(1.5px 1.5px at 8% 18%,rgba(210,248,255,.8) 45%,transparent 100%),
+  radial-gradient(1px 1px at 22% 72%,rgba(170,220,255,.75) 45%,transparent 100%),
+  radial-gradient(2px 2px at 48% 28%,rgba(210,248,255,.7) 45%,transparent 100%),
+  radial-gradient(1px 1px at 68% 64%,rgba(190,225,255,.75) 45%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 86% 38%,rgba(210,248,255,.8) 45%,transparent 100%),
+  linear-gradient(155deg,transparent 35%,rgba(43,160,193,.07) 52%,transparent 68%);
+ background-size:100% 100%;
+ animation:jrStarDrift 48s linear infinite;
+}
+body>*{position:relative;z-index:1}
+.shell{background:transparent}
+.topbar{backdrop-filter:blur(12px)}
+.hero,.workspace-welcome{position:relative}
+.hero::before{
+ content:"";
+ position:absolute;
+ width:min(76vw,680px);
+ height:min(76vw,680px);
+ left:50%;top:48%;
+ transform:translate(-50%,-50%);
+ z-index:-1;
+ pointer-events:none;
+ border-radius:50%;
+ background:radial-gradient(circle,rgba(28,140,183,.13),rgba(42,86,164,.07) 42%,transparent 70%);
+ filter:blur(8px);
+ animation:jrHorizonPulse 12s ease-in-out infinite alternate;
+}
+.conversation,.auth,.public-info-card,.capability-card,.hub-card,.world-preview,.account-card,
+.connection-note,.world-category-grid article,.world-card,.world-create,.world-detail,
+.world-starter-section,.offer-studio,.jr-ai-secretary{
+ backdrop-filter:blur(18px) saturate(125%);
+}
+@keyframes jrAuroraDrift{
+ 0%{transform:translate3d(-3%,1%,0) scale(1) rotate(-2deg)}
+ 50%{transform:translate3d(2%,-2%,0) scale(1.07) rotate(1deg)}
+ 100%{transform:translate3d(4%,3%,0) scale(1.12) rotate(3deg)}
+}
+@keyframes jrStarDrift{
+ 0%{transform:translate3d(0,0,0);opacity:.25}
+ 50%{transform:translate3d(-1.2%,1%,0);opacity:.48}
+ 100%{transform:translate3d(0,0,0);opacity:.25}
+}
+@keyframes jrHorizonPulse{
+ from{opacity:.55;scale:.94}
+ to{opacity:1;scale:1.08}
+}
+@media(prefers-reduced-motion:reduce){
+ body::before,body::after,.hero::before{animation:none!important}
+}
+@media(max-width:600px){
+ body::before{inset:-12%;opacity:.72;filter:blur(28px)}
+ body::after{opacity:.26}
+}
