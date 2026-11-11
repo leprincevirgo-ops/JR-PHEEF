@@ -4,13 +4,61 @@
  const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
  let mode="login",busy=false;
  const setMessage=message=>{$("authMessage").textContent=message||"";};
+ let multiWindowMode=false;
+ let openWindows=["home"];
+ const workspaceWindowGrid=document.createElement("div");
+ workspaceWindowGrid.id="jrWorkspaceWindowGrid";
+ workspaceWindowGrid.className="jr-workspace-window-grid";
+ const workspaceWindowToolbar=document.createElement("div");
+ workspaceWindowToolbar.id="jrWorkspaceWindowToolbar";
+ workspaceWindowToolbar.className="jr-workspace-window-toolbar";
+ workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
+ const originalWorkspaceViews=[...document.querySelectorAll("#workspace .workspace-view")];
+ originalWorkspaceViews.forEach(section=>{
+  const key=section.id.replace("view-","");
+  const frame=document.createElement("section");frame.className="jr-workspace-window";frame.dataset.window=key;frame.hidden=true;
+  const head=document.createElement("div");head.className="jr-workspace-window-head";
+  const label=document.createElement("strong");label.textContent=({home:"HOME",worlds:"WORLDS",jr:"JR",command:"COMMAND CENTER"})[key]||key.toUpperCase();
+  const actions=document.createElement("div");actions.className="jr-workspace-window-actions";
+  const focus=document.createElement("button");focus.type="button";focus.textContent="Focus";focus.addEventListener("click",()=>{showWorkspace(key);});
+  const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Close "+key+" panel");close.addEventListener("click",()=>closeWorkspaceWindow(key));
+  actions.append(focus,close);head.append(label,actions);frame.append(head,section);workspaceWindowGrid.append(frame);
+ });
+ const workspaceNav=document.querySelector("#workspace .workspace-nav");
+ if(workspaceNav){workspaceNav.after(workspaceWindowToolbar,workspaceWindowGrid);}
+ function renderWorkspaceWindows(){
+  document.body.dataset.jrWindowMode=multiWindowMode?"multiple":"single";
+  const columns=Number($("jrWindowColumns")?.value||2);
+  workspaceWindowGrid.style.setProperty("--jr-window-columns",String(columns));
+  workspaceWindowToolbar.hidden=!multiWindowMode;
+  workspaceWindowGrid.classList.toggle("is-multiple",multiWindowMode);
+  workspaceWindowGrid.querySelectorAll(".jr-workspace-window").forEach(frame=>{
+   const visible=multiWindowMode?openWindows.includes(frame.dataset.window):openWindows[0]===frame.dataset.window;
+   frame.hidden=!visible;
+   const section=frame.querySelector(".workspace-view");if(section)section.hidden=!visible;
+  });
+ }
+ function closeWorkspaceWindow(key){
+  openWindows=openWindows.filter(x=>x!==key);
+  if(!openWindows.length)openWindows=["home"];
+  renderWorkspaceWindows();
+ }
+ $("jrAddWindow")?.addEventListener("click",()=>{
+  const key=$("jrAddWindowSelect").value;
+  if(!openWindows.includes(key)){if(openWindows.length>=4){$("jrAddWindow").textContent="Maximum 4 panels";setTimeout(()=>{$("jrAddWindow").textContent="Open panel";},1800);return;}openWindows.push(key);}
+  multiWindowMode=true;renderWorkspaceWindows();
+ });
+ $("jrWindowColumns")?.addEventListener("change",renderWorkspaceWindows);
+ $("jrWindowReset")?.addEventListener("click",()=>{multiWindowMode=false;openWindows=["home"];renderWorkspaceWindows();});
  function showWorkspace(view="home"){
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   document.querySelectorAll(".workspace-tab").forEach(button=>button.classList.toggle("selected",button.dataset.view===view));
-  document.querySelectorAll(".workspace-view").forEach(section=>{section.hidden=section.id!=="view-"+view;});
   const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
+  if(multiWindowMode){if(!openWindows.includes(view)){if(openWindows.length>=4)openWindows[openWindows.length-1]=view;else openWindows.push(view);}}
+  else openWindows=[view];
+  renderWorkspaceWindows();
  }
  async function loadFounderOverview(){
   const panel=$("founderCommand");if(panel.hidden)return;
