@@ -112,3 +112,13 @@ test("workspace API persists JR conversations and enforces member ownership",()=
  assert.match(api,/consent_ai_context=eq\.true/);
  assert.match(api,/owner_member_id=eq\.\"\+mid/);
 });
+
+test("Founder Build Studio manages a private capability lifecycle registry",()=>{
+ const h=read("public/index.html"),a=read("public/app.js");
+ const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-founder-overview","index.ts"),"utf8");
+ const sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261111214242_dgbo_founder_capability_registry.sql"),"utf8");
+ assert.match(h,/founderCapabilityForm/);assert.match(h,/Build & Evolution Studio/);
+ assert.match(a,/create_capability/);assert.match(a,/update_capability/);
+ assert.match(api,/member\.role!=="founder"/);assert.match(api,/dgbo_capabilities/);
+ assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all.*anon, authenticated/i);
+});
