@@ -63,3 +63,5 @@ test("authenticated users receive a real workspace with working navigation views
  assert.match(intelligence,/value="secretary"/);
  assert.match(intelligence,/value="agent_team"/);
 });
+
+test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{\n const css=read("public/styles.css"),h=read("public/index.html");\n assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);\n assert.match(h,/jr-living-wallpaper-20261111-v1/);\n});\n
