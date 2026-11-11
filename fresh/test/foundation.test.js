@@ -98,3 +98,17 @@ test("JR conversations persist across sessions and members control memory consen
  assert.match(s,/list_ai_memories/);
  assert.match(s,/Member-approved continuity context/);
 });
+
+test("JR AI continuity schema is private and member-scoped",()=>{
+ const sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261111213401_jr_ai_conversation_continuity.sql"),"utf8");
+ assert.match(sql,/jr_ai_conversations/);assert.match(sql,/jr_ai_messages/);
+ assert.match(sql,/enable row level security/i);
+ assert.match(sql,/revoke all.*anon, authenticated/i);
+});
+test("workspace API persists JR conversations and enforces member ownership",()=>{
+ const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
+ for(const action of ["list_ai_conversations","create_ai_conversation","list_ai_messages","save_ai_message","list_ai_memories","list_jr_memories","create_jr_memory","update_jr_memory","delete_jr_memory"])assert.match(api,new RegExp(action));
+ assert.match(api,/member_id=eq\.\"\+mid/);
+ assert.match(api,/consent_ai_context=eq\.true/);
+ assert.match(api,/owner_member_id=eq\.\"\+mid/);
+});
