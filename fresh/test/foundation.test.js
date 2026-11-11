@@ -17,13 +17,13 @@ test("signup collects required identity details",()=>{
 });
 test("login and signup controls call real same-origin auth endpoints",()=>{
  const j=read("public/app.js");
- assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);
+ assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);\n assert.match(j,/emailVerificationCode/);assert.match(j,/resendVerificationEmail/);
  assert.match(j,/\/api\/auth\/session/);assert.match(j,/\/api\/auth\/logout/);assert.match(j,/\/api\/auth\/session\/establish/);assert.match(j,/access_token/);
  assert.match(j,/credentials:"same-origin"/);
 });
 test("server validates signup, creates HttpOnly secure cookies and refreshes sessions",()=>{
  const s=read("server.js");
- for(const fragment of ["/api/auth/signup","/api/auth/login","/api/auth/session","/api/auth/logout","HttpOnly","Secure","SameSite=Lax","grant_type=refresh_token","birth_year","redirect_to","/api/auth/session/establish"])assert.ok(s.includes(fragment),"missing "+fragment);
+ for(const fragment of ["/api/auth/signup","/api/auth/resend","/api/auth/verify-email","/api/auth/login","/api/auth/session","/api/auth/logout","HttpOnly","Secure","SameSite=Lax","grant_type=refresh_token","birth_year","redirect_to","/api/auth/session/establish"])assert.ok(s.includes(fragment),"missing "+fragment);
 });
 test("server never places privileged service key in the browser",()=>{
  const s=read("server.js"),j=read("public/app.js"),h=read("public/index.html");
