@@ -17,7 +17,8 @@ test("signup collects required identity details",()=>{
 });
 test("login and signup controls call real same-origin auth endpoints",()=>{
  const j=read("public/app.js");
- assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);\n assert.match(j,/emailVerificationCode/);assert.match(j,/resendVerificationEmail/);
+ assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);
+ assert.match(j,/emailVerificationCode/);assert.match(j,/resendVerificationEmail/);
  assert.match(j,/\/api\/auth\/session/);assert.match(j,/\/api\/auth\/logout/);assert.match(j,/\/api\/auth\/session\/establish/);assert.match(j,/access_token/);
  assert.match(j,/credentials:"same-origin"/);
 });
