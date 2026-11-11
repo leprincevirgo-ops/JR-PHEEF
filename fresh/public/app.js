@@ -30,7 +30,7 @@
   document.body.dataset.jrWindowMode=multiWindowMode?"multiple":"single";
   const columns=Number($("jrWindowColumns")?.value||2);
   workspaceWindowGrid.style.setProperty("--jr-window-columns",String(columns));
-  workspaceWindowToolbar.hidden=!multiWindowMode;
+  workspaceWindowToolbar.hidden=false;
   workspaceWindowGrid.classList.toggle("is-multiple",multiWindowMode);
   workspaceWindowGrid.querySelectorAll(".jr-workspace-window").forEach(frame=>{
    const visible=multiWindowMode?openWindows.includes(frame.dataset.window):openWindows[0]===frame.dataset.window;
