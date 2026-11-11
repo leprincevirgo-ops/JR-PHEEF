@@ -54,5 +54,9 @@ test("authenticated users receive a real workspace with working navigation views
  for(const id of ["workspace","view-home","view-worlds","view-jr","view-command"])assert.match(h,new RegExp('id="'+id+'"'));
  for(const view of ["home","worlds","jr","command"])assert.match(h,new RegExp('data-view="'+view+'"'));
  assert.match(j,/function showWorkspace/);assert.match(j,/if\(session\.authenticated\)setSignedIn\(session\.user\)/);assert.match(j,/workspace-tab/);assert.match(j,/showWorkspace\("home"\)/);
- assert.match(h,/Live JR AI intelligence is not connected yet/);
+ assert.match(h,/JR's live conversation availability is checked/);
+ const intelligence=read("public/intelligence.js");
+ assert.match(intelligence,/fetch\("\/healthz"/);
+ assert.match(intelligence,/aiConfigured/);
+ assert.match(intelligence,/jrRuntimeStatus/);
 });
