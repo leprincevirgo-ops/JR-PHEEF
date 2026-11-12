@@ -394,7 +394,7 @@ Deno.serve(async (req: Request) => {
       const budget=Number(input.budgetKsh??0),paths=Array.isArray(input.mediaPaths)?input.mediaPaths.slice(0,5):[];
       if(title.length<3||body.length<5||!Number.isFinite(budget)||budget<0)return json({ok:false,error:"Add a title, message and a valid non-negative budget."},400);
       if(paths.some((p:any)=>!storagePath(p)||!p.startsWith(mid+"/ad/")))return json({ok:false,error:"Advertisement media is invalid."},400);
-      const created=await insert("ad_campaigns",{member_id:mid,title,body,category:category||null,location:location||null,budget_ksh:budget,paid:false,status:"pending",media_urls:paths});
+      const created=await insert("ad_campaigns",{member_id:mid,title,body,category:category||null,location:location||null,budget_ksh:budget,status:"pending",paid:false,media_urls:paths});
       return response({campaign:created?.[0]||created,note:"Advertisement submitted for review. It is not published, paid or being displayed. Payment and campaign activation are not connected yet."});
     }
     if(action==="pause_ad_campaign"){
