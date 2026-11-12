@@ -525,3 +525,6 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 .dgbo-brand-inline .dgbo-brand-symbol{font-size:30px;width:29px;height:29px;flex-basis:29px}
 .founder-head .dgbo-brand-inline{margin-bottom:8px}
 @media(max-width:520px){.topbar{gap:8px}.dgbo-brand-lockup{padding:4px 6px;gap:5px}.dgbo-brand-lockup .dgbo-brand-symbol{width:25px;height:25px;flex-basis:25px;font-size:27px}.dgbo-brand-lockup .dgbo-brand-type strong{font-size:8px}.dgbo-brand-lockup .dgbo-brand-type small{font-size:6px;letter-spacing:.2em}.wordmark{gap:6px}.wordmark>span:last-child{font-size:12px}}
+
+.dgbo-brand-mark{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 5px rgba(225,158,48,.22))}
+.dgbo-brand-symbol{font-size:0}
