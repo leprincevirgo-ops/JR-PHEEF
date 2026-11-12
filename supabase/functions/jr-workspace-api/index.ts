@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     const rows=(table:string,query:string)=>rest(table+"?"+query);
     const insert=(table:string,body:unknown)=>rest(table,"POST",body);
     const response=(data:unknown)=>json({ok:true,data});
-    const storagePath=(value:unknown)=>typeof value==="string"&&/^[0-9a-f-]{36}\/(profile|status|channel|opportunity|listing)\/[A-Za-z0-9._-]{1,160}$/.test(value);
+    const storagePath=(value:unknown)=>typeof value==="string"&&/^[0-9a-f-]{36}\/(profile|status|channel|opportunity|listing|ad)\/[A-Za-z0-9._-]{1,160}$/.test(value);
     const signedMedia=async(items:any[])=>Promise.all((Array.isArray(items)?items:[]).map(async(item:any)=>{
       if(!item||!storagePath(item.path))return null;
       const r=await fetch(url+"/storage/v1/object/sign/jr-pheef-member-media/"+item.path,{method:"POST",headers,body:JSON.stringify({expiresIn:3600})});
@@ -47,7 +47,7 @@ Deno.serve(async (req: Request) => {
     const uploadMemberMedia=async()=> {
       const purpose=clean(input.purpose,20),mime=clean(input.contentType,80);
       const allowed=["image/jpeg","image/png","image/webp","video/mp4","video/webm","video/quicktime"];
-      if(!["profile","status","channel","opportunity","listing"].includes(purpose)||!allowed.includes(mime))throw new Error("Choose a supported photo or video.");
+      if(!["profile","status","channel","opportunity","listing","ad"].includes(purpose)||!allowed.includes(mime))throw new Error("Choose a supported photo or video.");
       const encoded=clean(input.fileBase64,12000000).replace(/^data:[^;]+;base64,/,"");
       if(!encoded||encoded.length>11200000)throw new Error("Media file is too large. Maximum upload is 8 MB.");
       const bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));
@@ -205,7 +205,10 @@ Deno.serve(async (req: Request) => {
       if(term.length<2)return json({ok:false,error:"Enter at least two characters or a JP number."},400);
       const safe=term.replace(/[,%()]/g," ").trim();
       const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
-      return response((found||[]).filter((m:any)=>m.id!==mid));
+      const results=(found||[]).filter((m:any)=>m.id!==mid);
+      const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
+      const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
+      return response(results.map((m:any)=>({...m,is_following:followed.has(m.id)})));
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");
@@ -350,6 +353,57 @@ Deno.serve(async (req: Request) => {
       if(ch.visibility==="private"&&ch.owner_member_id!==mid&&!membership)return json({ok:false,error:"Follow or join this private channel by invitation."},403);
       const posts=await rows("jr_channel_posts","channel_id=eq."+channelId+"&select=id,author_member_id,body,media,created_at,updated_at&order=created_at.desc&limit=50");
       return response(await Promise.all((posts||[]).map(async(p:any)=>({...p,media:await signedMedia(p.media||[])}))));
+    }
+    if(action==="list_social_feed"){
+      const cutoff=new Date(Date.now()-24*60*60*1000).toISOString();
+      const publicRows=await rows("jr_status_updates","visibility=eq.everyone&created_at=gte."+encodeURIComponent(cutoff)+"&select=id,member_id,body,media,background,visibility,created_at,expires_at&order=created_at.desc&limit=50");
+      const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
+      const followed=(follows||[]).map((x:any)=>x.followee_id).filter(uuid);
+      let followedRows:any[]=[];
+      if(followed.length)followedRows=await rows("jr_status_updates","member_id=in.("+followed.join(",")+")&visibility=eq.connections&created_at=gte."+encodeURIComponent(cutoff)+"&select=id,member_id,body,media,background,visibility,created_at,expires_at&order=created_at.desc&limit=50");
+      const merged=new Map<string,any>();for(const item of [...(publicRows||[]),...followedRows])if(new Date(item.expires_at||item.created_at)>new Date())merged.set(item.id,item);
+      const feed=[...merged.values()].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,60);
+      const ids=[...new Set(feed.map(x=>x.member_id))];
+      const profiles=ids.length?await rows("members","id=in.("+ids.join(",")+")&select=id,full_name,jp_number,profile_photo,profile_photo_hidden,profile_visibility"):[];
+      const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
+      const result=await Promise.all(feed.map(async(item:any)=>{
+        const author:any=profileMap.get(item.member_id)||{};let avatar=null;
+        if(author.profile_visibility!=="private"&&!author.profile_photo_hidden&&author.profile_photo&&storagePath(author.profile_photo))avatar=(await signedMedia([{path:author.profile_photo,kind:"image"}]))[0]?.url||null;
+        return {...item,author:{id:item.member_id,name:author.profile_visibility==="private"?"JR PHEEF member":author.full_name||"JR PHEEF member",jpNumber:author.profile_visibility==="private"?"":author.jp_number||"",avatar},media:await signedMedia(item.media||[])};
+      }));
+      return response({items:result,following:followed});
+    }
+    if(action==="follow_member"||action==="unfollow_member"){
+      const target=clean(input.memberId,50);if(!uuid(target)||target===mid)return json({ok:false,error:"Choose another valid member."},400);
+      const profile=(await rows("members","id=eq."+target+"&status=eq.active&select=id,profile_visibility&limit=1"))?.[0];
+      if(!profile||profile.profile_visibility==="private")return json({ok:false,error:"This member is not available to follow."},404);
+      const existing=await rows("social_follows","follower_id=eq."+mid+"&followee_id=eq."+target+"&select=follower_id&limit=1");
+      if(action==="follow_member"){if(!existing?.length)await insert("social_follows",{follower_id:mid,followee_id:target});return response({following:true});}
+      if(existing?.length)await rest("social_follows?follower_id=eq."+mid+"&followee_id=eq."+target,"DELETE",undefined,"return=minimal");
+      return response({following:false});
+    }
+    if(action==="list_ad_campaigns"){
+      const own=await rows("ad_campaigns","member_id=eq."+mid+"&select=id,title,body,category,location,budget_ksh,paid,status,review_note,starts_at,ends_at,impressions,clicks,media_urls,created_at&order=created_at.desc&limit=50");
+      const approved=await rows("ad_campaigns","status=eq.approved&paid=eq.true&select=id,title,body,category,location,media_urls,starts_at,ends_at&order=created_at.desc&limit=30");
+      const now=Date.now(),active=(approved||[]).filter((a:any)=>(!a.starts_at||new Date(a.starts_at).getTime()<=now)&&(!a.ends_at||new Date(a.ends_at).getTime()>now));
+      const withMedia=async(a:any)=>({...a,media:await signedMedia((a.media_urls||[]).map((p:string)=>({path:p,kind:"image"})))});
+      return response({mine:await Promise.all((own||[]).map(withMedia)),sponsored:await Promise.all(active.map(withMedia))});
+    }
+    if(action==="create_ad_campaign"){
+      const title=clean(input.title,80),body=clean(input.body,300),category=clean(input.category,60),location=clean(input.location,120);
+      const budget=Number(input.budgetKsh??0),paths=Array.isArray(input.mediaPaths)?input.mediaPaths.slice(0,5):[];
+      if(title.length<3||body.length<5||!Number.isFinite(budget)||budget<0)return json({ok:false,error:"Add a title, message and a valid non-negative budget."},400);
+      if(paths.some((p:any)=>!storagePath(p)||!p.startsWith(mid+"/ad/")))return json({ok:false,error:"Advertisement media is invalid."},400);
+      const created=await insert("ad_campaigns",{member_id:mid,title,body,category:category||null,location:location||null,budget_ksh:budget,paid:false,status:"pending",media_urls:paths});
+      return response({campaign:created?.[0]||created,note:"Advertisement submitted for review. It is not published, paid or being displayed. Payment and campaign activation are not connected yet."});
+    }
+    if(action==="pause_ad_campaign"){
+      const id=clean(input.campaignId,50);if(!uuid(id))return json({ok:false,error:"Choose a valid advertisement."},400);
+      const found=await rows("ad_campaigns","id=eq."+id+"&member_id=eq."+mid+"&select=id,status&limit=1");
+      if(!found?.length)return json({ok:false,error:"Advertisement not found or not yours."},404);
+      if(found[0].status==="rejected"||found[0].status==="ended")return json({ok:false,error:"This advertisement cannot be paused."},409);
+      const updated=await rest("ad_campaigns?id=eq."+id+"&member_id=eq."+mid,"PATCH",{status:"paused",updated_at:new Date().toISOString()});
+      return response(updated?.[0]||{paused:true});
     }
     if(action==="create_room_listing"){
       const title=clean(input.title,120),roomType=clean(input.roomType,40),location=clean(input.location,180),description=clean(input.description,2000),rent=Number(input.rent);
