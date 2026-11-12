@@ -17,6 +17,6 @@ if(!shell.includes("JR PHEEF MEDIA")||!shell.includes("JR PHEEF BUSINESS")||!she
 for(const hub of ["mediahub","businesshub","labhub","libraryhub","learnhub"]){if(!shell.includes(hub+":["))throw new Error("Missing organized hub groups: "+hub);}
 if(!shell.includes("dedicated streaming and creator publishing are still being built"))throw new Error("Media capability status must remain honest.");
 if(!shell.includes("NOT CONNECTED")||!shell.includes("provider's official API"))throw new Error("External integration state is not clearly disclosed.");
-const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v(\\d+)"/)||[])[1]||0);
+const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v([0-9]+)"/)||[])[1]||0);
 if(cacheVersion<22)throw new Error("PWA cache version must be refreshed for the connected-world navigation.");
 console.log("PASS: workspace shell syntax, connected-world hubs, honest capability labels, cache refresh and external integration disclosures.");
