@@ -46,9 +46,9 @@ test("origin protection uses configured canonical origins and supports explicit 
  assert.doesNotMatch(server,/const expected=.*req\.headers\["host"\]/);
 });
 test("Stop voice cancels speech output and active speech recognition",()=>{
- const js=read("public/command-layout.js"),html=read("public/index.html");
- assert.match(js,/let activeRecognition=null/);
- assert.match(js,/activeRecognition\.stop\(\)/);
+ const js=read("public/voice.js"),html=read("public/index.html");
+ assert.match(js,/let recognition=null/);
+ assert.match(js,/r\.abort\(\)/);
  assert.match(js,/synth\?\.cancel\(\)/);
  assert.match(html,/id="jrStopSpeech">Stop voice/);
 });
