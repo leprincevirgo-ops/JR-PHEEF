@@ -54,6 +54,22 @@ document.body.dataset.jpSection=section;
 document.body.dataset.jpBrand=section;
 }
 function hexRgba(hex,a){const m=/^#([0-9a-f]{6})$/i.exec(hex||"");if(!m)return "rgba(66,245,255,"+a+")";const n=parseInt(m[1],16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
+function ensureBrandStyles(){
+if(document.getElementById("jpBrandStyles"))return;
+const style=document.createElement("style");style.id="jpBrandStyles";
+style.textContent=`
+body.jp-theme-active header{border-bottom-color:var(--jp-theme-border)}
+body.jp-theme-active .nav button{border-color:var(--jp-theme-border)}
+body.jp-theme-active .card{border-color:var(--jp-theme-border)}
+body.jp-theme-active .jp-kicker,body.jp-theme-active .jr-page-brand{color:var(--jp-theme-accent)}
+body.jp-theme-active button.primary{background:linear-gradient(110deg,var(--jp-theme-accent),var(--jp-theme-secondary));border-color:var(--jp-theme-border);color:#07121e}
+body.jp-theme-active .jr-workspace-hero,body.jp-theme-active .jp-theme-hero{border-color:var(--jp-theme-border);background:radial-gradient(ellipse at 86% 12%,var(--jp-theme-accent-soft),transparent 38%),linear-gradient(130deg,var(--jp-theme-base),#04152e 72%)}
+body.jp-theme-active .jr-provider-mark{background:linear-gradient(135deg,var(--jp-theme-secondary),var(--jp-theme-accent));color:#07121e}
+body.jp-theme-active .jr-page-nav,body.jp-theme-active .jp-theme-chip,body.jp-theme-active .badge{border-color:var(--jp-theme-border)}
+body.jp-theme-active input:focus,body.jp-theme-active textarea:focus,body.jp-theme-active select:focus{outline:2px solid var(--jp-theme-accent);outline-offset:1px}
+`;
+document.head.appendChild(style);
+}
 function ensurePage(){
 const app=$("app");if(!app||$("themes"))return;
 const nav=app.querySelector(".nav");
@@ -233,7 +249,7 @@ syncArrows();
 syncArrows();
 }
 function init(){
-read();ensurePage();wrapShow();bind();applyDisplay();apply();
+read();ensureBrandStyles();ensurePage();wrapShow();bind();applyDisplay();apply();
 if(state.customImage)loadStoredImage().then(apply);
 if(!document.body.dataset.jpSection)document.body.dataset.jpSection="home";
 }
