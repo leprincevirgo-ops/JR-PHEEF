@@ -25,4 +25,5 @@ for(const [id,accent] of [["dgbo","#D6B15E"],["family","#49C78B"],["connecthub",
  if(!themes.includes(id+':{accent:"'+accent+'"'))throw new Error("Missing brand identity palette for "+id);
 }
 if(!themes.includes('document.body.style.setProperty("--jp-theme-secondary",identity.secondary)'))throw new Error("Brand secondary colour is not applied.");
+if(!themes.includes("function ensureBrandStyles()")||!themes.includes("body.jp-theme-active button.primary"))throw new Error("Brand colours are not wired into visible interface components.");
 console.log("PASS: workspace shell syntax, connected-world hubs, cache refresh and external integration disclosures.");
