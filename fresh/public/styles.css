@@ -418,3 +418,14 @@ body::before{
 .founder-build-studio{margin:22px 0;padding:16px;border:1px solid rgba(98,187,205,.25);border-radius:15px;background:rgba(4,18,31,.48)}
 .founder-capability-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .founder-capability-actions button:disabled{opacity:.45;cursor:default}
+
+
+/* Persistent page navigation: back, return to top, and jump to footer */
+.jr-page-navigation{position:fixed;z-index:1000;right:max(14px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:7px;padding:7px;border:1px solid rgba(130,210,226,.28);border-radius:16px;background:rgba(4,17,31,.88);box-shadow:0 12px 34px rgba(0,0,0,.34);backdrop-filter:blur(18px)}
+.jr-page-navigation button{min-height:42px;min-width:42px;padding:9px 12px;border:1px solid rgba(130,210,226,.22);border-radius:11px;background:rgba(25,59,82,.82);color:#e9f8ff;font:700 12px/1.1 inherit;cursor:pointer}
+.jr-page-navigation button:hover,.jr-page-navigation button:focus-visible{border-color:var(--cyan);background:rgba(40,111,133,.9);outline:2px solid transparent}
+.jr-page-navigation button:disabled{opacity:.45;cursor:not-allowed}
+.jr-page-navigation .jr-nav-top{color:#8df3ef;font-size:19px}
+.jr-page-navigation[hidden]{display:none!important}
+@media(max-width:560px){.jr-page-navigation{right:10px;bottom:max(10px,env(safe-area-inset-bottom));gap:5px;padding:6px}.jr-page-navigation button{min-height:40px;min-width:40px;padding:8px 10px;font-size:11px}.jr-page-navigation .jr-nav-top{font-size:20px}}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
