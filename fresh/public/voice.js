@@ -2,7 +2,7 @@
 (()=>{
  if(document.getElementById("jrGlobalVoice"))return;
  const dock=document.createElement("section");dock.id="jrGlobalVoice";dock.className="jr-global-voice";dock.setAttribute("aria-label","JR PHEEF voice controls");
- dock.innerHTML='<button type="button" id="jrGlobalSpeak" aria-label="Read JR response aloud">🔊 Speak</button><button type="button" id="jrGlobalMic" aria-label="Speak to JR">🎙 Mic</button><button type="button" id="jrGlobalStop" class="jr-voice-stop" aria-label="Stop voice input and output">■ Stop</button><span id="jrGlobalVoiceStatus" class="jr-global-voice-status" role="status" aria-live="polite">Voice ready</span>';
+ dock.innerHTML='<button type="button" id="jrGlobalSpeak" aria-label="Read JR response aloud">🔊 Speak</button><button type="button" id="jrGlobalMic" aria-label="Speak to the active JR PHEEF field">🎙 Mic</button><select id="jrGlobalVoiceLanguage" aria-label="Speech recognition language"><option value="">Device language</option><option value="en-KE">English (Kenya)</option><option value="sw-KE">Kiswahili</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="fr-FR">French</option><option value="ar-SA">Arabic</option><option value="so-SO">Somali</option></select><button type="button" id="jrGlobalStop" class="jr-voice-stop" aria-label="Stop voice input and output">■ Stop</button><span id="jrGlobalVoiceStatus" class="jr-global-voice-status" role="status" aria-live="polite">Voice ready</span>';
  document.body.append(dock);
  const $=id=>document.getElementById(id),status=$("jrGlobalVoiceStatus"),synth=window.speechSynthesis;let recognition=null,stopping=false;
  const setStatus=s=>{status.textContent=s;const f=$("jrVoiceFeedback");if(f)f.textContent=s;};
@@ -15,7 +15,7 @@
   if(select?.value)u.voice=voices[Number(select.value)]||null;u.rate=Number(rate?.value||1);u.onstart=()=>setStatus("JR is speaking…");u.onend=()=>setStatus("Finished speaking.");u.onerror=()=>setStatus("Speaker playback was interrupted.");synth.cancel();synth.speak(u);
  };
  const listen=()=>{const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition){setStatus("Microphone speech recognition is not supported here. You can type instead.");return;}
-  stop();stopping=false;const r=new Recognition();recognition=r;r.lang=document.documentElement.lang||"en";r.interimResults=true;r.maxAlternatives=1;r.continuous=false;r.onstart=()=>setStatus("Listening… tap Stop to finish.");
+  stop();stopping=false;const r=new Recognition();recognition=r;r.lang=$("jrGlobalVoiceLanguage")?.value||navigator.language||document.documentElement.lang||"en";r.interimResults=true;r.maxAlternatives=1;r.continuous=false;r.onstart=()=>setStatus("Listening in "+r.lang+"… tap Stop to finish.");
   r.onresult=e=>{let words="";for(let i=e.resultIndex;i<e.results.length;i++)words+=e.results[i][0].transcript;const active=document.activeElement;
    const target=active?.matches?.("input:not([type=button]):not([type=submit]),textarea")?active:$("workspacePrompt")&&!$("view-jr")?.hidden?$("workspacePrompt"):$("prompt")&&!$("conversation")?.hidden?$("prompt"):document.querySelector('textarea:not([disabled]),input:not([disabled]):not([type=hidden]):not([type=button]):not([type=submit])');
    if(target){target.value=words;target.dispatchEvent(new Event("input",{bubbles:true}));target.focus();setStatus("Words captured. Review before sending.");}else setStatus("Speech captured, but no text field is open.");
