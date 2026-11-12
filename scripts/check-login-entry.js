@@ -78,7 +78,7 @@ assert.match(install,/const authVisible=/,"install prompt must detect when the s
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(install,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"install banner must wait for a real browser installability event");
 assert.match(installCss,/@media\(max-width:900px\)\{#jrInstallPrompt\{bottom:calc\(76px \+ env\(safe-area-inset-bottom\)\)!important;z-index:1100!important/,"mobile install banner must sit above, not over, the navigation dock");
-assert.match(worker,/const VERSION="jr-shell-v21"/,
+assert.match(worker,/const VERSION="jr-shell-v23"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
