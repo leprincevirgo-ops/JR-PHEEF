@@ -474,3 +474,6 @@ body::before{
 #memberCommand .member-profile-panel{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--line);border-radius:16px;background:rgba(5,20,34,.62)}
 #memberCommand .profile-hint{flex-basis:100%;margin:0}
 @media(max-width:600px){.jr-connect-workspace{padding:12px;border-radius:15px}.jr-connect-heading{align-items:flex-start}.jr-connect-mark{width:40px;height:40px}.jr-connect-tabs button{padding:8px 12px}.jr-social-card{padding:12px}#jrAdCampaignForm .hub-two{grid-template-columns:1fr}}
+
+.jr-global-voice select{max-width:145px;min-width:108px;border:1px solid var(--line);border-radius:9px;padding:7px 8px;background:#091727;color:var(--text);font-size:11px}
+@media(max-width:600px){.jr-global-voice select{max-width:118px;min-width:90px}.jr-global-voice{gap:6px;flex-wrap:wrap}}
