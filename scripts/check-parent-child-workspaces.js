@@ -15,7 +15,7 @@ assert.ok(shell.includes("function clearChildren(node){while(node&&node.firstChi
 assert.ok(shell.includes('["DISCOVER & LEARN",["discoverhub"]]')&&shell.includes('["CREATE & WORK",["workhub"]]')&&shell.includes('["PEOPLE & CONNECT",["connecthub"]]')&&shell.includes('["MORE SERVICES",["morehub"]]'),"More menu contains only parent workspaces");
 assert.ok(shell.includes('addEventListener("click",()=>go(target))'),"child sections open their existing workspace");
 assert.ok(shell.includes("catalogSeen.has(catalog[i][0])"),"duplicate workspace IDs are removed from the canonical catalog");
-for(const group of ["SEARCH & BROWSE","EXPLORE & LEARN","RESEARCH & KNOWLEDGE","PLAN & CREATE","BUY & SELL","RUN & GROW","COMMUNICATE","PEOPLE & NETWORK","YOUR IDENTITY & SPACE","ECOSYSTEM SPACES","SERVICES & SUPPORT","BUILD & CONNECT"])assert.ok(shell.includes(group),"familiar app category exists: "+group);
+for(const group of ["SEARCH & BROWSE","EXPLORE & LEARN","RESEARCH & KNOWLEDGE","PLAN & CREATE","BUY & SELL","RUN & GROW","MESSAGES & SHARING","PEOPLE & CONNECTIONS","YOUR IDENTITY & SPACE","YOUR IDENTITY & CONTROLS","ECOSYSTEM SPACES","SERVICES & SUPPORT","BUILD & CONNECT"])assert.ok(shell.includes(group),"familiar app category exists: "+group);
 assert.ok(shell.includes("jr-hub-category-heading")&&shell.includes("jr-hub-category-count"),"parent workspaces render clear category headings and destination counts");
 assert.ok(css.includes(".jr-hub-categories")&&css.includes(".jr-hub-category-heading"),"grouped workspace categories are styled responsively");
 assert.ok(css.includes(".jr-child-workspace-grid")&&css.includes("@media(max-width:760px)"),"parent-child layout responsive");
