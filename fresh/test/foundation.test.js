@@ -211,3 +211,12 @@ test("DGBO uses its official Diamond Global Business Operators identity",()=>{
  assert.match(routes,/diamond global business operators/);
  assert.doesNotMatch(html,/DIME GLOBAL BUSINESS OPERATORS/);
 });
+
+test("Diamond Global Business Operators parent brand is visible across JR access points",()=>{
+ const html=read("public/index.html"),css=read("public/styles.css");
+ assert.match(html,/DIAMOND GLOBAL/);assert.match(html,/BUSINESS OPERATORS/);
+ assert.match(html,/Diamond Global Business Operators/);
+ assert.match(html,/dgbo-brand-lockup/);assert.match(html,/dgbo-brand-inline/);
+ assert.match(html,/jr-connect-20261112-v4/);
+ assert.match(css,/\.dgbo-brand-lockup/);assert.match(css,/\.dgbo-brand-type/);
+});
