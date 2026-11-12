@@ -313,7 +313,7 @@ module.exports = function mountJr(ctx) {
     { page: "profile", patterns: [/\b(open|show|edit|update)\b.{0,25}\b(my )?(profile|account details)\b/i] },
     { page: "devices", patterns: [/\b(open|show|manage|connect)\b.{0,25}\b(my )?(devices|connected devices)\b/i] },
     { page: "family", patterns: [/\b(open|show|manage)\b.{0,25}\b(family|family space|family goals)\b/i] },
-    { page: "dgbo", patterns: [/\b(open|show|manage)\b.{0,25}\b(dgbo|dime global business operators)\b/i] },
+    { page: "dgbo", patterns: [/\b(open|show|manage)\b.{0,25}\b(dgbo|diamond global business operators|dime global business operators)\b/i] },
     { page: "economy", patterns: [/\b(open|show|check)\b.{0,25}\b(my )?(wallet|points|rewards|economy|balance)\b/i] },
     { page: "fixedit", patterns: [/\b(open|find|request)\b.{0,25}\b(fix it|fixedit|repair|repairs|technician)\b/i] },
     { page: "powersale", patterns: [/\b(open|show|find)\b.{0,25}\b(power sale|discounts|special offers)\b/i] },
