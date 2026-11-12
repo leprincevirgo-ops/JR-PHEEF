@@ -27,20 +27,6 @@
  };
 
  // Ready-to-enter world experiences: practical starter content appears before a member creates anything.
- const starterCatalog=[
-  ["global","Global World","Discover available services, useful guides and connected opportunities.","Explore opportunities · Learn · Connect"],
-  ["personal","Personal World","A personal planner with goals, routines, projects and a daily review.","My goals · Daily plan · Project tracker"],
-  ["family_personal","Family World","A private family organiser for events, shared plans, memories and responsibilities.","Family calendar · Tasks · Announcements"],
-  ["business","Business World","A business starter desk for business plans, operations, team tasks and customer enquiries.","Business canvas · Operations · Team"],
-  ["education","Education & Knowledge","A learning space with guided study paths, skill plans, reading lists and practice.","Learning paths · Study planner · Research notes"],
-  ["commerce","Commerce & Services","A marketplace entry point for products, services, jobs, property and local offers.","Offer publisher · Opportunity feed · Enquiries"],
-  ["family_finance","FAMILY World · Financial Participation","Financial education, goal planning and transparent participation information. No deposits or investment transactions.","Money basics · Goal planner · Participation records"],
-  ["creative","Creativity & Community","A creator desk for ideas, drafts, media, collaboration and community channels.","Idea board · Media studio · Community"],
-  ["community","Community World","A shared place for announcements, events, volunteer activities and group projects.","Events · Announcements · Shared projects"]
- ];
- const starterSection=document.createElement("section");
- starterSection.className="world-starter-section";
- starterSection.innerHTML='<div class="worlds-section-head"><div><p class="eyebrow">READY TO EXPLORE</p><h3>Worlds with a starting point</h3><p class="hub-muted">Each world opens with useful starter activities. You can personalise it later.</p></div></div><div class="world-starter-grid" id="worldStarterGrid"></div>';
  // One Worlds environment with two modes: create a world or enter an existing one.
  const categoryGrid=view.querySelector(".world-category-grid");categoryGrid?.remove();
  const worldsWorkspace=view.querySelector(".worlds-workspace");
