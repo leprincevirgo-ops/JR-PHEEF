@@ -11,7 +11,7 @@ const catalog=[
 ["apphub","App Hub","Keep your favourite apps and services together.","Organise shortcuts to services you already use. External apps open on their own official websites."],
 ["messages","JR LINK","Private and group conversations, connections and updates.","The communication environment for messages, groups, social connections and supported sharing."],
 ["social","Social","Share updates and discover your community.","Community tools for posts, connections and conversations."],
-["dgbo","DGBO","Business development, governance and opportunity development.","Explore DGBO services and open the tools available to develop your ideas and ventures."],
+["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS","DGBO · Business development, governance and opportunity development.","Explore DIAMOND GLOBAL BUSINESS OPERATORS services and open the tools available to develop your ideas and ventures."],
 ["ecosystem","Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY connect.","A shared overview of the ecosystem, its permissions and operating status."],
 ["companies","My Companies","Open JR PHEEF, DGBO, FAMILY and your authorised business environments.","One member entry point for distinct company services. Each company keeps separate records, permissions and confidential operations."],
 ["family","FAMILY","Financial Access to Money for Investments & Loving Yourself.","A company environment within the JR PHEEF ecosystem. Open available FAMILY services; financial products remain subject to activation, eligibility and authorised partners."],
@@ -210,7 +210,7 @@ const hubGroups={
   ["BUSINESS & ENTERPRISE",[["JR PHEEF BUSINESS","Start and manage businesses, listings and operations","businesshub"],["Opportunities & Partnerships","Find products, services, people and partners","opportunities"],["Trade & Fulfilment","Coordinate listings, deals and delivery","find"]]],
   ["RESEARCH, KNOWLEDGE & LEARNING",[["JR PHEEF LAB","Research, experiments and idea development","labhub"],["JR PHEEF LIBRARY","Saved knowledge, files and reference resources","libraryhub"],["JR PHEEF LEARN","Lessons, skills and learning pathways","learnhub"]]],
   ["DISCOVERY & COORDINATION",[["Places & Landscapes","Discover places, nature, cities and destinations","explore"],["Universe & Future","Explore subjects, science and future concepts","universe"],["Projects & Work","Turn goals into organised work","projects"],["Useful Services","Find repair, delivery and specialist services","fixedit"]]],
-  ["DGBO ECOSYSTEM",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Private family coordination","family"],["Ecosystem Overview","See how the ventures connect","ecosystem"]]]
+  ["DGBO ECOSYSTEM",[["DIAMOND GLOBAL BUSINESS OPERATORS","Business development and ideas","dgbo"],["FAMILY","Private family coordination","family"],["Ecosystem Overview","See how the ventures connect","ecosystem"]]]
  ], discoverhub:[
   ["SEARCH & BROWSE",[["Search","Search JR PHEEF","find"],["Discover","Find products, services and information","discover"],["Browser","Browse the wider web","browser"],["App Hub","Open your other apps","apphub"]]],
   ["EXPLORE & LEARN",[["Explore","Places, nature, cities and inspiration","explore"],["JR Teacher","Lessons and study plans","teacher"],["Library","Saved learning resources","library"],["Future Worlds","Ideas and future concepts","scifi"]]],
