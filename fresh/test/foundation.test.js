@@ -122,3 +122,12 @@ test("Founder Build Studio manages a private capability lifecycle registry",()=>
  assert.match(api,/member\.role!=="founder"/);assert.match(api,/dgbo_capabilities/);
  assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all.*anon, authenticated/i);
 });
+
+
+test("persistent page navigation provides back, top and bottom controls",()=>{
+ const h=read("public/index.html"),n=read("public/navigation.js"),c=read("public/styles.css");
+ assert.match(h,/navigation\.js/);
+ for(const key of ["jrPageBack","jrPageTop","jrPageBottom"])assert.match(n,new RegExp(key));
+ assert.match(n,/history\.back/);assert.match(n,/scrollTo/);
+ assert.match(c,/\.jr-page-navigation/);
+});
