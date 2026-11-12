@@ -29,6 +29,6 @@ test("WORLDS connects list, create, read and status actions",()=>{
  for(const action of ["list_worlds","create_world","get_world","update_world"])assert.ok(script.includes('"'+action+'"'));
 });
 test("world entry and creation remain inside the same mode container",()=>{
- assert.match(script,/enterPanel\\.append\\(detail,listHeading/);assert.match(script,/createPanel\.append\(createSection\)/);
+ assert.match(script,/enterPanel\.append\(detail,listHeading/);assert.match(script,/createPanel\.append\(createSection\)/);
  assert.match(script,/setWorldMode\("enter"\)/);assert.match(script,/enterPanel\.append\(offerStudio\)/);
 });
