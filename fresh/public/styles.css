@@ -477,3 +477,29 @@ body::before{
 
 .jr-global-voice select{max-width:145px;min-width:108px;border:1px solid var(--line);border-radius:9px;padding:7px 8px;background:#091727;color:var(--text);font-size:11px}
 @media(max-width:600px){.jr-global-voice select{max-width:118px;min-width:90px}.jr-global-voice{gap:6px;flex-wrap:wrap}}
+
+/* Directional navigation arrows: internal history plus page position */
+.jr-page-navigation{gap:5px;padding:6px;border-radius:15px}
+.jr-page-navigation button{display:grid;place-items:center;min-width:42px;width:42px;height:42px;padding:0;border-radius:12px;font-size:24px;font-weight:650;line-height:1}
+.jr-page-navigation button:disabled{opacity:.32;cursor:not-allowed;filter:saturate(.45)}
+.jr-page-navigation button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.jr-nav-divider{width:1px;height:25px;background:var(--line);margin:0 3px}
+@media(max-width:520px){.jr-page-navigation{right:max(8px,env(safe-area-inset-right));bottom:max(9px,env(safe-area-inset-bottom));gap:4px;padding:5px}.jr-page-navigation button{width:38px;min-width:38px;height:38px;font-size:21px}}
+/* Connect tabs remain together and selected sections return to the workspace top */
+#jrConnectWorkspace{scroll-margin-top:10px}
+#jrConnectWorkspace .jr-connect-tabs{position:sticky;top:7px;z-index:35;padding:9px 0 12px;background:rgba(7,19,32,.96);backdrop-filter:blur(16px);border-radius:0 0 12px 12px}
+#jrConnectWorkspace .jr-connect-tabs button{scroll-margin-top:12px}
+#jrConnectWorkspace .jr-connect-panel{scroll-margin-top:75px}
+#jrConnectWorkspace .jr-connect-panel[hidden]{display:none!important}
+#jrConnectWorkspace .jr-connect-tabs button[aria-selected=true]{box-shadow:0 0 0 1px rgba(125,221,232,.24),0 4px 18px rgba(42,142,175,.12)}
+/* Worlds is one environment with a create/enter mode switch */
+.jr-worlds-mode-switch{display:flex;gap:9px;align-items:center;margin:18px 0 10px;padding:6px;border:1px solid var(--line);border-radius:16px;background:rgba(5,19,33,.7);width:fit-content;max-width:100%}
+.jr-worlds-mode-switch button{min-height:43px;padding:10px 17px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--muted);font-weight:750}
+.jr-worlds-mode-switch button[aria-pressed=true]{color:#07111e;background:linear-gradient(110deg,#8bf2ef,#7c9cff);box-shadow:0 5px 16px rgba(67,160,185,.16)}
+.jr-worlds-mode-intro{color:var(--muted);font-size:12px;margin:0 0 15px}
+.jr-worlds-mode-panel[hidden]{display:none!important}
+.jr-worlds-mode-panel{min-width:0;animation:jrWorldModeIn .2s ease-out}
+.jr-worlds-mode-panel .world-create{margin-top:0}
+.jr-worlds-mode-panel .offer-studio{margin-top:22px}
+@keyframes jrWorldModeIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:520px){.jr-worlds-mode-switch{display:grid;grid-template-columns:1fr 1fr;width:100%}.jr-worlds-mode-switch button{padding:9px 10px;font-size:12px}}
