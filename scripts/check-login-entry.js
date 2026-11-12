@@ -71,7 +71,7 @@ assert.match(html,/button\.removeAttribute\("aria-busy"\)/,
   "login must clear its busy state after completion");
 assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
-assert.match(html,/workspace-shell\\.js\\?v=command7/,
+assert.match(html,/workspace-shell\.js\?v=command7/,
   "workspace shell URL must be cache-busted");
 assert.match(html,/install-prompt\.js\?v=login-safe3/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
