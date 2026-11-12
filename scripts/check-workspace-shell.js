@@ -21,6 +21,7 @@ if(!shell.includes("NOT CONNECTED")||!shell.includes("provider's official API"))
 const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v([0-9]+)"/)||[])[1]||0);
 if(cacheVersion<23)throw new Error("PWA cache version must be refreshed for connected-world navigation.");
 if(!shell.includes('["connecthub","JR LINK"'))throw new Error("JR LINK must remain the canonical communication world.");
+if(!html.includes("DIAMOND GLOBAL BUSINESS OPERATORS")||!shell.includes('["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS"')||!themes.includes('["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS"]'))throw new Error("DGBO entry points must show the full DIAMOND GLOBAL BUSINESS OPERATORS brand.");
 for(const [id,accent] of [["dgbo","#D6B15E"],["family","#49C78B"],["connecthub","#38D5C8"],["mediahub","#E66AC4"],["businesshub","#43C58B"],["labhub","#9584FF"],["libraryhub","#C87991"],["learnhub","#F4A45B"]]){
  if(!themes.includes(id+':{accent:"'+accent+'"'))throw new Error("Missing brand identity palette for "+id);
 }
