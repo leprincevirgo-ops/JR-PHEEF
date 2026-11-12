@@ -503,3 +503,13 @@ body::before{
 .jr-worlds-mode-panel .offer-studio{margin-top:22px}
 @keyframes jrWorldModeIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.jr-worlds-mode-switch{display:grid;grid-template-columns:1fr 1fr;width:100%}.jr-worlds-mode-switch button{padding:9px 10px;font-size:12px}}
+
+/* Official DGBO parent-brand lockup */
+.dgbo-brandbar{display:flex;align-items:center;justify-content:center;gap:13px;margin:10px auto 22px;padding:14px 18px;width:fit-content;max-width:100%;border:1px solid rgba(218,164,69,.22);border-radius:18px;background:linear-gradient(135deg,rgba(8,10,14,.96),rgba(28,20,10,.72));box-shadow:0 10px 34px rgba(0,0,0,.2)}
+.dgbo-emblem{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;color:#e5ad45;font-size:43px;line-height:1;text-shadow:0 0 18px rgba(226,169,64,.35)}
+.dgbo-brand-copy{display:flex;flex-direction:column;gap:2px;color:#e7b65b;letter-spacing:.14em;line-height:1.1}
+.dgbo-brand-copy strong{font-size:clamp(14px,3vw,20px);font-weight:850}
+.dgbo-brand-copy small{font-size:clamp(9px,2vw,12px);letter-spacing:.31em;color:#d5b37d}
+.public-info-card h2{overflow-wrap:anywhere}
+footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
+@media(max-width:480px){.dgbo-brandbar{margin:7px auto 18px;padding:11px 13px;gap:9px}.dgbo-emblem{width:40px;height:40px;font-size:36px}.dgbo-brand-copy strong{font-size:14px}.dgbo-brand-copy small{font-size:9px}}
