@@ -64,7 +64,7 @@ const catalog=[
 ["learnhub","JR PHEEF LEARN","Build knowledge, skills and practical capability.","Connect lessons, learning resources, research and projects."],
 ["discoverhub","Discover & Learn","Search, explore and learn in one place.","Find information, browse the world, study subjects and research ideas without switching between competing tabs."],
 ["workhub","Create & Work","Turn ideas into projects, businesses and finished work.","Create, organise, research and grow from one workspace."],
-["connecthub","People & Connect","Your conversations, community and relationships.","Bring messages, social activity, JP Connect and opportunities together."],
+["connecthub","JR LINK","Your conversations, communities and relationships.","The dedicated communication world inside JR PHEEF."],
 ["personalhub","My Space & Settings","Your account, personal tools, preferences and security.","Manage your profile, files, devices, appearance, accessibility and privacy in one place."],
 ["morehub","More Services","Additional JR PHEEF services, ecosystem areas and support.","Open specialist services when you need them without crowding your main navigation."]
 
