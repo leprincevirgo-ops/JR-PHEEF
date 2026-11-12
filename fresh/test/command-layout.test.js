@@ -4,6 +4,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
 const source=fs.readFileSync("fresh/public/command-layout.js","utf8");
+const voice=fs.readFileSync("fresh/public/voice.js","utf8");
 const html=fs.readFileSync("fresh/public/index.html","utf8");
 const app=fs.readFileSync("fresh/public/app.js","utf8");
 test("Command Center layout script parses",()=>assert.doesNotThrow(()=>new vm.Script(source)));
@@ -28,7 +29,8 @@ test("Status supports camera and gallery selection with a local preview",()=>{
 });
 test("Command Center includes speaker and accessibility preferences",()=>{
  for(const id of ["jrSpeakerVoice","jrSpeakerRate","jrSpeakTest","jrStopSpeech","jrVoiceInput","jrLargeText","jrHighContrast","jrReduceMotion"])assert.ok(html.includes(id));
- for(const feature of ["SpeechSynthesisUtterance","SpeechRecognition","jr-large-text","jr-high-contrast","jr-reduce-motion"])assert.ok(source.includes(feature));
+ for(const feature of ["SpeechSynthesisUtterance","SpeechRecognition","jrGlobalStop","jrGlobalMic"])assert.ok(voice.includes(feature));
+ for(const feature of ["jr-large-text","jr-high-contrast","jr-reduce-motion"])assert.ok(source.includes(feature));
 });
 
 test("Member media, status, group and channel workflows are present",()=>{
