@@ -67,7 +67,7 @@ test("authenticated users receive a real workspace with working navigation views
 test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{
  const css=read("public/styles.css"),h=read("public/index.html");
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
- assert.match(h,/jr-connect-20261112-v2/);
+ assert.match(h,/jr-connect-20261112-v3/);
 });
 
 test("worlds switch the living environment according to world type",()=>{
@@ -127,8 +127,8 @@ test("Founder Build Studio manages a private capability lifecycle registry",()=>
 test("persistent page navigation provides back, top and bottom controls",()=>{
  const h=read("public/index.html"),n=read("public/navigation.js"),c=read("public/styles.css");
  assert.match(h,/navigation\.js/);
- for(const key of ["jrPageBack","jrPageTop","jrPageBottom"])assert.match(n,new RegExp(key));
- assert.match(n,/history\.back/);assert.match(n,/scrollTo/);
+ for(const key of ["jrPageBack","jrPageForward","jrPageTop","jrPageBottom"])assert.match(n,new RegExp(key));
+ assert.match(n,/trail/);assert.match(n,/index/);assert.doesNotMatch(n,/history\.back/);assert.match(n,/scrollTo/);
  assert.match(c,/\.jr-page-navigation/);
 });
 
@@ -142,7 +142,7 @@ test("global voice dock provides speaker, microphone and shared stop controls",(
 test("member social features are consolidated into one JR Connect workspace",()=>{
  const c=read("public/command-layout.js"),h=read("public/index.html"),css=read("public/styles.css");
  assert.match(c,/jrConnectWorkspace/);
- for(const tab of ["feed","chats","channels","ads","profile"])assert.match(c,new RegExp('data-connect-tab="'+tab+'"'));
+ for(const tab of ["feed","status","chats","channels","ads","profile"])assert.match(c,new RegExp('data-connect-tab="'+tab+'"'));
  for(const id of ["memberStatusPanel","memberUpdatesPanel","memberChatsPanel","memberContactsPanel","memberProfilePanel","memberAccessibilityPanel"])assert.match(c,new RegExp(id));
  assert.match(c,/move\(channels,connectPanel\("channels"\)\)/);
  assert.match(css,/\.jr-connect-workspace/);assert.match(css,/\.jr-connect-tabs/);
@@ -183,4 +183,19 @@ test("Founder can review ads but approval never marks a campaign paid",()=>{
  assert.match(api,/paid/);assert.match(api,/adCampaigns/);
  assert.match(h,/founderAdCampaignList/);assert.match(a,/review_ad_campaign/);
  assert.match(api,/will not appear in feeds until payment is separately verified/);
+});
+
+test("Connect sections return to the top of the same workspace",()=>{
+ const c=read("public/command-layout.js"),css=read("public/styles.css");
+ assert.match(c,/activateConnectTab/);assert.match(c,/window\.scrollTo/);
+ assert.match(c,/connectPanel\("status"\)/);assert.match(c,/jrConnectPanel/);
+ assert.match(css,/#jrConnectWorkspace \.jr-connect-tabs\{position:sticky/);
+});
+test("Worlds is one environment with Create or Enter modes",()=>{
+ const w=read("public/worlds.js"),h=read("public/index.html"),css=read("public/styles.css");
+ assert.match(w,/jr-worlds-mode-switch/);assert.match(w,/data-world-mode="enter"/);assert.match(w,/data-world-mode="create"/);
+ assert.match(w,/setWorldMode/);assert.match(w,/enterPanel\.append\(offerStudio\)/);
+ assert.doesNotMatch(w,/world-starter-section/);assert.doesNotMatch(w,/world-starter-grid/);
+ assert.doesNotMatch(h,/world-category-grid/);assert.match(h,/One Worlds environment\. Create or enter\./);
+ assert.match(css,/\.jr-worlds-mode-switch/);
 });
