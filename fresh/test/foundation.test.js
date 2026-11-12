@@ -217,6 +217,6 @@ test("Diamond Global Business Operators parent brand is visible across JR access
  assert.match(html,/DIAMOND GLOBAL/);assert.match(html,/BUSINESS OPERATORS/);
  assert.match(html,/Diamond Global Business Operators/);
  assert.match(html,/dgbo-brand-lockup/);assert.match(html,/dgbo-brand-inline/);
- assert.match(html,/jr-connect-20261112-v4/);
+ assert.match(html,/jr-dgbo-diamond-brand-20261112-v1/);
  assert.match(css,/\.dgbo-brand-lockup/);assert.match(css,/\.dgbo-brand-type/);
 });
