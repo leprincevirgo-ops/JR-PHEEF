@@ -67,7 +67,7 @@ test("authenticated users receive a real workspace with working navigation views
 test("JR PHEEF uses an animated living wallpaper with reduced-motion support",()=>{
  const css=read("public/styles.css"),h=read("public/index.html");
  assert.match(css,/jrAuroraDrift/);assert.match(css,/jrStarDrift/);assert.match(css,/prefers-reduced-motion/);
- assert.match(h,/jr-founder-studio-20261112-v3/);
+ assert.match(h,/jr-connect-20261112-v1/);
 });
 
 test("worlds switch the living environment according to world type",()=>{
@@ -137,4 +137,41 @@ test("global voice dock provides speaker, microphone and shared stop controls",(
  assert.match(h,/voice\.js/);for(const id of ["jrGlobalSpeak","jrGlobalMic","jrGlobalStop"])assert.match(v,new RegExp(id));
  assert.match(v,/SpeechSynthesisUtterance/);assert.match(v,/SpeechRecognition/);assert.match(v,/\.abort\(\)/);
  assert.match(v,/aria-live="polite"/);assert.match(c,/\.jr-global-voice/);assert.match(l,/Shared voice interaction is initialized/);
+});
+
+test("member social features are consolidated into one JR Connect workspace",()=>{
+ const c=read("public/command-layout.js"),h=read("public/index.html"),css=read("public/styles.css");
+ assert.match(c,/jrConnectWorkspace/);
+ for(const tab of ["feed","chats","channels","ads","profile"])assert.match(c,new RegExp('data-connect-tab="'+tab+'"'));
+ for(const id of ["memberStatusPanel","memberUpdatesPanel","memberChatsPanel","memberContactsPanel","memberProfilePanel","memberAccessibilityPanel"])assert.match(c,new RegExp(id));
+ assert.match(c,/move\(channels,connectPanel\("channels"\)\)/);
+ assert.match(css,/\.jr-connect-workspace/);assert.match(css,/\.jr-connect-tabs/);
+ assert.match(h,/Your profile\. Your people\. Your conversations\./);
+});
+test("JR social feed and following respect member visibility",()=>{
+ const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
+ assert.match(api,/list_social_feed/);assert.match(api,/visibility=eq\.everyone/);
+ assert.match(api,/visibility=eq\.connections/);assert.match(api,/social_follows/);
+ assert.match(api,/follow_member/);assert.match(api,/unfollow_member/);
+ assert.match(api,/profile_visibility===\"private\"/);
+});
+test("advertising campaigns are private until approved and payment is verified",()=>{
+ const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),c=read("public/command-layout.js");
+ assert.match(api,/create_ad_campaign/);assert.match(api,/status:\"pending\",paid:false/);
+ assert.match(api,/status=eq\.approved&paid=eq\.true/);
+ assert.match(api,/pause_ad_campaign/);
+ assert.match(c,/jrAdCampaignForm/);assert.match(c,/jrAdGallery/);assert.match(c,/jrAdCamera/);
+ assert.match(c,/Submit campaign for review/);
+});
+test("members can use gallery and camera for profile, status, channels and adverts",()=>{
+ const c=read("public/command-layout.js"),a=read("public/app.js");
+ assert.match(c,/profilePhotoCamera/);assert.match(c,/status-media.*camera/s);
+ assert.match(c,/capture=\"environment\"/);assert.match(c,/attachChannelMedia/);
+ assert.match(c,/uploadFile\(file,\"channel\"\)/);assert.match(c,/uploadFile\(file,\"ad\"\)/);
+ assert.match(a,/data-status-media=\"gallery\"/);assert.match(a,/data-status-media=\"camera\"/);
+});
+test("JR voice input supports selectable language and a shared stop action",()=>{
+ const v=read("public/voice.js");
+ assert.match(v,/jrGlobalVoiceLanguage/);assert.match(v,/sw-KE/);assert.match(v,/r\.lang=/);
+ assert.match(v,/jrGlobalStop/);assert.match(v,/r\.abort\(\)/);
 });
