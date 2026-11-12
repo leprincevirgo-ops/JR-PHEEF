@@ -199,3 +199,15 @@ test("Worlds is one environment with Create or Enter modes",()=>{
  assert.doesNotMatch(h,/world-category-grid/);assert.match(h,/One Worlds environment\. Create or enter\./);
  assert.match(css,/\.jr-worlds-mode-switch/);
 });
+
+test("DGBO uses its official Diamond Global Business Operators identity",()=>{
+ const html=read("public/index.html"),css=read("public/styles.css"),server=read("server.js"),routes=read("../routes/jr.js");
+ assert.match(html,/Diamond Global Business Operators/);
+ assert.match(html,/Powered by Diamond Global Business Operators/);
+ assert.match(html,/dgbo-brandbar/);assert.match(html,/dgboGold/);
+ assert.match(html,/dgbo-diamond-brand-20261112-v1/);
+ assert.match(css,/\.dgbo-brandbar/);
+ assert.match(server,/DGBO stands for Diamond Global Business Operators/);
+ assert.match(routes,/diamond global business operators/);
+ assert.doesNotMatch(html,/DIME GLOBAL BUSINESS OPERATORS/);
+});
