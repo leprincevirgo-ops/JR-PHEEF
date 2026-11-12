@@ -513,3 +513,15 @@ body::before{
 .public-info-card h2{overflow-wrap:anywhere}
 footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 @media(max-width:480px){.dgbo-brandbar{margin:7px auto 18px;padding:11px 13px;gap:9px}.dgbo-emblem{width:40px;height:40px;font-size:36px}.dgbo-brand-copy strong{font-size:14px}.dgbo-brand-copy small{font-size:9px}}
+
+/* DGBO parent-brand identity: JR PHEEF remains the platform brand */
+.dgbo-brand-lockup,.dgbo-brand-inline{display:inline-flex;align-items:center;gap:9px;color:#f2c16b;text-decoration:none;min-width:0}
+.dgbo-brand-lockup{margin-left:auto;padding:5px 10px;border:1px solid rgba(222,169,83,.25);border-radius:13px;background:rgba(36,25,13,.22)}
+.dgbo-brand-symbol{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;color:#e9ad42;font-family:Georgia,serif;font-size:36px;line-height:1;text-shadow:0 2px 14px rgba(230,163,49,.28)}
+.dgbo-brand-type{display:grid;gap:2px;line-height:1.05;letter-spacing:.1em}
+.dgbo-brand-type strong{font-size:11px;font-weight:850;color:#efbd62;white-space:nowrap}
+.dgbo-brand-type small{font-size:8px;letter-spacing:.28em;color:#d6b47d;white-space:nowrap}
+.dgbo-brand-inline{margin:0 0 10px}
+.dgbo-brand-inline .dgbo-brand-symbol{font-size:30px;width:29px;height:29px;flex-basis:29px}
+.founder-head .dgbo-brand-inline{margin-bottom:8px}
+@media(max-width:520px){.topbar{gap:8px}.dgbo-brand-lockup{padding:4px 6px;gap:5px}.dgbo-brand-lockup .dgbo-brand-symbol{width:25px;height:25px;flex-basis:25px;font-size:27px}.dgbo-brand-lockup .dgbo-brand-type strong{font-size:8px}.dgbo-brand-lockup .dgbo-brand-type small{font-size:6px;letter-spacing:.2em}.wordmark{gap:6px}.wordmark>span:last-child{font-size:12px}}
