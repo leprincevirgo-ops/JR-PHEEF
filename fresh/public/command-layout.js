@@ -220,8 +220,8 @@
  const profileHero=member.querySelector(".member-profile-panel");if(profileHero?.parentNode)profileHero.after(connect);else member.prepend(connect);
  const connectPanel=name=>connect.querySelector('[data-connect-panel="'+name+'"]');
  const move=(node,target)=>{if(node&&target)target.append(node);};
- move($("memberStatusPanel"),connectPanel("feed"));move($("memberUpdatesPanel"),connectPanel("feed"));
- move($("memberChatsPanel"),connectPanel("chats"));move($("memberContactsPanel"),connectPanel("chats"));
+ const statusPanel=$("memberStatusPanel");move(statusPanel,connectPanel("feed"));move($("memberUpdatesPanel"),connectPanel("feed"));if(statusPanel)connectPanel("feed").prepend(statusPanel);
+ move($("memberContactsPanel"),connectPanel("chats"));move($("memberChatsPanel"),connectPanel("chats"));
  move(channels,connectPanel("channels"));move($("memberProfilePanel"),connectPanel("profile"));move($("memberAccessibilityPanel"),connectPanel("profile"));
  $("memberTalkPanel")?.remove();
  connect.querySelectorAll("[data-connect-tab]").forEach(button=>button.addEventListener("click",()=>{
