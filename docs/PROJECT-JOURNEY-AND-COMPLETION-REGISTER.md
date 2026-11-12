@@ -175,3 +175,19 @@ Use this document as the canonical project journey in future JR PHEEF conversati
 - PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
 - PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
 - PR #1 and #4 were closed without merging because their branches contain duplicated or stale architecture. Unique category validation, glossary, DGBO explainer and POS-preview requirements remain on the roadmap for focused implementation.
+
+
+## Connected-world architecture decision (2026-11-12)
+
+The user approved a connected-world architecture. World names are user-facing destinations; underlying capabilities remain shared services and must not be duplicated.
+
+- **JR LINK** — communication, private/group messaging, status, people and communities. Reuses existing Messages, Social, JP Connect, notifications and deal-conversation capabilities.
+- **JR PHEEF MEDIA** — media discovery, publishing, creator tools, audio/video and live experiences. Current navigation groups existing Explore, Library, advertising and sharing capabilities. Dedicated streaming, creator publishing and live broadcasting are not represented as complete until built and tested.
+- **JR PHEEF BUSINESS** — business creation and workspaces, marketplace listings, opportunities, deals, delivery and business operations.
+- **JR PHEEF LAB** — research, experiments, idea development and projects.
+- **JR PHEEF LIBRARY** — saved knowledge, learning resources, personal files and reference materials.
+- **JR PHEEF LEARN** — lessons, learning plans, knowledge and applied projects.
+
+Architecture rules: JR remains intent-first; worlds are experience boundaries, not separate accounts/backends; capabilities have one primary home and may be surfaced contextually elsewhere; cross-world journeys preserve user context and require scoped permissions; unavailable features are not represented as working; preserve existing mobile navigation, history, sessions and accessibility; add worlds only when they have a coherent purpose and real capabilities.
+
+Staging implementation is isolated on `staging/connected-worlds-architecture`, based on `rebuild/architecture-foundation`. The dedicated Render staging service is currently configured to deploy from `rebuild/architecture-foundation`; service branch configuration must be updated to the staging branch before this work can deploy. No production service or database migration is included.
