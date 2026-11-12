@@ -49,6 +49,14 @@ Deno.serve(async (req: Request) => {
         if(!updated?.length)return json({ok:false,error:"Decision was not found or could not be changed."},404);
         return json({ok:true,data:updated[0]});
       }
+      if(action==="review_ad_campaign"){
+        const id=clean(input.id,50),status=clean(input.status,20),reviewNote=clean(input.reviewNote,500);
+        if(!uuid(id)||!["approved","rejected"].includes(status))return json({ok:false,error:"Choose a campaign and approve or reject it."},400);
+        const existing=await rest("ad_campaigns?id=eq."+id+"&status=eq.pending&select=id,paid&limit=1");
+        if(!existing?.length)return json({ok:false,error:"This campaign is no longer awaiting review."},409);
+        const updated=await rest("ad_campaigns?id=eq."+id+"&status=eq.pending","PATCH",{status,review_note:reviewNote||null,updated_at:new Date().toISOString()});
+        return json({ok:true,data:updated?.[0]||{id,status},note:status==="approved"&&!existing[0].paid?"Approved for advertising review; it will not appear in feeds until payment is separately verified.":"Campaign review updated."});
+      }
       if(action==="create_capability"){
         const capabilityKey=clean(input.capabilityKey,80),name=clean(input.name,120),category=clean(input.category,60)||"general",description=clean(input.description,2000);
         if(!/^[a-z][a-z0-9_.:-]{1,79}$/.test(capabilityKey)||name.length<2||category.length<2)return json({ok:false,error:"Enter a valid capability key, name and category."},400);
@@ -75,13 +83,14 @@ Deno.serve(async (req: Request) => {
       const response=await fetch(url+"/rest/v1/"+table+"?select=id",{method:"HEAD",headers:{apikey:serviceKey,Authorization:"Bearer "+serviceKey,Prefer:"count=exact",Range:"0-0"}});
       if(!response.ok)return null;const range=response.headers.get("content-range")||"",total=range.slice(range.lastIndexOf("/")+1),parsed=Number(total);return Number.isFinite(parsed)?parsed:0;
     };
-    const [members,ventures,opportunities,listings,conversations,deliveries,businesses,ventureRows,decisions,capabilities]=await Promise.all([
+    const [members,ventures,opportunities,listings,conversations,deliveries,businesses,ventureRows,decisions,capabilities,adCampaigns]=await Promise.all([
       count("members"),count("ventures"),count("jr_opportunities"),count("jr_listings"),count("jr_conversations"),count("jr_delivery_requests"),count("jr_business_workspaces"),
       rest("ventures?select=slug,name,kind,status,regulated,licence_ref,description&order=kind.asc,name.asc"),
       rest("dgbo_decisions?select=id,title,venture,details,status,created_at,decided_at&order=created_at.desc&limit=30"),
-      rest("dgbo_capabilities?select=id,capability_key,name,category,description,status,created_at,updated_at&order=category.asc,name.asc&limit=200")
+      rest("dgbo_capabilities?select=id,capability_key,name,category,description,status,created_at,updated_at&order=category.asc,name.asc&limit=200"),
+      rest("ad_campaigns?status=eq.pending&select=id,member_id,title,body,category,location,budget_ksh,paid,status,created_at,media_urls&order=created_at.asc&limit=100")
     ]);
-    return json({ok:true,founder:{fullName:member.full_name,jpNumber:member.jp_number,role:member.role,accountType:member.account_type,verified:Boolean(member.verified),status:member.status},environment:"STAGING",metrics:{memberAccounts:members,registeredVentures:ventures,opportunities,listings,conversations,deliveryRequests:deliveries,businessWorkspaces:businesses},ventures:ventureRows,decisions,capabilities,controls:{paymentsEnabled:false,productionConnected:false,liveAiConnected:false},principles:{purpose:"The ecosystem serves humanity; people contribute to its growth; companies strengthen one another and adapt to human needs.",dgbo:"Parent governance and stewardship",jrPheef:"Flagship human-facing technology ecosystem",family:"Financial access and participation serving the entire ecosystem"}});
+    return json({ok:true,founder:{fullName:member.full_name,jpNumber:member.jp_number,role:member.role,accountType:member.account_type,verified:Boolean(member.verified),status:member.status},environment:"STAGING",metrics:{memberAccounts:members,registeredVentures:ventures,opportunities,listings,conversations,deliveryRequests:deliveries,businessWorkspaces:businesses},ventures:ventureRows,decisions,capabilities,adCampaigns,controls:{paymentsEnabled:false,productionConnected:false,liveAiConnected:false},principles:{purpose:"The ecosystem serves humanity; people contribute to its growth; companies strengthen one another and adapt to human needs.",dgbo:"Parent governance and stewardship",jrPheef:"Flagship human-facing technology ecosystem",family:"Financial access and participation serving the entire ecosystem"}});
   }catch(error){
     console.error("Founder overview failed:",error instanceof Error?error.message:"unknown");
     return json({ok:false,error:"Founder overview is temporarily unavailable."},500);
