@@ -221,4 +221,8 @@ Staging work added on 2026-11-12:
 - Added default identity tokens for DGBO, JR PHEEF, FAMILY and the six connected worlds to the existing appearance engine.
 - Added styling rules to apply those tokens to visible interface components while retaining per-section member overrides.
 - Added regression assertions for the palette registry, visual application and canonical JR LINK label.
-- The Render service auto-deploys on commits to rebuild/architecture-foundation. The latest changes require deployment and test verification; do not mark them complete until the deployed commit is confirmed and browser checks pass.
+- The Render service auto-deploys on commits to rebuild/architecture-foundation. Commit d35bcf41d72e7cc0ffc7fe64fbfec7aa1b06175a is deployed live; Render logs confirm JR PHEEF 5.2.0 is listening on port 10000.
+- GitHub verification passed on this commit: npm test on Node 22 and 24, syntax and route checks, quality checks, release checks, read-only smoke checks and dependency review.
+- The full DIAMOND GLOBAL BUSINESS OPERATORS name is now displayed at the DGBO company entry points; the short DGBO acronym remains as the recognised abbreviation.
+- Real interactive browser acceptance remains outstanding: Android Chrome and desktop login taps, global navigation/back-to-top, voice stop/cancel, Command Centre, and cross-world permissions must still be exercised by a human in the browser. Passing source tests and a live Render process do not prove those journeys work.
+- This deployment is staging only. Production, production data, payments and external provider integrations remain untouched.
