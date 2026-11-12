@@ -128,7 +128,7 @@ test("persistent page navigation provides back, top and bottom controls",()=>{
  const h=read("public/index.html"),n=read("public/navigation.js"),c=read("public/styles.css");
  assert.match(h,/navigation\.js/);
  for(const key of ["jrPageBack","jrPageForward","jrPageTop","jrPageBottom"])assert.match(n,new RegExp(key));
- assert.match(n,/trail/);assert.match(n,/index/);assert.doesNotMatch(n,/history\.back/);assert.match(n,/scrollTo/);
+ assert.match(n,/trail/);assert.match(n,/index/);assert.match(n,/jrConnectWorkspace/);assert.match(n,/panel:/);assert.doesNotMatch(n,/history\.back/);assert.match(n,/scrollTo/);
  assert.match(c,/\.jr-page-navigation/);
 });
 
