@@ -224,11 +224,21 @@
  move($("memberContactsPanel"),connectPanel("chats"));move($("memberChatsPanel"),connectPanel("chats"));
  move(channels,connectPanel("channels"));move($("memberProfilePanel"),connectPanel("profile"));move($("memberAccessibilityPanel"),connectPanel("profile"));
  $("memberTalkPanel")?.remove();
- connect.querySelectorAll("[data-connect-tab]").forEach(button=>button.addEventListener("click",()=>{
-  const key=button.dataset.connectTab;connect.querySelectorAll("[data-connect-tab]").forEach(item=>item.setAttribute("aria-selected",String(item===button)));
+ const activateConnectTab=key=>{
+  const button=connect.querySelector('[data-connect-tab="'+key+'"]');if(!button)return;
+  connect.querySelectorAll("[data-connect-tab]").forEach(item=>item.setAttribute("aria-selected",String(item===button)));
   connect.querySelectorAll("[data-connect-panel]").forEach(item=>item.hidden=item.dataset.connectPanel!==key);
   if(key==="feed")loadSocialFeed();if(key==="channels")loadChannels();if(key==="ads")loadAdCampaigns();
- }));
+  connect.dataset.activePanel=key;
+  // The selected section comes to the top of the same Connect workspace.
+  const y=connect.getBoundingClientRect().top+window.scrollY-10;
+  window.scrollTo({top:Math.max(0,y),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+ };
+ connect.querySelectorAll("[data-connect-tab]").forEach(button=>button.addEventListener("click",()=>activateConnectTab(button.dataset.connectTab)));
+ connect.style.scrollMarginTop="12px";
+ connect.querySelector(".jr-connect-tabs")?.setAttribute("role","tablist");
+ connect.querySelectorAll("[data-connect-tab]").forEach(button=>{button.setAttribute("role","tab");button.setAttribute("aria-controls","jrConnectPanel"+button.dataset.connectTab);const panel=connect.querySelector('[data-connect-panel="'+button.dataset.connectTab+'"]');if(panel){panel.id="jrConnectPanel"+button.dataset.connectTab;button.setAttribute("aria-controls",panel.id);}});
+
  const socialFeed=$("jrSocialFeed");
  const socialCard=(title,body,meta)=>{const card=document.createElement("article");card.className="jr-social-card";const h=document.createElement("strong");h.textContent=title;const p=document.createElement("p");p.textContent=body||"";const small=document.createElement("small");small.textContent=meta||"";card.append(h,p,small);return card;};
  const loadSocialFeed=async()=>{
