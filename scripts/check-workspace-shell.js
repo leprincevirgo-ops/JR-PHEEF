@@ -4,6 +4,7 @@ const shell=fs.readFileSync(path.join(root,"public/workspace-shell.js"),"utf8");
 const html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
 const css=fs.readFileSync(path.join(root,"public/workspace-shell.css"),"utf8");
 const mobile=fs.readFileSync(path.join(root,"public/mobile-phone-shell.js"),"utf8");
+const sw=fs.readFileSync(path.join(root,"public/service-worker.js"),"utf8");
 new vm.Script(shell,{filename:"public/workspace-shell.js"});
 if(shell.includes("replaceChildren(")||shell.includes(":scope"))throw new Error("Workspace navigation uses a browser API/selector that is not safe for older Android WebViews.");
 if(!shell.includes("function clearChildren(node)"))throw new Error("Missing legacy-compatible DOM clearing helper.");
