@@ -175,3 +175,12 @@ test("JR voice input supports selectable language and a shared stop action",()=>
  assert.match(v,/jrGlobalVoiceLanguage/);assert.match(v,/sw-KE/);assert.match(v,/r\.lang=/);
  assert.match(v,/jrGlobalStop/);assert.match(v,/r\.abort\(\)/);
 });
+
+test("Founder can review ads but approval never marks a campaign paid",()=>{
+ const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-founder-overview","index.ts"),"utf8");
+ const h=read("public/index.html"),a=read("public/app.js");
+ assert.match(api,/review_ad_campaign/);assert.match(api,/status=eq\.pending/);
+ assert.match(api,/paid/);assert.match(api,/adCampaigns/);
+ assert.match(h,/founderAdCampaignList/);assert.match(a,/review_ad_campaign/);
+ assert.match(api,/will not appear in feeds until payment is separately verified/);
+});
