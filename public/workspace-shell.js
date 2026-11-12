@@ -9,9 +9,9 @@ const catalog=[
 ["explore","Explore","Visual inspiration from places, nature, cities, architecture and ideas.","Browse visual collections and use supported images as your workspace wallpaper."],
 ["browser","Browser","Search the web, visit websites and move between pages.","Use the JR PHEEF web workspace. Some websites may open in a separate browser when they do not allow embedding."],
 ["apphub","App Hub","Keep your favourite apps and services together.","Organise shortcuts to services you already use. External apps open on their own official websites."],
-["messages","Messages & Status","Private chats, group conversations and 24-hour updates.","Connect with people through your JR PHEEF account. Calls and media features are added only when secure and supported."],
+["messages","JR LINK","Private and group conversations, connections and updates.","The communication environment for messages, groups, social connections and supported sharing."],
 ["social","Social","Share updates and discover your community.","Community tools for posts, connections and conversations."],
-["dgbo","DGBO","Business development, governance and opportunity development.","Explore DGBO services and open the tools available to develop your ideas and ventures."],
+["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS","DGBO · Business development, governance and opportunity development.","Explore DIAMOND GLOBAL BUSINESS OPERATORS services and open the tools available to develop your ideas and ventures."],
 ["ecosystem","Ecosystem Overview","Review how DGBO, JR PHEEF and FAMILY connect.","A shared overview of the ecosystem, its permissions and operating status."],
 ["companies","My Companies","Open JR PHEEF, DGBO, FAMILY and your authorised business environments.","One member entry point for distinct company services. Each company keeps separate records, permissions and confidential operations."],
 ["family","FAMILY","Financial Access to Money for Investments & Loving Yourself.","A company environment within the JR PHEEF ecosystem. Open available FAMILY services; financial products remain subject to activation, eligibility and authorised partners."],
@@ -27,8 +27,8 @@ const catalog=[
 ["profile","Profile","Your member identity and personal details.","Manage the information other members can see about you."],
 ["jpidentity","JP Identity","Your JP identity and ecosystem continuity.","JP-01 is a protected ecosystem identity. Identity and succession actions require verification and safeguards."],
 ["vault","My Files","Keep your documents and personal files organised.","Manage supported files and review access and privacy before sharing."],
-["library","Library","Knowledge and learning resources.","Search saved resources and learning materials."],
-["lab","Research & Ideas","Explore experiments, research and concepts.","Organise research notes, experiments and early ideas."],
+["library","JR PHEEF LIBRARY","Your organised collection of knowledge and files.","Find saved resources, learning materials and personal files with their access controls."],
+["lab","JR PHEEF LAB","Research, experiments, ideas and development.","Investigate questions, organise experiments and develop concepts."],
 ["command","Command Center","Your overview for operations, intelligence, connections and decisions.","A controlled oversight workspace. Access depends on your account role."],
 ["referrals","Invite & Grow","Invite people and review referral activity.","Share your invitation and track activity where referral features are enabled."],
 ["points","Points","Review your JR PHEEF points.","See your points balance and eligible activity. Points are not cash unless a programme explicitly says so."],
@@ -54,12 +54,18 @@ const catalog=[
 ["developers","Developer Centre","Build services and integrations for JR PHEEF.","Use the signed-in Developer Portal and limited inbound event gateway. General public APIs, SDKs, sandbox and two-way integrations are not yet available."],
 ["discoverhub","Discover & Learn","Search, explore and learn in one place.","Find information, browse the world, study subjects and research ideas in one workspace."],
 ["workhub","Create & Work","Turn ideas into projects, businesses and finished work.","Create, organise, research and grow from one workspace."],
-["connecthub","People & Connect","Your conversations, community and relationships.","Bring messages, social activity, JP Connect and opportunities together."],
+["connecthub","JR LINK","Your conversations, communities and relationships.","The dedicated communication world inside JR PHEEF."],
 ["personalhub","My Space & Settings","Your account, personal tools, preferences and security.","Manage your profile, files, devices, appearance, accessibility and privacy."],
 ["morehub","More Services","Additional JR PHEEF services and ecosystem areas.","Open specialist services without crowding your main navigation."],
+["mediahub","JR PHEEF MEDIA","Discover, create, publish and experience media.","A connected media environment. Existing discovery, library and promotion tools are grouped here; dedicated streaming, creator publishing and live broadcasting require further implementation."],
+["businesshub","JR PHEEF BUSINESS","Start, organise and grow an enterprise.","A connected business environment for listings, business workspaces, operations, trade and opportunities. Some workflows remain subject to provider, payment and regulatory activation."],
+["labhub","JR PHEEF LAB","Research, experiment, invent and develop.","A working entry point for research, projects, idea development and supported web research."],
+["libraryhub","JR PHEEF LIBRARY","Collect, organise, retrieve and preserve knowledge.","A connected home for saved learning resources, personal files and reference materials."],
+["learnhub","JR PHEEF LEARN","Build knowledge, skills and practical capability.","Connect lessons, learning resources, research and projects."],
+
 ["discoverhub","Discover & Learn","Search, explore and learn in one place.","Find information, browse the world, study subjects and research ideas without switching between competing tabs."],
 ["workhub","Create & Work","Turn ideas into projects, businesses and finished work.","Create, organise, research and grow from one workspace."],
-["connecthub","People & Connect","Your conversations, community and relationships.","Bring messages, social activity, JP Connect and opportunities together."],
+["connecthub","JR LINK","Your conversations, communities and relationships.","The communication world inside JR PHEEF for private and group conversations, updates, people and communities."],
 ["personalhub","My Space & Settings","Your account, personal tools, preferences and security.","Manage your profile, files, devices, appearance, accessibility and privacy in one place."],
 ["morehub","More Services","Additional JR PHEEF services, ecosystem areas and support.","Open specialist services when you need them without crowding your main navigation."]
 
@@ -200,10 +206,11 @@ function renderCommandCentre(p){
 
 const hubGroups={
  worlds:[
-  ["EXPLORE THE WORLD",[["Places & Landscapes","Discover places, nature, cities and destinations","explore"],["Knowledge & Learning","Explore knowledge, lessons and research","teacher"],["Universe & Future","Explore subjects, science and future concepts","universe"]]],
-  ["OPPORTUNITIES & WORK",[["Discover Opportunities","Find products, services and opportunities","find"],["Business & Enterprise","Create and manage business activity","create"],["Projects & Ideas","Turn goals into organised work","projects"],["Delivery & Services","Explore delivery and useful services","delivery"]]],
-  ["PARTNERS & SERVICES",[["Partner Network","Explore organisations and partners","partners"],["Useful Services","Find repair, delivery and specialist services","fixedit"]]],
-  ["DGBO ECOSYSTEM",[["DGBO","Business development and ideas","dgbo"],["FAMILY","Private family coordination","family"],["Ecosystem Overview","See how the ventures connect","ecosystem"]]]
+  ["COMMUNICATION & MEDIA",[["JR LINK","Messages, groups, connections and conversations","connecthub"],["JR PHEEF MEDIA","Discover, create and experience media","mediahub"]]],
+  ["BUSINESS & ENTERPRISE",[["JR PHEEF BUSINESS","Start and manage businesses, listings and operations","businesshub"],["Opportunities & Partnerships","Find products, services, people and partners","opportunities"],["Trade & Fulfilment","Coordinate listings, deals and delivery","find"]]],
+  ["RESEARCH, KNOWLEDGE & LEARNING",[["JR PHEEF LAB","Research, experiments and idea development","labhub"],["JR PHEEF LIBRARY","Saved knowledge, files and reference resources","libraryhub"],["JR PHEEF LEARN","Lessons, skills and learning pathways","learnhub"]]],
+  ["DISCOVERY & COORDINATION",[["Places & Landscapes","Discover places, nature, cities and destinations","explore"],["Universe & Future","Explore subjects, science and future concepts","universe"],["Projects & Work","Turn goals into organised work","projects"],["Useful Services","Find repair, delivery and specialist services","fixedit"]]],
+  ["DGBO ECOSYSTEM",[["DIAMOND GLOBAL BUSINESS OPERATORS","Business development and ideas","dgbo"],["FAMILY","Private family coordination","family"],["Ecosystem Overview","See how the ventures connect","ecosystem"]]]
  ], discoverhub:[
   ["SEARCH & BROWSE",[["Search","Search JR PHEEF","find"],["Discover","Find products, services and information","discover"],["Browser","Browse the wider web","browser"],["App Hub","Open your other apps","apphub"]]],
   ["EXPLORE & LEARN",[["Explore","Places, nature, cities and inspiration","explore"],["JR Teacher","Lessons and study plans","teacher"],["Library","Saved learning resources","library"],["Future Worlds","Ideas and future concepts","scifi"]]],
@@ -215,9 +222,31 @@ const hubGroups={
   ["RUN & GROW",[["Opportunities","Find and coordinate opportunities","opportunities"],["Delivery","Delivery and fulfilment coordination","delivery"],["Advertising Centre","Promotions and campaigns","ads"],["PHEEF Flex","Supported Flex services","flex"]]]
  ],
  connecthub:[
-  ["COMMUNICATE",[["Messages & Status","Private and group conversations","messages"],["Social","Community posts and updates","social"]]],
-  ["PEOPLE & NETWORK",[["JP Connect","JP identity connections","jpconnect"],["Opportunities","People, work and opportunities","opportunities"],["Invite & Grow","Referrals and invitations","referrals"]]],
-  ["YOUR IDENTITY & SPACE",[["Profile","Your personal identity and details","profile"],["JP Identity","Your ecosystem identity","jpidentity"],["Membership & Points","Membership and eligible activity","membership"],["My Files & Library","Your documents and saved resources","vault"],["Devices","Your connected devices","devices"],["Settings & Privacy","Account and security controls","jrsettings"],["Appearance Studio","Themes and display preferences","themes"],["Notifications","Your alerts and preferences","alerts"],["Voice & Type","Speak or type to JR","voice"]]]
+  ["MESSAGES & SHARING",[["Private & Group Messages","Continue private and group conversations","messages"],["Social Updates","Share updates and discover your community","social"],["Notifications","Review communication and account alerts","alerts"]]],
+  ["PEOPLE & CONNECTIONS",[["JP Connect","Find people and manage connection requests","jpconnect"],["Opportunities","Connect around work and opportunities","opportunities"],["Invite & Grow","Manage invitations and referrals","referrals"],["Deals & Conversations","Continue buyer and seller discussions","deals"]]],
+  ["YOUR IDENTITY & CONTROLS",[["Profile","Manage your personal identity","profile"],["JP Identity","Review your ecosystem identity","jpidentity"],["Devices & Sessions","Review connected devices","devices"],["Settings & Privacy","Manage account and security controls","jrsettings"]]]
+ ],
+ mediahub:[
+  ["DISCOVER & EXPERIENCE",[["Explore","Discover visual inspiration and places","explore"],["JR PHEEF LIBRARY","Find saved media and reference resources","libraryhub"],["Universe","Explore knowledge and creative subjects","universe"]]],
+  ["PUBLISH & PROMOTE",[["Advertising Centre","Manage supported promotional activity","ads"],["Social Updates","Share community updates and media links","social"]]],
+  ["DISCUSS & CONNECT",[["JR LINK","Share and discuss media with people","connecthub"],["Messages","Continue private conversations","messages"]]]
+ ],
+ businesshub:[
+  ["START & BUILD",[["Business Workspaces","Create and manage a business workspace","businessgrowth"],["Business Listings","Publish goods, services and offers","create"],["Projects & Plans","Organise business goals and tasks","projects"]]],
+  ["TRADE & OPERATE",[["Discover the Market","Find products, services and opportunities","find"],["My Listings","Manage published offers","mylistings"],["Deals","Coordinate negotiations and deal rooms","deals"],["Delivery","Coordinate fulfilment and delivery","delivery"],["Economy","Review supported economic activity","economy"]]],
+  ["GROW & CONNECT",[["Business Opportunities","Find partners and growth opportunities","opportunities"],["Partner Centre","Explore partner onboarding","partners"],["Business Intelligence","Research markets and develop ideas","labhub"]]]
+ ],
+ labhub:[
+  ["RESEARCH & INVESTIGATE",[["Research & Ideas","Organise research notes and concepts","lab"],["Discover","Explore information and opportunities","discover"],["Browser","Conduct supported web research","browser"]]],
+  ["EXPERIMENT & DEVELOP",[["Projects","Turn experiments into organised work","projects"],["JR Assistant","Plan and coordinate research tasks","assistant"],["Library","Keep research sources and reference materials","libraryhub"]]]
+ ],
+ libraryhub:[
+  ["KNOWLEDGE & REFERENCE",[["Learning Resources","Find saved learning materials","library"],["JR Teacher","Study topics and build learning plans","teacher"],["Universe","Explore knowledge and subjects","universe"]]],
+  ["PERSONAL COLLECTIONS",[["My Files","Manage your personal documents and files","vault"],["Research Lab","Find and develop research materials","labhub"],["Discover","Find additional information and resources","discover"]]]
+ ],
+ learnhub:[
+  ["LEARN & PRACTISE",[["JR Teacher","Lessons, quizzes and study plans","teacher"],["Knowledge Library","Read saved learning resources","libraryhub"],["Universe","Explore subjects and learning pathways","universe"]]],
+  ["APPLY & BUILD",[["Research Lab","Investigate topics and test ideas","labhub"],["Projects","Apply learning through practical projects","projects"],["JR Assistant","Get help planning your learning","assistant"]]]
  ],
  personalhub:[
   ["YOUR IDENTITY & SPACE",[["Open Connect","Your profile, tools and preferences now live in Connect","connecthub"]]]
@@ -287,7 +316,7 @@ function go(id,replace=false){
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
 function updateNav(id){
- const destinations={home:"home",worlds:"worlds",assistant:"assistant",teacher:"worlds",universe:"worlds",explore:"worlds",discover:"worlds",find:"worlds",create:"worlds",projects:"worlds",delivery:"worlds",dgbo:"worlds",family:"worlds",ecosystem:"worlds",partners:"worlds",social:"worlds",connecthub:"command",messages:"command",jpconnect:"command",profile:"command",jpidentity:"command",vault:"command",library:"command",lab:"command",opportunities:"command",businessgrowth:"command",ads:"command",alerts:"command",accessgov:"command",jrsettings:"command",devices:"command",membership:"command",points:"command",referrals:"command",economy:"command",deals:"command",mylistings:"command",rooms:"command",fixedit:"command",connections:"command",apphub:"command",browser:"command",command:"command"};
+ const destinations={home:"home",worlds:"worlds",assistant:"assistant",mediahub:"worlds",businesshub:"worlds",labhub:"worlds",libraryhub:"worlds",learnhub:"worlds",teacher:"worlds",universe:"worlds",explore:"worlds",discover:"worlds",find:"worlds",create:"worlds",projects:"worlds",delivery:"worlds",dgbo:"worlds",family:"worlds",ecosystem:"worlds",partners:"worlds",social:"worlds",connecthub:"command",messages:"command",jpconnect:"command",profile:"command",jpidentity:"command",vault:"command",library:"command",lab:"command",opportunities:"command",businessgrowth:"command",ads:"command",alerts:"command",accessgov:"command",jrsettings:"command",devices:"command",membership:"command",points:"command",referrals:"command",economy:"command",deals:"command",mylistings:"command",rooms:"command",fixedit:"command",connections:"command",apphub:"command",browser:"command",command:"command"};
  const selected=destinations[id]||"command";
  document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===selected;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current","page");});
 }

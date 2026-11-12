@@ -501,7 +501,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
     <section class="jr-workspace-launcher" aria-label="JR PHEEF workspaces">
       <div class="jr-workspace-launcher-head"><div><span class="jp-kicker">YOUR WORKSPACES</span><h2>Where would you like to go?</h2></div><span>Tap to open</span></div>
       <div class="jr-workspace-launcher-grid">
-        <button type="button" data-workspace="dgbo" onclick="show('dgbo')"><span>▧</span><b>DGBO</b><small>Ideas &amp; business</small></button>
+        <button type="button" data-workspace="dgbo" onclick="show('dgbo')"><span>▧</span><b>DGBO</b><small>DIAMOND GLOBAL BUSINESS OPERATORS</small></button>
         <button type="button" data-workspace="family" onclick="show('family')"><span>⌂</span><b>FAMILY</b><small>Goals &amp; finances</small></button>
         <button type="button" data-workspace="teacher" onclick="show('teacher')"><span>◈</span><b>Learn</b><small>Knowledge &amp; skills</small></button>
         <button type="button" data-workspace="create" onclick="show('create')"><span>✧</span><b>Create</b><small>Build something</small></button>
@@ -588,7 +588,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 
 <div id="ecosystem" class="page hidden">
 <div class="card"><h2>ONE JR PHEEF ECOSYSTEM</h2><p class="muted">One connected experience for opportunities, business coordination and eligible partner services. Each organisation retains its own responsibilities and permissions.</p>
-<div class="grid"><div class="card"><h3>DGBO</h3><b>Parent company</b><p class="muted">Strategy, governance, approved investment and long-term continuity.</p></div><div class="card"><h3>JR PHEEF</h3><b>Opportunity engine</b><p class="muted">Discover opportunities, publish offers, connect participants and coordinate next steps.</p></div><div class="card"><h3>FAMILY</h3><b>Financial access</b><p class="muted">Separate financial-services layer. Wallet, lending and payments are not presented as active unless integrated and verified.</p></div></div></div>
+<div class="grid"><div class="card"><h3>DIAMOND GLOBAL BUSINESS OPERATORS</h3><b>Parent company · DGBO</b><p class="muted">Strategy, governance, approved investment and long-term continuity.</p></div><div class="card"><h3>JR PHEEF</h3><b>Opportunity engine</b><p class="muted">Discover opportunities, publish offers, connect participants and coordinate next steps.</p></div><div class="card"><h3>FAMILY</h3><b>Financial access</b><p class="muted">Separate financial-services layer. Wallet, lending and payments are not presented as active unless integrated and verified.</p></div></div></div>
 <div class="card" id="connectedArchitecture">
 <h2>INTELLIGENCE · COMMAND · OPERATIONS · CONTROL</h2>
 <p class="muted">One architecture across JR PHEEF, DGBO and FAMILY. Each environment keeps its own permissions and private data. These cards show the architecture target; component readiness is not claimed until separately implemented and tested.</p>
@@ -602,7 +602,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 <div class="card"><h2>Connected services status</h2><ul><li>JR PHEEF accounts and listings: available subject to successful login and access.</li><li>DGBO governance and investment approvals: outside this member workflow unless an authorized integration is implemented.</li><li>FAMILY financial services: not confirmed as integrated here.</li><li>Payments, delivery and partner APIs require verified integrations before being offered as live.</li></ul><p class="muted">A connection is live only after integration and end-to-end tests pass.</p></div></div>
 
 <div id="dgbo" class="page hidden">
-<section class="card"><p class="jp-kicker">DGBO · BUSINESS DEVELOPMENT &amp; GOVERNANCE</p><h1>Turn ideas into real opportunities.</h1><p class="muted">DGBO helps people organise ideas, develop ventures and connect with the people and resources needed to move forward.</p></section>
+<section class="card"><p class="jp-kicker">DIAMOND GLOBAL BUSINESS OPERATORS · DGBO</p><h1>Turn ideas into real opportunities.</h1><p class="muted">DGBO helps people organise ideas, develop ventures and connect with the people and resources needed to move forward.</p></section>
 <section class="card"><h2>What you can access</h2><div class="jp-dashboard-grid">
 <button class="jp-dash-tile" onclick="show('projects')"><span class="jp-dash-icon">▤</span><span class="jp-dash-title">Projects</span><span class="jp-dash-sub">Create projects, organise tasks and track progress.</span></button>
 <button class="jp-dash-tile" onclick="show('lab')"><span class="jp-dash-icon">⚗</span><span class="jp-dash-title">JR Labs</span><span class="jp-dash-sub">Research, test concepts and document experiments.</span></button>
@@ -678,7 +678,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
     <div class="jp-window-grid">
       <button type="button" class="jp-window-card" data-jp-window="home"><strong>JR PHEEF</strong><span>Platform, services, opportunities and user ecosystems</span><em>Open workspace →</em></button>
       <button type="button" class="jp-window-card" data-jp-window="family"><strong>FAMILY</strong><span>Financial-services workspace in preparation; not a live bank or payment service yet</span><em>Open workspace →</em></button>
-      <div class="jp-window-card jp-window-static"><strong>DGBO</strong><span>Business development and governance; separate access required</span><em>Connected by approved integration only</em></div>
+      <div class="jp-window-card jp-window-static"><strong>DIAMOND GLOBAL BUSINESS OPERATORS</strong><span>DGBO · Business development and governance; separate access required</span><em>Connected by approved integration only</em></div>
     </div>
   </div>
   <div class="card">
@@ -1585,7 +1585,7 @@ async function loadEcosystemArchitecture(){
     }
     const environments=[
       {slug:"jr-pheef",name:"JR PHEEF",desc:"Coordinates approved people, services, tools and knowledge across the ecosystem."},
-      {slug:"dgbo",name:"DGBO",desc:"Owns business governance, organizational decisions and operating performance."},
+      {slug:"dgbo",name:"DIAMOND GLOBAL BUSINESS OPERATORS",desc:"DGBO owns business governance, organizational decisions and operating performance."},
       {slug:"family",name:"FAMILY",desc:"Coordinates private family plans, goals and continuity; not a wallet or lender."}
     ];
     const components=[
@@ -2013,7 +2013,7 @@ function jrStartHeaderVoice(){
 <script src="/projects-ui.js" defer></script>
 <link rel="stylesheet" href="/coordination-studio.css">
 <script src="/coordination-studio.js" defer></script>
-<script src="/workspace-shell.js?v=command5" defer></script>
+<script src="/workspace-shell.js?v=command7" defer></script>
 <link rel="stylesheet" href="/command-centre-social.css?v=1">
 <script src="/command-centre-social.js?v=1" defer></script>
 <script src="/open-ecosystem.js" defer></script>

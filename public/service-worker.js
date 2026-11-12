@@ -1,5 +1,5 @@
 "use strict";
-const VERSION="jr-shell-v21";
+const VERSION="jr-shell-v23";
 const SHELL_CACHE=VERSION+"-shell";
 const ASSET_CACHE=VERSION+"-assets";
 const OFFLINE_URL="/offline.html";

@@ -37,7 +37,7 @@ function mount(){
   const grid=el("div","jr-open-grid");
   grid.append(
    card("JR PHEEF","Your central environment for discovery, people, learning, work, business and coordination.","CORE ECOSYSTEM",()=>navigate("home"),"OPEN JR PHEEF"),
-   card("DGBO","Business development, ventures, governance and authorised company opportunities.","COMPANY PORTAL",()=>navigate("dgbo"),"OPEN DGBO"),
+   card("DIAMOND GLOBAL BUSINESS OPERATORS","DGBO · Business development, ventures, governance and authorised company opportunities.","COMPANY PORTAL",()=>navigate("dgbo"),"OPEN DGBO"),
    card("FAMILY","Financial Access to Money for Investments & Loving Yourself. Access its available ecosystem services and family coordination.","COMPANY PORTAL · SERVICES SUBJECT TO ACTIVATION",()=>navigate("family"),"OPEN FAMILY"),
    card("My businesses","Open business workspaces you own or are authorised to manage, including new and existing businesses.","YOUR AUTHORISED WORKSPACES",()=>navigate("businessgrowth"),"OPEN MY BUSINESSES")
   );

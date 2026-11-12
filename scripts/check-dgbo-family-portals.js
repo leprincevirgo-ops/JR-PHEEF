@@ -11,7 +11,7 @@ assert.match(html,/What you can access/,"DGBO access catalogue missing");
 assert.match(html,/FAMILY · FINANCIAL ACCESS &amp; FAMILY COORDINATION/,"FAMILY introduction missing");
 assert.match(html,/Idea records &amp; protection[\s\S]*IN DEVELOPMENT/,"DGBO idea-vault readiness must be disclosed");
 assert.match(html,/Banking, payments &amp; lending[\s\S]*NOT ACTIVE/,"FAMILY financial-service readiness must be disclosed");
-assert.match(shell,/\["dgbo","DGBO"/,"DGBO workspace metadata missing");
+assert.match(shell,/\["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS"/,"DIAMOND GLOBAL BUSINESS OPERATORS workspace metadata missing");
 assert.match(shell,/\["dgbo","family","ecosystem"/,"DGBO/FAMILY workspace grouping missing");
 assert.ok(routes.includes('page: "dgbo"')&&routes.includes('page: "family"'),"DGBO and FAMILY must remain addressable through JR routing");
 new vm.Script(intent,{filename:"public/intent-first-experience.js"});
