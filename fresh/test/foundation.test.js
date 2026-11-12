@@ -131,3 +131,10 @@ test("persistent page navigation provides back, top and bottom controls",()=>{
  assert.match(n,/history\.back/);assert.match(n,/scrollTo/);
  assert.match(c,/\.jr-page-navigation/);
 });
+
+test("global voice dock provides speaker, microphone and shared stop controls",()=>{
+ const h=read("public/index.html"),v=read("public/voice.js"),c=read("public/styles.css"),l=read("public/command-layout.js");
+ assert.match(h,/voice\.js/);for(const id of ["jrGlobalSpeak","jrGlobalMic","jrGlobalStop"])assert.match(v,new RegExp(id));
+ assert.match(v,/SpeechSynthesisUtterance/);assert.match(v,/SpeechRecognition/);assert.match(v,/\.abort\(\)/);
+ assert.match(v,/aria-live="polite"/);assert.match(c,/\.jr-global-voice/);assert.match(l,/Shared voice interaction is initialized/);
+});
