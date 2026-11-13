@@ -49,7 +49,7 @@
   else if(/\b(delivery|rider|courier|transport|moving|driver|logistics)\b/.test(s))matchType="transport";
   else if(/\b(buy|sell|product|goods|service|supplier|plumber|electrician|mechanic|fundi)\b/.test(s))matchType="goods_services";
   let location="";
-  const loc=text.match(/\b(?:in|near|around|within)\s+([\p{L}][\p{L} .'-]{1,48}?)(?=[,?.!;]|$)/iu);
+  const loc=text.match(/\b(?:in|near|around|within)\s+([\p{L}][\p{L} .'-]{1,48}?)(?=\s+(?:under|below|less than|up to|max|budget)\b|[,?.!;]|$)/iu);
   if(loc){location=loc[1].trim();if(/^(me|my area|here)$/i.test(location))location="";}
   const budgetMatch=text.match(/\b(?:under|below|less than|up to|max(?:imum)?|budget(?: of| is)?)\s*(?:ksh|kes)?\s*([\d,]+(?:\.\d+)?)\s*([km])?\b/i);
   let maxPrice=null,budgetText="";
