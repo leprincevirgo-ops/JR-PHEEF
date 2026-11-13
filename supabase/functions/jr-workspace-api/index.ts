@@ -73,11 +73,11 @@ Deno.serve(async (req: Request) => {
         rows("jr_status_updates","member_id=eq."+mid+"&select=id,body,background,visibility,created_at,expires_at&order=created_at.desc&limit=20"),
         rows("jr_notifications","member_id=eq."+mid+"&select=id,title,message,type,read,created_at&order=created_at.desc&limit=30"),
         rows("jr_delivery_requests","requester_id=eq."+mid+"&select=id,pickup,destination,description,status,created_at&order=created_at.desc&limit=20"),
-        rows("room_listings","member_id=eq."+mid+"&select=id,title,room_type,rent_ksh,location,description,status,available_from&order=created_at.desc&limit=30"),
-        rows("room_listings","status=eq.active&select=id,member_id,title,room_type,rent_ksh,location,description,available_from&order=created_at.desc&limit=50"),
+        rows("room_listings","member_id=eq."+mid+"&select=id,title,room_type,rent_ksh,location,description,status,available_from,media&order=created_at.desc&limit=30"),
+        rows("room_listings","status=eq.active&select=id,member_id,title,room_type,rent_ksh,location,description,available_from,media&order=created_at.desc&limit=50"),
         rows("jr_deal_rooms","or=(buyer_id.eq."+mid+",seller_id.eq."+mid+")&select=id,buyer_id,seller_id,listing_id,amount,offer_amount,status,buyer_agreed,seller_agreed,created_at&order=created_at.desc&limit=30")
       ]);
-      return response({member, listings:await Promise.all((listings||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), marketListings:await Promise.all((marketListings||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), opportunities:await Promise.all((opportunities||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), projects, familyGoals:goals, businesses, statuses, notifications, deliveries, rooms, marketRooms, dealRooms, services:{liveAi:false,payments:false,production:false}});
+      return response({member, listings:await Promise.all((listings||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), marketListings:await Promise.all((marketListings||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), opportunities:await Promise.all((opportunities||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), projects, familyGoals:goals, businesses, statuses, notifications, deliveries, rooms:await Promise.all((rooms||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), marketRooms:await Promise.all((marketRooms||[]).map(async (item:any)=>({...item,media:await signedMedia(item.media||[])}))), dealRooms, services:{liveAi:false,payments:false,production:false}});
     }
     if(action==="list_worlds"){
       const data=await rows("jr_worlds","owner_member_id=eq."+mid+"&select=id,world_type,name,description,status,created_at,updated_at&order=created_at.desc&limit=100");
@@ -432,7 +432,10 @@ Deno.serve(async (req: Request) => {
       const allowed=["bedsitter","studio","one_bedroom","two_bedroom","three_bedroom","four_bedroom","shared","single_room","other"];
       if(title.length<3||!allowed.includes(roomType)||location.length<2||!Number.isFinite(rent)||rent<0)return json({ok:false,error:"Enter a title, room type, location and valid monthly rent."},400);
       const amenities=Array.isArray(input.amenities)?input.amenities.filter((x:any)=>typeof x==="string").slice(0,20).map((x:any)=>clean(x,50)):[];
-      const data=await insert("room_listings",{member_id:mid,title,room_type:roomType,location,description,rent_ksh:rent,amenities,available_from:clean(input.availableFrom,10)||null,status:"active"});
+      const media=Array.isArray(input.media)?input.media.slice(0,9):[];
+      if(media.some((m:any)=>!m||!storagePath(m.path)||!m.path.startsWith(mid+"/listing/")||!["image","video"].includes(m.kind)))return json({ok:false,error:"One or more property media files are invalid or do not belong to this account."},400);
+      if(media.filter((m:any)=>m.kind==="image").length>8||media.filter((m:any)=>m.kind==="video").length>1)return json({ok:false,error:"Add up to 8 photos and one video walkthrough."},400);
+      const data=await insert("room_listings",{member_id:mid,title,room_type:roomType,location,description,rent_ksh:rent,amenities,media,available_from:clean(input.availableFrom,10)||null,status:"active"});
       return response(data?.[0]||data);
     }
     if(action==="create_deal_room"){
