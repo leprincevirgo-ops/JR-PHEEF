@@ -13,6 +13,18 @@ test("JR matching normalises natural-language and multilingual search terms",()=
  assert.deepEqual(tokenize("I need a café near Nairobi"),["cafe","nairobi"]);
  assert.deepEqual(tokenize("natafuta fundi wa umeme"),["natafuta","fundi","umeme"]);
 });
+test("JR matching recognises common Swahili terms for skills, jobs, property and services",()=>{
+ const rows=[
+  {id:"electrician",ownerId:"a",kind:"listing",title:"Electrician available",description:"Electrical wiring and repairs",category:"service"},
+  {id:"job",ownerId:"b",kind:"opportunity",opportunityType:"job",title:"Warehouse assistant vacancy"},
+  {id:"room",ownerId:"c",kind:"property",title:"Bedsitter for rent"},
+  {id:"goods",ownerId:"d",kind:"listing",title:"Fresh farm produce",description:"Vegetables and fruit",category:"goods"}
+ ];
+ assert.equal(rankMatches({query:"natafuta fundi wa umeme",candidates:rows})[0].id,"electrician");
+ assert.equal(rankMatches({query:"nahitaji kazi",matchType:"jobs",candidates:rows})[0].id,"job");
+ assert.equal(rankMatches({query:"natafuta chumba",matchType:"property",candidates:rows})[0].id,"room");
+ assert.equal(rankMatches({query:"nataka bidhaa",matchType:"goods_services",candidates:rows})[0].id,"goods");
+});
 test("JR matching ranks the strongest title and category matches first",()=>{
  const rows=[
   {id:"1",ownerId:"seller-a",kind:"listing",title:"Electrician available",description:"Home wiring",category:"service",location:"Nairobi"},
