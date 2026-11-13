@@ -140,9 +140,10 @@ test("global voice dock provides speaker, microphone and shared stop controls",(
  assert.match(v,/aria-live="polite"/);assert.match(c,/\.jr-global-voice/);assert.match(l,/Shared voice interaction is initialized/);
 });
 
-test("member social features are consolidated into one JR Connect workspace",()=>{
+test("member social features are consolidated into the JR LINK workspace",()=>{
  const c=read("public/command-layout.js"),h=read("public/index.html"),css=read("public/styles.css");
  assert.match(c,/jrConnectWorkspace/);
+ assert.match(c,/<h3>JR LINK<\\/h3>/);assert.match(c,/aria-label="JR LINK workspace"/);assert.match(h,/jr-link-workspace-20261113-v1/);
  for(const tab of ["feed","status","chats","channels","ads","profile"])assert.match(c,new RegExp('data-connect-tab="'+tab+'"'));
  for(const id of ["memberStatusPanel","memberUpdatesPanel","memberChatsPanel","memberContactsPanel","memberProfilePanel","memberAccessibilityPanel"])assert.match(c,new RegExp(id));
  assert.match(c,/move\(channels,connectPanel\("channels"\)\)/);
