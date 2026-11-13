@@ -83,7 +83,8 @@
 <label id="phoneLabel" for="phone" hidden>Phone number</label><input id="phone" type="tel" autocomplete="tel" placeholder="+254..." maxlength="25" hidden>
 <label id="birthLabel" for="birthYear" hidden>Birth year</label><input id="birthYear" type="number" inputmode="numeric" min="1900" placeholder="Birth year (YYYY)" hidden>
 <label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
-<label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="At least 8 characters" required>
-<button class="primary wide" id="authSubmit" type="submit">Log in</button><p class="form-message" id="authMessage" role="status" aria-live="polite"></p></form>
+<label id="confirmEmailLabel" for="confirmEmail" hidden>Confirm email address</label><input id="confirmEmail" type="email" autocomplete="email" placeholder="Re-enter your email address" maxlength="254" hidden>
+<label for="password">Password</label><div class="password-field"><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="At least 8 characters" required><button class="password-toggle" id="togglePassword" type="button" aria-label="Show password" aria-pressed="false">Show</button></div>
+<button class="primary wide" id="authSubmit" type="submit">Log in</button><p class="form-message" id="authMessage" role="status" aria-live="polite"></p><button class="resend-login-email" id="resendLoginConfirmation" type="button" hidden>Resend confirmation email</button></form>
 <p class="fineprint">Your account is protected by JR PHEEF's secure sign-in service. Email verification may be required. Your password is sent securely to the authentication provider and is never stored by the JR PHEEF application server.</p></section>
 <footer><span>JR PHEEF</span><span>Powered by Diamond Global Business Operators</span><span>Building businesses beyond borders</span></footer></main></body></html>
