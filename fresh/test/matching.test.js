@@ -50,6 +50,13 @@ test("JP Number integrity migration preserves assigned identities and enforces u
  assert.match(migration,/JP Number is permanent/i);
  assert.match(migration,/BEFORE INSERT OR UPDATE OF jp_number/i);
 });
+test("JP Number allocation is sequential, server-assigned and preserves existing identities",()=>{
+ const migration=fs.readFileSync(path.join(root,"supabase/migrations/20261113152129_sequential_jp_number_allocation.sql"),"utf8");
+ assert.match(migration,/CREATE SEQUENCE IF NOT EXISTS public\.jp_number_seq/);
+ assert.match(migration,/nextval\('public\.jp_number_seq'\)/);
+ assert.match(migration,/ALTER COLUMN jp_number DROP DEFAULT/);
+ assert.match(migration,/Founder JP-01 is preserved/);
+});
 test("JR matching excludes the requesting member and respects maximum budgets",()=>{
  const rows=[
   {id:"own",ownerId:"me",kind:"listing",title:"Electrician"},
