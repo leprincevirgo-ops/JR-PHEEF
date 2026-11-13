@@ -222,3 +222,5 @@ test("Diamond Global Business Operators parent brand is visible across JR access
  assert.match(html,/jr-dgbo-diamond-brand-20261112-v1/);
  assert.match(css,/\.dgbo-brand-lockup/);assert.match(css,/\.dgbo-brand-type/);
 });
+
+test("DGBO and FAMILY open as separate branded company environments",()=>{const h=read("public/index.html"),a=read("public/app.js"),css=read("public/styles.css");for(const id of ["dgbo","family"])assert.match(h,new RegExp('id="view-'+id+'"'));assert.match(h,/data-company-open="dgbo"/);assert.match(h,/data-company-open="family"/);assert.match(h,/data-company-back/);assert.match(a,/showWorkspace\(button\.dataset\.companyOpen\)/);assert.match(a,/titles=\{[\s\S]*dgbo:/);assert.match(a,/titles=\{[\s\S]*family:/);assert.match(css,/\.company-entry-dgbo/);assert.match(css,/\.company-entry-family/);assert.match(h,/NOT ACTIVE · PARTNER DEPENDENT/);});
