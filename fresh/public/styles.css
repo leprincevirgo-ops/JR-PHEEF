@@ -438,7 +438,7 @@ body::before{
 .jr-global-voice-status{max-width:140px;overflow:hidden;color:#c5e7f0;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.jr-global-voice{left:10px;bottom:max(10px,env(safe-area-inset-bottom));gap:5px;padding:6px}.jr-global-voice button{min-height:40px;min-width:40px;padding:7px 9px}.jr-global-voice-status{max-width:82px}}
 
-/* JR Connect — one member space for identity, conversations, updates, channels and promotion */
+/* JR LINK — one member space for identity, conversations, updates, channels and promotion */
 .jr-connect-workspace{margin:18px 0 30px;padding:clamp(12px,2vw,22px);border:1px solid rgba(104,195,216,.25);border-radius:20px;background:linear-gradient(145deg,rgba(9,30,48,.86),rgba(4,16,29,.84));box-shadow:0 20px 55px rgba(0,0,0,.16);min-width:0}
 .jr-connect-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:13px}
 .jr-connect-heading h3{margin:5px 0;font-size:clamp(21px,3vw,28px)}
