@@ -117,6 +117,15 @@ Deno.serve(async (req: Request) => {
       const data=await insert("jr_listings",{member_id:mid,title,description,price,location,category:category||"other",seller_name:member.full_name,status:"active",negotiable:Boolean(input.negotiable),media});
       return response(data?.[0]||data);
     }
+    if(action==="submit_idea_to_dgbo"){
+      const title=clean(input.title,180),summary=clean(input.summary,3000),sector=clean(input.sector,80)||"general",targetMarket=clean(input.targetMarket,240);
+      if(input.consentToDgbo!==true)return json({ok:false,error:"Please explicitly confirm that you want to submit this idea to DGBO."},400);
+      if(title.length<3||summary.length<20)return json({ok:false,error:"Enter a title and at least 20 characters describing your idea."},400);
+      const dossier=await insert("dgbo_opportunity_dossiers",{title,summary,sector,target_market:targetMarket,source_type:"member_submission",source_name:"Member-submitted idea",source_url:null,submitted_by_member_id:mid,consent_to_dgbo:true,status:"ready_for_review",created_by_member_id:mid});
+      const created=dossier?.[0];if(!created?.id)throw new Error("The idea could not be added to the review queue.");
+      await insert("dgbo_opportunity_events",{dossier_id:created.id,actor_member_id:mid,actor_type:"member",event_type:"submitted",details:{source_type:"member_submission",consent:true}});
+      return response({id:created.id,status:created.status,message:"Your idea has been submitted to DGBO for private review. It has not been approved or published."});
+    }
     if(action==="create_opportunity"){
       const title=clean(input.title,140),description=clean(input.description,3000),type=clean(input.opportunityType,60)||"business_opportunity";
       const location=clean(input.location,180);
