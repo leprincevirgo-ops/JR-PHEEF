@@ -44,7 +44,7 @@ test("JR matching respects a requested location while retaining remote options",
  assert.deepEqual(rankMatches({query:"electrician",location:"Nairobi",candidates:rows}).map(x=>x.id),["near","remote"]);
 });
 test("JP Number integrity migration preserves assigned identities and enforces uniqueness",()=>{
- const migration=fs.readFileSync(path.join(root,"supabase/migrations/20261113180000_jp_number_identity_integrity.sql"),"utf8");
+ const migration=fs.readFileSync(path.join(root,"supabase/migrations/20261113150244_jp_number_identity_integrity.sql"),"utf8");
  assert.match(migration,/CREATE UNIQUE INDEX/i);
  assert.match(migration,/members_jp_number_unique_idx/);
  assert.match(migration,/JP Number is permanent/i);
