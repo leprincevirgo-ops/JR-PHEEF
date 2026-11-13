@@ -202,25 +202,22 @@ test("Worlds is one environment with Create or Enter modes",()=>{
  assert.match(css,/\.jr-worlds-mode-switch/);
 });
 
-test("DGBO uses its official Diamond Global Business Operators identity",()=>{
+test("DGBO keeps its official identity inside its own company environment",()=>{
  const html=read("public/index.html"),css=read("public/styles.css"),server=read("server.js"),routes=read("../routes/jr.js");
  assert.match(html,/Diamond Global Business Operators/);
- assert.match(html,/Powered by Diamond Global Business Operators/);
- assert.match(html,/dgbo-brandbar/);assert.match(html,/dgboGold/);
- assert.match(html,/dgbo-diamond-brand-20261112-v1/);
- assert.match(css,/\.dgbo-brandbar/);
+ assert.match(html,/id="view-dgbo"/);assert.match(html,/data-company-open="dgbo"/);
+ assert.doesNotMatch(html,/class="dgbo-brandbar"/);assert.doesNotMatch(html,/class="dgbo-brand-lockup"/);
+ assert.match(css,/\.company-dgbo/);
  assert.match(server,/DGBO stands for Diamond Global Business Operators/);
  assert.match(routes,/diamond global business operators/);
  assert.doesNotMatch(html,/DIME GLOBAL BUSINESS OPERATORS/);
 });
 
-test("Diamond Global Business Operators parent brand is visible across JR access points",()=>{
- const html=read("public/index.html"),css=read("public/styles.css");
- assert.match(html,/DIAMOND GLOBAL/);assert.match(html,/BUSINESS OPERATORS/);
- assert.match(html,/Diamond Global Business Operators/);
- assert.match(html,/dgbo-brand-lockup/);assert.match(html,/dgbo-brandbar/);
- assert.match(html,/jr-dgbo-diamond-brand-20261112-v1/);
- assert.match(css,/\.dgbo-brand-lockup/);assert.match(css,/\.dgbo-brand-type/);
+test("JR PHEEF public access does not repeat the parent company branding",()=>{
+ const html=read("public/index.html");
+ assert.match(html,/<title>JR PHEEF \| Find\. Match\. Trade\.<\/title>/);
+ assert.doesNotMatch(html,/class="dgbo-brand-lockup"/);assert.doesNotMatch(html,/class="dgbo-brandbar"/);
+ assert.match(html,/id="view-dgbo"/);assert.match(html,/id="view-family"/);
 });
 
 test("DGBO and FAMILY open as separate branded company environments",()=>{const h=read("public/index.html"),a=read("public/app.js"),css=read("public/styles.css");for(const id of ["dgbo","family"])assert.match(h,new RegExp('id="view-'+id+'"'));assert.match(h,/data-company-open="dgbo"/);assert.match(h,/data-company-open="family"/);assert.match(h,/data-company-back/);assert.match(a,/showWorkspace\(button\.dataset\.companyOpen\)/);assert.match(a,/titles=\{[\s\S]*dgbo:/);assert.match(a,/titles=\{[\s\S]*family:/);assert.match(css,/\.company-entry-dgbo/);assert.match(css,/\.company-entry-family/);assert.match(h,/NOT ACTIVE · PARTNER DEPENDENT/);});
