@@ -51,7 +51,7 @@
   let location="";
   const loc=text.match(/\b(?:in|near|around|within)\s+([\p{L}][\p{L} .'-]{1,48}?)(?=[,?.!;]|$)/iu);
   if(loc){location=loc[1].trim();if(/^(me|my area|here)$/i.test(location))location="";}
-  const budgetMatch=text.match(/\\b(?:under|below|less than|up to|max(?:imum)?|budget(?: of| is)?)\\s*(?:ksh|kes)??\\s*([\\d,]+(?:\\.\\d+)?)\\s*([km])?\\b/i);
+  const budgetMatch=text.match(/\b(?:under|below|less than|up to|max(?:imum)?|budget(?: of| is)?)\s*(?:ksh|kes)?\s*([\d,]+(?:\.\d+)?)\s*([km])?\b/i);
   let maxPrice=null,budgetText="";
   if(budgetMatch){const amount=Number(budgetMatch[1].replace(/,/g,""));const multiplier=(budgetMatch[2]||"").toLowerCase()==="k"?1000:(budgetMatch[2]||"").toLowerCase()==="m"?1000000:1;if(Number.isFinite(amount)){maxPrice=amount*multiplier;budgetText=budgetMatch[0];}}
   let query=text;
