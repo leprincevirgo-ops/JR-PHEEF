@@ -17,6 +17,7 @@ export function rankMatches({query,location="",matchType="all",maxPrice=null,can
  const filter=TYPE_FILTERS[matchType]||TYPE_FILTERS.all;
  const locationTerms=tokenize(location);
  return (Array.isArray(candidates)?candidates:[]).filter(c=>c&&c.id&&c.ownerId&&filter(c))
+  .filter(c=>!locationTerms.length||!c.location||/remote|online|anywhere|global/i.test(String(c.location))||locationTerms.some(term=>containsToken(c.location,term)))
   .filter(c=>maxPrice===null||maxPrice===undefined||!Number.isFinite(Number(c.price))||Number(c.price)<=Number(maxPrice))
   .map(c=>{
    const title=String(c.title||""),description=String(c.description||""),category=String(c.category||""),type=String(c.opportunityType||c.kind||""),place=String(c.location||"");
