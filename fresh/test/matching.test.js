@@ -35,6 +35,15 @@ test("JR matching supports jobs, property, partners and transport filters",()=>{
  assert.equal(rankMatches({query:"retail partner",matchType:"partners",candidates:rows})[0].id,"partner");
  assert.equal(rankMatches({query:"delivery rider",matchType:"transport",candidates:rows})[0].id,"ride");
 });
+test("JR property matching includes property listings as well as room records and property opportunities",()=>{
+ const rows=[
+  {id:"land",ownerId:"a",kind:"listing",title:"Plot of land for sale",category:"property"},
+  {id:"room",ownerId:"b",kind:"property",title:"Bedsitter for rent"},
+  {id:"job",ownerId:"c",kind:"opportunity",opportunityType:"job",title:"Property manager vacancy"}
+ ];
+ assert.deepEqual(rankMatches({query:"land",matchType:"property",candidates:rows}).map(x=>x.id),["land"]);
+ assert.deepEqual(rankMatches({query:"bedsitter",matchType:"property",candidates:rows}).map(x=>x.id),["room"]);
+});
 test("JR matching respects a requested location while retaining remote options",()=>{
  const rows=[
   {id:"near",ownerId:"a",kind:"listing",title:"Electrician",location:"Nairobi CBD"},
