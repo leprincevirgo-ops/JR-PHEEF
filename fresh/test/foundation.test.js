@@ -224,3 +224,15 @@ test("Diamond Global Business Operators parent brand is visible across JR access
 });
 
 test("DGBO and FAMILY open as separate branded company environments",()=>{const h=read("public/index.html"),a=read("public/app.js"),css=read("public/styles.css");for(const id of ["dgbo","family"])assert.match(h,new RegExp('id="view-'+id+'"'));assert.match(h,/data-company-open="dgbo"/);assert.match(h,/data-company-open="family"/);assert.match(h,/data-company-back/);assert.match(a,/showWorkspace\(button\.dataset\.companyOpen\)/);assert.match(a,/titles=\{[\s\S]*dgbo:/);assert.match(a,/titles=\{[\s\S]*family:/);assert.match(css,/\.company-entry-dgbo/);assert.match(css,/\.company-entry-family/);assert.match(h,/NOT ACTIVE · PARTNER DEPENDENT/);});
+
+
+test("Rooms Near Me supports camera, gallery, cover selection and secure media persistence",()=>{
+ const a=read("public/app.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
+ assert.match(a,/id="roomGallery"/);assert.match(a,/id="roomCamera"/);assert.match(a,/id="roomVideo"/);assert.match(a,/Set as cover/);assert.match(a,/Uploading media/);assert.match(a,/payload\.media/);assert.match(api,/available_from,media/);assert.match(api,/mid\+"\/listing\//);assert.match(api,/signedMedia\(item.media\|\|\[\]\)/);
+});
+test("JR PHEEF leads public branding and DGBO is not repeated on the public entry screen",()=>{
+ const h=read("public/index.html");assert.match(h,/<title>JR PHEEF \| Find\. Match\. Trade\.<\/title>/);assert.doesNotMatch(h,/class="dgbo-brandbar"/);assert.doesNotMatch(h,/class="dgbo-brand-lockup"/);assert.match(h,/data-company-open="dgbo"/);
+});
+test("JR discovers business opportunities and DGBO evaluates selected opportunities",()=>{
+ const h=read("public/index.html"),s=read("server.js");assert.match(h,/Receive selected opportunity research from JR PHEEF/);assert.match(h,/evaluate selected opportunities, develop viable ventures/);assert.match(s,/JR discovers, researches and organises business-opportunity intelligence/);assert.match(s,/DGBO evaluates selected opportunity dossiers/);
+});
