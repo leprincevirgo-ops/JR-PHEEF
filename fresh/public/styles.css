@@ -539,3 +539,10 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 .jr-match-result-card small{font-size:11px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
 .jr-match-result-card button{justify-self:start;border:1px solid rgba(105,227,239,.32);border-radius:9px;padding:9px 12px;background:rgba(30,100,120,.28);color:var(--text);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .jr-match-result-card button:disabled{opacity:.55;cursor:wait}
+
+/* Clear account form controls */
+.password-field{position:relative;display:flex;align-items:center;gap:8px}
+.password-field input{padding-right:82px}
+.password-toggle{position:absolute;right:8px;min-width:58px;min-height:34px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.06);color:var(--cyan);font-size:12px;font-weight:750;cursor:pointer}
+.resend-login-email{border:0;background:transparent;color:var(--cyan);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;justify-self:start;padding:7px 0}
+.password-toggle:focus-visible,.resend-login-email:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
