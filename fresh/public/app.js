@@ -12,7 +12,7 @@
  const workspaceWindowToolbar=document.createElement("div");
  workspaceWindowToolbar.id="jrWorkspaceWindowToolbar";
  workspaceWindowToolbar.className="jr-workspace-window-toolbar";
- workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
+ workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option><option value="dgbo">DGBO</option><option value="family">FAMILY</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
  const originalWorkspaceViews=[...document.querySelectorAll("#workspace .workspace-view")];
  originalWorkspaceViews.forEach(section=>{
   const key=section.id.replace("view-","");
@@ -54,12 +54,15 @@
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   document.querySelectorAll(".workspace-tab").forEach(button=>button.classList.toggle("selected",button.dataset.view===view));
-  const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center"};
+  const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center",dgbo:"Diamond Global Business Operators",family:"FAMILY"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
   if(multiWindowMode){if(!openWindows.includes(view)){if(openWindows.length>=4)openWindows[openWindows.length-1]=view;else openWindows.push(view);}}
   else openWindows=[view];
   renderWorkspaceWindows();
  }
+ document.querySelectorAll("[data-company-open]").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();if(workspace.hidden){showAuth("login");setMessage("Log in to enter your company workspaces.");return;}showWorkspace(button.dataset.companyOpen);}));
+ document.querySelectorAll("[data-company-back]").forEach(button=>button.addEventListener("click",()=>showWorkspace("home")));
+ document.querySelectorAll("[data-company-action]").forEach(button=>button.addEventListener("click",()=>{const prompts={research:"Help me research practical business ideas and opportunities for DGBO.",venture:"Help me develop a business venture with a practical operating plan.",partners:"Help me prepare a partnership enquiry for Diamond Global Business Operators.",operations:"Help me plan the roles, workflows and governance for a company.",education:"Teach me practical financial education, starting with budgeting and saving.",savings:"Help me prepare a realistic personal savings goal and plan.",family:"Help me organise family priorities and financial wellbeing goals."};showWorkspace("jr");const field=$("workspacePrompt");if(field){field.value=prompts[button.dataset.companyAction]||"Help me plan my next step.";field.focus();}}));
  async function loadFounderOverview(){
   const panel=$("founderCommand");if(panel.hidden)return;
   $("founderLoadState").textContent="Checking your protected founder permissions…";
@@ -92,7 +95,8 @@
   $("authTitle").textContent=mode==="login"?"Welcome back":"Create your JR PHEEF identity";
   $("loginTab").classList.toggle("selected",mode==="login");$("signupTab").classList.toggle("selected",mode==="signup");
   $("loginTab").setAttribute("aria-pressed",String(mode==="login"));$("signupTab").setAttribute("aria-pressed",String(mode==="signup"));
-  for(const [id,visible] of [["nameLabel",mode==="signup"],["fullName",mode==="signup"],["phoneLabel",mode==="signup"],["phone",mode==="signup"],["birthLabel",mode==="signup"],["birthYear",mode==="signup"],["confirmEmailLabel",mode==="signup"],["confirmEmail",mode==="signup"]])$(id).hidden=!visible;\n  $("confirmEmail").required=mode==="signup";$("resendLoginConfirmation").hidden=true;
+  for(const [id,visible] of [["nameLabel",mode==="signup"],["fullName",mode==="signup"],["phoneLabel",mode==="signup"],["phone",mode==="signup"],["birthLabel",mode==="signup"],["birthYear",mode==="signup"],["confirmEmailLabel",mode==="signup"],["confirmEmail",mode==="signup"]])$(id).hidden=!visible;
+  $("confirmEmail").required=mode==="signup";$("resendLoginConfirmation").hidden=true;
   $("fullName").required=mode==="signup";$("phone").required=mode==="signup";$("birthYear").required=mode==="signup";
   $("password").autocomplete=mode==="login"?"current-password":"new-password";$("authSubmit").textContent=mode==="login"?"Log in":"Create account";$("password").type="password";$("togglePassword").textContent="Show";$("togglePassword").setAttribute("aria-label","Show password");$("togglePassword").setAttribute("aria-pressed","false");
   $("email").focus({preventScroll:true});panel.scrollIntoView({behavior:"smooth",block:"center"});
