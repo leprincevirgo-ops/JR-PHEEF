@@ -177,6 +177,15 @@
  if(!hub)return;
  hub.innerHTML=`
  <div class="hub-intro"><div><p class="eyebrow">YOUR CONNECTED WORKSPACE</p><h2>Make something happen</h2><p class="view-copy">Create, connect, organise and participate. Your account controls what belongs to you.</p></div><button type="button" class="hub-refresh" id="hubRefresh">Refresh</button></div>
+ <section class="hub-card hub-card-wide jr-match-panel">
+  <h3>Find a match</h3><p class="hub-muted">Tell JR what you need. Matching searches available goods, services, jobs, partnerships and property, then explains why each result may fit.</p>
+  <form id="jrMatchForm"><label>What are you looking for?<input id="jrMatchQuery" name="query" required minlength="2" maxlength="240" placeholder="e.g. a reliable electrician, a delivery rider, a business partner…"></label>
+   <div class="hub-two"><label>Type<select id="jrMatchType" name="matchType"><option value="all">All suitable matches</option><option value="goods_services">Goods & services</option><option value="jobs">Jobs & skills</option><option value="property">Property & rooms</option><option value="partners">Business partners</option><option value="transport">Transport & delivery</option></select></label>
+   <label>Location (optional)<input id="jrMatchLocation" name="location" maxlength="180" placeholder="City, area or remote"></label></div>
+   <label>Maximum budget in KSh (optional)<input id="jrMatchMaxPrice" name="maxPrice" type="number" min="0" step="0.01" placeholder="No maximum"></label>
+   <button class="hub-submit" type="submit">Find matches</button><p id="jrMatchFeedback" class="hub-feedback" aria-live="polite"></p>
+  </form><div id="jrMatchResults" class="hub-list" aria-live="polite"></div>
+ </section>
  <div class="hub-grid">
   <section class="hub-card"><h3>Sell or offer something</h3><form data-hub-action="create_listing"><label>Title<input name="title" required minlength="3" maxlength="120" placeholder="What are you offering?"></label><label>Category<input name="category" maxlength="60" placeholder="Goods, service, property…"></label><div class="hub-two"><label>Price<input name="price" type="number" min="0" step="0.01" required></label><label>Location<input name="location" required maxlength="180" placeholder="City or area"></label></div><label>Description<textarea name="description" maxlength="2000" rows="2"></textarea></label><label class="hub-check"><input name="negotiable" type="checkbox"> Price is negotiable</label><button class="hub-submit">Publish listing</button><p class="hub-feedback" aria-live="polite"></p></form></section>
   <section class="hub-card"><h3>Share an opportunity</h3><form data-hub-action="create_opportunity"><label>Opportunity title<input name="title" required minlength="3" maxlength="140" placeholder="Job, partnership, project…"></label><label>Type<select name="opportunityType"><option value="business_opportunity">Business opportunity</option><option value="job">Job</option><option value="service">Service</option><option value="goods">Goods</option><option value="partnership">Partnership</option><option value="property">Property</option></select></label><label>Location<input name="location" maxlength="180" placeholder="Optional / remote"></label><label>Details<textarea name="description" required minlength="10" maxlength="3000" rows="3"></textarea></label><button class="hub-submit">Publish opportunity</button><p class="hub-feedback" aria-live="polite"></p></form></section>
@@ -245,6 +254,32 @@
   try{const result=await call(action,payload);if(feedback)feedback.textContent=result?.note||"Saved successfully.";form.reset();await refresh();}
   catch(err){if(feedback)feedback.textContent=err.message;}
   finally{if(button)button.disabled=false;}
+ });
+ $("jrMatchForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const feedback=$("jrMatchFeedback"),box=$("jrMatchResults"),button=e.currentTarget.querySelector('button[type="submit"]');
+  feedback.textContent="Searching for suitable matches…";box.replaceChildren();button.disabled=true;
+  const maxValue=$("jrMatchMaxPrice").value;
+  try{
+   const matches=await call("find_matches",{query:$("jrMatchQuery").value,matchType:$("jrMatchType").value,location:$("jrMatchLocation").value,maxPrice:maxValue===""?null:Number(maxValue)});
+   render("jrMatchResults",matches,match=>{
+    const card=item(match.title,match.description,(match.kind==="property"?"Property":match.kind==="opportunity"?"Opportunity":"Listing")+" · "+(match.location||"Location not specified")+" · "+(match.price===null||match.price===undefined?"Price on request": "KSh "+match.price+(match.kind==="property"?"/month":""))+" · "+match.matchScore+"% relevance");
+    card.append(node("small","hub-muted","Why this matched: "+(match.matchReasons||[]).join(" · ")));
+    const action=node("button","hub-small-button",match.kind==="listing"?"Open CHAT / Deal Room":match.kind==="opportunity"?"I'm interested":"Start property chat");
+    action.type="button";
+    action.addEventListener("click",async()=>{
+     action.disabled=true;
+     try{
+      if(match.kind==="listing"){const room=await call("create_deal_room",{listingId:match.id});await refresh();await openDealRoom(room.id);action.textContent="Deal Room opened";}
+      else if(match.kind==="opportunity"){await call("express_interest",{opportunityId:match.id,message:"I found this through JR matching and would like to learn more."});action.textContent="Interest sent";}
+      else{const conversation=await call("create_conversation",{otherMemberId:match.ownerId,title:"Property enquiry"});await loadConversations();await openConversation(conversation.id);action.textContent="Chat opened";}
+     }catch(error){action.textContent=error.message;action.disabled=false;}
+    });
+    card.append(action);return card;
+   });
+   feedback.textContent=matches.length?matches.length+" relevant match"+(matches.length===1?"":"es")+" found. Review the reasons before connecting.":"No suitable matches found yet. Try a broader description or another location.";
+  }catch(error){feedback.textContent=error.message||"Matching is temporarily unavailable.";}
+  finally{button.disabled=false;}
  });
  $("hubRefresh").addEventListener("click",refresh);
  $("memberSearchForm").addEventListener("submit",async e=>{e.preventDefault();const box=$("memberSearchResults");box.textContent="Searching…";try{const results=await call("search_members",{query:$("memberSearchQuery").value});render("memberSearchResults",results,m=>{const e=item(m.full_name,m.bio,m.jp_number+" · "+(m.city||""));const b=node("button","hub-small-button","Start chat");b.type="button";b.addEventListener("click",async()=>{try{const c=await call("create_conversation",{otherMemberId:m.id,title:"Chat"});await loadConversations();await openConversation(c.id);b.textContent="Conversation opened";}catch(err){b.textContent=err.message;}});e.append(b);return e;});}catch(err){box.textContent=err.message;}});
