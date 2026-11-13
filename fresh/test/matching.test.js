@@ -6,7 +6,8 @@ const path=require("node:path");
 const root=path.join(__dirname,"..","..");
 const api=fs.readFileSync(path.join(root,"supabase/functions/jr-workspace-api/index.ts"),"utf8");
 const app=fs.readFileSync(path.join(__dirname,"..","public/app.js"),"utf8");
-const {rankMatches,tokenize}=await import("../../supabase/functions/_shared/matching.mjs");
+let rankMatches,tokenize;
+test.before(async()=>{({rankMatches,tokenize}=await import("../../supabase/functions/_shared/matching.mjs"));});
 
 test("JR matching normalises natural-language and multilingual search terms",()=>{
  assert.deepEqual(tokenize("I need a café near Nairobi"),["cafe","nairobi"]);
