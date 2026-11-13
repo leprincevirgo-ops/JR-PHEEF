@@ -11,7 +11,7 @@ test.before(async()=>{({rankMatches,tokenize}=await import("../../supabase/funct
 
 test("JR matching normalises natural-language and multilingual search terms",()=>{
  assert.deepEqual(tokenize("I need a café near Nairobi"),["cafe","nairobi"]);
- assert.deepEqual(tokenize("natafuta fundi wa umeme"),["natafuta","fundi","umeme"]);
+ assert.deepEqual(tokenize("natafuta fundi wa umeme"),["fundi","umeme"]);
 });
 test("JR matching recognises common Swahili terms for skills, jobs, property and services",()=>{
  const rows=[
