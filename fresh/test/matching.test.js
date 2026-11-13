@@ -35,6 +35,21 @@ test("JR matching supports jobs, property, partners and transport filters",()=>{
  assert.equal(rankMatches({query:"retail partner",matchType:"partners",candidates:rows})[0].id,"partner");
  assert.equal(rankMatches({query:"delivery rider",matchType:"transport",candidates:rows})[0].id,"ride");
 });
+test("JR matching respects a requested location while retaining remote options",()=>{
+ const rows=[
+  {id:"near",ownerId:"a",kind:"listing",title:"Electrician",location:"Nairobi CBD"},
+  {id:"far",ownerId:"b",kind:"listing",title:"Electrician",location:"Mombasa"},
+  {id:"remote",ownerId:"c",kind:"opportunity",title:"Electrician",location:"Remote"}
+ ];
+ assert.deepEqual(rankMatches({query:"electrician",location:"Nairobi",candidates:rows}).map(x=>x.id),["near","remote"]);
+});
+test("JP Number integrity migration preserves assigned identities and enforces uniqueness",()=>{
+ const migration=fs.readFileSync(path.join(root,"supabase/migrations/20261113180000_jp_number_identity_integrity.sql"),"utf8");
+ assert.match(migration,/CREATE UNIQUE INDEX/i);
+ assert.match(migration,/members_jp_number_unique_idx/);
+ assert.match(migration,/JP Number is permanent/i);
+ assert.match(migration,/BEFORE INSERT OR UPDATE OF jp_number/i);
+});
 test("JR matching excludes the requesting member and respects maximum budgets",()=>{
  const rows=[
   {id:"own",ownerId:"me",kind:"listing",title:"Electrician"},
