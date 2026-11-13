@@ -233,3 +233,14 @@ test("JR PHEEF leads public branding and DGBO is not repeated on the public entr
 test("JR discovers business opportunities and DGBO evaluates selected opportunities",()=>{
  const h=read("public/index.html"),s=read("server.js");assert.match(h,/Receive selected opportunity research from JR PHEEF/);assert.match(h,/evaluate selected opportunities, develop viable ventures/);assert.match(s,/JR discovers, researches and organises business-opportunity intelligence/);assert.match(s,/DGBO evaluates selected opportunity dossiers/);
 });
+
+
+test("JR-to-DGBO opportunity intelligence has private consent-based intake, sourced research, reviews and venture tracking",()=>{
+ const member=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),founder=fs.readFileSync(path.join(root,"..","supabase","functions","jr-founder-overview","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261113180539_dgbo_opportunity_pipeline.sql"),"utf8"),html=read("public/index.html"),app=read("public/app.js");
+ assert.match(member,/submit_idea_to_dgbo/);assert.match(member,/consentToDgbo!==true/);assert.match(member,/member_submission/);
+ assert.match(founder,/create_opportunity_dossier/);assert.match(founder,/^https:/m);assert.match(founder,/review_opportunity_dossier/);assert.match(founder,/update_venture_stage/);assert.match(founder,/dgbo_opportunity_reviews/);assert.match(founder,/dgbo_opportunity_events/);
+ for(const table of ["dgbo_opportunity_dossiers","dgbo_opportunity_reviews","dgbo_venture_projects","dgbo_opportunity_events"])assert.match(sql,new RegExp("create table if not exists public\\."+table));
+ assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all on public\\.%I from anon, authenticated/i);
+ assert.match(html,/memberOpportunityForm/);assert.match(html,/I choose to submit this idea to DGBO/);assert.match(html,/founderResearchForm/);assert.match(html,/founderOpportunityQueue/);assert.match(html,/founderVentureProjects/);
+ assert.match(app,/review_opportunity_dossier/);assert.match(app,/update_venture_stage/);assert.match(app,/submit_idea_to_dgbo/);
+});
