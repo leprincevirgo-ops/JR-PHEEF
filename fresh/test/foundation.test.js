@@ -13,11 +13,11 @@ test("JR PHEEF entry puts JR at the centre",()=>{
 });
 test("signup collects required identity details",()=>{
  const h=read("public/index.html");
- for(const id of ["fullName","phone","birthYear","email","password"])assert.match(h,new RegExp('id="'+id+'"'));
+ for(const id of ["fullName","phone","birthYear","email","confirmEmail","password","togglePassword","resendLoginConfirmation"])assert.match(h,new RegExp('id="'+id+'"'));
 });
 test("login and signup controls call real same-origin auth endpoints",()=>{
  const j=read("public/app.js");
- assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);
+ assert.match(j,/\/api\/auth\/login/);assert.match(j,/\/api\/auth\/signup/);assert.match(j,/Your email addresses do not match/);assert.match(j,/togglePassword/);assert.match(j,/resendLoginConfirmation/);
  assert.match(j,/emailVerificationCode/);assert.match(j,/resendVerificationEmail/);
  assert.match(j,/\/api\/auth\/session/);assert.match(j,/\/api\/auth\/logout/);assert.match(j,/\/api\/auth\/session\/establish/);assert.match(j,/access_token/);
  assert.match(j,/credentials:"same-origin"/);
