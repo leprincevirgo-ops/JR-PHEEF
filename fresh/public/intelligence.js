@@ -8,12 +8,14 @@
  panel.innerHTML='<p class="eyebrow">JR INTELLIGENCE · STAGING FOUNDATION</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Start with a need, a question, a curious thought, a random idea or simply hello. JR recognises the kind of conversation and can connect requests to available worlds. JR can respond through its live conversation service when you are signed in and the service is configured. Current availability is shown below; web research can be enabled for individual questions.</p><div id="jrRuntimeStatus" class="connection-note" role="status" aria-live="polite">Checking JR service availability…</div><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>You do not need a category or a plan. Ask, wonder, imagine or just talk.</p></div><div class="jr-starter-prompts"><span>Try: “Why do people dream?”</span><span>“What if cities floated?”</span><span>“I am bored.”</span><span>“I have an idea.”</span></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><div class="jr-memory-studio"><div><p class="eyebrow">YOUR JR CONTINUITY</p><h3>What should JR remember?</h3><p class="jr-intelligence-copy">Add preferences, goals or project context yourself. JR only uses a memory in AI replies when you explicitly allow it. You can edit, pause or delete memories. Never save passwords, bank details, identity numbers, health details or other sensitive information here.</p></div><form id="jrMemoryForm"><label>Memory type<select name="memoryKind"><option value="preference">Preference</option><option value="goal">Goal</option><option value="project_context">Project context</option><option value="workflow">Workflow</option><option value="non_sensitive_fact">Other non-sensitive fact</option></select></label><label>What should JR remember?<textarea name="memoryText" minlength="3" maxlength="1000" required rows="2" placeholder="Write only information you want JR to retain…"></textarea></label><label class="jr-memory-consent"><input name="consentAiContext" type="checkbox"> Allow JR to use this memory when answering me</label><button type="submit">Save memory</button><p class="hub-feedback" id="jrMemoryFeedback" aria-live="polite"></p></form><div id="jrMemoryList" class="jr-memory-list"><p class="hub-muted">Sign in to manage your JR memories.</p></div></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
  view.append(panel);
  const result=$("jrIntentResult"),camera=$("jrCameraFiles"),gallery=$("jrGalleryFiles"),preview=$("jrMediaPreview");
+ let liveAiConfigured=false;
  async function refreshRuntimeStatus(){
   const status=$("jrRuntimeStatus");if(!status)return;
   try{
    const response=await fetch("/healthz",{credentials:"same-origin",cache:"no-store"});
    const data=await response.json().catch(()=>({}));
    if(!response.ok||!data.ok)throw new Error("Health check unavailable");
+   liveAiConfigured=Boolean(data.aiConfigured);
    status.textContent=data.aiConfigured
     ?"JR's AI service is configured. Sign in to start a conversation."
     :"JR's AI service is not activated on this staging deployment yet.";
@@ -35,6 +37,52 @@
   {type:"personal",label:"Personal World",keys:["my goal","routine","personal plan","organise my day","organize my day","remind me"]}
  ];
  function detectIntents(value){const s=normalise(value);return routes.filter(r=>r.keys.some(k=>s.includes(k)));}
+ function normalise(value){return String(value||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").trim();}
+ function inferMatchRequest(value,mode){
+  const text=String(value||"").trim(),s=normalise(text);
+  const explicit=mode==="opportunities"||/\b(find|search|looking for|need|want|hire|buy|sell|rent|available|supplier|business partner|vacancy|job|work|apartment|bedsitter|room|rider|courier|delivery|transport|electrician|plumber|mechanic|fundi)\b/.test(s);
+  if(!explicit)return null;
+  let matchType="all";
+  if(/\b(job|jobs|career|employment|vacancy|work|hiring|recruit)\b/.test(s))matchType="jobs";
+  else if(/\b(property|house|apartment|bedsitter|studio|room|rent|landlord|tenant)\b/.test(s))matchType="property";
+  else if(/\b(partner|partnership|investor|co founder|cofounder)\b/.test(s))matchType="partners";
+  else if(/\b(delivery|rider|courier|transport|moving|driver|logistics)\b/.test(s))matchType="transport";
+  else if(/\b(buy|sell|product|goods|service|supplier|plumber|electrician|mechanic|fundi)\b/.test(s))matchType="goods_services";
+  let location="";
+  const loc=text.match(/\b(?:in|near|around|within)\s+([\p{L}][\p{L} .'-]{1,48}?)(?=[,?.!;]|$)/iu);
+  if(loc){location=loc[1].trim();if(/^(me|my area|here)$/i.test(location))location="";}
+  const query=location?text.replace(loc[0]," ").replace(/\s+/g," ").trim():text;
+  return {query:query.length>=2?query:text,matchType,location};
+ }
+ function addMatchCards(matches){
+  const section=document.createElement("section");section.className="jr-match-results";
+  const heading=document.createElement("h4");heading.textContent="Matches found in JR PHEEF";section.append(heading);
+  if(!matches?.length){const empty=document.createElement("p");empty.textContent="I couldn't find an active match yet. Try a different description or add a more specific location.";section.append(empty);transcript.append(section);return;}
+  matches.forEach(match=>{
+   const card=document.createElement("article");card.className="jr-match-result-card";
+   const title=document.createElement("strong");title.textContent=match.title||"Untitled listing";
+   const description=document.createElement("p");description.textContent=match.description||"No additional description.";
+   const meta=document.createElement("small");meta.textContent=(match.kind==="property"?"Property":match.kind==="opportunity"?"Opportunity":"Listing")+" · "+(match.location||"Location not specified")+" · "+(match.price==null?"Price on request":"KSh "+Number(match.price).toLocaleString()+(match.kind==="property"?"/month":""))+" · "+match.matchScore+"% relevance";
+   const why=document.createElement("small");why.textContent="Why it matched: "+(match.matchReasons||[]).join(" · ");
+   const action=actionButton(match.kind==="listing"?"Open Deal Room":match.kind==="opportunity"?"Express interest":"Start property chat",async()=>{
+    action.disabled=true;
+    try{
+     if(match.kind==="listing"){
+      await workspaceRequest("create_deal_room",{listingId:match.id});
+      action.textContent="Deal Room created · open Command Center";
+     }else if(match.kind==="opportunity"){
+      await workspaceRequest("express_interest",{opportunityId:match.id,message:"I found this through JR matching and would like to learn more."});
+      action.textContent="Interest sent";
+     }else{
+      await workspaceRequest("create_conversation",{otherMemberId:match.ownerId,title:"Property enquiry"});
+      action.textContent="Chat created · open JR LINK";
+     }
+    }catch(error){action.textContent=error.message||"Could not complete that action.";action.disabled=false;}
+   });
+   card.append(title,description,meta,why,action);section.append(card);
+  });
+  transcript.append(section);section.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
  function classifyConversation(value){
   const s=normalise(value);
   if(/^(hi|hello|hey|good morning|good afternoon|good evening|sasa|niaje|mambo)[!. ]*$/.test(s))return "greeting";
@@ -84,6 +132,23 @@
   try{
    if(!activeAiConversation){const created=await workspaceRequest("create_ai_conversation",{title:value.slice(0,72)||"New conversation"});activeAiConversation=created.id;await loadAiConversations(activeAiConversation);}
    await workspaceRequest("save_ai_message",{conversationId:activeAiConversation,role:"user",content:value});
+   const conversationMode=$("jrConversationMode")?.value||"universe";
+   if(!liveAiConfigured){
+    const matchRequest=inferMatchRequest(value,conversationMode);
+    if(matchRequest){
+     const matches=await workspaceRequest("find_matches",matchRequest);
+     const summary=matches.length
+      ?"I found "+matches.length+" active match"+(matches.length===1?"":"es")+". Review the details and choose whether to connect. Matching ranks available records; it does not verify a seller, guarantee availability or complete a transaction."
+      :"I searched the active JR PHEEF listings, opportunities and available rooms, but found no suitable active matches. Try broadening the description or location.";
+     await workspaceRequest("save_ai_message",{conversationId:activeAiConversation,role:"assistant",content:summary});
+     jrHistory.push({role:"user",content:value},{role:"assistant",content:summary});
+     addMessage("assistant",summary);addMatchCards(matches);
+     loadAiConversations(activeAiConversation).catch(()=>{});
+     renderResponse("JR matching is available. Choose a result to start the appropriate connection.");
+     return;
+    }
+    throw new Error("JR's live AI service is not activated on this staging deployment yet. You can still ask JR to find goods, services, jobs, property, transport or business partners.");
+   }
    const response=await fetch("/api/ai/chat",{
     method:"POST",credentials:"same-origin",
     headers:{"Content-Type":"application/json"},
