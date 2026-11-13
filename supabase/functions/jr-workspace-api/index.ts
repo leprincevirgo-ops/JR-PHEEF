@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { rankMatches } from "../_shared/matching.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "https://jr-pheef-foundation.onrender.com",
@@ -199,6 +200,27 @@ Deno.serve(async (req: Request) => {
       const path=p?.[0]?.profile_photo_hidden?p?.[0]?.profile_photo_hidden_url:p?.[0]?.profile_photo;
       if(!path||!storagePath(path))return response({url:null,hidden:!!p?.[0]?.profile_photo_hidden});
       const signed=await signedMedia([{path,kind:"image"}]);return response({url:signed[0]?.url||null,hidden:!!p?.[0]?.profile_photo_hidden});
+    }
+    if(action==="find_matches"){
+      const query=clean(input.query,240);
+      const matchType=clean(input.matchType,30)||"all";
+      const location=clean(input.location,180);
+      const maxPrice=input.maxPrice===""||input.maxPrice===null||input.maxPrice===undefined?null:Number(input.maxPrice);
+      if(query.length<2)return json({ok:false,error:"Describe what you need in at least two characters."},400);
+      if(!["all","goods_services","jobs","property","partners","transport"].includes(matchType))return json({ok:false,error:"Choose a valid matching category."},400);
+      if(maxPrice!==null&&(!Number.isFinite(maxPrice)||maxPrice<0))return json({ok:false,error:"Enter a valid maximum budget."},400);
+      const [listings,opportunities,properties]=await Promise.all([
+        rows("jr_listings","status=eq.active&select=id,member_id,title,description,price,location,category,created_at&order=created_at.desc&limit=100"),
+        rows("jr_opportunities","publication_status=eq.published&select=id,owner_user_id,title,description,opportunity_type,location,currency_code,verification_status,created_at&order=created_at.desc&limit=100"),
+        rows("room_listings","status=eq.active&select=id,member_id,title,room_type,rent_ksh,location,description,available_from,created_at&order=created_at.desc&limit=100")
+      ]);
+      const candidates=[
+        ...(listings||[]).filter((x:any)=>x.member_id!==mid).map((x:any)=>({id:x.id,kind:"listing",ownerId:x.member_id,title:x.title,description:x.description,category:x.category,location:x.location,price:Number(x.price),currency:"KES",createdAt:x.created_at})),
+        ...(opportunities||[]).filter((x:any)=>x.owner_user_id!==mid).map((x:any)=>({id:x.id,kind:"opportunity",ownerId:x.owner_user_id,title:x.title,description:x.description,category:x.opportunity_type,opportunityType:x.opportunity_type,location:x.location,price:null,currency:x.currency_code||"KES",verificationStatus:x.verification_status,createdAt:x.created_at})),
+        ...(properties||[]).filter((x:any)=>x.member_id!==mid).map((x:any)=>({id:x.id,kind:"property",ownerId:x.member_id,title:x.title,description:x.description,category:x.room_type,location:x.location,price:Number(x.rent_ksh),currency:"KES",availableFrom:x.available_from,createdAt:x.created_at}))
+      ];
+      const matches=rankMatches({query,location,matchType,maxPrice,candidates});
+      return response(matches.slice(0,25));
     }
     if(action==="search_members"){
       const term=clean(input.query,80);
