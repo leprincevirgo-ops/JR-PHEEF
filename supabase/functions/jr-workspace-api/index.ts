@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { rankMatches } from "../_shared/matching.mjs";
+import { rankMatches } from "./matching.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "https://jr-pheef-foundation.onrender.com",
