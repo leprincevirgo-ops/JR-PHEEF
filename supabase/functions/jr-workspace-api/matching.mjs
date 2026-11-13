@@ -3,7 +3,7 @@ const TYPE_FILTERS={
  all:()=>true,
  goods_services:c=>c.kind==="listing"||(c.kind==="opportunity"&&["goods","service"].includes(String(c.opportunityType||"").toLowerCase())),
  jobs:c=>c.kind==="opportunity"&&String(c.opportunityType||"").toLowerCase()==="job",
- property:c=>c.kind==="property"||(c.kind==="opportunity"&&String(c.opportunityType||"").toLowerCase()==="property"),
+ property:c=>c.kind==="property"||(c.kind==="listing"&&/property|real estate|land|house|apartment|bedsitter|room/i.test([c.title,c.description,c.category].join(" ")))||(c.kind==="opportunity"&&String(c.opportunityType||"").toLowerCase()==="property"),
  partners:c=>c.kind==="opportunity"&&["partnership","business_opportunity"].includes(String(c.opportunityType||"").toLowerCase()),
  transport:c=>[c.title,c.description,c.category,c.opportunityType].join(" ").toLowerCase().match(/transport|delivery|rider|courier|moving|logistics|vehicle|driver/)!==null
 };
