@@ -528,3 +528,14 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 
 .dgbo-brand-mark{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 5px rgba(225,158,48,.22))}
 .dgbo-brand-symbol{font-size:0}
+
+
+/* JR central conversation matching results */
+.jr-match-results{display:grid;gap:10px;margin:16px 0;padding:14px;border:1px solid rgba(105,227,239,.25);border-radius:14px;background:rgba(5,19,33,.7)}
+.jr-match-results h4{margin:0 0 3px;color:var(--cyan)}
+.jr-match-result-card{display:grid;gap:7px;padding:13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.035);min-width:0}
+.jr-match-result-card strong{font-size:14px;overflow-wrap:anywhere}
+.jr-match-result-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.jr-match-result-card small{font-size:11px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.jr-match-result-card button{justify-self:start;border:1px solid rgba(105,227,239,.32);border-radius:9px;padding:9px 12px;background:rgba(30,100,120,.28);color:var(--text);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.jr-match-result-card button:disabled{opacity:.55;cursor:wait}
