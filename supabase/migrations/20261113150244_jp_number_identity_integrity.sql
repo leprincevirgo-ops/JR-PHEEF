@@ -7,7 +7,8 @@ WHERE jp_number IS NOT NULL AND btrim(jp_number) <> '';
 CREATE OR REPLACE FUNCTION public.enforce_jp_number_identity()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $$
+SET search_path = pg_catalog, public, pg_temp
+AS $
 BEGIN
   IF TG_OP = 'INSERT' AND (NEW.jp_number IS NULL OR btrim(NEW.jp_number) = '') THEN
     NEW.jp_number := 'JP-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10));
