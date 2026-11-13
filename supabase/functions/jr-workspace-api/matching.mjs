@@ -2,7 +2,7 @@ const STOP_WORDS=new Set(["a","an","the","and","or","for","to","of","in","on","a
 const SYNONYMS={
  fundi:["electrician","plumber","mechanic","technician"],
  umeme:["electrician","electrical","electricity"],
- kazi:["job","work","employment"],
+ kazi:["job","work","employment","vacancy"],
  ajira:["job","vacancy","employment"],
  nyumba:["house","home","property"],
  chumba:["room","bedsitter","studio"],
