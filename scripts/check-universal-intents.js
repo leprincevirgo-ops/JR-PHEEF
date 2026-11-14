@@ -26,6 +26,8 @@ const cases = [
   ["Show my companies", "command"],
   ["Explain the meaning of life", null],
   ["Teach me science", "teacher"],
+  ["Open JR PHEEF Learn", "learnhub"],
+  ["Start the JR learning world", "learnhub"],
   ["Open my projects", "projects"],
   ["Find me a bedsitter", "rooms"],
   ["Show my notifications", "alerts"],
