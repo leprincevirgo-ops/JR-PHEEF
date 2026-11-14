@@ -175,3 +175,27 @@ Use this document as the canonical project journey in future JR PHEEF conversati
 - PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
 - PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
 - PR #1 and #4 were closed without merging because their branches contain duplicated or stale architecture. Unique category validation, glossary, DGBO explainer and POS-preview requirements remain on the roadmap for focused implementation.
+
+
+## 15. Connected-world architecture decision (2026-11-12)
+
+The user approved an architecture in which JR PHEEF capabilities are organized into purpose-built connected worlds. The world name is a user-facing destination; underlying capabilities remain shared services and must not be duplicated.
+
+- **JR LINK** — communication, private/group messaging, status, people and communities. It reuses the existing Messages, Social, JP Connect, notifications and deal-conversation capabilities.
+- **JR PHEEF MEDIA** — media discovery, publishing, creator tools, audio/video and live experiences. Current navigation groups existing Explore, Library, advertising and sharing capabilities. Dedicated streaming, creator publishing and live broadcasting are not represented as complete until built and tested.
+- **JR PHEEF BUSINESS** — business creation and workspaces, marketplace listings, opportunities, deals, delivery and business operations. Existing business workspace APIs and listing/marketplace features are reused.
+- **JR PHEEF LAB** — research, experiments, idea development and projects.
+- **JR PHEEF LIBRARY** — saved knowledge, learning resources, personal files and reference materials.
+- **JR PHEEF LEARN** — lessons, learning plans, knowledge and applied projects.
+- Existing Explore, Universe, Discover, DGBO and FAMILY destinations remain connected and retain their distinct responsibilities.
+
+Architecture rules:
+1. JR remains the intent-first entry point and routes requests to the right world and capability.
+2. Worlds are navigation/experience boundaries, not separate accounts or duplicate backends.
+3. A capability belongs in one primary world and may be surfaced elsewhere through a contextual link.
+4. Cross-world journeys preserve user context and require scoped permission, explicit consent and auditable actions.
+5. Do not expose unavailable or planned capabilities as working. Clearly distinguish available, in-progress and external/not-connected services.
+6. Keep the existing mobile navigation, global back/forward history, session handling and accessibility intact.
+7. Add a world only when there is a coherent user purpose and a real set of capabilities to support it.
+
+Implementation note (2026-11-12): a feature branch adds connected-world hub groupings for JR LINK, MEDIA, BUSINESS, LAB, LIBRARY and LEARN using existing routes; adds honest status wording for media capabilities not yet implemented; adds regression assertions and increments the PWA cache version. This is a branch change, not yet merged or confirmed deployed. Full end-to-end and mobile browser verification remain release gates.

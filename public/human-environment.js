@@ -2,7 +2,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const pages={personal:"profile",learning:"teacher",creative:"lab",work:"projects",business:"businessgrowth",opportunities:"find",relationships:"messages",community:"social",family:"family",civic:"accessgov",exploration:"explore",health:"explore",culture:"explore"};
+const pages={personal:"profile",learning:"learnhub",creative:"lab",work:"projects",business:"businessgrowth",opportunities:"find",relationships:"messages",community:"social",family:"family",civic:"accessgov",exploration:"explore",health:"explore",culture:"explore"};
 let loading=false,lastMember=null;
 async function api(url,method,body){
  const r=await fetch(url,{method:method||"GET",credentials:"include",headers:body===undefined?{}:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});
