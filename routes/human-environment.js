@@ -7,7 +7,7 @@ module.exports = function mountHumanEnvironment(ctx) {
   const { app, db, clean, requireMember, logActivity, checkRequestRate } = ctx;
   const WORLDS = {
     personal: { title: "Your life", page: "profile", terms: /\b(my life|personal|myself|my goals|my profile|organise my life)\b/i },
-    learning: { title: "Learning & knowledge", page: "teacher", terms: /\b(learn|teach|study|lesson|course|understand|explain|school|university|skill|practice a language)\b/i },
+    learning: { title: "Learning & knowledge", page: "learnhub", terms: /\b(learn|teach|study|lesson|course|understand|explain|school|university|skill|practice a language)\b/i },
     creative: { title: "Creation & imagination", page: "scifi", terms: /\b(create|design|invent|imagine|write|draw|music|story|prototype|build an idea)\b/i },
     work: { title: "Work & projects", page: "projects", terms: /\b(work|job|career|project|task|plan my day|organise my day|resume|cv)\b/i },
     business: { title: "Business & enterprise", page: "businessgrowth", terms: /\b(business|company|shop|supermarket|customers|sales|stock|supplier|grow my business|operate)\b/i },
