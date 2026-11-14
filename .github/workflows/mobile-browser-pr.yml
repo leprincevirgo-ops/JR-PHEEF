@@ -1,6 +1,8 @@
 name: JR PHEEF PR mobile browser interaction
 
 on:
+  push:
+    branches: [main, fix/mobile-entry-touch-navigation-2026-11-15]
   pull_request:
     branches: [main]
     paths:
