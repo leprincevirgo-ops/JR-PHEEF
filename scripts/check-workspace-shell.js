@@ -15,6 +15,8 @@ for(const fragment of ["jr-page-chrome","jr-workspace-hero","jr-provider-grid","
 if(!html.includes("/workspace-shell.js?v=command6")||!html.includes("/workspace-shell.css"))throw new Error("Workspace shell assets are not loaded.");
 if(!shell.includes("JR PHEEF MEDIA")||!shell.includes("JR PHEEF BUSINESS")||!shell.includes("JR PHEEF LAB")||!shell.includes("JR PHEEF LIBRARY")||!shell.includes("JR LINK"))throw new Error("Connected-world labels are incomplete.");
 for(const hub of ["mediahub","businesshub","labhub","libraryhub","learnhub"]){if(!shell.includes(hub+":["))throw new Error("Missing organized hub groups: "+hub);}
+const mobileWorldSet=(mobile.match(/const worldDestinations=new Set\\(\\[([^\\]]+)\\]\\)/)||[])[1]||"";
+for(const hub of ["mediahub","businesshub","labhub","libraryhub","learnhub"]){if(!mobileWorldSet.includes("\\\""+hub+"\\\""))throw new Error("Mobile navigation does not keep "+hub+" under Worlds.");}
 if(!shell.includes("dedicated streaming, creator publishing and live broadcasting require further implementation"))throw new Error("Media capability status must remain honest.");
 if(!shell.includes("NOT CONNECTED")||!shell.includes("provider's official API"))throw new Error("External integration state is not clearly disclosed.");
 const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v([0-9]+)"/)||[])[1]||0);
