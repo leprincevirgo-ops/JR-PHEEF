@@ -223,7 +223,7 @@ const hubGroups={
  connecthub:[
   ["MESSAGES & SHARING",[["Private & Group Messages","Continue private and group conversations","messages"],["Social Updates","Share updates and discover your community","social"],["Notifications","Review communication and account alerts","alerts"]]],
   ["PEOPLE & CONNECTIONS",[["JP Connect","Find people and manage connection requests","jpconnect"],["Opportunities","Connect around work and opportunities","opportunities"],["Invite & Grow","Manage invitations and referrals","referrals"],["Deals & Conversations","Continue buyer and seller discussions","deals"]]],
-  ["YOUR IDENTITY & CONTROLS",[["Profile","Manage your personal identity","profile"],["JP Identity","Review your ecosystem identity","jpidentity"],["Devices & Sessions","Review connected devices","devices"],["Settings & Privacy","Manage account and security controls","jrsettings"]]]
+  ["YOUR IDENTITY & CONTROLS",[["Profile","Manage your personal identity","profile"],["JP Identity","Review your ecosystem identity","jpidentity"],["Devices & Sessions","Review connected devices","devices"],["Appearance & Display","Manage JR PHEEF themes, colours and display preferences","themes"],["Settings & Privacy","Manage account and security controls","jrsettings"]]]
  ],
  mediahub:[
   ["DISCOVER & EXPERIENCE",[["Explore","Discover visual inspiration and places","explore"],["JR PHEEF LIBRARY","Find saved media and reference resources","library"],["Universe","Explore knowledge and creative subjects","universe"]]],
