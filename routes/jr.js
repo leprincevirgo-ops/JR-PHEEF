@@ -12,7 +12,7 @@ const JR_HUMANITY_CONSTITUTION = require("../jr-humanity-constitution");
 
 const PAGES = ["home", "ecosystem", "universe", "lab", "library", "find", "create", "rooms", "points", "flex", "profile", "assistant", "discover", "explore", "apphub", "browser", "messages", "businessgrowth",
   "jpconnect", "social", "economy", "vault", "devices", "voice", "scifi", "fixedit", "mylistings", "deals", "alerts", "delivery",
-  "powersale", "membership", "accessgov", "command", "projects", "ideas", "ads", "jrsettings", "teacher", "family", "dgbo", "connections"];
+  "powersale", "membership", "accessgov", "command", "projects", "ideas", "ads", "jrsettings", "teacher", "learnhub", "family", "dgbo", "connections"];
 
 const TEMPLATE_TASKS = [
   ["Define the goal in numbers", "Write what success looks like: customers, monthly sales, profit and the date you want it by.", "Plan"],
@@ -303,6 +303,7 @@ module.exports = function mountJr(ctx) {
     { page: "businessgrowth", patterns: [/\b(open|show|manage|review)\b.{0,30}\b(my )?(business growth|business plans|daily business plan|business operations)\b/i] },
     { page: "browser", patterns: [/\b(open|show|launch)\b.{0,25}\b(my )?(browser|web browser)\b/i] },
     { page: "library", patterns: [/\b(open|show|browse)\b.{0,25}\b(jr )?(library|knowledge library)\b/i] },
+    { page: "learnhub", patterns: [/\b(open|start|show|go to)\b.{0,25}\b(jr pheef learn|jr learn|learning world|learning hub)\b/i] },
     { page: "teacher", patterns: [/\b(teach|learn|study|explain|help me understand)\b.{0,35}\b(topic|subject|course|lesson|math|science|language)\b/i, /\b(open|start)\b.{0,20}\b(learning|teacher|lessons|courses)\b/i] },
     { page: "lab", patterns: [/\b(open|start|run)\b.{0,25}\b(research|lab|experiment|investigation)\b/i] },
     { page: "projects", patterns: [/\b(open|show|manage|continue)\b.{0,25}\b(my )?(projects|project plans)\b/i] },
