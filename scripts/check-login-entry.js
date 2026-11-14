@@ -57,8 +57,8 @@ assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welc
 assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
 assert.match(entryVisual,/#jrContinueEntry[\s\S]*?touch-action:manipulation[\s\S]*?pointer-events:auto/,"the primary entry action must accept mobile touch input");
 // Allow the delegated action attribute; it is required by entry-interactions.js.
-assert.match(html,/<button id="loginSubmit" class="primary" type="button"(?:\s+data-jr-entry-action="login")?>LOGIN<\/button>/,
-  "login must have a stable, non-submit button target");
+assert.match(html,/<button\b(?=[^>]*\bid=["']loginSubmit["'])(?=[^>]*\bclass=["'][^"']*\bprimary\b[^"']*["'])(?=[^>]*\btype=["']button["'])[^>]*>\s*LOGIN\s*<\/button>/,
+  "login must have a stable non-submit button target regardless of additional delegated-action attributes");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
   "login must not depend on an inline onclick handler");
 assert.match(html,/const loginSubmitButton=\$\("loginSubmit"\);[\s\S]*?loginSubmitButton\.addEventListener\("click"/,
