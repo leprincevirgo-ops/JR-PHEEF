@@ -2,10 +2,13 @@
 const assert=require("node:assert/strict"),fs=require("node:fs");
 const route=fs.readFileSync("routes/human-environment.js","utf8");
 const server=fs.readFileSync("server.js","utf8");
+const ui=fs.readFileSync("public/human-environment.js","utf8");
 const migration=fs.readFileSync("supabase/migrations/20261103063326_jr_universal_human_environment.sql","utf8");
 for(const endpoint of ["/api/jr/environment","/api/jr/environment/interact","/api/jr/environment/journal","/api/jr/environment/worlds/:key","/api/jr/environment/capabilities/:key"])assert.ok(route.includes(endpoint),"Missing endpoint "+endpoint);
 for(const table of ["jr_world_progress","jr_growth_journal","jr_capability_permissions"])assert.ok(migration.includes("create table if not exists public."+table),"Missing migration table "+table);
 for(const world of ["personal","learning","creative","work","business","opportunities","relationships","community","family","civic","exploration","health","culture"])assert.ok(route.includes(world+":")||route.includes("'"+world+"'"),"Missing world "+world);
+assert.ok(route.includes('learning: { title: "Learning & knowledge", page: "learnhub"'),"Learning world must open JR PHEEF LEARN");
+assert.ok(ui.includes('learning:"learnhub"'),"Universal interaction must route learning requests to JR PHEEF LEARN");
 assert.ok(route.includes("requireMember")&&route.includes("member_id: member.id"),"Routes must be member scoped");
 assert.ok(route.includes('high_impact_actions: "confirmation_required"'),"High impact actions must remain confirmation based");
 assert.ok(route.includes("The original request text is not copied"),"Growth journal must avoid copying raw universal requests");
