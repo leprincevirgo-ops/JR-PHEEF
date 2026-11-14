@@ -22,7 +22,7 @@
     });
     app.append(dock);
     const setActive=id=>{
-      const worldDestinations=new Set(["worlds","explore","morehub","discoverhub","teacher","universe","find","workhub","create","economy","projects","family","dgbo","ecosystem","partners","social","discover","scifi","fixedit"]);
+      const worldDestinations=new Set(["worlds","explore","morehub","discoverhub","mediahub","businesshub","labhub","libraryhub","learnhub","teacher","universe","find","workhub","create","economy","projects","family","dgbo","ecosystem","partners","social","discover","scifi","fixedit"]);
       const active=id==="home"?"home":id==="assistant"?"jr":worldDestinations.has(id)?"worlds":"command";
       dock.querySelectorAll("[data-mobile-destination]").forEach(b=>{
         const on=b.dataset.mobileDestination===active;
