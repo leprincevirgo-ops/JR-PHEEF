@@ -133,12 +133,14 @@ async function testGroup(browser, name, allowedScripts) {
         const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
         await control.waitFor({ state: "visible", timeout: 8000 });
         const hitTarget = await control.evaluate(el => {
+          const dock = document.getElementById("jpMobileDock");
           const rect = el.getBoundingClientRect();
           const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          const dockStyle = getComputedStyle(dock);
           return {
-            parentTag: el.parentElement ? el.parentElement.tagName : "",
-            pointerEvents: getComputedStyle(el).pointerEvents,
-            touchAction: getComputedStyle(el).touchAction,
+            parentTag: dock && dock.parentElement ? dock.parentElement.tagName : "",
+            pointerEvents: dockStyle.pointerEvents,
+            touchAction: dockStyle.touchAction,
             hitWithinControl: !!hit && (hit === el || el.contains(hit)),
             width: rect.width,
             height: rect.height
