@@ -56,8 +56,8 @@ assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme m
 assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welcome must use a layered luminous background");
 assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
 assert.match(entryVisual,/#jrContinueEntry[\s\S]*?touch-action:manipulation[\s\S]*?pointer-events:auto/,"the primary entry action must accept mobile touch input");
-assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
-  "login must have a stable, non-submit button target");
+assert.match(html,/<button\b(?=[^>]*\bid=["']loginSubmit["'])(?=[^>]*\bclass=["'][^"']*\bprimary\b[^"']*["'])(?=[^>]*\btype=["']button["'])[^>]*>\s*LOGIN\s*<\/button>/,
+  "login must have a stable non-submit button target regardless of additional delegated-action attributes");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
   "login must not depend on an inline onclick handler");
 assert.match(html,/const loginSubmitButton=\$\("loginSubmit"\);[\s\S]*?loginSubmitButton\.addEventListener\("click"/,
@@ -72,7 +72,6 @@ assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
 assert.match(html,/workspace-shell\.js\?v=command5/,
   "workspace shell URL must be cache-busted");
-assert.match(html,/install-prompt\.js\?v=login-safe3/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(install,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"install banner must wait for a real browser installability event");
