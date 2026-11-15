@@ -6,7 +6,7 @@ body.jr-cosmic-enabled{
     radial-gradient(ellipse at 55% 92%,rgba(116,67,163,.14),transparent 38%),
     linear-gradient(145deg,#050916,#081329 48%,#090d20);
 }
-.jr-cosmic-sky{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
+.jr-cosmic-sky{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:strict}.shell{position:relative;z-index:1}
 .jr-cosmic-sky:before,.jr-cosmic-sky:after{content:"";position:absolute;width:72vw;height:72vw;max-width:900px;max-height:900px;border-radius:50%;filter:blur(70px);opacity:.12}
 .jr-cosmic-sky:before{left:-28vw;top:-32vw;background:radial-gradient(circle,#7966dc,transparent 68%)}
 .jr-cosmic-sky:after{right:-30vw;bottom:-38vw;background:radial-gradient(circle,#20b9c2,transparent 68%)}
