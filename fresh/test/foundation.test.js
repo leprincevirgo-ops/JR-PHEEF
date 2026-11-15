@@ -275,3 +275,16 @@ test("cosmic environments show illustrated scenes, time-aware light and volcano 
  assert.match(css,/jr-cosmic-scene-art\[data-scene="ocean"\]/);
  assert.match(css,/jr-cosmic-connections/);
 });
+
+test("JR PHEEF home is an active discovery surface beyond navigation tabs",()=>{
+ const j=read("public/cosmic.js"),c=read("public/cosmic.css");
+ for(const item of ["jr-pulse-board","Find something to do","JR LINK & people","Business & ideas","FAMILY","data-pulse-action","jr-world-page","openWorldPage","closeWorldPage","data-world-section","Ask JR (optional)","Starter experiences are ready to explore"])assert.ok(j.includes(item),"missing "+item);
+ assert.match(c,/jr-world-page/);assert.match(c,/jr-pulse-actions/);
+});
+test("Opening a place enters its own experience and does not automatically open JR",()=>{
+ const j=read("public/cosmic.js");
+ assert.match(j,/if\(worldCard\)\{event\.preventDefault\(\);openWorldPage\(worldCard\.dataset\.cosmicPlace\);return;\}/);
+ assert.match(j,/data-world-ask/);
+ assert.match(j,/closeWorldPage\(\);openJr\(/);
+ assert.doesNotMatch(j,/function showPlace\(key\)\{[\s\S]{0,500}openJr\(/);
+});
