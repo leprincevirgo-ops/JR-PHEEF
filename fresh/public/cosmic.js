@@ -212,4 +212,56 @@
   else if(key==="command")document.querySelector('.workspace-tab[data-view="command"]')?.click();
  });
 
+
+ // Web access is a separate destination from internal Worlds and JR conversations.
+ function installWebSpace(){
+  const workspace=$("workspace"),home=$("view-home"),nav=workspace?.querySelector(".workspace-nav");
+  if(!workspace||!home||!nav||$("jrWebSpace"))return;
+  const tab=document.createElement("button");tab.type="button";tab.className="workspace-tab";tab.dataset.view="web";tab.textContent="WEB";nav.append(tab);
+  const page=document.createElement("section");page.id="jrWebSpace";page.className="jr-web-space";page.hidden=true;
+  page.innerHTML='<div class="jr-web-head"><div><span class="jr-world-kicker">THE OPEN INTERNET</span><h2>Explore the web</h2><p>Search the internet or enter a website address. External pages open in a separate browser tab so you can use the full website safely.</p></div><div class="jr-web-orbit" aria-hidden="true">◎</div></div><form id="jrWebSearchForm" class="jr-web-search"><label class="sr-only" for="jrWebAddress">Search or enter a website address</label><input id="jrWebAddress" name="address" type="text" inputmode="url" autocomplete="url" maxlength="2048" placeholder="Search the web or enter a website address" required><button type="submit">Go ↗</button></form><p id="jrWebFeedback" class="jr-web-feedback" aria-live="polite">Choose a destination or search for anything.</p><div class="jr-web-shortcuts"><button type="button" data-web-site="https://www.google.com/">Google</button><button type="button" data-web-site="https://www.wikipedia.org/">Wikipedia</button><button type="button" data-web-site="https://www.youtube.com/">YouTube</button><button type="button" data-web-site="https://www.bbc.com/">BBC</button><button type="button" data-web-site="https://www.openstreetmap.org/">OpenStreetMap</button></div><div class="jr-web-note"><strong>Web access, not yet a built-in browser engine.</strong><span>Some websites cannot be embedded inside other apps. JR PHEEF opens them separately rather than displaying a broken or misleading page. Full in-app tabs, bookmarks, downloads and browser history remain future browser features.</span></div><button type="button" class="jr-web-back" data-web-back>← Back to JR PHEEF</button>';
+  workspace.append(page);
+  function openWeb(){
+   workspace.querySelectorAll(".workspace-view").forEach(v=>v.hidden=true);
+   workspace.querySelectorAll(".workspace-tab").forEach(b=>b.classList.toggle("selected",b===tab));
+   const cosmicHome=workspace.querySelector(".jr-cosmic-home");if(cosmicHome)cosmicHome.hidden=true;
+   const discover=workspace.querySelector(".jr-cosmic-discoveries");if(discover)discover.hidden=true;
+   const pulse=workspace.querySelector(".jr-pulse-board");if(pulse)pulse.hidden=true;
+   const worldPage=$("jrCosmicWorldPage");if(worldPage)worldPage.remove();
+   nav.hidden=false;page.hidden=false;body.classList.remove("jr-world-open");
+   page.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function closeWeb(){
+   page.hidden=true;
+   workspace.querySelectorAll(".workspace-tab").forEach(b=>b.classList.remove("selected"));
+   const homeTab=workspace.querySelector('.workspace-tab[data-view="home"]');if(homeTab)homeTab.click();
+  }
+  function destination(value){
+   const raw=String(value||"").trim();if(!raw)return null;
+   if(/^https?:\/\//i.test(raw)){try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null;}catch{return null;}}
+   if(/^[\w-]+(?:\.[\w-]+)+(?:[/:?#][^\s]*)?$/i.test(raw)){try{return new URL("https://"+raw).href;}catch{return null;}}
+   return "https://www.google.com/search?q="+encodeURIComponent(raw);
+  }
+  tab.addEventListener("click",openWeb);
+  page.querySelector("#jrWebSearchForm").addEventListener("submit",event=>{
+   event.preventDefault();const input=$("jrWebAddress"),feedback=$("jrWebFeedback"),url=destination(input?.value);
+   if(!url){if(feedback)feedback.textContent="Please enter a valid website address or search phrase.";return;}
+   const opened=window.open(url,"_blank","noopener,noreferrer");
+   if(feedback)feedback.textContent=opened===null?"Your browser blocked the new tab. Allow pop-ups for JR PHEEF, then try again.":"Opened "+url+" in a new browser tab.";
+  });
+  page.addEventListener("click",event=>{
+   const site=event.target.closest("[data-web-site]");
+   if(site){const url=destination(site.dataset.webSite);const opened=window.open(url,"_blank","noopener,noreferrer");const feedback=$("jrWebFeedback");if(feedback)feedback.textContent=opened===null?"Allow pop-ups to open this website.":"Opened "+site.textContent+" in a new browser tab.";return;}
+   if(event.target.closest("[data-web-back]"))closeWeb();
+  });
+  document.addEventListener("click",event=>{
+   const action=event.target.closest('[data-pulse-action="web"]');if(action)openWeb();
+  });
+  const pulse=$("view-home")?.querySelector(".jr-pulse-actions");
+  if(pulse&&!pulse.querySelector('[data-pulse-action="web"]')){
+   const button=document.createElement("button");button.type="button";button.dataset.pulseAction="web";button.innerHTML="<span>🌐</span><strong>Explore the web</strong><small>Search and open internet websites</small>";pulse.insertBefore(button,pulse.lastElementChild);
+  }
+ }
+ installWebSpace();
+
 })();
