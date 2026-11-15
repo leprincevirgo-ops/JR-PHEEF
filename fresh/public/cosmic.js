@@ -40,7 +40,7 @@
   explorer.className="jr-cosmic-explorer";
   explorer.id="jrCosmicExplorer";
   explorer.setAttribute("aria-labelledby","jrCosmicExplorerTitle");
-  explorer.innerHTML='<p class="eyebrow">EXPLORE THE UNIVERSE</p><h3 id="jrCosmicExplorerTitle">Where would you like to go?</h3><p class="jr-cosmic-explorer-intro">Travel through big ideas, meet new interests and explore places inspired by our world and imagination. You can move between them freely.</p><div class="jr-cosmic-section-head"><div><p class="eyebrow">THE GALAXIES</p><h3>Big places to discover</h3></div></div><div class="jr-cosmic-galaxy-grid"><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="knowledge"><span class="jr-cosmic-card-icon">🔭</span><strong>Knowledge</strong><small>Science, learning, nature and discovery.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="human"><span class="jr-cosmic-card-icon">🤝</span><strong>Human</strong><small>People, friendships and communities.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="creation"><span class="jr-cosmic-card-icon">🎨</span><strong>Creation</strong><small>Art, music, stories and entertainment.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="living"><span class="jr-cosmic-card-icon">🌱</span><strong>Living</strong><small>Everyday life, homes and the outdoors.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="opportunity"><span class="jr-cosmic-card-icon">🌟</span><strong>Opportunity</strong><small>Work, business and useful connections.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="innovation"><span class="jr-cosmic-card-icon">⚙️</span><strong>Innovation</strong><small>Technology, ideas and inventions.</small></button></div><div class="jr-cosmic-section-head"><div><p class="eyebrow">NATURAL & IMAGINED PLACES</p><h3>Explore different environments</h3></div></div><div class="jr-cosmic-environment-grid"><button class="jr-cosmic-environment" data-scene="space" type="button" data-cosmic-place="space"><span class="jr-cosmic-card-icon">🌌</span><strong>Space</strong><small>Stars and planets</small></button><button class="jr-cosmic-environment" data-scene="forest" type="button" data-cosmic-place="forest"><span class="jr-cosmic-card-icon">🌳</span><strong>Forests</strong><small>Trees and wildlife</small></button><button class="jr-cosmic-environment" data-scene="ocean" type="button" data-cosmic-place="ocean"><span class="jr-cosmic-card-icon">🐬</span><strong>Oceans</strong><small>Sea life and water</small></button><button class="jr-cosmic-environment" data-scene="mountain" type="button" data-cosmic-place="mountain"><span class="jr-cosmic-card-icon">🏔️</span><strong>Mountains</strong><small>High places and snow</small></button><button class="jr-cosmic-environment" data-scene="city" type="button" data-cosmic-place="city"><span class="jr-cosmic-card-icon">🏙️</span><strong>Cities</strong><small>People and places</small></button><button class="jr-cosmic-environment" data-scene="underwater" type="button" data-cosmic-place="underwater"><span class="jr-cosmic-card-icon">🪸</span><strong>Underwater</strong><small>Life beneath the sea</small></button><button class="jr-cosmic-environment" data-scene="desert" type="button" data-cosmic-place="desert"><span class="jr-cosmic-card-icon">🏜️</span><strong>Deserts</strong><small>Land, sand and survival</small></button><button class="jr-cosmic-environment" data-scene="garden" type="button" data-cosmic-place="garden"><span class="jr-cosmic-card-icon">🌼</span><strong>Gardens</strong><small>Plants and growing things</small></button></div><div id="jrCosmicPlaceDetail" class="jr-cosmic-place-detail" hidden aria-live="polite"><div><h4 id="jrCosmicPlaceTitle"></h4><p id="jrCosmicPlaceCopy"></p></div><div class="jr-cosmic-place-actions"><button type="button" id="jrCosmicAsk">Ask JR about this</button><button type="button" id="jrCosmicClose">Close</button></div></div>';
+  explorer.innerHTML='<p class="eyebrow">EXPLORE THE UNIVERSE</p><h3 id="jrCosmicExplorerTitle">Where would you like to go?</h3><p class="jr-cosmic-explorer-intro">Travel through big ideas, meet new interests and explore places inspired by our world and imagination. You can move between them freely.</p><div class="jr-cosmic-section-head"><div><p class="eyebrow">THE GALAXIES</p><h3>Big places to discover</h3></div></div><div class="jr-cosmic-galaxy-grid"><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="knowledge"><span class="jr-cosmic-card-icon">🔭</span><strong>Knowledge</strong><small>Science, learning, nature and discovery.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="human"><span class="jr-cosmic-card-icon">🤝</span><strong>Human</strong><small>People, friendships and communities.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="creation"><span class="jr-cosmic-card-icon">🎨</span><strong>Creation</strong><small>Art, music, stories and entertainment.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="living"><span class="jr-cosmic-card-icon">🌱</span><strong>Living</strong><small>Everyday life, homes and the outdoors.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="opportunity"><span class="jr-cosmic-card-icon">🌟</span><strong>Opportunity</strong><small>Work, business and useful connections.</small></button><button class="jr-cosmic-galaxy" type="button" data-cosmic-place="innovation"><span class="jr-cosmic-card-icon">⚙️</span><strong>Innovation</strong><small>Technology, ideas and inventions.</small></button></div><div class="jr-cosmic-section-head"><div><p class="eyebrow">NATURAL & IMAGINED PLACES</p><h3>Explore different environments</h3></div></div><div class="jr-cosmic-environment-grid"><button class="jr-cosmic-environment" data-scene="space" type="button" data-cosmic-place="space"><span class="jr-cosmic-card-icon">🌌</span><strong>Space</strong><small>Stars and planets</small></button><button class="jr-cosmic-environment" data-scene="forest" type="button" data-cosmic-place="forest"><span class="jr-cosmic-card-icon">🌳</span><strong>Forests</strong><small>Trees and wildlife</small></button><button class="jr-cosmic-environment" data-scene="ocean" type="button" data-cosmic-place="ocean"><span class="jr-cosmic-card-icon">🐬</span><strong>Oceans</strong><small>Sea life and water</small></button><button class="jr-cosmic-environment" data-scene="mountain" type="button" data-cosmic-place="mountain"><span class="jr-cosmic-card-icon">🏔️</span><strong>Mountains</strong><small>High places and snow</small></button><button class="jr-cosmic-environment" data-scene="city" type="button" data-cosmic-place="city"><span class="jr-cosmic-card-icon">🏙️</span><strong>Cities</strong><small>People and places</small></button><button class="jr-cosmic-environment" data-scene="underwater" type="button" data-cosmic-place="underwater"><span class="jr-cosmic-card-icon">🪸</span><strong>Underwater</strong><small>Life beneath the sea</small></button><button class="jr-cosmic-environment" data-scene="desert" type="button" data-cosmic-place="desert"><span class="jr-cosmic-card-icon">🏜️</span><strong>Deserts</strong><small>Land, sand and survival</small></button><button class="jr-cosmic-environment" data-scene="garden" type="button" data-cosmic-place="garden"><span class="jr-cosmic-card-icon">🌼</span><strong>Gardens</strong><small>Plants and growing things</small></button><button class="jr-cosmic-environment" data-scene="volcano" type="button" data-cosmic-place="volcano"><span class="jr-cosmic-card-icon">🌋</span><strong>Volcanoes</strong><small>Fire, rock and new land</small></button></div><div id="jrCosmicPlaceDetail" class="jr-cosmic-place-detail" hidden aria-live="polite"><div class="jr-cosmic-scene-art" id="jrCosmicSceneArt" data-scene="space" role="img" aria-label="A changing landscape"><span class="jr-cosmic-scene-sun"></span><span class="jr-cosmic-scene-ridge"></span><span class="jr-cosmic-scene-ground"></span><span class="jr-cosmic-scene-glow"></span></div><div class="jr-cosmic-place-copy"><h4 id="jrCosmicPlaceTitle"></h4><p id="jrCosmicPlaceCopy"></p><div id="jrCosmicConnections" class="jr-cosmic-connections" aria-label="Related places"></div></div><div class="jr-cosmic-place-actions"><button type="button" id="jrCosmicAsk">Explore with JR</button><button type="button" id="jrCosmicClose">Close</button></div></div>';
   const container=worlds.querySelector(".worlds-workspace");
   worlds.insertBefore(explorer,container||worlds.firstChild);
  }
@@ -58,7 +58,8 @@
   city:["City","Explore buildings, streets, transport, culture, people and how a city works."],
   underwater:["Underwater world","Discover coral, fish, underwater landscapes and the hidden life beneath the surface."],
   desert:["Desert","Explore sand, rocks, plants, animals and how life adapts to dry places."],
-  garden:["Garden","Discover plants, soil, insects, food growing and the small worlds found in a garden."]
+  garden:["Garden","Discover plants, soil, insects, food growing and the small worlds found in a garden."],
+  volcano:["Volcano","Explore how volcanoes form, how eruptions change landscapes and how life returns to volcanic ground."]
  };
  let selectedPlace="";
  const detail=$("jrCosmicPlaceDetail");
@@ -76,7 +77,21 @@
   if(worldsView?.hidden){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
   selectedPlace=key;
   $("jrCosmicPlaceTitle").textContent=place[0];
-  $("jrCosmicPlaceCopy").textContent=place[1]+" Choose “Ask JR about this” to explore it further.";
+  $("jrCosmicPlaceCopy").textContent=place[1]+" Explore the landscape, then follow a connection or ask JR to go deeper.";
+  const art=$("jrCosmicSceneArt");
+  if(art){art.dataset.scene=key;art.setAttribute("aria-label",place[0]+" landscape");}
+  const related={
+   knowledge:["forest","ocean","volcano"],human:["city","garden","creation"],creation:["human","space","garden"],
+   living:["forest","ocean","city"],opportunity:["city","living","innovation"],innovation:["space","volcano","knowledge"],
+   space:["mountain","knowledge","innovation"],forest:["garden","mountain","knowledge"],ocean:["underwater","forest","knowledge"],
+   mountain:["volcano","forest","space"],city:["human","opportunity","innovation"],underwater:["ocean","knowledge","living"],
+   desert:["mountain","garden","knowledge"],garden:["forest","living","human"],volcano:["mountain","knowledge","innovation"]
+  };
+  const links=$("jrCosmicConnections");
+  if(links){links.replaceChildren();(related[key]||[]).forEach(next=>{
+   if(!places[next])return;
+   const button=document.createElement("button");button.type="button";button.dataset.cosmicPlace=next;button.textContent="Explore "+places[next][0];links.append(button);
+  });}
   detail.hidden=false;
   detail.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
  }
@@ -92,7 +107,7 @@
    return;
   }
   if(event.target.closest("#jrCosmicAsk")&&selectedPlace){
-   const place=places[selectedPlace];openJr("Take me on an exploration of "+place[0]+". Help me discover what is there and how it connects to other things.");
+   const place=places[selectedPlace];openJr("Take me on an exploration of "+place[0]+". Help me discover what is there, explain it clearly, and connect it to related subjects and places.");
   }
   if(event.target.closest("#jrCosmicClose")&&detail)detail.hidden=true;
   const pause=event.target.closest(".jr-cosmic-pause");
@@ -105,7 +120,11 @@
  // Keep the welcome experience respectful of the visitor's local time.
  const updateSky=()=>{
   const hour=new Date().getHours();
-  body.dataset.jrCosmicTime=hour>=6&&hour<18?"day":"night";
+  const phase=hour>=6&&hour<10?"morning":hour>=10&&hour<16?"day":hour>=16&&hour<19?"sunset":"night";
+  body.dataset.jrCosmicTime=phase;
+  const label=$("jrCosmicTimeLabel");
+  if(label)label.textContent=phase==="morning"?"Morning":phase==="sunset"?"Sunset":phase==="night"?"Night":"Daytime";
  };
  updateSky();
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateSky();});
 })();
