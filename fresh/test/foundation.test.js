@@ -255,3 +255,10 @@ test("JR PHEEF includes a living cosmic home and connected universe explorer",()
  assert.match(css,/prefers-reduced-motion/);assert.match(css,/jr-cosmic-paused/);assert.match(css,/jr-cosmic-environment-grid/);
  assert.doesNotMatch(cosmic,/volcano|founder|ownership|secret key/i);
 });
+
+test("home discoveries open the matching place inside WORLDS",()=>{
+ const cosmic=read("public/cosmic.js");
+ assert.match(cosmic,/const worldsView=\$\("view-worlds"\)/);
+ assert.match(cosmic,/if\(worldsView\?\.hidden\)/);
+ assert.match(cosmic,/showPlace\(placeButton\.dataset\.cosmicPlace\)/);
+});
