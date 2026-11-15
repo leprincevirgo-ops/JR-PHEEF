@@ -72,6 +72,8 @@
  }
  function showPlace(key){
   const place=places[key];if(!place||!detail)return;
+  const worldsView=$("view-worlds");
+  if(worldsView?.hidden){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
   selectedPlace=key;
   $("jrCosmicPlaceTitle").textContent=place[0];
   $("jrCosmicPlaceCopy").textContent=place[1]+" Choose “Ask JR about this” to explore it further.";
