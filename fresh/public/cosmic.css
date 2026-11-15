@@ -68,3 +68,47 @@ body.jr-cosmic-paused *,body.jr-cosmic-paused *:before,body.jr-cosmic-paused *:a
 @media(max-width:760px){.jr-cosmic-home{grid-template-columns:1fr;min-height:0}.jr-cosmic-planet-wrap{min-height:135px;grid-row:1}.jr-cosmic-planet{width:125px}.jr-cosmic-discovery-grid,.jr-cosmic-galaxy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-cosmic-environment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-cosmic-place-detail{grid-template-columns:1fr}}
 @media(max-width:420px){.jr-cosmic-home{padding:18px}.jr-cosmic-discovery-grid,.jr-cosmic-galaxy-grid,.jr-cosmic-environment-grid{grid-template-columns:1fr}.jr-cosmic-discovery,.jr-cosmic-galaxy,.jr-cosmic-environment{min-height:90px}.jr-cosmic-section-head{align-items:start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.jr-cosmic-star,.jr-cosmic-planet{animation:none!important}.jr-cosmic-discovery,.jr-cosmic-galaxy,.jr-cosmic-environment{transition:none}.jr-cosmic-discovery:hover,.jr-cosmic-galaxy:hover,.jr-cosmic-environment:hover{transform:none}}
+
+
+/* Immersive scene cards: illustrated landscapes, changing light and gentle life. */
+body.jr-cosmic-enabled[data-jr-cosmic-time="morning"]{--jr-cosmic-sky:#f1b68b;--jr-cosmic-light:#ffe1a2;--jr-cosmic-shade:#344d72}
+body.jr-cosmic-enabled[data-jr-cosmic-time="day"]{--jr-cosmic-sky:#6db7d7;--jr-cosmic-light:#ffe49a;--jr-cosmic-shade:#284a69}
+body.jr-cosmic-enabled[data-jr-cosmic-time="sunset"]{--jr-cosmic-sky:#d27e80;--jr-cosmic-light:#ffc078;--jr-cosmic-shade:#302c55}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"]{--jr-cosmic-sky:#101a42;--jr-cosmic-light:#c8dcff;--jr-cosmic-shade:#10172e}
+body.jr-cosmic-enabled[data-jr-cosmic-time="day"]{background-image:radial-gradient(ellipse at 12% 8%,rgba(78,125,190,.24),transparent 34%),radial-gradient(ellipse at 88% 26%,rgba(29,143,164,.17),transparent 32%),linear-gradient(145deg,#101b31,#10283a 48%,#14253b)}
+.jr-cosmic-home{background:radial-gradient(ellipse at 80% 35%,rgba(113,142,225,.2),transparent 42%),linear-gradient(115deg,rgba(8,17,42,.88),rgba(15,28,59,.72) 56%,rgba(8,21,42,.82))}
+.jr-cosmic-scene-art{--scene-sky:#182b52;--scene-horizon:#456c86;--scene-ground:#1c3d43;position:relative;isolation:isolate;overflow:hidden;width:100%;min-height:190px;grid-column:1/-1;border:1px solid rgba(184,208,255,.18);border-radius:15px;background:linear-gradient(180deg,var(--scene-sky),var(--scene-horizon) 68%,var(--scene-ground));}
+.jr-cosmic-scene-art:before{content:"";position:absolute;left:-8%;right:-8%;bottom:18%;height:53%;background:linear-gradient(145deg,rgba(13,28,50,.15),rgba(7,17,34,.8));clip-path:polygon(0 100%,0 75%,14% 40%,25% 68%,40% 15%,54% 67%,70% 25%,84% 70%,100% 40%,100% 100%);opacity:.9}
+.jr-cosmic-scene-art:after{content:"";position:absolute;left:-5%;right:-5%;bottom:-5%;height:45%;background:linear-gradient(180deg,rgba(27,69,66,.4),var(--scene-ground));clip-path:polygon(0 25%,18% 0,33% 20%,49% 5%,68% 28%,84% 0,100% 17%,100% 100%,0 100%);opacity:.95}
+.jr-cosmic-scene-sun{position:absolute;z-index:1;top:16%;right:17%;width:46px;height:46px;border-radius:50%;background:var(--jr-cosmic-light,#c8dcff);box-shadow:0 0 34px color-mix(in srgb,var(--jr-cosmic-light,#c8dcff) 60%,transparent)}
+.jr-cosmic-scene-ridge{position:absolute;z-index:2;left:0;right:0;bottom:22%;height:42%;background:linear-gradient(135deg,rgba(69,104,113,.7),rgba(14,34,50,.92));clip-path:polygon(0 100%,0 72%,18% 18%,33% 76%,48% 10%,63% 72%,78% 22%,100% 78%,100% 100%)}
+.jr-cosmic-scene-ground{position:absolute;z-index:3;left:-5%;right:-5%;bottom:-4%;height:35%;background:linear-gradient(180deg,rgba(25,85,76,.55),rgba(8,35,41,.96));border-radius:50% 50% 0 0/18% 18% 0 0}
+.jr-cosmic-scene-glow{position:absolute;z-index:4;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 50%,rgba(0,0,0,.15))}
+.jr-cosmic-scene-art[data-scene="forest"]{--scene-sky:#8ac7b1;--scene-horizon:#4f9a79;--scene-ground:#143e31}
+.jr-cosmic-scene-art[data-scene="ocean"],.jr-cosmic-scene-art[data-scene="underwater"]{--scene-sky:#2b91bd;--scene-horizon:#126c91;--scene-ground:#07334f}
+.jr-cosmic-scene-art[data-scene="mountain"]{--scene-sky:#7d9bbf;--scene-horizon:#8299ae;--scene-ground:#34465d}
+.jr-cosmic-scene-art[data-scene="city"]{--scene-sky:#bc8490;--scene-horizon:#6c5d79;--scene-ground:#28263d}
+.jr-cosmic-scene-art[data-scene="desert"]{--scene-sky:#e6b77e;--scene-horizon:#c58a57;--scene-ground:#75502e}
+.jr-cosmic-scene-art[data-scene="garden"]{--scene-sky:#92cbb5;--scene-horizon:#5eaa7d;--scene-ground:#24583b}
+.jr-cosmic-scene-art[data-scene="space"]{--scene-sky:#141638;--scene-horizon:#33285d;--scene-ground:#10152f}
+.jr-cosmic-scene-art[data-scene="volcano"]{--scene-sky:#30233b;--scene-horizon:#75424b;--scene-ground:#241c2a}
+.jr-cosmic-scene-art[data-scene="volcano"] .jr-cosmic-scene-ridge{background:linear-gradient(135deg,#403344,#151724);clip-path:polygon(0 100%,0 82%,22% 53%,39% 15%,48% 35%,57% 12%,76% 67%,100% 78%,100% 100%)}
+.jr-cosmic-scene-art[data-scene="volcano"] .jr-cosmic-scene-ground{background:radial-gradient(ellipse at 50% 2%,#ffb34c 0, #e55c35 7%,#6f302f 20%,#2b222e 60%)}
+.jr-cosmic-scene-art[data-scene="ocean"] .jr-cosmic-scene-ground,.jr-cosmic-scene-art[data-scene="underwater"] .jr-cosmic-scene-ground{background:repeating-linear-gradient(178deg,rgba(97,213,224,.12) 0 2px,transparent 2px 14px),linear-gradient(180deg,#117d9c,#07334f)}
+.jr-cosmic-scene-art[data-scene="city"] .jr-cosmic-scene-ground{background:linear-gradient(180deg,transparent,#242238)}
+.jr-cosmic-scene-art[data-scene="city"] .jr-cosmic-scene-ridge{clip-path:polygon(0 100%,0 45%,9% 45%,9% 12%,18% 12%,18% 57%,26% 57%,26% 0,38% 0,38% 62%,47% 62%,47% 22%,59% 22%,59% 49%,70% 49%,70% 9%,83% 9%,83% 64%,100% 64%,100% 100%);background:linear-gradient(90deg,#242b48,#4b3b59)}
+.jr-cosmic-scene-art[data-scene="space"] .jr-cosmic-scene-ridge{clip-path:none;inset:12% 12% auto auto;width:30px;height:30px;border-radius:50%;background:#b6a8ef;box-shadow:-90px 50px 0 -12px #f5e7c4,60px 110px 0 -13px #d5dfff}
+.jr-cosmic-scene-art[data-scene="space"] .jr-cosmic-scene-ground{background:radial-gradient(ellipse at 50% 0%,#6652a4,#171638 65%)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"] .jr-cosmic-scene-sun{background:#d4e1ff;box-shadow:0 0 25px rgba(182,208,255,.45)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"] .jr-cosmic-scene-art:not([data-scene="space"]){filter:saturate(.75) brightness(.78)}
+.jr-cosmic-place-detail{grid-template-columns:1fr;align-items:start}
+.jr-cosmic-place-copy{min-width:0}
+.jr-cosmic-connections{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.jr-cosmic-connections button{border:1px solid rgba(165,195,255,.23);border-radius:999px;padding:7px 11px;background:rgba(150,180,255,.08);color:#dbe8ff;font:inherit;font-size:11px;cursor:pointer}
+.jr-cosmic-connections button:hover{background:rgba(150,180,255,.18)}
+.jr-cosmic-environment[data-scene="volcano"]{background:radial-gradient(ellipse at 90% 0%,rgba(255,121,69,.26),transparent 50%),linear-gradient(145deg,#512d39,#1b1c31)}
+.jr-cosmic-environment[data-scene="volcano"]:after{content:"";position:absolute;right:14px;bottom:-9px;width:90px;height:70px;background:linear-gradient(135deg,#6d5360,#201e30);clip-path:polygon(0 100%,34% 16%,47% 34%,61% 0,100% 100%)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="morning"] .jr-cosmic-scene-art{filter:saturate(1.08) brightness(1.06)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="sunset"] .jr-cosmic-scene-art{filter:saturate(1.14) sepia(.12)}
+@media(max-width:760px){.jr-cosmic-scene-art{min-height:150px}.jr-cosmic-place-detail{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.jr-cosmic-scene-art:before,.jr-cosmic-scene-art:after{animation:none!important}}
