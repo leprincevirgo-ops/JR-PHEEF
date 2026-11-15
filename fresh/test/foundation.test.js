@@ -288,3 +288,13 @@ test("Opening a place enters its own experience and does not automatically open 
  assert.match(j,/closeWorldPage\(\);openJr\(/);
  assert.doesNotMatch(j,/function showPlace\(key\)\{[\s\S]{0,500}openJr\(/);
 });
+
+
+test("JR PHEEF provides a separate honest web-access destination",()=>{
+ const j=read("public/cosmic.js"),c=read("public/cosmic.css");
+ assert.match(j,/id="jrWebSpace"/);assert.match(j,/Search the web or enter a website address/);
+ assert.match(j,/https:\/\/www\.google\.com\/search\?q=/);
+ assert.match(j,/noopener,noreferrer/);assert.match(j,/data-web-site/);
+ assert.match(j,/Full in-app tabs, bookmarks, downloads and browser history remain future browser features/);
+ assert.match(c,/\.jr-web-space/);assert.match(c,/\.jr-web-search/);
+});
