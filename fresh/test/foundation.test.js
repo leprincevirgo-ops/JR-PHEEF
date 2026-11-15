@@ -244,3 +244,14 @@ test("JR-to-DGBO opportunity intelligence has private consent-based intake, sour
  assert.match(html,/memberOpportunityForm/);assert.match(html,/I choose to submit this idea to DGBO/);assert.match(html,/founderResearchForm/);assert.match(html,/founderOpportunityQueue/);assert.match(html,/founderVentureProjects/);
  assert.match(app,/review_opportunity_dossier/);assert.match(app,/update_venture_stage/);assert.match(app,/submit_idea_to_dgbo/);
 });
+
+
+test("JR PHEEF includes a living cosmic home and connected universe explorer",()=>{
+ const html=read("public/index.html"),cosmic=read("public/cosmic.js"),css=read("public/cosmic.css");
+ assert.match(html,/cosmic\.css/);assert.match(html,/cosmic\.js/);
+ assert.match(cosmic,/jr-cosmic-home/);assert.match(cosmic,/jrCosmicExplorer/);
+ for(const place of ["knowledge","human","creation","living","opportunity","innovation","forest","ocean","mountain","city","underwater","desert","garden","space"])assert.match(cosmic,new RegExp('data-cosmic-place="'+place+'"'));
+ assert.match(cosmic,/jrCosmicAsk/);assert.match(cosmic,/workspacePrompt/);assert.match(cosmic,/Pause movement/);
+ assert.match(css,/prefers-reduced-motion/);assert.match(css,/jr-cosmic-paused/);assert.match(css,/jr-cosmic-environment-grid/);
+ assert.doesNotMatch(cosmic,/volcano|founder|ownership|secret key/i);
+});
