@@ -258,12 +258,12 @@
   page.querySelector("#jrWebSearchForm").addEventListener("submit",event=>{
    event.preventDefault();const input=$("jrWebAddress"),feedback=$("jrWebFeedback"),url=destination(input?.value);
    if(!url){if(feedback)feedback.textContent="Please enter a valid website address or search phrase.";return;}
-   const opened=window.open(url,"_blank","noopener,noreferrer");
-   if(feedback)feedback.textContent=opened===null?"Your browser blocked the new tab. Allow pop-ups for JR PHEEF, then try again.":"Opened "+url+" in a new browser tab.";
+   const opened=window.open(url,"_blank");
+   if(opened)opened.opener=null;if(feedback)feedback.textContent=opened===null?"Your browser blocked the new tab. Allow pop-ups for JR PHEEF, then try again.":"Opened "+url+" in a new browser tab.";
   });
   page.addEventListener("click",event=>{
    const site=event.target.closest("[data-web-site]");
-   if(site){const url=destination(site.dataset.webSite);const opened=window.open(url,"_blank","noopener,noreferrer");const feedback=$("jrWebFeedback");if(feedback)feedback.textContent=opened===null?"Allow pop-ups to open this website.":"Opened "+site.textContent+" in a new browser tab.";return;}
+   if(site){const url=destination(site.dataset.webSite);const opened=window.open(url,"_blank");const feedback=$("jrWebFeedback");if(opened)opened.opener=null;if(feedback)feedback.textContent=opened===null?"Allow pop-ups to open this website.":"Opened "+site.textContent+" in a new browser tab.";return;}
    if(event.target.closest("[data-web-back]"))closeWeb();
   });
   document.addEventListener("click",event=>{
