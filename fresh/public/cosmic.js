@@ -233,9 +233,21 @@
   }
   function closeWeb(){
    page.hidden=true;
+   const cosmicHome=workspace.querySelector(".jr-cosmic-home");if(cosmicHome)cosmicHome.hidden=false;
+   const discover=workspace.querySelector(".jr-cosmic-discoveries");if(discover)discover.hidden=false;
+   const pulse=workspace.querySelector(".jr-pulse-board");if(pulse)pulse.hidden=false;
    workspace.querySelectorAll(".workspace-tab").forEach(b=>b.classList.remove("selected"));
    const homeTab=workspace.querySelector('.workspace-tab[data-view="home"]');if(homeTab)homeTab.click();
   }
+  document.addEventListener("click",event=>{
+   const otherTab=event.target.closest(".workspace-tab");
+   if(otherTab&&otherTab!==tab&&!page.hidden){
+    page.hidden=true;
+    const cosmicHome=workspace.querySelector(".jr-cosmic-home");if(cosmicHome)cosmicHome.hidden=false;
+    const discover=workspace.querySelector(".jr-cosmic-discoveries");if(discover)discover.hidden=false;
+    const pulse=workspace.querySelector(".jr-pulse-board");if(pulse)pulse.hidden=false;
+   }
+  });
   function destination(value){
    const raw=String(value||"").trim();if(!raw)return null;
    if(/^https?:\/\//i.test(raw)){try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null;}catch{return null;}}
