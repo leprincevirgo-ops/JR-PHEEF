@@ -68,6 +68,8 @@
   if(tab)tab.click();
   const input=$("workspacePrompt");
   if(input){input.value=prompt;input.focus();}
+  const form=$("workspacePromptForm");
+  if(prompt&&form&&typeof form.requestSubmit==="function")form.requestSubmit();
   const view=$("view-jr");
   if(view)view.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
  }
