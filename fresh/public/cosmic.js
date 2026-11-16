@@ -248,6 +248,12 @@
     const pulse=workspace.querySelector(".jr-pulse-board");if(pulse)pulse.hidden=false;
    }
   });
+  function openExternal(url,label,feedback){
+   const link=document.createElement("a");
+   link.href=url;link.target="_blank";link.rel="noopener,noreferrer";
+   link.hidden=true;document.body.append(link);link.click();link.remove();
+   if(feedback)feedback.textContent="Your browser has been asked to open "+label+" in a separate tab. If nothing opens, allow pop-ups for JR PHEEF and try again.";
+  }
   function destination(value){
    const raw=String(value||"").trim();if(!raw)return null;
    if(/^https?:\/\//i.test(raw)){try{const u=new URL(raw);return ["http:","https:"].includes(u.protocol)?u.href:null;}catch{return null;}}
@@ -258,12 +264,11 @@
   page.querySelector("#jrWebSearchForm").addEventListener("submit",event=>{
    event.preventDefault();const input=$("jrWebAddress"),feedback=$("jrWebFeedback"),url=destination(input?.value);
    if(!url){if(feedback)feedback.textContent="Please enter a valid website address or search phrase.";return;}
-   const opened=window.open(url,"_blank");
-   if(opened)opened.opener=null;if(feedback)feedback.textContent=opened===null?"Your browser blocked the new tab. Allow pop-ups for JR PHEEF, then try again.":"Opened "+url+" in a new browser tab.";
+   openExternal(url,"the website",feedback);
   });
   page.addEventListener("click",event=>{
    const site=event.target.closest("[data-web-site]");
-   if(site){const url=destination(site.dataset.webSite);const opened=window.open(url,"_blank");const feedback=$("jrWebFeedback");if(opened)opened.opener=null;if(feedback)feedback.textContent=opened===null?"Allow pop-ups to open this website.":"Opened "+site.textContent+" in a new browser tab.";return;}
+   if(site){const url=destination(site.dataset.webSite);const feedback=$("jrWebFeedback");if(url)openExternal(url,site.textContent,feedback);return;}
    if(event.target.closest("[data-web-back]"))closeWeb();
   });
   document.addEventListener("click",event=>{
