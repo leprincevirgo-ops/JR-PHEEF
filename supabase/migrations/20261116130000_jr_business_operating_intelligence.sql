@@ -60,7 +60,7 @@ create table if not exists public.jr_business_purchase_orders (
  unique(business_id,order_number)
 );
 create or replace function public.jr_business_record_sale(p_business_id uuid,p_actor_member_id uuid,p_items jsonb,p_payment_method text,p_payment_reference text default null)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security invoker set search_path=public,pg_temp as $
 declare v_item jsonb; v_product public.jr_business_products%rowtype; v_qty numeric; v_subtotal numeric(14,2):=0;
  v_sale_id uuid; v_receipt text; v_lines jsonb:='[]'::jsonb; v_line numeric(14,2); v_allowed boolean;
 begin
@@ -109,3 +109,69 @@ create policy jr_business_suppliers_no_client_access on public.jr_business_suppl
 create policy jr_business_purchase_orders_no_client_access on public.jr_business_purchase_orders for all to anon,authenticated using(false) with check(false);
 revoke all on public.jr_business_products,public.jr_business_stock_movements,public.jr_business_sales,public.jr_business_sale_items,public.jr_business_tasks,public.jr_business_suppliers,public.jr_business_purchase_orders from anon,authenticated;
 grant all on public.jr_business_products,public.jr_business_stock_movements,public.jr_business_sales,public.jr_business_sale_items,public.jr_business_tasks,public.jr_business_suppliers,public.jr_business_purchase_orders to service_role;
+
+
+-- Supplier purchasing and receiving.
+create table if not exists public.jr_business_purchase_order_items (
+ id uuid primary key default gen_random_uuid(),
+ purchase_order_id uuid not null references public.jr_business_purchase_orders(id) on delete cascade,
+ product_id uuid not null references public.jr_business_products(id),
+ quantity numeric(14,3) not null check(quantity>0),
+ received_quantity numeric(14,3) not null default 0 check(received_quantity>=0 and received_quantity<=quantity),
+ unit_cost numeric(14,2) not null check(unit_cost>=0),
+ line_total numeric(14,2) not null check(line_total>=0),
+ created_at timestamptz not null default now(),
+ unique(purchase_order_id,product_id)
+);
+create index if not exists jr_business_po_items_order_idx on public.jr_business_purchase_order_items(purchase_order_id);
+alter table public.jr_business_purchase_order_items enable row level security;
+create policy jr_business_po_items_no_client_access on public.jr_business_purchase_order_items for all to anon,authenticated using(false) with check(false);
+revoke all on public.jr_business_purchase_order_items from anon,authenticated;
+grant all on public.jr_business_purchase_order_items to service_role;
+create or replace function public.jr_business_create_purchase_order(p_business_id uuid,p_actor_member_id uuid,p_supplier_id uuid,p_items jsonb,p_notes text default '')
+returns jsonb language plpgsql security invoker set search_path=public,pg_temp as $$
+declare v_item jsonb;v_product public.jr_business_products%rowtype;v_qty numeric;v_cost numeric;v_total numeric:=0;v_order_id uuid;v_number text;v_allowed boolean;
+begin
+ select exists(select 1 from public.jr_business_workspace_members m where m.business_id=p_business_id and m.member_id=p_actor_member_id and m.status='active' and (m.role_key in ('owner','manager') or m.permissions ? 'purchasing:manage')) into v_allowed;
+ if not v_allowed then raise exception 'Not authorised to create purchase orders'; end if;
+ if not exists(select 1 from public.jr_business_suppliers where id=p_supplier_id and business_id=p_business_id and status='active') then raise exception 'Supplier not found or inactive'; end if;
+ if jsonb_typeof(p_items)<>'array' or jsonb_array_length(p_items)<1 or jsonb_array_length(p_items)>100 then raise exception 'A purchase order must contain 1 to 100 lines'; end if;
+ v_number:='PO-'||to_char(now(),'YYMMDD')||'-'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,8));
+ insert into public.jr_business_purchase_orders(business_id,supplier_id,created_by,order_number,status,currency_code,notes)
+ values(p_business_id,p_supplier_id,p_actor_member_id,v_number,'submitted','KES',left(coalesce(p_notes,''),1000)) returning id into v_order_id;
+ for v_item in select value from jsonb_array_elements(p_items) loop
+  if (v_item->>'product_id') is null then raise exception 'Each order line needs a product'; end if;
+  v_qty:=(v_item->>'quantity')::numeric;v_cost:=(v_item->>'unit_cost')::numeric;
+  if v_qty<=0 or v_qty>100000 or v_cost<0 or v_cost>100000000 then raise exception 'Invalid order quantity or unit cost'; end if;
+  select * into v_product from public.jr_business_products where id=(v_item->>'product_id')::uuid and business_id=p_business_id and active=true;
+  if not found then raise exception 'A selected product is not available in this business'; end if;
+  insert into public.jr_business_purchase_order_items(purchase_order_id,product_id,quantity,unit_cost,line_total) values(v_order_id,v_product.id,v_qty,v_cost,round(v_qty*v_cost,2));
+  v_total:=v_total+round(v_qty*v_cost,2);
+ end loop;
+ update public.jr_business_purchase_orders set total_amount=v_total,updated_at=now() where id=v_order_id;
+ return jsonb_build_object('id',v_order_id,'order_number',v_number,'total_amount',v_total,'status','submitted');
+end $$;
+create or replace function public.jr_business_receive_purchase_order(p_business_id uuid,p_actor_member_id uuid,p_purchase_order_id uuid)
+returns jsonb language plpgsql security invoker set search_path=public,pg_temp as $$
+declare v_order public.jr_business_purchase_orders%rowtype;v_line public.jr_business_purchase_order_items%rowtype;v_remaining numeric;v_count integer:=0;v_allowed boolean;
+begin
+ select exists(select 1 from public.jr_business_workspace_members m where m.business_id=p_business_id and m.member_id=p_actor_member_id and m.status='active' and (m.role_key in ('owner','manager') or m.permissions ? 'inventory:manage' or m.permissions ? 'purchasing:manage')) into v_allowed;
+ if not v_allowed then raise exception 'Not authorised to receive purchase orders'; end if;
+ select * into v_order from public.jr_business_purchase_orders where id=p_purchase_order_id and business_id=p_business_id for update;
+ if not found or v_order.status not in ('submitted','partially_received') then raise exception 'Purchase order is not available for receiving'; end if;
+ for v_line in select * from public.jr_business_purchase_order_items where purchase_order_id=p_purchase_order_id for update loop
+  v_remaining:=v_line.quantity-v_line.received_quantity;
+  if v_remaining>0 then
+   update public.jr_business_products set stock_quantity=stock_quantity+v_remaining,updated_at=now() where id=v_line.product_id and business_id=p_business_id;
+   insert into public.jr_business_stock_movements(business_id,product_id,actor_member_id,movement_type,quantity_delta,reference,note) values(p_business_id,v_line.product_id,p_actor_member_id,'receive',v_remaining,v_order.order_number,'Received against purchase order');
+   update public.jr_business_purchase_order_items set received_quantity=quantity where id=v_line.id;
+   v_count:=v_count+1;
+  end if;
+ end loop;
+ update public.jr_business_purchase_orders set status='received',updated_at=now() where id=p_purchase_order_id;
+ return jsonb_build_object('purchase_order_id',p_purchase_order_id,'order_number',v_order.order_number,'lines_received',v_count,'status','received');
+end $$;
+revoke all on function public.jr_business_create_purchase_order(uuid,uuid,uuid,jsonb,text) from public,anon,authenticated;
+revoke all on function public.jr_business_receive_purchase_order(uuid,uuid,uuid) from public,anon,authenticated;
+grant execute on function public.jr_business_create_purchase_order(uuid,uuid,uuid,jsonb,text) to service_role;
+grant execute on function public.jr_business_receive_purchase_order(uuid,uuid,uuid) to service_role;
