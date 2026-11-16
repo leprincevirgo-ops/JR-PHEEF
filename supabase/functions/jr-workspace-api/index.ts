@@ -222,6 +222,7 @@ Deno.serve(async (req: Request) => {
       if(items.length<1||items.length>100)return json({ok:false,error:"Choose at least one product for this sale."},400);
       const cleanItems=items.map((x:any)=>({product_id:clean(x.productId,50),quantity:Number(x.quantity)}));
       if(cleanItems.some((x:any)=>!uuid(x.product_id)||!Number.isFinite(x.quantity)||x.quantity<=0))return json({ok:false,error:"Sale items contain invalid products or quantities."},400);
+      if(new Set(cleanItems.map((x:any)=>x.product_id)).size!==cleanItems.length)return json({ok:false,error:"Add each product once and adjust its quantity."},400);
       const method=clean(input.paymentMethod,30);
       if(!["cash","card","mobile_money","other"].includes(method))return json({ok:false,error:"Choose a supported payment method."},400);
       const data=await rest("rpc/jr_business_record_sale","POST",{p_business_id:businessId,p_actor_member_id:mid,p_items:cleanItems.map((x:any)=>({product_id:x.product_id,quantity:x.quantity})),p_payment_method:method,p_payment_reference:clean(input.paymentReference,120)});
