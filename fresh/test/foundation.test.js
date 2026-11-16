@@ -306,12 +306,12 @@ test("JR PHEEF provides a separate honest web-access destination",()=>{
 });
 
 
-test("TURBEX has a distinct transport and logistics venture environment",()=>{
+test("Transport and logistics has a distinct venture environment without an uncleared brand",()=>{
  const html=read("public/index.html"),app=read("public/app.js"),css=read("public/styles.css");
  assert.match(html,/data-company-open="turbex"/);
  assert.match(html,/id="view-turbex"/);
- for(const item of ["TURBEX ROAD","TURBEX CARGO","TURBEX FLEET","TURBEX EXPANSION","independent providers","not a live transport booking or dispatch service"])assert.ok(html.includes(item),"missing "+item);
- assert.match(html,/value="turbex">TURBEX/);assert.ok(app.includes("jrAddWindowSelect")&&app.includes("turbex"),"TURBEX is available in the workspace panel selector");
+ for(const item of ["ROAD OPERATIONS","CARGO SERVICES","FLEET &amp; PROVIDERS","FUTURE EXPANSION","independent providers","not a live transport booking or dispatch service"])assert.ok(html.includes(item),"missing "+item);
+ assert.match(html,/value="turbex">Transport &amp; Logistics/);assert.doesNotMatch(html,/TURBEX/);assert.ok(app.includes("jrAddWindowSelect")&&app.includes("turbex"),"Transport workspace remains reachable through its internal route");assert.match(app,/Transport &amp; Logistics/);assert.doesNotMatch(app,/TURBEX/);
  for(const item of ["turbex-provider","turbex-operations","turbex-partners"])assert.ok(app.includes(item),"missing "+item);
  assert.match(css,/\.company-turbex/);assert.match(css,/\.company-entry-turbex/);
 });
