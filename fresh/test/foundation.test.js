@@ -335,3 +335,8 @@ test("business purchasing records supplier orders and receives stock",()=>{
  assert.match(api,/jr_business_create_purchase_order/);assert.match(api,/jr_business_receive_purchase_order/);
  assert.match(sql,/jr_business_purchase_order_items/);assert.match(sql,/security invoker/i);assert.match(sql,/stock_quantity=stock_quantity\+v_remaining/);
 });
+
+test("business workspace and command interface scripts parse cleanly",()=>{
+ const vm=require("node:vm");
+ for(const file of ["public/business.js","public/command-layout.js","public/intelligence.js","server.js"])assert.doesNotThrow(()=>new vm.Script(read(file),{filename:file}),file+" syntax");
+});
