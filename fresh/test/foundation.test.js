@@ -348,3 +348,13 @@ test("business customers and expense tracking stay inside the private workspace"
  assert.match(sql,/jr_business_customers/);assert.match(sql,/jr_business_expenses/);
  assert.match(sql,/jr_business_customers_no_client_access/);assert.match(sql,/jr_business_expenses_no_client_access/);
 });
+
+test("transport workspace offers member paths to become a provider or find transport",()=>{
+ const html=read("public/index.html"),app=read("public/app.js");
+ assert.match(html,/Become a Driver \/ Transport Provider/);
+ assert.match(html,/Start provider registration with JR/);
+ assert.match(html,/Find Transport or Send Something/);
+ assert.match(html,/data-company-action="turbex-customer"/);
+ assert.match(app,/I want to become a driver or transport provider on JR PHEEF/);
+ assert.match(app,/I need transport or delivery/);
+});
