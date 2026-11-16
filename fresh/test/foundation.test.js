@@ -276,6 +276,12 @@ test("cosmic environments show illustrated scenes, time-aware light and volcano 
  assert.match(css,/jr-cosmic-connections/);
 });
 
+test("WORLDS opens practical real-life domains rather than only school subjects",()=>{
+ const j=read("public/cosmic.js");
+ for(const domain of ["business","agriculture","science","technology","government","finance","health","society","nature","travel","creativity","food"])assert.ok(j.includes('data-cosmic-place="'+domain+'"')||j.includes(domain+':{tag:"'),"missing domain "+domain);
+ assert.match(j,/Business & Enterprise/);assert.match(j,/Agriculture & Food Systems/);assert.match(j,/Science & Discovery/);assert.match(j,/Technology & Innovation/);
+});
+
 test("JR PHEEF home is an active discovery surface beyond navigation tabs",()=>{
  const j=read("public/cosmic.js"),c=read("public/cosmic.css");
  for(const item of ["jr-pulse-board","Find something to do","JR LINK & people","Business & ideas","FAMILY","data-pulse-action","jr-world-page","openWorldPage","closeWorldPage","data-world-section","Ask JR (optional)","Starter experiences are ready to explore"])assert.ok(j.includes(item),"missing "+item);
