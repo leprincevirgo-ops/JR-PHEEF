@@ -175,13 +175,15 @@ Deno.serve(async (req: Request) => {
       if(action==="list_business_products"||action==="business_overview"){
         const products=await rows("jr_business_products","business_id=eq."+businessId+"&active=eq.true&select=id,sku,name,category,unit_price,currency_code,stock_quantity,reorder_level,unit_label&order=name.asc&limit=500");
         if(action==="list_business_products")return response(products||[]);
-        const [tasks,sales,suppliers,purchaseOrders]=await Promise.all([
+        const [tasks,sales,suppliers,purchaseOrders,customers,expenses]=await Promise.all([
           rows("jr_business_tasks","business_id=eq."+businessId+"&select=id,title,department,priority,status,due_at,created_at&order=created_at.desc&limit=100"),
           rows("jr_business_sales","business_id=eq."+businessId+"&select=id,receipt_number,total,currency_code,payment_method,status,created_at&order=created_at.desc&limit=100"),
           rows("jr_business_suppliers","business_id=eq."+businessId+"&select=id,name,contact_name,email,phone,status&order=name.asc&limit=200"),
-          rows("jr_business_purchase_orders","business_id=eq."+businessId+"&select=id,order_number,supplier_id,status,currency_code,total_amount,created_at&order=created_at.desc&limit=100")
+          rows("jr_business_purchase_orders","business_id=eq."+businessId+"&select=id,order_number,supplier_id,status,currency_code,total_amount,created_at&order=created_at.desc&limit=100"),
+          rows("jr_business_customers","business_id=eq."+businessId+"&select=id,customer_name,phone,email,customer_type,status&order=customer_name.asc&limit=500"),
+          rows("jr_business_expenses","business_id=eq."+businessId+"&select=id,category,description,amount,currency_code,payment_method,status,occurred_at&order=occurred_at.desc&limit=200")
         ]);
-        return response({products:products||[],tasks:tasks||[],sales:sales||[],suppliers:suppliers||[],purchaseOrders:purchaseOrders||[],role:access.role_key});
+        return response({products:products||[],tasks:tasks||[],sales:sales||[],suppliers:suppliers||[],purchaseOrders:purchaseOrders||[],customers:customers||[],expenses:expenses||[],role:access.role_key});
       }
       if(action==="list_business_tasks"){
         const data=await rows("jr_business_tasks","business_id=eq."+businessId+"&select=id,title,description,department,priority,status,due_at,created_at&order=created_at.desc&limit=200");
@@ -209,6 +211,24 @@ Deno.serve(async (req: Request) => {
       await rest("jr_business_products?id=eq."+productId+"&business_id=eq."+businessId,"PATCH",{stock_quantity:Number(product.stock_quantity)+quantity,updated_at:new Date().toISOString()});
       await insert("jr_business_stock_movements",{business_id:businessId,product_id:productId,actor_member_id:mid,movement_type:"receive",quantity_delta:quantity,note:clean(input.note,240)});
       return response({received:quantity});
+    }
+    if(action==="create_business_customer"){
+      const businessId=clean(input.businessId,50),access=await businessAccess(businessId,"sales:create"),name=clean(input.customerName,160);
+      if(!access)return json({ok:false,error:"You do not have customer-management permission for this business."},403);
+      if(name.length<2)return json({ok:false,error:"Enter a customer name."},400);
+      const type=["retail","wholesale","business","other"].includes(input.customerType)?input.customerType:"retail";
+      const data=await insert("jr_business_customers",{business_id:businessId,customer_name:name,phone:clean(input.phone,30)||null,email:clean(input.email,254)||null,customer_type:type,notes:clean(input.notes,1000),status:"active"});
+      return response(data?.[0]||data);
+    }
+    if(action==="record_business_expense"){
+      const businessId=clean(input.businessId,50),access=await businessAccess(businessId,"finance:view"),amount=Number(input.amount),description=clean(input.description,240);
+      if(!access)return json({ok:false,error:"You do not have expense-recording permission for this business."},403);
+      if(description.length<3||!Number.isFinite(amount)||amount<=0||amount>100000000000)return json({ok:false,error:"Enter an expense description and a valid amount."},400);
+      const method=clean(input.paymentMethod,30);
+      if(!["cash","card","mobile_money","bank_transfer","other"].includes(method))return json({ok:false,error:"Choose a supported payment method."},400);
+      const currency=clean(input.currencyCode,3)||"KES";if(!/^[A-Z]{3}$/.test(currency))return json({ok:false,error:"Enter a valid currency code."},400);
+      const data=await insert("jr_business_expenses",{business_id:businessId,recorded_by:mid,category:clean(input.category,60)||"general",description,amount,currency_code:currency,payment_method:method,payment_reference:clean(input.paymentReference,120)||null});
+      return response(data?.[0]||data);
     }
     if(action==="create_business_supplier"){
       const businessId=clean(input.businessId,50),access=await businessAccess(businessId,"purchasing:manage"),name=clean(input.name,160);
