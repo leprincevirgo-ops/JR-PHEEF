@@ -298,3 +298,14 @@ test("JR PHEEF provides a separate honest web-access destination",()=>{
  assert.match(j,/Full in-app tabs, bookmarks, downloads and browser history remain future browser features/);
  assert.match(c,/\.jr-web-space/);assert.match(c,/\.jr-web-search/);
 });
+
+
+test("TURBEX has a distinct transport and logistics venture environment",()=>{
+ const html=read("public/index.html"),app=read("public/app.js"),css=read("public/styles.css");
+ assert.match(html,/data-company-open="turbex"/);
+ assert.match(html,/id="view-turbex"/);
+ for(const item of ["TURBEX ROAD","TURBEX CARGO","TURBEX FLEET","TURBEX EXPANSION","independent providers","not a live transport booking or dispatch service"])assert.ok(html.includes(item),"missing "+item);
+ assert.match(html,/value="turbex">TURBEX/);
+ for(const item of ["turbex-provider","turbex-operations","turbex-partners"])assert.ok(app.includes(item),"missing "+item);
+ assert.match(css,/\.company-turbex/);assert.match(css,/\.company-entry-turbex/);
+});
