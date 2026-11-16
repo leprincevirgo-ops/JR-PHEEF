@@ -328,3 +328,10 @@ test("business POS records sales and decrements inventory transactionally",()=>{
  assert.match(sql,/for update/i);assert.match(sql,/jr_business_record_sale/);assert.match(sql,/stock_quantity=stock_quantity-/);
  assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all on public\.jr_business_products/);
 });
+
+test("business purchasing records supplier orders and receives stock",()=>{
+ const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ for(const action of ["create_business_supplier","create_business_purchase_order","receive_business_purchase_order"])assert.ok(b.includes(action)||api.includes(action),"missing "+action);
+ assert.match(api,/jr_business_create_purchase_order/);assert.match(api,/jr_business_receive_purchase_order/);
+ assert.match(sql,/jr_business_purchase_order_items/);assert.match(sql,/security invoker/i);assert.match(sql,/stock_quantity=stock_quantity\+v_remaining/);
+});
