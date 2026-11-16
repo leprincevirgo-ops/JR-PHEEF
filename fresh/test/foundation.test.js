@@ -315,3 +315,16 @@ test("TURBEX has a distinct transport and logistics venture environment",()=>{
  for(const item of ["turbex-provider","turbex-operations","turbex-partners"])assert.ok(app.includes(item),"missing "+item);
  assert.match(css,/\.company-turbex/);assert.match(css,/\.company-entry-turbex/);
 });
+
+test("business operating intelligence is connected to the Worlds workspace",()=>{
+ const h=read("public/index.html"),b=read("public/business.js"),s=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
+ assert.match(h,/business\.js/);assert.match(b,/Business Operating Intelligence/);
+ for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(b,new RegExp(action));
+ for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(s,new RegExp('action==="'+action+'"'));
+ assert.match(s,/jr_business_record_sale/);assert.match(s,/businessAccess/);
+});
+test("business POS records sales and decrements inventory transactionally",()=>{
+ const sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ assert.match(sql,/for update/i);assert.match(sql,/jr_business_record_sale/);assert.match(sql,/stock_quantity=stock_quantity-/);
+ assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all on public\.jr_business_products/);
+});
