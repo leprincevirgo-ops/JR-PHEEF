@@ -55,13 +55,13 @@ test("authenticated users receive a real workspace with working navigation views
  for(const id of ["workspace","view-home","view-worlds","view-jr","view-command"])assert.match(h,new RegExp('id="'+id+'"'));
  for(const view of ["home","worlds","jr","command"])assert.match(h,new RegExp('data-view="'+view+'"'));
  assert.match(j,/function showWorkspace/);assert.match(j,/if\(session\.authenticated\)setSignedIn\(session\.user\)/);assert.match(j,/workspace-tab/);assert.match(j,/showWorkspace\("home"\)/);
- assert.match(h,/JR's live conversation availability is checked/);
+ assert.match(h,/Sign in to talk with JR and explore what you can do/);
  const intelligence=read("public/intelligence.js");
  assert.match(intelligence,/fetch\("\/healthz"/);
  assert.match(intelligence,/aiConfigured/);
  assert.match(intelligence,/jrRuntimeStatus/);
- assert.match(intelligence,/value="secretary"/);
- assert.match(intelligence,/value="agent_team"/);
+ assert.match(intelligence,/id="jrConversationMode" type="hidden"/);
+ assert.doesNotMatch(intelligence,/Conversation focus <select/);
  assert.match(intelligence,/function inferMatchRequest/);assert.match(intelligence,/workspaceRequest\("find_matches"/);assert.match(intelligence,/function addMatchCards/);assert.match(intelligence,/liveAiConfigured/);
 });
 
@@ -318,7 +318,7 @@ test("TURBEX has a distinct transport and logistics venture environment",()=>{
 
 test("business operating intelligence is connected to the Worlds workspace",()=>{
  const h=read("public/index.html"),b=read("public/business.js"),s=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
- assert.match(h,/business\.js/);assert.match(b,/business operating intelligence/i);
+ assert.match(h,/business\.js/);assert.match(b,/your business workspace/i);
  for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(b,new RegExp(action));
  for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(s,new RegExp('action==="'+action+'"'));
  assert.match(s,/jr_business_record_sale/);assert.match(s,/businessAccess/);
