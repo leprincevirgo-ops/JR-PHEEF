@@ -5,7 +5,7 @@
  if(!view||!forms.length)return;
  const panel=document.createElement("section");
  panel.className="jr-intelligence";
- panel.innerHTML='<p class="eyebrow">JR INTELLIGENCE · STAGING FOUNDATION</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Start with a need, a question, a curious thought, a random idea or simply hello. JR recognises the kind of conversation and can connect requests to available worlds. JR can respond through its live conversation service when you are signed in and the service is configured. Current availability is shown below; web research can be enabled for individual questions.</p><div id="jrRuntimeStatus" class="connection-note" role="status" aria-live="polite">Checking JR service availability…</div><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>You do not need a category or a plan. Ask, wonder, imagine or just talk.</p></div><div class="jr-starter-prompts"><span>Try: “Why do people dream?”</span><span>“What if cities floated?”</span><span>“I am bored.”</span><span>“I have an idea.”</span></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><div class="jr-memory-studio"><div><p class="eyebrow">YOUR JR CONTINUITY</p><h3>What should JR remember?</h3><p class="jr-intelligence-copy">Add preferences, goals or project context yourself. JR only uses a memory in AI replies when you explicitly allow it. You can edit, pause or delete memories. Never save passwords, bank details, identity numbers, health details or other sensitive information here.</p></div><form id="jrMemoryForm"><label>Memory type<select name="memoryKind"><option value="preference">Preference</option><option value="goal">Goal</option><option value="project_context">Project context</option><option value="workflow">Workflow</option><option value="non_sensitive_fact">Other non-sensitive fact</option></select></label><label>What should JR remember?<textarea name="memoryText" minlength="3" maxlength="1000" required rows="2" placeholder="Write only information you want JR to retain…"></textarea></label><label class="jr-memory-consent"><input name="consentAiContext" type="checkbox"> Allow JR to use this memory when answering me</label><button type="submit">Save memory</button><p class="hub-feedback" id="jrMemoryFeedback" aria-live="polite"></p></form><div id="jrMemoryList" class="jr-memory-list"><p class="hub-muted">Sign in to manage your JR memories.</p></div></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
+ panel.innerHTML='<p class="eyebrow">JR · YOUR STARTING POINT</p><h3>One conversation. The right worlds.</h3><p class="jr-intelligence-copy">Start with a need, a question, a curious thought, a random idea or simply hello. JR understands what you mean and helps you take the next useful step. Ask naturally; you do not need to choose a category.</p><div id="jrRuntimeStatus" class="connection-note" role="status" aria-live="polite">Checking JR service availability…</div><div id="jrIntentResult" class="jr-response" aria-live="polite"><p>You do not need a category or a plan. Ask, wonder, imagine or just talk.</p></div><div class="jr-starter-prompts"><span>Try: “Why do people dream?”</span><span>“What if cities floated?”</span><span>“I am bored.”</span><span>“I have an idea.”</span></div><div class="jr-media-composer"><p class="eyebrow">CREATE · PHOTO & VIDEO</p><h3>Prepare something to share</h3><p class="jr-intelligence-copy">Take a photo or video, or choose media from your gallery. Review your selection and caption before sharing. This staging preview does not upload or publish.</p><div class="jr-media-actions"><label>📷 Take photo/video<input id="jrCameraFiles" type="file" accept="image/*,video/*" capture="environment" multiple></label><label>▧ Choose from gallery<input id="jrGalleryFiles" type="file" accept="image/*,video/*" multiple></label></div><textarea id="jrPostCaption" maxlength="2000" placeholder="Write a caption or tell JR what you want to advertise…"></textarea><div id="jrMediaPreview" class="jr-media-preview"></div><p id="jrMediaStatus" class="jr-media-status" aria-live="polite">No media selected.</p></div><div class="jr-memory-studio"><div><p class="eyebrow">YOUR JR CONTINUITY</p><h3>What should JR remember?</h3><p class="jr-intelligence-copy">Add preferences, goals or project context yourself. JR only uses saved information in replies when you explicitly allow it. You can edit, pause or delete memories. Never save passwords, bank details, identity numbers, health details or other sensitive information here.</p></div><form id="jrMemoryForm"><label>Memory type<select name="memoryKind"><option value="preference">Preference</option><option value="goal">Goal</option><option value="project_context">Project context</option><option value="workflow">Workflow</option><option value="non_sensitive_fact">Other non-sensitive fact</option></select></label><label>What should JR remember?<textarea name="memoryText" minlength="3" maxlength="1000" required rows="2" placeholder="Write only information you want JR to retain…"></textarea></label><label class="jr-memory-consent"><input name="consentAiContext" type="checkbox"> Allow JR to use this memory when answering me</label><button type="submit">Save memory</button><p class="hub-feedback" id="jrMemoryFeedback" aria-live="polite"></p></form><div id="jrMemoryList" class="jr-memory-list"><p class="hub-muted">Sign in to manage your JR memories.</p></div></div><p class="jr-theme-note">Atmospheric layered background, translucent surfaces and readable panels. Reduced-motion preferences are respected.</p>';
  view.append(panel);
  const result=$("jrIntentResult"),camera=$("jrCameraFiles"),gallery=$("jrGalleryFiles"),preview=$("jrMediaPreview");
  let liveAiConfigured=false;
@@ -17,11 +17,11 @@
    if(!response.ok||!data.ok)throw new Error("Health check unavailable");
    liveAiConfigured=Boolean(data.aiConfigured);
    status.textContent=data.aiConfigured
-    ?"JR's AI service is configured. Sign in to start a conversation."
-    :"JR's AI service is not activated on this staging deployment yet.";
+    ?"JR is ready when you sign in."
+    :"JR's full conversation service is not available yet. You can still use connected features.";
    status.dataset.state=data.aiConfigured?"configured":"inactive";
   }catch(_){
-   status.textContent="JR's live service status could not be checked. You can still try again later.";
+   status.textContent="JR's connection could not be checked. Please try again later.";
    status.dataset.state="unknown";
   }
  }
@@ -113,7 +113,7 @@
  let jrBusy=false;
  const controls=document.createElement("div");
  controls.className="jr-chat-controls";
- controls.innerHTML='<div class="jr-conversation-picker"><label>Conversation <select id="jrSavedConversation"><option value="">Start a new conversation</option></select></label><button type="button" id="jrNewConversation">New conversation</button></div><label>Conversation focus <select id="jrConversationMode"><option value="universe">Open conversation</option><option value="business">Business & operations</option><option value="learning">Learning & discovery</option><option value="research">Research</option><option value="personal">Personal planning</option><option value="opportunities">Opportunities & matching</option><option value="secretary">Personal AI Secretary</option><option value="agent_team">Specialist team coordination</option></select></label><label class="jr-web-toggle"><input id="jrWebResearch" type="checkbox"> Allow web research for this question</label>';
+ controls.innerHTML='<div class="jr-conversation-picker"><label>Conversation <select id="jrSavedConversation"><option value="">Start a new conversation</option></select></label><button type="button" id="jrNewConversation">New conversation</button></div><label><input id="jrConversationMode" type="hidden" value="universe"></label><label class="jr-web-toggle"><input id="jrWebResearch" type="checkbox"> Allow web research for this question</label>';
  panel.insertBefore(controls,$(".jr-starter-prompts"));
  const transcript=document.createElement("div");
  transcript.id="jrConversationTranscript";
@@ -153,7 +153,7 @@
      renderResponse("JR matching is available. Choose a result to start the appropriate connection.");
      return;
     }
-    throw new Error("JR's live AI service is not activated on this staging deployment yet. You can still ask JR to find goods, services, jobs, property, transport or business partners.");
+    throw new Error("JR's full conversation service is not available yet. You can still ask JR to find goods, services, jobs, property, transport or business partners.");
    }
    const response=await fetch("/api/ai/chat",{
     method:"POST",credentials:"same-origin",
@@ -184,7 +184,7 @@
  function conversationResponseLegacy(value){
   // Kept as a local fallback only for unconfigured deployments.
   const search=externalSearch(value);
-  renderResponse("JR's live intelligence connection is not available on this deployment yet. Your message has not been sent to an AI service.",[search]);
+  renderResponse("JR could not complete that request yet. Your message has not been sent.",[search]);
  }
  async function workspaceRequest(action,extra={}){const r=await fetch("/api/workspace",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,...extra})});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||"Your worlds could not be checked.");return d.data;}
  async function loadAiConversation(id){
@@ -210,18 +210,18 @@
    if(!memories.length){list.textContent="No saved memories yet. Add only what you want JR to remember.";return;}
    memories.forEach(memory=>{
     const card=document.createElement("article");card.className="jr-memory-item";
-    const kind=document.createElement("small");kind.textContent=memory.memory_kind.replace(/_/g," ")+" · "+(memory.consent_ai_context?"AI use allowed":"private to your memory list")+" · "+(memory.active?"active":"paused");
+    const kind=document.createElement("small");kind.textContent=memory.memory_kind.replace(/_/g," ")+" · "+(memory.consent_ai_context?"Use allowed":"Private memory")+" · "+(memory.active?"active":"paused");
     const text=document.createElement("p");text.textContent=memory.memory_text;
     const actions=document.createElement("div");actions.className="jr-memory-actions";
     const edit=actionButton("Edit",async()=>{const value=window.prompt("Edit this memory",memory.memory_text);if(value===null)return;try{await workspaceRequest("update_jr_memory",{memoryId:memory.id,memoryText:value});await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}});
-    const consent=actionButton(memory.consent_ai_context?"Stop AI use":"Allow AI use",async()=>{try{await workspaceRequest("update_jr_memory",{memoryId:memory.id,consentAiContext:!memory.consent_ai_context});await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}});
+    const consent=actionButton(memory.consent_ai_context?"Stop using":"Allow use",async()=>{try{await workspaceRequest("update_jr_memory",{memoryId:memory.id,consentAiContext:!memory.consent_ai_context});await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}});
     const pause=actionButton(memory.active?"Pause":"Reactivate",async()=>{try{await workspaceRequest("update_jr_memory",{memoryId:memory.id,active:!memory.active});await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}});
     const del=actionButton("Delete",async()=>{if(!window.confirm("Delete this memory permanently?"))return;try{await workspaceRequest("delete_jr_memory",{memoryId:memory.id});await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}});
     actions.append(edit,consent,pause,del);card.append(kind,text,actions);list.append(card);
    });
   }catch(error){list.textContent=error.message;}
  }
- $("jrMemoryForm")?.addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget,fd=new FormData(form),button=form.querySelector("button[type=submit]");button.disabled=true;$("jrMemoryFeedback").textContent="Saving your memory…";try{await workspaceRequest("create_jr_memory",{memoryKind:fd.get("memoryKind"),memoryText:fd.get("memoryText"),consentAiContext:fd.get("consentAiContext")==="on"});form.reset();$("jrMemoryFeedback").textContent="Memory saved. You remain in control of its AI-use permission.";await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}finally{button.disabled=false;}});
+ $("jrMemoryForm")?.addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget,fd=new FormData(form),button=form.querySelector("button[type=submit]");button.disabled=true;$("jrMemoryFeedback").textContent="Saving your memory…";try{await workspaceRequest("create_jr_memory",{memoryKind:fd.get("memoryKind"),memoryText:fd.get("memoryText"),consentAiContext:fd.get("consentAiContext")==="on"});form.reset();$("jrMemoryFeedback").textContent="Memory saved. You remain in control of whether JR can use it in replies.";await refreshJrMemories();}catch(error){$("jrMemoryFeedback").textContent=error.message;}finally{button.disabled=false;}});
  async function legacyWorldLookup(){return workspaceRequest("list_worlds");}
  async function routeRequest(value){
   await conversationResponse(value);
