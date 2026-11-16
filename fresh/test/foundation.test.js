@@ -305,7 +305,7 @@ test("TURBEX has a distinct transport and logistics venture environment",()=>{
  assert.match(html,/data-company-open="turbex"/);
  assert.match(html,/id="view-turbex"/);
  for(const item of ["TURBEX ROAD","TURBEX CARGO","TURBEX FLEET","TURBEX EXPANSION","independent providers","not a live transport booking or dispatch service"])assert.ok(html.includes(item),"missing "+item);
- assert.match(html,/value="turbex">TURBEX/);
+ assert.match(html,/value="turbex">TURBEX/);assert.match(app,/value="turbex">TURBEX/);
  for(const item of ["turbex-provider","turbex-operations","turbex-partners"])assert.ok(app.includes(item),"missing "+item);
  assert.match(css,/\.company-turbex/);assert.match(css,/\.company-entry-turbex/);
 });
