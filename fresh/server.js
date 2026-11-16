@@ -237,7 +237,7 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     if(!message)return res.status(400).json({ok:false,error:"Tell JR what is on your mind."});
     const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team"]);
     const requestedMode=allowedModes.has(body.mode)?body.mode:"universe";
-    const normalisedMessage=message.normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    const normalisedMessage=message.normalize("NFKD").toLowerCase();
     const isReverseEngineering=new RegExp("\\b(reverse engineer|reverse engineering|decompile|reconstruct|map (the )?(api|system|software|application)|understand how (this|the) (app|system|software|platform) works|legacy system analysis|protocol analysis)\\b").test(normalisedMessage);
     const isArchitecture=new RegExp("\\b(architect|architecture|system design|solution design|technical design|database design|enterprise architecture|integration architecture|infrastructure design)\\b").test(normalisedMessage);
     const isComplex=new RegExp("\\b(coordinate|orchestrate|multiple specialists|whole business|end to end|end-to-end|complete operating model|comprehensive plan)\\b").test(normalisedMessage);
