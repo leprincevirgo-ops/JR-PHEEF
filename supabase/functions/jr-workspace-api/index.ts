@@ -148,7 +148,84 @@ Deno.serve(async (req: Request) => {
       const name=clean(input.businessName,140),sector=clean(input.sector,80)||"other",location=clean(input.location,180);
       if(name.length<2)return json({ok:false,error:"Enter a business name."},400);
       const data=await insert("jr_business_workspaces",{owner_member_id:mid,business_name:name,sector,location:location||null,goals:clean(input.goals,1000)||null,status:"setup",plan_tier:"free"});
+      const business=data?.[0];if(!business?.id)throw new Error("Business workspace could not be created.");
+      await insert("jr_business_workspace_members",{business_id:business.id,member_id:mid,role_key:"owner",permissions:["business:manage","people:manage","data:import","data:export","integrations:manage","documents:manage","finance:view","approvals:manage","sales:create","inventory:manage","tasks:manage"],status:"active"});
+      return response(business);
+    }
+    const businessAccess=async(businessId:string,required:string)=>{
+      if(!uuid(businessId))return null;
+      const membership=(await rows("jr_business_workspace_members","business_id=eq."+businessId+"&member_id=eq."+mid+"&status=eq.active&select=role_key,permissions&limit=1"))?.[0];
+      if(!membership)return null;
+      const perms=Array.isArray(membership.permissions)?membership.permissions:[];
+      if(membership.role_key!=="owner"&&membership.role_key!=="manager"&&!perms.includes("business:manage")&&!perms.includes(required))return null;
+      return membership;
+    };
+    if(action==="list_business_workspaces"){
+      const owned=await rows("jr_business_workspaces","owner_member_id=eq."+mid+"&select=id,business_name,sector,location,status,plan_tier,created_at&order=created_at.desc&limit=50");
+      const joined=await rows("jr_business_workspace_members","member_id=eq."+mid+"&status=eq.active&select=business_id,role_key&limit=100");
+      const ids=(joined||[]).map((x:any)=>x.business_id).filter((x:string)=>uuid(x));
+      const shared=ids.length?await rows("jr_business_workspaces","id=in.("+ids.join(",")+")&select=id,business_name,sector,location,status,plan_tier,created_at&limit=100"):[];
+      const all=new Map<string,any>();for(const b of [...(owned||[]),...(shared||[])])all.set(b.id,{...b,myRole:b.owner_member_id===mid?"owner":(joined||[]).find((x:any)=>x.business_id===b.id)?.role_key||"staff"});
+      return response([...all.values()]);
+    }
+    if(action==="business_overview"||action==="list_business_products"||action==="list_business_tasks"||action==="list_business_sales"){
+      const businessId=clean(input.businessId,50),required=action==="list_business_sales"?"finance:view":action==="list_business_tasks"?"tasks:manage":"inventory:manage";
+      const access=await businessAccess(businessId,required);
+      if(!access)return json({ok:false,error:"Business workspace not found or you do not have permission."},403);
+      if(action==="list_business_products"||action==="business_overview"){
+        const products=await rows("jr_business_products","business_id=eq."+businessId+"&active=eq.true&select=id,sku,name,category,unit_price,currency_code,stock_quantity,reorder_level,unit_label&order=name.asc&limit=500");
+        if(action==="list_business_products")return response(products||[]);
+        const [tasks,sales,suppliers]=await Promise.all([
+          rows("jr_business_tasks","business_id=eq."+businessId+"&select=id,title,department,priority,status,due_at,created_at&order=created_at.desc&limit=100"),
+          rows("jr_business_sales","business_id=eq."+businessId+"&select=id,receipt_number,total,currency_code,payment_method,status,created_at&order=created_at.desc&limit=100"),
+          rows("jr_business_suppliers","business_id=eq."+businessId+"&select=id,name,contact_name,email,phone,status&order=name.asc&limit=200")
+        ]);
+        return response({products:products||[],tasks:tasks||[],sales:sales||[],suppliers:suppliers||[],role:access.role_key});
+      }
+      if(action==="list_business_tasks"){
+        const data=await rows("jr_business_tasks","business_id=eq."+businessId+"&select=id,title,description,department,priority,status,due_at,created_at&order=created_at.desc&limit=200");
+        return response(data||[]);
+      }
+      const data=await rows("jr_business_sales","business_id=eq."+businessId+"&select=id,receipt_number,total,currency_code,payment_method,status,created_at&order=created_at.desc&limit=200");
+      return response(data||[]);
+    }
+    if(action==="create_business_product"){
+      const businessId=clean(input.businessId,50),access=await businessAccess(businessId,"inventory:manage");
+      if(!access)return json({ok:false,error:"You do not have inventory permission for this business."},403);
+      const sku=clean(input.sku,60),name=clean(input.name,160),price=Number(input.unitPrice),stock=Number(input.openingStock||0),reorder=Number(input.reorderLevel||0);
+      if(sku.length<1||name.length<2||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0||!Number.isFinite(reorder)||reorder<0)return json({ok:false,error:"Check the SKU, product name, price and stock quantities."},400);
+      const created=await insert("jr_business_products",{business_id:businessId,sku,name,category:clean(input.category,80)||"general",unit_price:price,currency_code:clean(input.currencyCode,3)||"KES",stock_quantity:stock,reorder_level:reorder,unit_label:clean(input.unitLabel,20)||"unit"});
+      const product=created?.[0];if(!product?.id)throw new Error("Product could not be created.");
+      if(stock>0)await insert("jr_business_stock_movements",{business_id:businessId,product_id:product.id,actor_member_id:mid,movement_type:"opening",quantity_delta:stock,note:"Opening stock"});
+      return response(product);
+    }
+    if(action==="receive_business_stock"){
+      const businessId=clean(input.businessId,50),productId=clean(input.productId,50),quantity=Number(input.quantity),access=await businessAccess(businessId,"inventory:manage");
+      if(!access)return json({ok:false,error:"You do not have inventory permission for this business."},403);
+      if(!uuid(productId)||!Number.isFinite(quantity)||quantity<=0||quantity>100000)return json({ok:false,error:"Enter a valid product and received quantity."},400);
+      const product=(await rows("jr_business_products","id=eq."+productId+"&business_id=eq."+businessId+"&select=id,stock_quantity&limit=1"))?.[0];
+      if(!product)return json({ok:false,error:"Product not found in this business."},404);
+      await rest("jr_business_products?id=eq."+productId+"&business_id=eq."+businessId,"PATCH",{stock_quantity:Number(product.stock_quantity)+quantity,updated_at:new Date().toISOString()});
+      await insert("jr_business_stock_movements",{business_id:businessId,product_id:productId,actor_member_id:mid,movement_type:"receive",quantity_delta:quantity,note:clean(input.note,240)});
+      return response({received:quantity});
+    }
+    if(action==="create_business_task"){
+      const businessId=clean(input.businessId,50),access=await businessAccess(businessId,"tasks:manage"),title=clean(input.title,180);
+      if(!access)return json({ok:false,error:"You do not have task-management permission for this business."},403);
+      if(title.length<3)return json({ok:false,error:"Enter a task title."},400);
+      const data=await insert("jr_business_tasks",{business_id:businessId,created_by:mid,title,description:clean(input.description,1500),department:clean(input.department,60)||"general",priority:["low","normal","high","urgent"].includes(input.priority)?input.priority:"normal",due_at:clean(input.dueAt,40)||null});
       return response(data?.[0]||data);
+    }
+    if(action==="record_business_sale"){
+      const businessId=clean(input.businessId,50),items=Array.isArray(input.items)?input.items:[];
+      if(!await businessAccess(businessId,"sales:create"))return json({ok:false,error:"You do not have sales permission for this business."},403);
+      if(items.length<1||items.length>100)return json({ok:false,error:"Choose at least one product for this sale."},400);
+      const cleanItems=items.map((x:any)=>({product_id:clean(x.productId,50),quantity:Number(x.quantity)}));
+      if(cleanItems.some((x:any)=>!uuid(x.product_id)||!Number.isFinite(x.quantity)||x.quantity<=0))return json({ok:false,error:"Sale items contain invalid products or quantities."},400);
+      const method=clean(input.paymentMethod,30);
+      if(!["cash","card","mobile_money","other"].includes(method))return json({ok:false,error:"Choose a supported payment method."},400);
+      const data=await rest("rpc/jr_business_record_sale","POST",{p_business_id:businessId,p_actor_member_id:mid,p_items:cleanItems.map((x:any)=>({product_id:x.product_id,quantity:x.quantity})),p_payment_method:method,p_payment_reference:clean(input.paymentReference,120)});
+      return response(data);
     }
     if(action==="create_project"){
       const title=clean(input.title,140),goal=clean(input.goal,1500);
