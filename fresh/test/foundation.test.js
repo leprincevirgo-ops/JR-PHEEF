@@ -250,7 +250,7 @@ test("JR PHEEF includes a living cosmic home and connected universe explorer",()
  const html=read("public/index.html"),cosmic=read("public/cosmic.js"),css=read("public/cosmic.css");
  assert.match(html,/cosmic\.css/);assert.match(html,/cosmic\.js/);
  assert.match(cosmic,/jr-cosmic-home/);assert.match(cosmic,/jrCosmicExplorer/);
- for(const place of ["knowledge","human","creation","living","opportunity","innovation","forest","ocean","mountain","city","underwater","desert","garden","space"])assert.match(cosmic,new RegExp('data-cosmic-place="'+place+'"'));
+ for(const place of ["business","agriculture","science","technology","government","finance","health","society","nature","travel","creativity","food","forest","ocean","mountain","city","underwater","desert","garden","space"])assert.match(cosmic,new RegExp('data-cosmic-place="'+place+'"'));
  assert.match(cosmic,/jrCosmicAsk/);assert.match(cosmic,/workspacePrompt/);assert.match(cosmic,/Pause movement/);
  assert.match(css,/prefers-reduced-motion/);assert.match(css,/jr-cosmic-paused/);assert.match(css,/jr-cosmic-environment-grid/);
  assert.doesNotMatch(cosmic,/founder|ownership|secret key/i);
