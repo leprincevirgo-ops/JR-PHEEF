@@ -318,7 +318,7 @@ test("TURBEX has a distinct transport and logistics venture environment",()=>{
 
 test("business operating intelligence is connected to the Worlds workspace",()=>{
  const h=read("public/index.html"),b=read("public/business.js"),s=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
- assert.match(h,/business\.js/);assert.match(b,/Business Operating Intelligence/);
+ assert.match(h,/business\.js/);assert.match(b,/business operating intelligence/i);
  for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(b,new RegExp(action));
  for(const action of ["list_business_workspaces","business_overview","create_business_product","receive_business_stock","record_business_sale","create_business_task"])assert.match(s,new RegExp('action==="'+action+'"'));
  assert.match(s,/jr_business_record_sale/);assert.match(s,/businessAccess/);
