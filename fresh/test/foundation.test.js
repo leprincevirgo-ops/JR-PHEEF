@@ -340,3 +340,11 @@ test("business workspace and command interface scripts parse cleanly",()=>{
  const vm=require("node:vm");
  for(const file of ["public/business.js","public/command-layout.js","public/intelligence.js","server.js"])assert.doesNotThrow(()=>new vm.Script(read(file),{filename:file}),file+" syntax");
 });
+
+test("business customers and expense tracking stay inside the private workspace",()=>{
+ const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ assert.match(b,/jrCustomerForm/);assert.match(b,/jrExpenseForm/);
+ assert.match(api,/create_business_customer/);assert.match(api,/record_business_expense/);
+ assert.match(sql,/jr_business_customers/);assert.match(sql,/jr_business_expenses/);
+ assert.match(sql,/jr_business_customers_no_client_access/);assert.match(sql,/jr_business_expenses_no_client_access/);
+});
