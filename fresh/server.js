@@ -246,20 +246,17 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     const body=req.body||{};
     const message=typeof body.message==="string"?body.message.trim().slice(0,5000):"";
     if(!message)return res.status(400).json({ok:false,error:"Tell JR what is on your mind."});
-    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team","science","philosophy","engineering","invention","architecture"]);
+    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team"]);
     const requestedMode=allowedModes.has(body.mode)?body.mode:"universe";
     const normalisedMessage=message.normalize("NFKD").toLowerCase();
     const isReverseEngineering=new RegExp("\\b(reverse engineer|reverse engineering|decompile|reconstruct|map (the )?(api|system|software|application)|understand how (this|the) (app|system|software|platform) works|legacy system analysis|protocol analysis)\\b").test(normalisedMessage);
     const isArchitecture=new RegExp("\\b(architect|architecture|system design|solution design|technical design|database design|enterprise architecture|integration architecture|infrastructure design)\\b").test(normalisedMessage);
     const isComplex=new RegExp("\\b(coordinate|orchestrate|multiple specialists|whole business|end to end|end-to-end|complete operating model|comprehensive plan)\\b").test(normalisedMessage);
-    const isScientific=new RegExp("\\b(science|scientific|physics|chemistry|biology|mathematics|mathematical|experiment|hypothesis|theory|proof|evidence|consciousness|philosophy|epistemology|logic|engineering|invent|invention|prototype|mechanical|electrical|architecture|architectural|construction|materials|energy|space research)\\b").test(normalisedMessage);
-    const mode=isReverseEngineering?"reverse_engineering":isArchitecture?"architecture":(requestedMode==="universe"&&isComplex?"agent_team":(requestedMode==="universe"&&isScientific?"research":requestedMode));
+    const mode=isReverseEngineering?"reverse_engineering":isArchitecture?"architecture":(requestedMode==="universe"&&isComplex?"agent_team":requestedMode);
     const specialtyInstruction=mode==="architecture"
       ?"Act as a senior cross-disciplinary architect. Design software, enterprise, data, security, integration, operations and business architectures as the request requires. Clarify goals and constraints, define components and boundaries, data flows, interfaces, failure modes, permissions, costs and phased implementation. Produce clear diagrams or structured blueprints when useful. Distinguish a proposed design from deployed infrastructure."
       :mode==="reverse_engineering"
       ?"Analyse only systems, software, devices, APIs or data the user owns or is authorised to inspect. Use supplied source code, documentation, behaviour, schemas, interfaces, dependencies and observable outputs to reconstruct architecture, workflows, data models and integration contracts; identify risks and produce migration or compatibility plans. Do not bypass authentication, DRM, licensing, access controls or security protections, and do not assist theft of secrets or proprietary data. State what evidence is missing; never claim to have inspected a repository, binary or live system unless it was actually supplied or connected."
-      :mode==="research"||mode==="science"||mode==="philosophy"||mode==="engineering"||mode==="invention"
-      ?"Act as a rigorous interdisciplinary teacher, researcher and builder. Define the question, teach necessary foundations, identify assumptions, compare explanations, assess evidence quality, develop testable hypotheses, explore design alternatives, explain feasibility and risks, and propose safe validation steps. Separate established science from open questions and speculation. Do not claim experiments, simulations, fabrication or deployment occurred without confirmation."
       :mode==="agent_team"
       ?"Silently coordinate relevant specialist perspectives (such as architecture, software, research, business, operations, finance education, security, design and communications) and synthesise one coherent answer. Do not claim separate people, agents or background jobs executed unless a connected service confirms it."
       :"Answer the request first; offer relevant JR PHEEF capabilities only when they genuinely help.";
