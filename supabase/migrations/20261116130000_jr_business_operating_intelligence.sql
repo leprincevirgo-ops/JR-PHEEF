@@ -175,3 +175,30 @@ revoke all on function public.jr_business_create_purchase_order(uuid,uuid,uuid,j
 revoke all on function public.jr_business_receive_purchase_order(uuid,uuid,uuid) from public,anon,authenticated;
 grant execute on function public.jr_business_create_purchase_order(uuid,uuid,uuid,jsonb,text) to service_role;
 grant execute on function public.jr_business_receive_purchase_order(uuid,uuid,uuid) to service_role;
+
+
+-- Customer records and operating expense register.
+create table if not exists public.jr_business_customers (
+ id uuid primary key default gen_random_uuid(),business_id uuid not null references public.jr_business_workspaces(id) on delete cascade,
+ customer_name text not null check(char_length(btrim(customer_name)) between 2 and 160),phone text,email text,
+ customer_type text not null default 'retail' check(customer_type in ('retail','wholesale','business','other')),
+ notes text not null default '',status text not null default 'active' check(status in ('active','inactive')),
+ created_at timestamptz not null default now(),unique(business_id,customer_name)
+);
+create index if not exists jr_business_customers_business_idx on public.jr_business_customers(business_id,status,customer_name);
+create table if not exists public.jr_business_expenses (
+ id uuid primary key default gen_random_uuid(),business_id uuid not null references public.jr_business_workspaces(id) on delete cascade,
+ recorded_by uuid not null references public.members(id),category text not null,
+ description text not null check(char_length(btrim(description)) between 3 and 240),
+ amount numeric(14,2) not null check(amount>0),currency_code text not null default 'KES' check(currency_code ~ '^[A-Z]{3}$'),
+ payment_method text not null default 'other' check(payment_method in ('cash','card','mobile_money','bank_transfer','other')),
+ payment_reference text,occurred_at timestamptz not null default now(),
+ status text not null default 'recorded' check(status in ('recorded','voided')),created_at timestamptz not null default now()
+);
+create index if not exists jr_business_expenses_business_idx on public.jr_business_expenses(business_id,occurred_at desc);
+alter table public.jr_business_customers enable row level security;
+alter table public.jr_business_expenses enable row level security;
+create policy jr_business_customers_no_client_access on public.jr_business_customers for all to anon,authenticated using(false) with check(false);
+create policy jr_business_expenses_no_client_access on public.jr_business_expenses for all to anon,authenticated using(false) with check(false);
+revoke all on public.jr_business_customers,public.jr_business_expenses from anon,authenticated;
+grant all on public.jr_business_customers,public.jr_business_expenses to service_role;
