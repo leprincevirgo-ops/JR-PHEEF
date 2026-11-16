@@ -266,7 +266,7 @@ test("home discoveries open the matching place inside WORLDS",()=>{
 test("cosmic environments show illustrated scenes, time-aware light and volcano exploration",()=>{
  const cosmic=read("public/cosmic.js"),css=read("public/cosmic.css");
  assert.match(cosmic,/jrCosmicSceneArt/);assert.match(cosmic,/jrCosmicConnections/);
- assert.match(cosmic,/data-scene="volcano"/);assert.match(cosmic,/volcano:\["Volcano"/);
+ assert.match(cosmic,/volcano:\{tag:/);assert.match(cosmic,/volcano:\["Volcano"/);
  assert.match(cosmic,/Explore with JR|Explore\s*with JR/);
  assert.match(cosmic,/jrCosmicTimeLabel/);
  for(const phase of ["morning","day","sunset","night"])assert.match(css,new RegExp('data-jr-cosmic-time="'+phase+'"'));
