@@ -135,6 +135,10 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     }
     const receiptRows=ids.map(recipient_id=>({message_id:data.id,recipient_id}));
     const {error:receiptError}=await db.from("jr_message_receipts").upsert(receiptRows,{onConflict:"message_id,recipient_id",ignoreDuplicates:true});if(receiptError)throw receiptError;
+    const {error:notifyError}=await db.from("jr_notifications").insert(ids.map(member_id=>({
+      member_id,title:"New JR LINK message",message:"You have a new message in JR LINK.",type:"message"
+    })));
+    if(notifyError)console.error("JR LINK notification failed:",clean(notifyError.message).slice(0,160));
     await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).eq("id",room.id);
     res.status(201).json({ok:true,message:{...data,sender_name:"You"}});
   }));
