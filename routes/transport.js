@@ -275,10 +275,13 @@ module.exports = function mountTransport(ctx) {
     const {data:jobs,error}=await db.from("jr_delivery_requests").select("id,pickup,destination,description,price,provider_earnings,service_mode,service_kind,distance_km,duration_minutes,created_at")
       .eq("status","open").in("service_mode",modes).in("service_kind",serviceTypes).neq("requester_id",member.id).order("created_at",{ascending:false}).limit(50);
     if(error)throw error;
-    const completed=await db.from("jr_delivery_requests").select("provider_earnings").eq("rider_id",member.id).eq("status","delivered");
-    if(completed.error)throw completed.error;
+    const [assigned,completed]=await Promise.all([
+      db.from("jr_delivery_requests").select("id,pickup,destination,description,price,provider_earnings,service_mode,service_kind,distance_km,duration_minutes,status,created_at").eq("rider_id",member.id).in("status",["accepted","picked_up"]).order("created_at",{ascending:false}).limit(30),
+      db.from("jr_delivery_requests").select("provider_earnings").eq("rider_id",member.id).eq("status","delivered")
+    ]);
+    if(assigned.error)throw assigned.error;if(completed.error)throw completed.error;
     const total=(completed.data||[]).reduce((sum,x)=>sum+Number(x.provider_earnings||0),0);
-    res.json({ok:true,jobs:jobs||[],earnings:{completed_jobs:(completed.data||[]).length,total_ksh:total}});
+    res.json({ok:true,jobs:jobs||[],assigned:assigned.data||[],earnings:{completed_jobs:(completed.data||[]).length,total_ksh:total}});
   }));
 
   app.post("/api/transport/provider/jobs/:id/accept",wrap("Transport job accept",async(req,res)=>{
@@ -316,6 +319,8 @@ module.exports = function mountTransport(ctx) {
     const patch={status:next,updated_at:new Date().toISOString()};if(next==="delivered")patch.delivered_at=new Date().toISOString();
     const {data,error}=await db.from("jr_delivery_requests").update(patch).eq("id",req.params.id).eq("rider_id",member.id).eq("status",from).select("id,status,provider_earnings").maybeSingle();
     if(error)throw error;if(!data)return bad(res,"Only the assigned provider can move this job to that stage.",403);
+    const {data:job,error:jobError}=await db.from("jr_delivery_requests").select("requester_id").eq("id",req.params.id).maybeSingle();if(jobError)throw jobError;
+    if(job)await notify(job.requester_id,next==="delivered"?"Delivery completed":"Provider picked up your request",next==="delivered"?"Your delivery was marked complete. Please settle the agreed fare directly with the provider; JR PHEEF payments are not enabled.":"Your provider has picked up the delivery.","delivery");
     res.json({ok:true,request:data});
   }));
 
