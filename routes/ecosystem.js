@@ -142,6 +142,9 @@ module.exports = function mountEcosystem(ctx) {
       .eq("venture_slug", "family").eq("status", "approved").maybeSingle();
     if (error) throw error;
     if (!membership) { bad(res, "FAMILY membership approval is required before using member services.", 403); return null; }
+    if (!["member", "goal_coordinator"].includes(membership.role_key)) {
+      bad(res, "This FAMILY role does not include personal member tools.", 403); return null;
+    }
     const link = await getLink(m.id, "family");
     return { ...(link || {}), consent_scopes: link && link.status !== "left" && Array.isArray(link.consent_scopes) ? link.consent_scopes : [], membership };
   };
