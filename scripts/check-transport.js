@@ -15,7 +15,7 @@ for(const endpoint of [
 ]){
  if(!route.includes(endpoint))throw new Error("Missing transport endpoint: "+endpoint);
 }
-for(const required of ["Cheapest suitable","Fastest estimated","JR recommends","provider_estimated_earnings_ksh","pending_driver_consent","pending_review","live_provider_availability"]){
+for(const required of ["Cheapest suitable","Fastest estimated","JR recommends","provider_estimated_earnings_ksh","pending_driver_consent","pending_review","live_provider_availability","jr_transport_documents","driving_licence","vehicle_logbook"]){
  if(!route.includes(required))throw new Error("Missing transport safety/pricing feature: "+required);
 }
 if(!server.includes('require("./routes/transport")(routeCtx)'))throw new Error("Transport route is not mounted.");
