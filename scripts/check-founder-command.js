@@ -5,5 +5,5 @@ for(const s of ["is_owner!==true","/api/me","PRIVATE FOUNDER ACCESS","Founder Co
 assert.ok(css.includes("@media(max-width:580px)"),"Mobile layout missing");
 assert.ok(html.includes("/founder-loader.js")&&html.includes("/founder-command.css"),"Owner-only founder loader or styles missing");
 const server=fs.readFileSync("server.js","utf8");
-assert.ok(server.includes("app.get(\"/founder-command.js\"")&&server.includes("path.join(__dirname, \"private\", \"founder-command.js\")")&&server.includes("String(value || \"\").toLowerCase() === \"owner\""),"Founder script must be server-gated to owners.");
+assert.ok(server.includes('app.get("/founder-command.js"')&&server.includes('path.join(__dirname, "private", "founder-command.js")')&&server.includes("[member.account_type, member.role]")&&server.includes('["owner", "founder"].includes(String(value || "").toLowerCase())'),"Founder script must be server-gated to owners and founders.");
 console.log("Private founder command structure checks passed.");

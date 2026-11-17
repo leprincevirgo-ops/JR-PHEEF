@@ -1,0 +1,37 @@
+name: JR PHEEF transport validation
+
+on:
+  push:
+    branches:
+      - rebuild/architecture-foundation
+    paths:
+      - "routes/transport.js"
+      - "public/transport-ui.js"
+      - "server.js"
+      - "scripts/check-venture-access.js"
+      - "scripts/check-venture-access-e2e.js"
+      - "public/venture-access-ui.js"
+      - "routes/venture-access.js"
+      - "routes/helpers.js"
+      - "routes/family-bank.js"
+      - "routes/ecosystem.js"
+      - "scripts/check-transport.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/transport-validation.yml"
+
+jobs:
+  transport-and-regression-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:venture-access-e2e
+      - run: npm run test:transport-e2e
+        env:
+          BASE_URL: https://jr-pheef-rebuild-staging.onrender.com

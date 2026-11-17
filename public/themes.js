@@ -1,7 +1,7 @@
 (function(){
 "use strict";
-const STORE="jr-pheef-visual-settings-v1", DB="jr-pheef-visual-assets", SECTION_IDS=["home","ecosystem","jpidentity","family","teacher","referrals","universe","lab","library","find","create","opportunities","rooms","points","flex","profile","assistant","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","command","themes","projects","ideas","ads","jrsettings","jrpreferences","jrprivacy","jrhelp","discover","explore","apphub","browser","messages"];
-const SECTIONS=[["home","Home dashboard"],["ecosystem","DGBO ecosystem"],["find","Discover & marketplace"],["create","Create listing"],["opportunities","Opportunities"],["social","Social"],["jpconnect","JP Connect"],["assistant","AI assistant"],["universe","Universe"],["lab","Lab & research"],["teacher","JR Teacher"],["library","Library"],["family","Family"],["referrals","Invite & grow"],["profile","Profile"],["vault","My files"],["voice","Voice & type"],["rooms","Rooms"],["economy","Economy"],["flex","PHEEF Flex"],["devices","Devices"],["jpidentity","JP Identity"],["scifi","Sci-fi & futures"],["fixedit","Repair services"],["command","Command centre"],["projects","Projects"],["ideas","Shape JR"],["ads","Advertising centre"],["discover","Universal Discover"],["explore","Explore"],["apphub","App Hub"],["browser","JR PHEEF Browser"],["messages","Messages"],["jrsettings","JR settings"]];
+const STORE="jr-pheef-visual-settings-v1", DB="jr-pheef-visual-assets", SECTION_IDS=["home","ecosystem","jpidentity","family","teacher","referrals","universe","lab","library","find","create","opportunities","rooms","points","flex","profile","assistant","jpconnect","social","economy","vault","devices","voice","scifi","fixedit","command","themes","projects","ideas","ads","jrsettings","jrpreferences","jrprivacy","jrhelp","discover","explore","apphub","browser","messages","dgbo","companies","worlds","connecthub","mediahub","businesshub","labhub","libraryhub","learnhub"];
+const SECTIONS=[["home","Home dashboard"],["ecosystem","DGBO ecosystem"],["find","Discover & marketplace"],["create","Create listing"],["opportunities","Opportunities"],["social","Social"],["jpconnect","JP Connect"],["assistant","AI assistant"],["universe","Universe"],["lab","Lab & research"],["teacher","JR Teacher"],["library","Library"],["family","Family"],["referrals","Invite & grow"],["profile","Profile"],["vault","My files"],["voice","Voice & type"],["rooms","Rooms"],["economy","Economy"],["flex","PHEEF Flex"],["devices","Devices"],["jpidentity","JP Identity"],["scifi","Sci-fi & futures"],["fixedit","Repair services"],["command","Command centre"],["projects","Projects"],["ideas","Shape JR"],["ads","Advertising centre"],["discover","Universal Discover"],["explore","Explore"],["apphub","App Hub"],["browser","JR PHEEF Browser"],["messages","JR LINK"],["jrsettings","JR settings"],["dgbo","DIAMOND GLOBAL BUSINESS OPERATORS"],["companies","My Companies"],["worlds","Worlds"],["connecthub","JR LINK"],["mediahub","JR PHEEF MEDIA"],["businesshub","JR PHEEF BUSINESS"],["labhub","JR PHEEF LAB"],["libraryhub","JR PHEEF LIBRARY"],["learnhub","JR PHEEF LEARN"]];
 const PRESETS=[
 {name:"Midnight",a:"#42f5ff",b:"#07345b",wall:"aurora"},
 {name:"Royal purple",a:"#c5a3ff",b:"#29164f",wall:"nebula"},
@@ -12,6 +12,17 @@ const PRESETS=[
 {name:"Gold",a:"#f2d27b",b:"#4c3514",wall:"geometry"},
 {name:"Minimal",a:"#d5e4f5",b:"#26374b",wall:"none"}
 ];
+const BRAND_IDENTITIES={
+jr:{accent:"#4B8DFF",base:"#171D3B",secondary:"#C5CEDB"},
+dgbo:{accent:"#D6B15E",base:"#211A10",secondary:"#F5F1E8"},
+family:{accent:"#49C78B",base:"#10352B",secondary:"#E6D4A8"},
+connecthub:{accent:"#38D5C8",base:"#083B3C",secondary:"#F1FFFF"},
+mediahub:{accent:"#E66AC4",base:"#3A1742",secondary:"#F6D5EE"},
+businesshub:{accent:"#43C58B",base:"#103B2B",secondary:"#E9D59B"},
+labhub:{accent:"#9584FF",base:"#211C4A",secondary:"#D7D2FF"},
+libraryhub:{accent:"#C87991",base:"#3A1828",secondary:"#F3DCE4"},
+learnhub:{accent:"#F4A45B",base:"#3B2717",secondary:"#FFE2BD"}
+};
 const DEFAULTS={global:"Midnight",wallpaper:"aurora",opacity:22,section:{},customImage:false};
 let state={global:"Midnight",wallpaper:"aurora",opacity:22,section:{},customImage:false},storedImageUrl=null;
 const $=id=>document.getElementById(id);
@@ -30,17 +41,35 @@ if(name==="none")return "none";
 return "url(\"data:image/svg+xml,"+encodeURIComponent(svg[name]||svg.aurora)+"\")";
 }
 function apply(){
-const section=document.body.dataset.jpSection||"home",override=state.section[section]||{},p=preset(override.preset||state.global),accent=override.accent||p.a,wall=override.wallpaper||state.wallpaper;
+const section=document.body.dataset.jpSection||"home",override=state.section[section]||{},identity=BRAND_IDENTITIES[section]||BRAND_IDENTITIES.jr,p=preset(override.preset||state.global),accent=override.accent||(!override.preset?identity.accent:p.a),base=!override.preset?identity.base:p.b,wall=override.wallpaper||state.wallpaper;
 document.body.classList.add("jp-theme-active");
 document.body.style.setProperty("--jp-theme-accent",accent);
-document.body.style.setProperty("--jp-theme-base",p.b);
+document.body.style.setProperty("--jp-theme-base",base);
+document.body.style.setProperty("--jp-theme-secondary",identity.secondary);
 document.body.style.setProperty("--jp-theme-accent-soft",hexRgba(accent,.14));
 document.body.style.setProperty("--jp-theme-border",hexRgba(accent,.32));
 document.body.style.setProperty("--jp-theme-wallpaper",state.customImage&&storedImageUrl?"url("+storedImageUrl+")":wallpaper(wall));
 document.body.style.setProperty("--jp-theme-wallpaper-opacity",String(Math.max(0,Math.min(60,Number(state.opacity)||22))/100));
 document.body.dataset.jpSection=section;
+document.body.dataset.jpBrand=section;
 }
 function hexRgba(hex,a){const m=/^#([0-9a-f]{6})$/i.exec(hex||"");if(!m)return "rgba(66,245,255,"+a+")";const n=parseInt(m[1],16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
+function ensureBrandStyles(){
+if(document.getElementById("jpBrandStyles"))return;
+const style=document.createElement("style");style.id="jpBrandStyles";
+style.textContent=`
+body.jp-theme-active header{border-bottom-color:var(--jp-theme-border)}
+body.jp-theme-active .nav button{border-color:var(--jp-theme-border)}
+body.jp-theme-active .card{border-color:var(--jp-theme-border)}
+body.jp-theme-active .jp-kicker,body.jp-theme-active .jr-page-brand{color:var(--jp-theme-accent)}
+body.jp-theme-active button.primary{background:linear-gradient(110deg,var(--jp-theme-accent),var(--jp-theme-secondary));border-color:var(--jp-theme-border);color:#07121e}
+body.jp-theme-active .jr-workspace-hero,body.jp-theme-active .jp-theme-hero{border-color:var(--jp-theme-border);background:radial-gradient(ellipse at 86% 12%,var(--jp-theme-accent-soft),transparent 38%),linear-gradient(130deg,var(--jp-theme-base),#04152e 72%)}
+body.jp-theme-active .jr-provider-mark{background:linear-gradient(135deg,var(--jp-theme-secondary),var(--jp-theme-accent));color:#07121e}
+body.jp-theme-active .jr-page-nav,body.jp-theme-active .jp-theme-chip,body.jp-theme-active .badge{border-color:var(--jp-theme-border)}
+body.jp-theme-active input:focus,body.jp-theme-active textarea:focus,body.jp-theme-active select:focus{outline:2px solid var(--jp-theme-accent);outline-offset:1px}
+`;
+document.head.appendChild(style);
+}
 function ensurePage(){
 const app=$("app");if(!app||$("themes"))return;
 const nav=app.querySelector(".nav");
@@ -220,7 +249,7 @@ syncArrows();
 syncArrows();
 }
 function init(){
-read();ensurePage();wrapShow();bind();applyDisplay();apply();
+read();ensureBrandStyles();ensurePage();wrapShow();bind();applyDisplay();apply();
 if(state.customImage)loadStoredImage().then(apply);
 if(!document.body.dataset.jpSection)document.body.dataset.jpSection="home";
 }

@@ -175,3 +175,54 @@ Use this document as the canonical project journey in future JR PHEEF conversati
 - PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
 - PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
 - PR #1 and #4 were closed without merging because their branches contain duplicated or stale architecture. Unique category validation, glossary, DGBO explainer and POS-preview requirements remain on the roadmap for focused implementation.
+
+
+## Connected-world architecture decision (2026-11-12)
+
+The user approved a connected-world architecture. World names are user-facing destinations; underlying capabilities remain shared services and must not be duplicated.
+
+- **JR LINK** — communication, private/group messaging, status, people and communities. Reuses existing Messages, Social, JP Connect, notifications and deal-conversation capabilities.
+- **JR PHEEF MEDIA** — media discovery, publishing, creator tools, audio/video and live experiences. Current navigation groups existing Explore, Library, advertising and sharing capabilities. Dedicated streaming, creator publishing and live broadcasting are not represented as complete until built and tested.
+- **JR PHEEF BUSINESS** — business creation and workspaces, marketplace listings, opportunities, deals, delivery and business operations.
+- **JR PHEEF LAB** — research, experiments, idea development and projects.
+- **JR PHEEF LIBRARY** — saved knowledge, learning resources, personal files and reference materials.
+- **JR PHEEF LEARN** — lessons, learning plans, knowledge and applied projects.
+
+Architecture rules: JR remains intent-first; worlds are experience boundaries, not separate accounts/backends; capabilities have one primary home and may be surfaced contextually elsewhere; cross-world journeys preserve user context and require scoped permissions; unavailable features are not represented as working; preserve existing mobile navigation, history, sessions and accessibility; add worlds only when they have a coherent purpose and real capabilities.
+
+Staging implementation is isolated on the dedicated Render service https://jr-pheef-rebuild-staging.onrender.com, configured to deploy from rebuild/architecture-foundation. The connected-world navigation baseline was deployed successfully on 2026-11-12 (commit 9d9ba816aa787ea45a6868cf725aa2a1f07a3539). Follow-on brand identity work is committed to the same staging branch so the configured service can deploy it. Production remains untouched. A successful Render deploy is not a substitute for browser-based end-to-end verification.
+
+
+## Brand identity system (2026-11-12)
+
+The following palette defaults translate the user's company/world identity direction into a consistent design system. These are visual defaults, not changes to ownership, data access, or product permissions. Member-selected section overrides remain available.
+
+| Environment | Primary identity | Palette direction |
+|---|---|---|
+| DIAMOND GLOBAL BUSINESS OPERATORS (DGBO) | Corporate governance and business development | Diamond gold, black, warm white |
+| JR PHEEF | Central connected platform and intelligence | Electric blue, silver, violet |
+| FAMILY | Financial access, saving and family goals | Emerald, champagne gold, ivory |
+| JR LINK | Communication and relationships | Teal, white |
+| JR PHEEF MEDIA | Media and creative expression | Magenta, violet |
+| JR PHEEF BUSINESS | Enterprise and trade | Deep green, gold |
+| JR PHEEF LAB | Research and experimentation | Indigo, electric violet |
+| JR PHEEF LIBRARY | Knowledge and preservation | Burgundy, cream |
+| JR PHEEF LEARN | Education and skill-building | Warm orange, navy |
+
+Implementation rules:
+- Company identity is the primary brand layer; world identity is the destination layer; personal appearance settings are the member layer.
+- The company/world identity must remain recognizable when a member changes wallpapers or display preferences.
+- Brand palettes affect visible navigation, highlights, cards, workspace headers and action controls; they do not imply that a service is operational.
+- A capability has one primary world and may be linked contextually elsewhere; avoid duplicated accounts, duplicated records and duplicated backends.
+- External services remain labelled not connected until provider authorization and a tested integration exist.
+
+Staging work added on 2026-11-12:
+- Corrected the final duplicate catalog entry so the canonical communication destination remains JR LINK rather than being overwritten as “People & Connect”.
+- Added default identity tokens for DGBO, JR PHEEF, FAMILY and the six connected worlds to the existing appearance engine.
+- Added styling rules to apply those tokens to visible interface components while retaining per-section member overrides.
+- Added regression assertions for the palette registry, visual application and canonical JR LINK label.
+- The Render service auto-deploys on commits to rebuild/architecture-foundation. Commit d35bcf41d72e7cc0ffc7fe64fbfec7aa1b06175a is deployed live; Render logs confirm JR PHEEF 5.2.0 is listening on port 10000.
+- GitHub verification passed on this commit: npm test on Node 22 and 24, syntax and route checks, quality checks, release checks, read-only smoke checks and dependency review.
+- The full DIAMOND GLOBAL BUSINESS OPERATORS name is now displayed at the DGBO company entry points; the short DGBO acronym remains as the recognised abbreviation.
+- Real interactive browser acceptance remains outstanding: Android Chrome and desktop login taps, global navigation/back-to-top, voice stop/cancel, Command Centre, and cross-world permissions must still be exercised by a human in the browser. Passing source tests and a live Render process do not prove those journeys work.
+- This deployment is staging only. Production, production data, payments and external provider integrations remain untouched.
