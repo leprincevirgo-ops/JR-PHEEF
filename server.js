@@ -1566,6 +1566,8 @@ require("./routes/opportunities")(routeCtx);
 require("./routes/human-environment")(routeCtx);
 /* GLOBAL BUSINESS OS: isolated workspaces and consented import foundations */
 require("./routes/business-os")(routeCtx);
+/* SHARED IDENTITY + INDEPENDENT VENTURE MEMBERSHIPS */
+require("./routes/venture-access")(routeCtx);
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {
