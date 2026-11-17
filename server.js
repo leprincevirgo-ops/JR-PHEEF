@@ -110,7 +110,7 @@ function safeMember(m) {
   if (!m) return null;
   return {
     ...Object.fromEntries(MEMBER_FIELDS.filter(k => Object.hasOwn(m, k)).map(k => [k, m[k]])),
-    is_owner: [m.account_type, m.role].some(v => String(v || "").toLowerCase() === "owner")
+    is_owner: [m.account_type, m.role].some(v => ["owner", "founder"].includes(String(v || "").toLowerCase()))
   };
 }
 
@@ -302,7 +302,7 @@ app.get("/founder-command.js", async (req, res) => {
   try {
     const member = await getMember(req);
     const owner = member && [member.account_type, member.role]
-      .some(value => String(value || "").toLowerCase() === "owner");
+      .some(value => ["owner", "founder"].includes(String(value || "").toLowerCase()));
     if (!owner) return res.status(404).type("text/plain").send("Not found");
     res.setHeader("Cache-Control", "no-store");
     res.type("application/javascript");
@@ -613,7 +613,7 @@ app.post("/api/owner/points", async (req, res) => {
   try {
     const owner = await requireMember(req, res);
     if (!owner) return;
-    if (![owner.account_type, owner.role].some(v => String(v || "").toLowerCase() === "owner"))
+    if (![owner.account_type, owner.role].some(v => ["owner", "founder"].includes(String(v || "").toLowerCase())))
       return res.status(403).json({ ok: false, error: "Owner access required." });
 
     const memberId = clean(req.body.member_id);
