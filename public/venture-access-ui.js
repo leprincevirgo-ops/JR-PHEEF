@@ -84,6 +84,32 @@
         form.append(label);
         inputs[field.key] = input;
       });
+      // Keep an in-progress application through refreshes in this tab only.
+      // Consent is deliberately never remembered; the member must actively agree again.
+      const draftKey = "jr-venture-draft:" + slug;
+      const draftNotice = h("p", "muted", "Your unfinished form is saved temporarily in this browser tab. Consent is never saved.");
+      form.append(draftNotice);
+      try {
+        const draft = JSON.parse(sessionStorage.getItem(draftKey) || "null");
+        if (draft && typeof draft === "object") {
+          if (typeof draft.role === "string" && [...role.options].some(option => option.value === draft.role)) role.value = draft.role;
+          Object.keys(inputs).forEach(key => {
+            if (typeof draft.fields?.[key] === "string") inputs[key].value = draft.fields[key].slice(0, 2000);
+          });
+          if (Object.values(inputs).some(input => input.value)) draftNotice.textContent = "Your unfinished application has been restored from this browser tab.";
+        }
+      } catch (_) {}
+      const saveDraft = () => {
+        const fields = {};
+        Object.keys(inputs).forEach(key => { fields[key] = inputs[key].value; });
+        try { sessionStorage.setItem(draftKey, JSON.stringify({ role: role.value, fields, saved_at: new Date().toISOString() })); }
+        catch (_) { draftNotice.textContent = "Temporary draft storage is unavailable in this browser."; }
+      };
+      role.addEventListener("change", saveDraft);
+      Object.values(inputs).forEach(input => {
+        input.addEventListener("input", saveDraft);
+        input.addEventListener("change", saveDraft);
+      });
       const notice = h("p", "muted", schema.notice || "Your application will be reviewed separately.");
       form.append(notice);
       const consentLabel = h("label", "venture-consent", "");
@@ -109,6 +135,7 @@
             method: "POST",
             body: JSON.stringify({ role_key: role.value, application_data, consent: consent.checked })
           });
+          try { sessionStorage.removeItem(draftKey); } catch (_) {}
           status.textContent = "Application awaiting review";
           actionArea.replaceChildren(h("p", "muted", "Your application has been received. Access will be available only after an authorised reviewer approves it."));
         } catch (error) {
