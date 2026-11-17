@@ -121,12 +121,64 @@
       status.textContent = error.message === "LOGIN_REQUIRED" ? "Sign in to view or apply for venture membership." : error.message;
     }
   }
+  async function renderFounderQueue(host) {
+    if (!host || host.querySelector('[data-founder-venture-queue="true"]')) return;
+    try {
+      const result = await request("/founder/venture-memberships?status=applied");
+      const panel = h("section", "card");
+      panel.dataset.founderVentureQueue = "true";
+      panel.append(h("p", "jp-kicker", "RESTRICTED · DGBO FOUNDER REVIEW"));
+      panel.append(h("h2", "", "Venture applications"));
+      panel.append(h("p", "muted", "Only the authorised ecosystem owner can review these applications. Approval grants venture membership only; it does not grant financial, regulated or operational licences."));
+      const list = h("div", "");
+      if (!result.applications.length) list.append(h("p", "muted", "No applications are waiting for review."));
+      result.applications.forEach(item => {
+        const card = h("div", "listing");
+        const applicant = item.applicant || {};
+        card.append(h("strong", "", (item.venture_slug || "").toUpperCase() + " · " + (item.role_key || "").replace(/_/g, " ")));
+        card.append(h("p", "muted", (applicant.full_name || "Member") + (applicant.jp_number ? " · " + applicant.jp_number : "") + (applicant.email ? " · " + applicant.email : "")));
+        Object.keys(item.application_data || {}).forEach(key => {
+          card.append(h("p", "muted", key.replace(/_/g, " ") + ": " + String(item.application_data[key])));
+        });
+        const note = h("input", "");
+        note.placeholder = "Optional review note";
+        note.maxLength = 1200;
+        card.append(note);
+        const actions = h("div", "nav");
+        [["approved","APPROVE"],["rejected","REJECT"]].forEach(([status,label]) => {
+          const button = h("button", status === "approved" ? "primary" : "dark", label);
+          button.type = "button";
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            try {
+              await request("/founder/venture-memberships/" + encodeURIComponent(item.id) + "/review", {
+                method: "POST",
+                body: JSON.stringify({ status, review_note: note.value })
+              });
+              card.replaceChildren(h("p", "muted", "Application " + status + "."));
+            } catch (error) {
+              card.append(h("p", "muted", error.message));
+              button.disabled = false;
+            }
+          });
+          actions.append(button);
+        });
+        card.append(actions);
+        list.append(card);
+      });
+      panel.append(list);
+      host.append(panel);
+    } catch (_) {
+      // Non-owner accounts receive 404 by design; do not expose a founder panel.
+    }
+  }
   function init() {
     const app = document.getElementById("app");
     if (!app || app.classList.contains("hidden")) return;
     renderPanel(document.getElementById("dgbo"), "dgbo", "DGBO");
     renderPanel(document.getElementById("family"), "family", "FAMILY");
     renderPanel(document.getElementById("ecosystem"), "turbex", "TURBEX");
+    renderFounderQueue(document.getElementById("dgbo"));
   }
   function start() {
     init();
