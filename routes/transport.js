@@ -165,9 +165,9 @@ module.exports = function mountTransport(ctx) {
     const accept=req.body.accept===true;
     const {data,error}=await db.from("jr_transport_vehicle_access").update({
       status:accept?"active":"rejected",responded_at:new Date().toISOString()
-    }).eq("id",req.params.id).eq("driver_member_id",member.id).eq("status","pending_driver_consent").select("id,vehicle_id,status").maybeSingle();
+    }).eq("id",req.params.id).eq("driver_member_id",member.id).eq("status","pending_driver_consent").select("id,vehicle_id,status,owner_member_id").maybeSingle();
     if(error)throw error;if(!data)return bad(res,"Invitation not found or already answered.",404);
-    await notify(data.status==="active"? (await db.from("jr_transport_vehicle_access").select("owner_member_id").eq("id",data.id).single()).data.owner_member_id : (await db.from("jr_transport_vehicle_access").select("owner_member_id").eq("id",data.id).single()).data.owner_member_id,"Driver invitation response",data.status==="active"?"The invited driver accepted vehicle access.":"The invited driver declined vehicle access.","delivery");
+    await notify(data.owner_member_id,"Driver invitation response",data.status==="active"?"The invited driver accepted vehicle access.":"The invited driver declined vehicle access.","delivery");
     res.json({ok:true,access:data});
   }));
 
