@@ -20,7 +20,7 @@
   active=id;const d=await call("/api/messages/conversations/"+encodeURIComponent(id));if(!d.ok){status(d.error);return;}
   $("jrChatHeader").textContent=d.conversation.title||d.participants.filter(p=>p.name!=="You").map(p=>p.name).join(", ")||"Private chat";
   const box=$("jrChatMessages"),wasAtBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.innerHTML="";
-  (d.messages||[]).forEach(m=>{const row=document.createElement("div");row.className="jr-chat-bubble"+(m.sender_name==="You"?" is-mine":"");const who=document.createElement("b");who.textContent=m.sender_name+" · ";const body=document.createElement("span");body.textContent=m.body;const time=document.createElement("small");time.textContent=new Date(m.created_at).toLocaleString();row.append(who,body,time);box.appendChild(row);});
+  (d.messages||[]).forEach(m=>{const row=document.createElement("div");row.className="jr-chat-bubble"+(m.sender_name==="You"?" is-mine":"");const who=document.createElement("b");who.textContent=m.sender_name+" · ";const body=document.createElement("span");body.textContent=m.body;const time=document.createElement("small");time.textContent=new Date(m.created_at).toLocaleString()+(m.sender_name==="You"?" · Sent":"");row.append(who,body,time);box.appendChild(row);});
   if(!preservePosition||wasAtBottom)box.scrollTop=box.scrollHeight;status("");
   document.querySelectorAll(".jr-conversation-item").forEach(b=>b.setAttribute("aria-current",String(b.textContent.includes($("jrChatHeader").textContent))));
  }
