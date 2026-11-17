@@ -54,7 +54,7 @@ module.exports = function mountEcosystem(ctx) {
       ok: true, scopes: SCOPES,
       ventures: (ventures || []).map(publicVenture),
       links: Object.fromEntries((links || []).map(l => [l.venture, l])),
-      is_owner: [m.account_type, m.role].some(v => String(v || "").toLowerCase() === "owner")
+      is_owner: [m.account_type, m.role].some(v => ["owner", "founder"].includes(String(v || "").toLowerCase()))
     });
   }));
 
