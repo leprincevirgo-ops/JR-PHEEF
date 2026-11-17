@@ -38,17 +38,15 @@ The migration source is `supabase/migrations/20261109160000_jr_pheef_fresh_proje
 
 ## Required manual secret configuration
 
-The Render service build succeeded, but the process correctly refuses to start without a privileged Supabase server key. Do not weaken that requirement and do not use a public anon/publishable key for trusted server operations.
+The staging server has now started successfully on Render and logged `JR PHEEF 5.2.0 listening on 10000`. The latest deployment is live. This confirms the service has the required server-side configuration at startup; do not expose or copy the secret into source files, GitHub, chat messages or logs.
 
-In Render Dashboard → staging service → Environment, add:
+Keep these staging settings in place:
 
 - `SUPABASE_URL` = `https://vtwkjtxvyixoujkhravo.supabase.co`
-- `SUPABASE_SERVICE_ROLE_KEY` = the service-role/secret key from the **staging** Supabase project only
+- `SUPABASE_SERVICE_ROLE_KEY` = staging project's server-only service-role/secret key
 - `PAYMENTS_ENABLED` = `false`
 
-The URL and payment flag are already configured. Only the staging service-role/secret key remains to be added. Retrieve it from Supabase Dashboard → staging project → Project Settings → API Keys. Copy it directly into Render's environment variable field; never paste it into GitHub, source files, chat messages or logs.
-
-After saving, Render should redeploy automatically. Confirm the logs show the app listening on port 10000 without a missing-configuration error.
+Never substitute a public anon/publishable key for trusted server operations. Rotate the staging secret if it is ever disclosed.
 
 Optional integrations are intentionally not connected yet:
 - `OPENAI_API_KEY`: required for live model responses; configure a staging-specific key and confirm billing/quota first.
