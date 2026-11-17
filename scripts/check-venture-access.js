@@ -15,4 +15,7 @@ assert.match(route, /status: "applied"/, "Applications must remain pending until
 assert.match(route, /Core JR PHEEF identity membership cannot be changed/, "Core identity membership must not be revoked through this queue");
 assert.match(server, /require\("\.\/routes\/venture-access"\)\(routeCtx\)/, "Venture access routes must be mounted with the shared authenticated context");
 assert.match(html, /venture-access-ui\.js/, "Member venture access interface must be loaded");
+const ui = fs.readFileSync("public/venture-access-ui.js", "utf8");
+assert.match(ui, /RESTRICTED · DGBO FOUNDER REVIEW/, "Founder review interface missing");
+assert.match(ui, /statusLabel/, "Member-facing status labels missing");
 console.log("PASS: shared identity, separate venture applications, explicit consent, and owner-only review are wired.");
