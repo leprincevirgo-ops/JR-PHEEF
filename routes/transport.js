@@ -208,6 +208,90 @@ module.exports = function mountTransport(ctx) {
     if(error)throw error;res.json({ok:true,requests:data||[]});
   }));
 
+
+  app.post("/api/transport/provider/availability",wrap("Transport provider availability",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    if(typeof req.body.online!=="boolean")return bad(res,"Choose whether you want to go online.");
+    const {data:provider,error:pErr}=await db.from("jr_riders").select("id,approved,verified,has_vehicle,vehicle_type,service_types").eq("member_id",member.id).maybeSingle();
+    if(pErr)throw pErr;if(!provider||!provider.approved||!provider.verified)return bad(res,"Your provider profile must be approved and verified before going online.",403);
+    if(req.body.online){
+      let modes=[];
+      if(provider.has_vehicle){
+        const v=await db.from("jr_transport_vehicles").select("vehicle_type").eq("owner_member_id",member.id).eq("verification_status","verified").eq("active",true);
+        if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);
+      }else{
+        const a=await db.from("jr_transport_vehicle_access").select("vehicle_id").eq("driver_member_id",member.id).eq("status","active");
+        if(a.error)throw a.error;
+        if(a.data&&a.data.length){const v=await db.from("jr_transport_vehicles").select("vehicle_type").in("id",a.data.map(x=>x.vehicle_id)).eq("verification_status","verified").eq("active",true);if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);}
+      }
+      if(!modes.length)return bad(res,"No verified active vehicle is linked to your provider profile.",409);
+    }
+    const {data,error}=await db.from("jr_riders").update({online:req.body.online,updated_at:new Date().toISOString()}).eq("id",provider.id).select("id,online,approved,verified").single();
+    if(error)throw error;res.json({ok:true,provider:data});
+  }));
+
+  app.get("/api/transport/provider/jobs",wrap("Transport provider jobs",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    const {data:provider,error:pErr}=await db.from("jr_riders").select("id,approved,verified,online,has_vehicle,vehicle_type,service_types").eq("member_id",member.id).maybeSingle();
+    if(pErr)throw pErr;if(!provider||!provider.approved||!provider.verified)return bad(res,"Provider approval is required.",403);
+    if(!provider.online)return res.json({ok:true,jobs:[],earnings:{completed_jobs:0,total_ksh:0},message:"Go online to see suitable open requests."});
+    let modes=[];
+    if(provider.has_vehicle){
+      const v=await db.from("jr_transport_vehicles").select("vehicle_type").eq("owner_member_id",member.id).eq("verification_status","verified").eq("active",true);
+      if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);
+    }else{
+      const a=await db.from("jr_transport_vehicle_access").select("vehicle_id").eq("driver_member_id",member.id).eq("status","active");
+      if(a.error)throw a.error;
+      if(a.data&&a.data.length){const v=await db.from("jr_transport_vehicles").select("vehicle_type").in("id",a.data.map(x=>x.vehicle_id)).eq("verification_status","verified").eq("active",true);if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);}
+    }
+    const serviceTypes=provider.service_types||[];
+    const {data:jobs,error}=await db.from("jr_delivery_requests").select("id,pickup,destination,description,price,provider_earnings,service_mode,service_kind,distance_km,duration_minutes,created_at")
+      .eq("status","open").in("service_mode",modes).in("service_kind",serviceTypes).neq("requester_id",member.id).order("created_at",{ascending:false}).limit(50);
+    if(error)throw error;
+    const completed=await db.from("jr_delivery_requests").select("provider_earnings").eq("rider_id",member.id).eq("status","delivered");
+    if(completed.error)throw completed.error;
+    const total=(completed.data||[]).reduce((sum,x)=>sum+Number(x.provider_earnings||0),0);
+    res.json({ok:true,jobs:jobs||[],earnings:{completed_jobs:(completed.data||[]).length,total_ksh:total}});
+  }));
+
+  app.post("/api/transport/provider/jobs/:id/accept",wrap("Transport job accept",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    if(!UUID.test(req.params.id))return bad(res,"Request not found.",404);
+    const {data:provider,error:pErr}=await db.from("jr_riders").select("id,approved,verified,online,has_vehicle,vehicle_type,service_types").eq("member_id",member.id).maybeSingle();
+    if(pErr)throw pErr;if(!provider||!provider.approved||!provider.verified||!provider.online)return bad(res,"Your verified provider profile must be online to accept a job.",403);
+    const {data:job,error:jErr}=await db.from("jr_delivery_requests").select("id,requester_id,service_mode,service_kind,status").eq("id",req.params.id).maybeSingle();
+    if(jErr)throw jErr;if(!job||job.status!=="open")return bad(res,"This request is no longer available.",409);
+    if(!(provider.service_types||[]).includes(job.service_kind))return bad(res,"This job does not match your registered service.");
+    let modes=[];
+    if(provider.has_vehicle){
+      const v=await db.from("jr_transport_vehicles").select("vehicle_type").eq("owner_member_id",member.id).eq("verification_status","verified").eq("active",true);
+      if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);
+    }else{
+      const a=await db.from("jr_transport_vehicle_access").select("vehicle_id").eq("driver_member_id",member.id).eq("status","active");
+      if(a.error)throw a.error;
+      if(a.data&&a.data.length){const v=await db.from("jr_transport_vehicles").select("vehicle_type").in("id",a.data.map(x=>x.vehicle_id)).eq("verification_status","verified").eq("active",true);if(v.error)throw v.error;modes=(v.data||[]).map(x=>x.vehicle_type);}
+    }
+    if(!modes.includes(job.service_mode))return bad(res,"No verified vehicle linked to you is suitable for this job.",403);
+    const {count}=await db.from("jr_delivery_requests").select("id",{count:"exact",head:true}).eq("rider_id",member.id).in("status",["accepted","picked_up"]);
+    if((count||0)>=3)return bad(res,"Finish your current jobs before accepting more.",409);
+    const {data,error}=await db.from("jr_delivery_requests").update({rider_id:member.id,status:"accepted",accepted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",job.id).eq("status","open").is("rider_id",null).select("id,status,service_mode,service_kind,price,provider_earnings").maybeSingle();
+    if(error)throw error;if(!data)return bad(res,"Another provider already accepted this request.",409);
+    await notify(job.requester_id,"Provider found","A verified JR PHEEF provider accepted your request.","delivery");
+    await logActivity(member.id,"TRANSPORT_JOB_ACCEPTED",{request_id:job.id});
+    res.json({ok:true,request:data});
+  }));
+
+  app.post("/api/transport/provider/jobs/:id/status",wrap("Transport job status",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    if(!UUID.test(req.params.id))return bad(res,"Request not found.",404);
+    const next=clean(req.body.status),from=next==="picked_up"?"accepted":next==="delivered"?"picked_up":null;
+    if(!from)return bad(res,"Choose picked_up or delivered.");
+    const patch={status:next,updated_at:new Date().toISOString()};if(next==="delivered")patch.delivered_at=new Date().toISOString();
+    const {data,error}=await db.from("jr_delivery_requests").update(patch).eq("id",req.params.id).eq("rider_id",member.id).eq("status",from).select("id,status,provider_earnings").maybeSingle();
+    if(error)throw error;if(!data)return bad(res,"Only the assigned provider can move this job to that stage.",403);
+    res.json({ok:true,request:data});
+  }));
+
   app.get("/api/transport/admin/providers",wrap("Transport provider review queue",async(req,res)=>{
     const owner=await requireOwner(req,res);if(!owner)return;
     const status=clean(req.query.status)||"pending_review";
@@ -227,13 +311,14 @@ module.exports = function mountTransport(ctx) {
     const next=clean(req.body.verification_status);
     if(!["approved","rejected","more_info_required","suspended"].includes(next))return bad(res,"Choose a valid review outcome.");
     const verified=next==="approved";
+    if(verified && !["verified","not_required"].includes(clean(req.body.licence_status)))return bad(res,"Review and record the required licence status before approval.");
+    if(verified && !["verified","not_required"].includes(clean(req.body.insurance_status)))return bad(res,"Review and record the required insurance status before approval.");
     const patch={verification_status:next,verified,approved:verified,online:false,updated_at:new Date().toISOString()};
     if(req.body.licence_status!==undefined){const x=clean(req.body.licence_status);if(!["pending_review","verified","rejected","not_required"].includes(x))return bad(res,"Invalid licence status.");patch.licence_status=x;}
     if(req.body.insurance_status!==undefined){const x=clean(req.body.insurance_status);if(!["pending_review","verified","rejected","not_required"].includes(x))return bad(res,"Invalid insurance status.");patch.insurance_status=x;}
     const {data,error}=await db.from("jr_riders").update(patch).eq("id",req.params.id).select("id,member_id,verification_status,verified,approved,licence_status,insurance_status").maybeSingle();
     if(error)throw error;if(!data)return bad(res,"Provider application not found.",404);
-    if(verified)await db.from("jr_transport_vehicles").update({verification_status:"verified"}).eq("owner_member_id",data.member_id);
-    else await db.from("jr_transport_vehicles").update({active:false}).eq("owner_member_id",data.member_id);
+    if(!verified)await db.from("jr_transport_vehicles").update({active:false}).eq("owner_member_id",data.member_id);
     await notify(data.member_id,verified?"Transport provider approved":"Transport application update",verified?"Your provider profile has passed JR PHEEF's platform review. Service-specific legal licences and insurance must still be valid before operating.": "Your transport application needs attention. Please check your provider centre.", "delivery");
     await logActivity(owner.id,"TRANSPORT_PROVIDER_REVIEWED",{provider_id:data.id,verification_status:next});
     res.json({ok:true,provider:data});
