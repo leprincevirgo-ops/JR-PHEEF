@@ -9,6 +9,9 @@ module.exports = function mountFamilyBank(ctx) {
       .eq("member_id", member.id).eq("venture_slug", "family").eq("status", "approved").maybeSingle();
     if (error) throw error;
     if (!data) { res.status(403).json({ ok:false, error:"FAMILY_MEMBERSHIP_REQUIRED", message:"Apply for FAMILY membership and wait for approval before using these services." }); return null; }
+    if (!["member", "goal_coordinator"].includes(data.role_key)) {
+      res.status(403).json({ ok:false, error:"FAMILY_ROLE_NOT_AUTHORIZED", message:"This FAMILY role does not include personal member services." }); return null;
+    }
     return data;
   };
   app.get("/api/family/bank", wrap("FAMILY bank overview", async (req,res) => {
