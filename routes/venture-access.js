@@ -121,8 +121,17 @@ module.exports = function mountVentureAccess(ctx) {
     if (status) query = query.eq("status", status);
     const { data, error } = await query;
     if (error) throw error;
+    const rows = data || [];
+    const memberIds = [...new Set(rows.map(row => row.member_id))];
+    let applicants = [];
+    if (memberIds.length) {
+      const result = await db.from("members").select("id,full_name,email,jp_number").in("id", memberIds);
+      if (result.error) throw result.error;
+      applicants = result.data || [];
+    }
+    const applicantById = new Map(applicants.map(applicant => [applicant.id, applicant]));
     res.setHeader("Cache-Control", "no-store");
-    res.json({ ok: true, applications: data || [] });
+    res.json({ ok: true, applications: rows.map(row => ({ ...row, applicant: applicantById.get(row.member_id) || null })) });
   }));
 
   app.post("/api/founder/venture-memberships/:id/review", wrap("Founder venture membership review", async (req, res) => {
@@ -137,8 +146,10 @@ module.exports = function mountVentureAccess(ctx) {
     if (currentError) throw currentError;
     if (!current) return fail(res, "Application not found.", 404);
     if (current.venture_slug === "jr-pheef") return fail(res, "Core JR PHEEF identity membership cannot be changed here.", 409);
-    if (current.status !== "applied" && !(status === "revoked" && current.status === "approved") && !(status === "suspended" && current.status === "approved"))
-      return fail(res, "This application is no longer awaiting the requested review.", 409);
+    const allowedTransition = current.status === "applied"
+      ? ["approved", "rejected"].includes(status)
+      : current.status === "approved" && ["suspended", "revoked"].includes(status);
+    if (!allowedTransition) return fail(res, "This membership is no longer in a state that allows this review decision.", 409);
     const now = new Date().toISOString();
     const { data, error } = await db.from("venture_memberships").update({
       status, reviewed_by: member.id, reviewed_at: now, review_note: note,
