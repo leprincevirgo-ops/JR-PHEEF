@@ -11,7 +11,7 @@ for(const endpoint of [
  "/api/transport/vehicles","/api/transport/vehicles/:id/link-driver",
  "/api/transport/vehicle-access/:id/respond","/api/transport/fare-estimate",
  "/api/transport/book-from-quote","/api/transport/requests/mine",
- "/api/transport/admin/providers","/api/transport/admin/providers/:id"
+ "/api/transport/admin/providers","/api/transport/admin/providers/:id","/api/transport/documents","/api/transport/admin/documents","/api/transport/admin/documents/:id/download","/api/transport/provider/availability","/api/transport/provider/jobs","/api/transport/provider/jobs/:id/accept","/api/transport/provider/jobs/:id/status","/api/transport/admin/vehicles/:id"
 ]){
  if(!route.includes(endpoint))throw new Error("Missing transport endpoint: "+endpoint);
 }
