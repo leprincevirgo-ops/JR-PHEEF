@@ -122,10 +122,19 @@
     }
   }
   function init() {
+    const app = document.getElementById("app");
+    if (!app || app.classList.contains("hidden")) return;
     renderPanel(document.getElementById("dgbo"), "dgbo", "DGBO");
     renderPanel(document.getElementById("family"), "family", "FAMILY");
     renderPanel(document.getElementById("ecosystem"), "turbex", "TURBEX");
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  function start() {
+    init();
+    const app = document.getElementById("app");
+    if (app && typeof MutationObserver !== "undefined") {
+      new MutationObserver(init).observe(app, { attributes: true, attributeFilter: ["class"] });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();
