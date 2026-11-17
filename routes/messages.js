@@ -47,6 +47,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id,last_read_at").eq("member_id",m.id).limit(200);
     if(error)throw error;
     const ids=(parts||[]).map(x=>x.conversation_id);if(!ids.length)return res.json({ok:true,conversations:[]});
+    const {error:deliveryError}=await db.from("jr_message_receipts").update({delivered_at:new Date().toISOString()}).eq("recipient_id",m.id).is("delivered_at",null);
+    if(deliveryError)throw deliveryError;
     const [{data:rooms,error:e1},{data:allParts,error:e2}]=await Promise.all([
       db.from("jr_conversations").select("id,title,is_group,updated_at").in("id",ids).order("updated_at",{ascending:false}).limit(100),
       db.from("jr_conversation_participants").select("conversation_id,member_id").in("conversation_id",ids)
@@ -84,6 +86,19 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const rows=[m.id,...recipients.map(x=>x.id)].map(member_id=>({conversation_id:room.id,member_id}));
     const {error:pe}=await db.from("jr_conversation_participants").insert(rows);if(pe)throw pe;
     res.status(201).json({ok:true,conversation:room});
+  }));
+  app.post("/api/messages/conversations/:id/typing",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
+    const {error}=await db.from("jr_message_typing").upsert({conversation_id:room.id,member_id:m.id,expires_at:new Date(Date.now()+7000).toISOString()},{onConflict:"conversation_id,member_id"});
+    if(error)throw error;res.setHeader("Cache-Control","no-store");res.json({ok:true});
+  }));
+  app.get("/api/messages/conversations/:id/typing",wrap(async(req,res)=>{
+    const m=await member(req,res);if(!m)return;
+    const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
+    const {data:rows,error}=await db.from("jr_message_typing").select("member_id,expires_at").eq("conversation_id",room.id).neq("member_id",m.id).gt("expires_at",new Date().toISOString());
+    if(error)throw error;res.setHeader("Cache-Control","no-store");
+    res.json({ok:true,typing:(rows||[]).length>0});
   }));
   app.get("/api/messages/conversations/:id",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
@@ -123,7 +138,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     if(!ids.length)return fail(res,"There are no other participants in this conversation.",409);
     const clientMessageId=clean(req.body.client_message_id||"");
     if(clientMessageId&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientMessageId))return fail(res,"Invalid message retry identifier.");
-    let data;
+    let data,isNew=false;
     if(clientMessageId){
       const {data:prior,error:priorError}=await db.from("jr_messages").select("id,sender_id,body,created_at").eq("sender_id",m.id).eq("client_message_id",clientMessageId).maybeSingle();
       if(priorError)throw priorError;
@@ -131,14 +146,16 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     }
     if(!data){
       const {data:inserted,error}=await db.from("jr_messages").insert({conversation_id:room.id,sender_id:m.id,body,client_message_id:clientMessageId||null}).select("id,sender_id,body,created_at").single();
-      if(error)throw error;data=inserted;
+      if(error)throw error;data=inserted;isNew=true;
     }
     const receiptRows=ids.map(recipient_id=>({message_id:data.id,recipient_id}));
     const {error:receiptError}=await db.from("jr_message_receipts").upsert(receiptRows,{onConflict:"message_id,recipient_id",ignoreDuplicates:true});if(receiptError)throw receiptError;
-    const {error:notifyError}=await db.from("jr_notifications").insert(ids.map(member_id=>({
-      member_id,title:"New JR LINK message",message:"You have a new message in JR LINK.",type:"message"
-    })));
-    if(notifyError)console.error("JR LINK notification failed:",clean(notifyError.message).slice(0,160));
+    if(isNew){
+      const {error:notifyError}=await db.from("jr_notifications").insert(ids.map(member_id=>({
+        member_id,title:"New JR LINK message",message:"You have a new message in JR LINK.",type:"message"
+      })));
+      if(notifyError)console.error("JR LINK notification failed:",clean(notifyError.message).slice(0,160));
+    }
     await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).eq("id",room.id);
     res.status(201).json({ok:true,message:{...data,sender_name:"You"}});
   }));
