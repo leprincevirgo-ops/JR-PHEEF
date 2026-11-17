@@ -144,12 +144,15 @@ module.exports = function mountTransport(ctx) {
 
   app.post("/api/transport/vehicles/:id/link-driver",wrap("Transport vehicle link",async(req,res)=>{
     const owner=await requireMember(req,res);if(!owner)return;
-    if(!UUID.test(req.params.id)||!UUID.test(clean(req.body.driver_member_id)))return bad(res,"Enter a valid vehicle and JR member ID.");
+    if(!UUID.test(req.params.id))return bad(res,"Enter a valid vehicle.");
+    let driverMemberId=clean(req.body.driver_member_id);
+    if(!UUID.test(driverMemberId)){const jp=clean(req.body.driver_jp_number).toUpperCase();if(!/^JP-[A-Z0-9]{6,20}$/.test(jp))return bad(res,"Enter the driver’s JR JP number.");const lookup=await db.from("members").select("id").eq("jp_number",jp).maybeSingle();if(lookup.error)throw lookup.error;if(!lookup.data)return bad(res,"No JR member was found with that JP number.",404);driverMemberId=lookup.data.id;}
+    if(driverMemberId===owner.id)return bad(res,"You cannot link yourself as another driver.");
     const {data:vehicle,error:vErr}=await db.from("jr_transport_vehicles").select("id,owner_member_id,verification_status").eq("id",req.params.id).eq("owner_member_id",owner.id).maybeSingle();
     if(vErr)throw vErr;if(!vehicle)return bad(res,"Vehicle not found.",404);
     if(vehicle.verification_status!=="verified")return bad(res,"The vehicle must be verified before a driver can be linked.",409);
     const {data,error}=await db.from("jr_transport_vehicle_access").upsert({
-      vehicle_id:vehicle.id,owner_member_id:owner.id,driver_member_id:req.body.driver_member_id,status:"pending_driver_consent",requested_at:new Date().toISOString()
+      vehicle_id:vehicle.id,owner_member_id:owner.id,driver_member_id:driverMemberId,status:"pending_driver_consent",requested_at:new Date().toISOString()
     },{onConflict:"vehicle_id,driver_member_id"}).select("id,vehicle_id,driver_member_id,status").single();
     if(error)throw error;
     res.status(201).json({ok:true,access:data,message:"Driver invitation sent. The driver must consent before using this vehicle."});
@@ -385,6 +388,8 @@ module.exports = function mountTransport(ctx) {
     if(!UUID.test(req.params.id))return bad(res,"Vehicle not found.",404);
     const verification_status=clean(req.body.verification_status);
     if(!["verified","rejected","suspended"].includes(verification_status))return bad(res,"Choose a valid vehicle review status.");
+    const {data:vehicleRow,error:vehicleError}=await db.from("jr_transport_vehicles").select("id,owner_member_id").eq("id",req.params.id).maybeSingle();if(vehicleError)throw vehicleError;if(!vehicleRow)return bad(res,"Vehicle not found.",404);
+    if(verification_status==="verified"){const provider=await db.from("jr_riders").select("id").eq("member_id",vehicleRow.owner_member_id).maybeSingle();if(provider.error)throw provider.error;if(!provider.data)return bad(res,"Vehicle owner has no transport provider profile.",409);const docs=await db.from("jr_transport_documents").select("document_type,status").eq("provider_id",provider.data.id).eq("status","verified");if(docs.error)throw docs.error;const valid=new Set((docs.data||[]).map(x=>x.document_type));const missing=["vehicle_logbook","insurance"].filter(x=>!valid.has(x));if(missing.length)return bad(res,"Verify vehicle documents before activating it: "+missing.join(", "),409);}
     const {data,error}=await db.from("jr_transport_vehicles").update({verification_status,active:verification_status==="verified",updated_at:new Date().toISOString()}).eq("id",req.params.id).select("*").maybeSingle();
     if(error)throw error;if(!data)return bad(res,"Vehicle not found.",404);
     res.json({ok:true,vehicle:data});
