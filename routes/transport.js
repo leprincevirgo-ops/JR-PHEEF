@@ -302,7 +302,10 @@ module.exports = function mountTransport(ctx) {
     let members=[];
     if(ids.length){const r=await db.from("members").select("id,full_name,phone,email").in("id",ids);if(r.error)throw r.error;members=r.data||[];}
     const byId=Object.fromEntries(members.map(x=>[x.id,x]));
-    res.json({ok:true,providers:(data||[]).map(x=>({...x,member:byId[x.member_id]||null}))});
+    const vr=ids.length?await db.from("jr_transport_vehicles").select("id,owner_member_id,vehicle_type,registration_number,service_area_city,verification_status,active").in("owner_member_id",ids):{data:[],error:null};
+    if(vr.error)throw vr.error;
+    const vehiclesByOwner={};for(const v of (vr.data||[])){(vehiclesByOwner[v.owner_member_id]||(vehiclesByOwner[v.owner_member_id]=[])).push(v);}
+    res.json({ok:true,providers:(data||[]).map(x=>({...x,member:byId[x.member_id]||null,vehicles:vehiclesByOwner[x.member_id]||[]}))});
   }));
 
   app.patch("/api/transport/admin/providers/:id",wrap("Transport provider review",async(req,res)=>{
