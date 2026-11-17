@@ -350,6 +350,19 @@ module.exports = function mountTransport(ctx) {
     res.json({ok:true,documents:(data||[]).map(x=>({...x,provider:providers[x.provider_id]||null,file:files[x.file_vault_id]||null}))});
   }));
 
+
+  app.get("/api/transport/admin/documents/:id/download",wrap("Transport secure document preview",async(req,res)=>{
+    const owner=await requireOwner(req,res);if(!owner)return;
+    if(!UUID.test(req.params.id))return bad(res,"Document not found.",404);
+    const {data:doc,error:dErr}=await db.from("jr_transport_documents").select("file_vault_id,status").eq("id",req.params.id).maybeSingle();
+    if(dErr)throw dErr;if(!doc)return bad(res,"Document not found.",404);
+    const {data:file,error:fErr}=await db.from("file_vault").select("object_path,file_name,mime_type").eq("id",doc.file_vault_id).maybeSingle();
+    if(fErr)throw fErr;if(!file)return bad(res,"Private file not found.",404);
+    const signed=await db.storage.from("jr-pheef-private-files").createSignedUrl(file.object_path,60,{download:false});
+    if(signed.error)throw signed.error;
+    res.json({ok:true,url:signed.data.signedUrl,expires_in:60,file_name:file.file_name,mime_type:file.mime_type});
+  }));
+
   app.patch("/api/transport/admin/documents/:id",wrap("Transport document review",async(req,res)=>{
     const owner=await requireOwner(req,res);if(!owner)return;
     if(!UUID.test(req.params.id))return bad(res,"Document not found.",404);
