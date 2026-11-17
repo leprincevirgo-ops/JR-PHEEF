@@ -47,8 +47,14 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:parts,error}=await db.from("jr_conversation_participants").select("conversation_id,last_read_at").eq("member_id",m.id).limit(200);
     if(error)throw error;
     const ids=(parts||[]).map(x=>x.conversation_id);if(!ids.length)return res.json({ok:true,conversations:[]});
-    const {error:deliveryError}=await db.from("jr_message_receipts").update({delivered_at:new Date().toISOString()}).eq("recipient_id",m.id).is("delivered_at",null);
+    const {data:deliveredRows,error:deliveryError}=await db.from("jr_message_receipts").update({delivered_at:new Date().toISOString()}).eq("recipient_id",m.id).is("delivered_at",null).select("message_id");
     if(deliveryError)throw deliveryError;
+    if((deliveredRows||[]).length){
+      const {data:deliveredMessages,error:messageError}=await db.from("jr_messages").select("conversation_id").in("id",deliveredRows.map(x=>x.message_id));
+      if(messageError)throw messageError;
+      const changedRooms=[...new Set((deliveredMessages||[]).map(x=>x.conversation_id))];
+      if(changedRooms.length){const {error:roomError}=await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).in("id",changedRooms);if(roomError)throw roomError;}
+    }
     const [{data:rooms,error:e1},{data:allParts,error:e2}]=await Promise.all([
       db.from("jr_conversations").select("id,title,is_group,updated_at").in("id",ids).order("updated_at",{ascending:false}).limit(100),
       db.from("jr_conversation_participants").select("conversation_id,member_id").in("conversation_id",ids)
@@ -108,10 +114,14 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
       const {error:ackError}=await db.from("jr_message_receipts").update({delivered_at:new Date().toISOString()}).in("message_id",incoming).eq("recipient_id",m.id).is("delivered_at",null);
       if(ackError)throw ackError;
     }
-    await db.from("jr_conversation_participants").update({last_read_at:new Date().toISOString()}).eq("conversation_id",room.id).eq("member_id",m.id);
+    const readAt=new Date().toISOString();
+    const {error:lastReadError}=await db.from("jr_conversation_participants").update({last_read_at:readAt}).eq("conversation_id",room.id).eq("member_id",m.id);
+    if(lastReadError)throw lastReadError;
     if(incoming.length){
-      const {error:readError}=await db.from("jr_message_receipts").update({read_at:new Date().toISOString(),delivered_at:new Date().toISOString()}).in("message_id",incoming).eq("recipient_id",m.id).is("read_at",null);
+      const {error:readError}=await db.from("jr_message_receipts").update({read_at:readAt,delivered_at:readAt}).in("message_id",incoming).eq("recipient_id",m.id).is("read_at",null);
       if(readError)throw readError;
+      const {error:roomError}=await db.from("jr_conversations").update({updated_at:readAt}).eq("id",room.id);
+      if(roomError)throw roomError;
     }
     res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:messageRows});
   }));
