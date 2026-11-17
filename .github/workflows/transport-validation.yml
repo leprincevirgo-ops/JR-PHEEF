@@ -9,6 +9,7 @@ on:
       - "public/transport-ui.js"
       - "server.js"
       - "scripts/check-venture-access.js"
+      - "scripts/check-venture-access-e2e.js"
       - "public/venture-access-ui.js"
       - "routes/venture-access.js"
       - "routes/helpers.js"
