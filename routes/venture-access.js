@@ -13,6 +13,26 @@ module.exports = function mountVentureAccess(ctx) {
   };
   const isOwner = member => member && [member.account_type, member.role]
     .some(value => ["owner", "founder"].includes(String(value || "").toLowerCase()));
+  async function sendInAppNotifications(rows, label) {
+    if (!rows.length) return;
+    const { error } = await db.from("jr_notifications").insert(rows);
+    if (error) console.error(label + " notification delivery failed:", clean(error.message).slice(0, 180));
+  }
+  async function notifyFounderReviewers(ventureName, roleKey, applicantName) {
+    const { data, error } = await db.from("members").select("id,account_type,role")
+      .or("account_type.in.(owner,founder),role.in.(owner,founder)").limit(50);
+    if (error) {
+      console.error("Founder application notification lookup failed:", clean(error.message).slice(0, 180));
+      return;
+    }
+    const recipients = [...new Set((data || []).filter(isOwner).map(row => row.id))];
+    await sendInAppNotifications(recipients.map(memberId => ({
+      member_id: memberId,
+      title: "New venture application",
+      message: applicantName + " applied to " + ventureName + " as " + roleKey.replace(/_/g, " ") + ". Review it in DGBO.",
+      type: "venture"
+    })), "Founder review");
+  }
 
   app.get("/api/ventures", wrap("Venture catalogue", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
@@ -107,6 +127,14 @@ module.exports = function mountVentureAccess(ctx) {
       event_data: { role_key: roleKey, consent_version: template.version }
     });
     if (eventError) throw eventError;
+    const applicantName = clean(member.full_name) || "A JR PHEEF member";
+    await sendInAppNotifications([{
+      member_id: member.id,
+      title: "Venture application received",
+      message: "Your " + venture.name + " application as " + roleKey.replace(/_/g, " ") + " has been received and is awaiting review.",
+      type: "venture"
+    }], "Applicant receipt");
+    await notifyFounderReviewers(venture.name, roleKey, applicantName);
     if (logActivity) await logActivity(member.id, "VENTURE_MEMBERSHIP_APPLIED", { venture_slug: slug, role_key: roleKey });
     res.status(201).json({ ok: true, membership, message: "Application received. Venture access remains pending until an authorised reviewer approves it." });
   }));
