@@ -24,3 +24,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run test:transport-e2e
+        env:
+          BASE_URL: https://jr-pheef-rebuild-staging.onrender.com
