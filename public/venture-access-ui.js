@@ -174,7 +174,10 @@
   }
   function init() {
     const app = document.getElementById("app");
-    if (!app || app.classList.contains("hidden")) return;
+    if (!app || app.classList.contains("hidden")) {
+      document.querySelectorAll("[data-venture-access], [data-founder-venture-queue]").forEach(node => node.remove());
+      return;
+    }
     renderPanel(document.getElementById("dgbo"), "dgbo", "DGBO");
     renderPanel(document.getElementById("family"), "family", "FAMILY");
     renderPanel(document.getElementById("ecosystem"), "turbex", "TURBEX");
