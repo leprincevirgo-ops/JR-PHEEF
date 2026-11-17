@@ -61,20 +61,27 @@ module.exports = function mountEcosystem(ctx) {
   app.get("/api/ecosystem/me", wrap("Ecosystem me", async (req, res) => {
     const m = await requireMember(req, res); if (!m) return;
     const id = m.id;
-    const [listings, deals, unread, goals, apps, link] = await Promise.all([
+    const [listings, deals, unread, goals, apps, link, membership] = await Promise.all([
       head("jr_listings", q => q.eq("member_id", id).eq("status", "active")),
       head("jr_deal_rooms", q => q.or(`buyer_id.eq.${id},seller_id.eq.${id}`).in("status", ["open", "agreed"])),
       head("jr_notifications", q => q.eq("member_id", id).eq("read", false)),
       db.from("family_goals").select("target_amount,saved_amount,status").eq("member_id", id).limit(50),
       head("family_applications", q => q.eq("member_id", id)),
-      getLink(id, "family")
+      getLink(id, "family"),
+      db.from("venture_memberships").select("role_key,status,approved_at").eq("member_id", id).eq("venture_slug", "family").maybeSingle()
     ]);
+    if (membership.error) throw membership.error;
     const g = goals.data || [];
+    const familyMembership = membership.data;
     res.json({
       ok: true,
       jr_pheef: { active_listings: listings, open_deals: deals, unread_alerts: unread, points: Number(m.reward_points || 0), plan: m.plan || "FREE" },
       family: {
-        joined: !!link && link.status !== "left", status: link ? link.status : null,
+        joined: !!familyMembership && familyMembership.status === "approved",
+        membership_status: familyMembership ? familyMembership.status : null,
+        role: familyMembership ? familyMembership.role_key : null,
+        sharing_status: link && link.status !== "left" ? link.status : null,
+        consent_scopes: link && link.status !== "left" ? (link.consent_scopes || []) : [],
         goals: g.length, saved: g.reduce((s, x) => s + Number(x.saved_amount || 0), 0), target: g.reduce((s, x) => s + Number(x.target_amount || 0), 0),
         requests: apps
       }
@@ -97,7 +104,7 @@ module.exports = function mountEcosystem(ctx) {
     if (error) throw error;
     await emit(m.id, slug, "JOINED", { status: data.status, scopes });
     await logActivity(m.id, "ECOSYSTEM_JOIN", { venture: slug });
-    res.status(201).json({ ok: true, link: data, message: live ? "Welcome to " + v.name + "." : "You are on the " + v.name + " waiting list. You can use savings goals now; financial services open only after licensing." });
+    res.status(201).json({ ok: true, link: data, message: "Your data-sharing preferences for " + v.name + " have been saved. Venture membership is separate and requires its own application and approval. Regulated financial services remain inactive until licensing and compliance are established." });
   }));
 
   app.patch("/api/ecosystem/consent", wrap("Ecosystem consent", async (req, res) => {
@@ -125,7 +132,7 @@ module.exports = function mountEcosystem(ctx) {
       await db.from("family_applications").delete().eq("member_id", m.id).eq("status", "recorded");
     }
     await emit(m.id, slug, "LEFT", { data_deleted: req.body.delete_data === true });
-    res.json({ ok: true, message: "You left. Sharing with " + slug.toUpperCase() + " has stopped." + (req.body.delete_data === true ? " Your goals and unreferred requests were deleted." : "") });
+    res.json({ ok: true, message: "Data sharing with " + slug.toUpperCase() + " has stopped. This does not automatically end your separate venture membership." + (req.body.delete_data === true ? " Your goals and unreferred requests were deleted." : "") });
   }));
 
   /* ---------- FAMILY (no money held, no loans made) ---------- */
@@ -136,8 +143,7 @@ module.exports = function mountEcosystem(ctx) {
     if (error) throw error;
     if (!membership) { bad(res, "FAMILY membership approval is required before using member services.", 403); return null; }
     const link = await getLink(m.id, "family");
-    if (link && link.status === "left") { bad(res, "You have withdrawn your FAMILY data-sharing consent. Rejoin from the Ecosystem page to share any information.", 403); return null; }
-    return { ...(link || {}), consent_scopes: link && Array.isArray(link.consent_scopes) ? link.consent_scopes : [], membership };
+    return { ...(link || {}), consent_scopes: link && link.status !== "left" && Array.isArray(link.consent_scopes) ? link.consent_scopes : [], membership };
   };
 
   app.get("/api/family/goals", wrap("Goals list", async (req, res) => {
