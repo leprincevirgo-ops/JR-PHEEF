@@ -12,7 +12,7 @@ module.exports = function mountVentureAccess(ctx) {
     }
   };
   const isOwner = member => member && [member.account_type, member.role]
-    .some(value => String(value || "").toLowerCase() === "owner");
+    .some(value => ["owner", "founder"].includes(String(value || "").toLowerCase()));
 
   app.get("/api/ventures", wrap("Venture catalogue", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
