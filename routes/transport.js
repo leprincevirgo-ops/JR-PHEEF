@@ -155,6 +155,7 @@ module.exports = function mountTransport(ctx) {
       vehicle_id:vehicle.id,owner_member_id:owner.id,driver_member_id:driverMemberId,status:"pending_driver_consent",requested_at:new Date().toISOString()
     },{onConflict:"vehicle_id,driver_member_id"}).select("id,vehicle_id,driver_member_id,status").single();
     if(error)throw error;
+    await notify(driverMemberId,"Vehicle access invitation","A vehicle owner invited you to drive a verified JR PHEEF vehicle. Review the invitation in your Transport Centre.","delivery");
     res.status(201).json({ok:true,access:data,message:"Driver invitation sent. The driver must consent before using this vehicle."});
   }));
 
@@ -166,6 +167,7 @@ module.exports = function mountTransport(ctx) {
       status:accept?"active":"rejected",responded_at:new Date().toISOString()
     }).eq("id",req.params.id).eq("driver_member_id",member.id).eq("status","pending_driver_consent").select("id,vehicle_id,status").maybeSingle();
     if(error)throw error;if(!data)return bad(res,"Invitation not found or already answered.",404);
+    await notify(data.status==="active"? (await db.from("jr_transport_vehicle_access").select("owner_member_id").eq("id",data.id).single()).data.owner_member_id : (await db.from("jr_transport_vehicle_access").select("owner_member_id").eq("id",data.id).single()).data.owner_member_id,"Driver invitation response",data.status==="active"?"The invited driver accepted vehicle access.":"The invited driver declined vehicle access.","delivery");
     res.json({ok:true,access:data});
   }));
 
