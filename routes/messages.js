@@ -96,9 +96,22 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const ids=(parts||[]).map(x=>x.member_id);
     const {data:people,error:e}=await db.from("members").select("id,jp_number,full_name,profile_visibility").in("id",ids);if(e)throw e;
     const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||p.jp_number||"Member")]));
+    const messageIds=(msgs||[]).map(x=>x.id);
+    const {data:receipts,error:receiptError}=messageIds.length?await db.from("jr_message_receipts").select("message_id,recipient_id,delivered_at,read_at").in("message_id",messageIds):{data:[],error:null};
+    if(receiptError)throw receiptError;
+    const receiptMap=new Map((receipts||[]).map(x=>[String(x.message_id)+":"+String(x.recipient_id),x]));
+    const messageRows=(msgs||[]).map(x=>({...x,sender_name:String(x.sender_id)===String(m.id)?"You":names.get(x.sender_id)||"Member",delivery_state:String(x.sender_id)===String(m.id)?(ids.filter(id=>String(id)!==String(m.id)).every(id=>receiptMap.get(String(x.id)+":"+String(id))?.read_at)?"read":ids.filter(id=>String(id)!==String(m.id)).every(id=>receiptMap.get(String(x.id)+":"+String(id))?.delivered_at)?"delivered":"sent"):undefined}));
+    const incoming=messageRows.filter(x=>String(x.sender_id)!==String(m.id)).map(x=>x.id);
+    if(incoming.length){
+      const {error:ackError}=await db.from("jr_message_receipts").update({delivered_at:new Date().toISOString()}).in("message_id",incoming).eq("recipient_id",m.id).is("delivered_at",null);
+      if(ackError)throw ackError;
+    }
     await db.from("jr_conversation_participants").update({last_read_at:new Date().toISOString()}).eq("conversation_id",room.id).eq("member_id",m.id);
-    res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:(msgs||[]).map(x=>({...x,sender_name:String(x.sender_id)===String(m.id)?"You":names.get(x.sender_id)||"Member"}))});
-  }));
+    if(incoming.length){
+      const {error:readError}=await db.from("jr_message_receipts").update({read_at:new Date().toISOString(),delivered_at:new Date().toISOString()}).in("message_id",incoming).eq("recipient_id",m.id).is("read_at",null);
+      if(readError)throw readError;
+    }
+    res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:messageRows}));;
   app.post("/api/messages/conversations/:id",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-send",60,60000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"You're sending messages too quickly.",429);}
@@ -108,6 +121,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const ids=(parts||[]).map(x=>x.member_id).filter(id=>String(id)!==String(m.id));
     if(!ids.length)return fail(res,"There are no other participants in this conversation.",409);
     const {data,error}=await db.from("jr_messages").insert({conversation_id:room.id,sender_id:m.id,body}).select("id,sender_id,body,created_at").single();if(error)throw error;
+    const receiptRows=ids.map(recipient_id=>({message_id:data.id,recipient_id}));
+    const {error:receiptError}=await db.from("jr_message_receipts").insert(receiptRows);if(receiptError)throw receiptError;
     await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).eq("id",room.id);
     res.status(201).json({ok:true,message:{...data,sender_name:"You"}});
   }));
