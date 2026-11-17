@@ -256,6 +256,20 @@ main{width:min(calc(100% - 28px),var(--jp-shell-width));max-width:var(--jp-shell
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 
+/* JR's persistent visual identity: a friendly robotic intelligence, not a text-only logo. */
+.jr-robot-avatar{position:relative;overflow:visible;isolation:isolate}
+.jr-robot-avatar svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 5px 10px rgba(0,210,255,.35));animation:jrRobotFloat 4.8s ease-in-out infinite}
+.jr-robot-avatar:before{content:"";position:absolute;inset:-9px;border:1px solid rgba(105,245,255,.32);border-radius:50%;box-shadow:0 0 24px rgba(0,210,255,.2);animation:jrRobotPulse 3.2s ease-in-out infinite;pointer-events:none}
+.jr-robot-eye{transform-box:fill-box;transform-origin:center;animation:jrRobotBlink 5.5s infinite}
+.jr-robot-wordmark{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.jp-brand-mark{position:relative!important;display:grid!important;place-items:center!important;width:48px!important;height:48px!important;min-width:48px!important;border-radius:15px!important;font-size:0!important;color:transparent!important;background:radial-gradient(circle at 35% 25%,#eaffff,#55dff5 38%,#07518a 78%)!important;border:1px solid rgba(155,249,255,.9)!important;box-shadow:0 0 18px rgba(37,211,255,.35),inset 0 0 12px rgba(255,255,255,.3)!important}
+.jp-brand-mark:before{content:"";width:27px;height:25px;border:2px solid #d9fcff;border-radius:9px 9px 11px 11px;background:linear-gradient(#082d50,#03152a);box-shadow:0 0 9px #5ff5ff;position:absolute}
+.jp-brand-mark:after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:#62faff;left:15px;top:21px;box-shadow:13px 0 #62faff,6px 11px 0 -1px #9bfbff}
+@keyframes jrRobotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes jrRobotPulse{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.07);opacity:1}}
+@keyframes jrRobotBlink{0%,46%,50%,100%{transform:scaleY(1)}48%{transform:scaleY(.12)}}
+@media(prefers-reduced-motion:reduce){.jr-robot-avatar svg,.jr-robot-avatar:before,.jr-robot-eye{animation:none!important}}
+
 /* JR PHEEF — elevated luminous panoramic Talk to JR tab */
 .jp-primary-nav .jp-nav-assistant{
   position:relative;
@@ -395,7 +409,7 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 
 <section id="auth">
 <div class="jr-entry-welcome">
-  <div class="jr-entry-orb" aria-hidden="true"><span>JR</span></div>
+  <div class="jr-entry-orb jr-robot-avatar" role="img" aria-label="JR PHEEF artificial intelligence robot"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><defs><linearGradient id="jrFace" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaffff"/><stop offset=".48" stop-color="#70dff5"/><stop offset="1" stop-color="#2876b9"/></linearGradient><linearGradient id="jrVisor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#082b50"/><stop offset="1" stop-color="#031326"/></linearGradient></defs><path d="M60 8v10" stroke="#9ffaff" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="7" r="5" fill="#9ffaff"/><path d="M31 30Q34 20 47 20h26q13 0 16 10l8 12v43q-2 13-15 15H38q-13-2-15-15V42z" fill="url(#jrFace)" stroke="#c5fbff" stroke-width="2"/><path d="M20 48q-9 0-9 11t9 11M100 48q9 0 9 11t-9 11" fill="none" stroke="#72eaff" stroke-width="6" stroke-linecap="round"/><rect x="29" y="40" width="62" height="38" rx="15" fill="url(#jrVisor)" stroke="#9af5ff" stroke-width="2"/><ellipse class="jr-robot-eye" cx="46" cy="58" rx="6" ry="8" fill="#52f6ff"/><ellipse class="jr-robot-eye" cx="74" cy="58" rx="6" ry="8" fill="#52f6ff"/><path d="M48 87q12 9 24 0" fill="none" stroke="#06426c" stroke-width="4" stroke-linecap="round"/><path d="M43 104v7m34-7v7" stroke="#9ffaff" stroke-width="4" stroke-linecap="round"/></svg><span class="jr-robot-wordmark">JR</span></div>
   <p class="jr-entry-kicker">JR PHEEF · YOUR INTELLIGENT ENVIRONMENT</p>
   <h1>Start with <span>JR.</span></h1>
   <p>Ask anything. Bring a question, a challenge, an idea, a task or a possibility. JR will first understand what you mean, then help you find a way forward.</p>
