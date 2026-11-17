@@ -1,0 +1,18 @@
+"use strict";
+const fs = require("node:fs");
+const assert = require("node:assert/strict");
+const route = fs.readFileSync("routes/venture-access.js", "utf8");
+const server = fs.readFileSync("server.js", "utf8");
+const html = fs.readFileSync("public/index.html", "utf8");
+assert.match(route, /\/api\/ventures/);
+assert.match(route, /\/api\/ventures\/:slug\/registration/);
+assert.match(route, /\/api\/ventures\/:slug\/apply/);
+assert.match(route, /\/api\/my-venture-memberships/);
+assert.match(route, /\/api\/founder\/venture-memberships/);
+assert.match(route, /req\.body\.consent === true/, "Applications require explicit venture-specific consent");
+assert.match(route, /if \(!isOwner\(member\)\)/, "Founder review endpoints must be owner-only");
+assert.match(route, /status: "applied"/, "Applications must remain pending until approval");
+assert.match(route, /Core JR PHEEF identity membership cannot be changed/, "Core identity membership must not be revoked through this queue");
+assert.match(server, /require\("\.\/routes\/venture-access"\)\(routeCtx\)/, "Venture access routes must be mounted with the shared authenticated context");
+assert.match(html, /venture-access-ui\.js/, "Member venture access interface must be loaded");
+console.log("PASS: shared identity, separate venture applications, explicit consent, and owner-only review are wired.");
