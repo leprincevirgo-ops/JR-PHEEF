@@ -7,6 +7,7 @@
  function msg(id,value,isError){const el=$(id);if(el){el.textContent=value||"";el.style.color=isError?"#ffb4a8":"#8fe6c4";}}
  function init(){
   if(!$("app")||$("transport"))return;
+  const home=$("home");if(home){const shortcut=document.createElement("section");shortcut.className="card";shortcut.innerHTML="<p class=\"eyebrow\">TRANSPORT & DELIVERY</p><h2>Move people and goods with JR.</h2><p class=\"muted\">Register as a provider or compare an intelligent fare estimate.</p><button class=\"primary\" type=\"button\" onclick=\"show(\'transport\')\">OPEN TRANSPORT CENTRE</button>";home.prepend(shortcut);}
   const economy=$("economy"),grid=economy&&economy.querySelector(".grid");
   if(grid){const card=document.createElement("div");card.className="listing";card.innerHTML="<b>Transport & Delivery</b><p class=\"muted\">Register as a provider, estimate fares and request transport.</p><button class=\"primary\" type=\"button\" onclick=\"show('transport')\">OPEN TRANSPORT CENTRE</button>";grid.append(card);}
   const page=document.createElement("div");page.id="transport";page.className="page hidden";
