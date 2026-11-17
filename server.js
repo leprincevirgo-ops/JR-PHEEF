@@ -1551,6 +1551,7 @@ require("./routes/market")(routeCtx);
 require("./routes/messages")({ app, db, requireMember, checkRequestRate, clean });
 /* DELIVERY, POWER SALE and M-PESA PAYMENTS (payments stay off until configured in Render) */
 require("./routes/delivery")(routeCtx);
+require("./routes/transport")(routeCtx);
 require("./routes/powersale")(routeCtx);
 require("./routes/payments")(routeCtx);
 /* ECOSYSTEM: DGBO (parent) + FAMILY + JR PHEEF as one connected system */
