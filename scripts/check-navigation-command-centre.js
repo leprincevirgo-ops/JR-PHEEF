@@ -7,6 +7,8 @@ const css=fs.readFileSync("public/desktop-connected-world.css","utf8");
 const sw=fs.readFileSync("public/service-worker.js","utf8");
 const primary='const primary=[["home","⌂","Home"],["worlds","✧","Explore"],["assistant","✦","JR"],["messages","✉","Messages"],["command","▦","Command"]]';
 assert.ok(shell.includes(primary),"primary destinations must be Home, Explore, JR, Messages, Command in that order");
+assert.ok(shell.includes('messages:"messages"'),"Messages must remain its own selected destination, not appear as a Command Center child");
+assert.ok(shell.includes('document.dispatchEvent(new CustomEvent("jr:workspacechange"'),"workspace navigation must open the destination directly without requiring the JR assistant");
 assert.ok(html.includes('data-page="command"'),"Command Center must be a first-class destination");
 assert.ok(shell.includes(" worlds:[")&&shell.includes("if(hubGroups[id])"),"Worlds must render its own organised hub");
 assert.ok(!shell.includes('if(id==="worlds")id="morehub"'),"Worlds must open its own hub, not redirect to More Services");
