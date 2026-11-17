@@ -19,7 +19,7 @@ module.exports = function helpers(ctx) {
     bad(res, "Too many requests. Please slow down and try again shortly.", 429);
     return true;
   };
-  const isOwner = m => [m.account_type, m.role].some(v => String(v || "").toLowerCase() === "owner");
+  const isOwner = m => [m.account_type, m.role].some(v => ["owner", "founder"].includes(String(v || "").toLowerCase()));
   const requireOwner = async (req, res) => {
     const m = await requireMember(req, res); if (!m) return null;
     if (!isOwner(m)) { bad(res, "Owner access required.", 403); return null; }
