@@ -29,4 +29,5 @@ assert.match(html, /venture-access-ui\.js/, "Member venture access interface mus
 const ui = fs.readFileSync("public/venture-access-ui.js", "utf8");
 assert.match(ui, /RESTRICTED · DGBO FOUNDER REVIEW/, "Founder review interface missing");
 assert.match(ui, /statusLabel/, "Member-facing status labels missing");
+assert.match(ui, /data-founder-venture-queue.*remove|querySelectorAll\("\[data-venture-access\]/, "Venture details must be cleared on sign-out");
 console.log("PASS: shared identity, separate venture applications, explicit consent, and owner-only review are wired.");
