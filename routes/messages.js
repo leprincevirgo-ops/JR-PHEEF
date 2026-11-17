@@ -87,19 +87,6 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {error:pe}=await db.from("jr_conversation_participants").insert(rows);if(pe)throw pe;
     res.status(201).json({ok:true,conversation:room});
   }));
-  app.post("/api/messages/conversations/:id/typing",wrap(async(req,res)=>{
-    const m=await member(req,res);if(!m)return;
-    const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
-    const {error}=await db.from("jr_message_typing").upsert({conversation_id:room.id,member_id:m.id,expires_at:new Date(Date.now()+7000).toISOString()},{onConflict:"conversation_id,member_id"});
-    if(error)throw error;res.setHeader("Cache-Control","no-store");res.json({ok:true});
-  }));
-  app.get("/api/messages/conversations/:id/typing",wrap(async(req,res)=>{
-    const m=await member(req,res);if(!m)return;
-    const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
-    const {data:rows,error}=await db.from("jr_message_typing").select("member_id,expires_at").eq("conversation_id",room.id).neq("member_id",m.id).gt("expires_at",new Date().toISOString());
-    if(error)throw error;res.setHeader("Cache-Control","no-store");
-    res.json({ok:true,typing:(rows||[]).length>0});
-  }));
   app.get("/api/messages/conversations/:id",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const room=await conversation(req.params.id,m.id);if(!room)return fail(res,"Conversation not found.",404);
