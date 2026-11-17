@@ -13,6 +13,9 @@ assert.match(route, /req\.body\.consent === true/, "Applications require explici
 assert.match(route, /if \(!isOwner\(member\)\)/, "Founder review endpoints must be owner-only");
 assert.match(route, /status: "applied"/, "Applications must remain pending until approval");
 assert.match(route, /Venture application update/, "Applicants must be notified after a review");
+assert.match(route, /notifyFounderReviewers/, "Founder reviewers must be notified about new applications");
+assert.match(route, /Venture application received/, "Applicants must receive application receipt notifications");
+assert.match(route, /New venture application/, "Founder reviewers must receive application alerts");
 assert.match(route, /review_note,created_at,updated_at/, "Applicants must receive their review feedback");
 assert.match(route, /Core JR PHEEF identity membership cannot be changed/, "Core identity membership must not be revoked through this queue");
 assert.match(server, /require\("\.\/routes\/venture-access"\)\(routeCtx\)/, "Venture access routes must be mounted with the shared authenticated context");
