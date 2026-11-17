@@ -47,7 +47,7 @@
       ]);
       const venture = (catalog.ventures || []).find(v => v.slug === slug);
       const membership = (mine.memberships || []).find(m => m.venture_slug === slug) || null;
-      status.textContent = statusLabel(membership) + (membership && membership.role_key ? " · " + membership.role_key.replace(/_/g, " ") : "");
+      status.textContent = statusLabel(membership) + (membership && membership.role_key ? " · " + membership.role_key.replace(/_/g, " ") : "") + (membership && membership.review_note ? " · " + membership.review_note : "");
       if (membership && membership.status === "approved") {
         actionArea.append(h("p", "muted", "Your venture membership is active. Venture-specific services remain subject to their own permissions and eligibility."));
         return;
