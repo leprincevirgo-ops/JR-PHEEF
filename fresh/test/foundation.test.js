@@ -358,3 +358,17 @@ test("transport workspace offers member paths to become a provider or find trans
  assert.match(app,/I want to become a driver or transport provider on JR PHEEF/);
  assert.match(app,/I need transport or delivery/);
 });
+
+test("JR's hidden evolution blueprint preserves device independence, frontier research and approval boundaries",()=>{
+ const server=read("server.js");
+ for(const phrase of [
+  "JR CONTINUOUS EVOLUTION",
+  "JR GLOBAL OBSERVATORY",
+  "JR EARTHWATCH",
+  "JR CHRONOS",
+  "device-independent by design",
+  "private founder controls",
+  "must never secretly rewrite production code",
+  "Physical travel to the past has not been demonstrated"
+ ])assert.ok(server.includes(phrase),"missing JR architecture safeguard: "+phrase);
+});
