@@ -18,6 +18,8 @@ const familyBank = fs.readFileSync("routes/family-bank.js", "utf8");
 const ecosystem = fs.readFileSync("routes/ecosystem.js", "utf8");
 const helpers = fs.readFileSync("routes/helpers.js", "utf8");
 assert.match(familyBank, /requireFamilyMembership/, "FAMILY service APIs must require approved membership");
+assert.match(familyBank, /\["member", "goal_coordinator"\]/, "FAMILY role scopes must be enforced");
+assert.match(ecosystem, /\["member", "goal_coordinator"\]/, "FAMILY personal tools must be role-scoped");
 assert.match(ecosystem, /FAMILY membership approval is required/, "FAMILY member services must be membership-gated");
 assert.match(helpers, /\["owner", "founder"\]/, "Founder role must be recognized by protected operations");
 
