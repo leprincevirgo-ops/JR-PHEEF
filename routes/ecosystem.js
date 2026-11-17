@@ -130,9 +130,14 @@ module.exports = function mountEcosystem(ctx) {
 
   /* ---------- FAMILY (no money held, no loans made) ---------- */
   const familyLink = async (req, res, m) => {
+    const { data: membership, error } = await db.from("venture_memberships")
+      .select("id,role_key,status").eq("member_id", m.id)
+      .eq("venture_slug", "family").eq("status", "approved").maybeSingle();
+    if (error) throw error;
+    if (!membership) { bad(res, "FAMILY membership approval is required before using member services.", 403); return null; }
     const link = await getLink(m.id, "family");
-    if (!link || link.status === "left") { bad(res, "Join FAMILY first from the Ecosystem page.", 403); return null; }
-    return link;
+    if (link && link.status === "left") { bad(res, "You have withdrawn your FAMILY data-sharing consent. Rejoin from the Ecosystem page to share any information.", 403); return null; }
+    return { ...(link || {}), consent_scopes: link && Array.isArray(link.consent_scopes) ? link.consent_scopes : [], membership };
   };
 
   app.get("/api/family/goals", wrap("Goals list", async (req, res) => {
