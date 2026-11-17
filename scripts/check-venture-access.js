@@ -14,6 +14,13 @@ assert.match(route, /if \(!isOwner\(member\)\)/, "Founder review endpoints must 
 assert.match(route, /status: "applied"/, "Applications must remain pending until approval");
 assert.match(route, /Core JR PHEEF identity membership cannot be changed/, "Core identity membership must not be revoked through this queue");
 assert.match(server, /require\("\.\/routes\/venture-access"\)\(routeCtx\)/, "Venture access routes must be mounted with the shared authenticated context");
+const familyBank = fs.readFileSync("routes/family-bank.js", "utf8");
+const ecosystem = fs.readFileSync("routes/ecosystem.js", "utf8");
+const helpers = fs.readFileSync("routes/helpers.js", "utf8");
+assert.match(familyBank, /requireFamilyMembership/, "FAMILY service APIs must require approved membership");
+assert.match(ecosystem, /FAMILY membership approval is required/, "FAMILY member services must be membership-gated");
+assert.match(helpers, /\["owner", "founder"\]/, "Founder role must be recognized by protected operations");
+
 assert.match(html, /venture-access-ui\.js/, "Member venture access interface must be loaded");
 const ui = fs.readFileSync("public/venture-access-ui.js", "utf8");
 assert.match(ui, /RESTRICTED · DGBO FOUNDER REVIEW/, "Founder review interface missing");
