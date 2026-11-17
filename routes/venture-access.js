@@ -45,7 +45,7 @@ module.exports = function mountVentureAccess(ctx) {
   app.get("/api/my-venture-memberships", wrap("Member venture memberships", async (req, res) => {
     const member = await requireMember(req, res); if (!member) return;
     const { data, error } = await db.from("venture_memberships")
-      .select("id,venture_slug,role_key,status,consent_version,consented_at,reviewed_at,approved_at,created_at,updated_at")
+      .select("id,venture_slug,role_key,status,consent_version,consented_at,reviewed_at,approved_at,review_note,created_at,updated_at")
       .eq("member_id", member.id).order("created_at", { ascending: true });
     if (error) throw error;
     res.setHeader("Cache-Control", "no-store");
@@ -164,6 +164,13 @@ module.exports = function mountVentureAccess(ctx) {
       event_data: { role_key: current.role_key, review_note: note }
     });
     if (eventError) throw eventError;
+    const { error: notificationError } = await db.from("jr_notifications").insert({
+      member_id: current.member_id,
+      title: "Venture application update",
+      message: current.venture_slug.toUpperCase() + " membership application: " + status + (note ? " — " + note : "."),
+      type: "venture"
+    });
+    if (notificationError) console.error("Venture membership notification failed:", notificationError.message);
     if (logActivity) await logActivity(member.id, "VENTURE_MEMBERSHIP_REVIEWED", { venture_slug: current.venture_slug, membership_id: current.id, status });
     res.json({ ok: true, membership: data });
   }));
