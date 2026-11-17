@@ -121,9 +121,20 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:parts,error:pe}=await db.from("jr_conversation_participants").select("member_id").eq("conversation_id",room.id);if(pe)throw pe;
     const ids=(parts||[]).map(x=>x.member_id).filter(id=>String(id)!==String(m.id));
     if(!ids.length)return fail(res,"There are no other participants in this conversation.",409);
-    const {data,error}=await db.from("jr_messages").insert({conversation_id:room.id,sender_id:m.id,body}).select("id,sender_id,body,created_at").single();if(error)throw error;
+    const clientMessageId=clean(req.body.client_message_id||"");
+    if(clientMessageId&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientMessageId))return fail(res,"Invalid message retry identifier.");
+    let data;
+    if(clientMessageId){
+      const {data:prior,error:priorError}=await db.from("jr_messages").select("id,sender_id,body,created_at").eq("sender_id",m.id).eq("client_message_id",clientMessageId).maybeSingle();
+      if(priorError)throw priorError;
+      if(prior)data=prior;
+    }
+    if(!data){
+      const {data:inserted,error}=await db.from("jr_messages").insert({conversation_id:room.id,sender_id:m.id,body,client_message_id:clientMessageId||null}).select("id,sender_id,body,created_at").single();
+      if(error)throw error;data=inserted;
+    }
     const receiptRows=ids.map(recipient_id=>({message_id:data.id,recipient_id}));
-    const {error:receiptError}=await db.from("jr_message_receipts").insert(receiptRows);if(receiptError)throw receiptError;
+    const {error:receiptError}=await db.from("jr_message_receipts").upsert(receiptRows,{onConflict:"message_id,recipient_id",ignoreDuplicates:true});if(receiptError)throw receiptError;
     await db.from("jr_conversations").update({updated_at:new Date().toISOString()}).eq("id",room.id);
     res.status(201).json({ok:true,message:{...data,sender_name:"You"}});
   }));
