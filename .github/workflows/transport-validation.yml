@@ -1,0 +1,26 @@
+name: JR PHEEF transport validation
+
+on:
+  push:
+    branches:
+      - rebuild/architecture-foundation
+    paths:
+      - "routes/transport.js"
+      - "public/transport-ui.js"
+      - "server.js"
+      - "scripts/check-transport.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/transport-validation.yml"
+
+jobs:
+  transport-and-regression-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
