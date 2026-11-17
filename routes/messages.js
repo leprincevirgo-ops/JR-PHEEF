@@ -111,7 +111,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
       const {error:readError}=await db.from("jr_message_receipts").update({read_at:new Date().toISOString(),delivered_at:new Date().toISOString()}).in("message_id",incoming).eq("recipient_id",m.id).is("read_at",null);
       if(readError)throw readError;
     }
-    res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:messageRows}));;
+    res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:messageRows});
+  }));
   app.post("/api/messages/conversations/:id",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-send",60,60000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"You're sending messages too quickly.",429);}
