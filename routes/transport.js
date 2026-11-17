@@ -102,6 +102,30 @@ module.exports = function mountTransport(ctx) {
     res.status(201).json({ok:true,provider,message:"Application submitted. You are registered as pending review, not yet approved to accept real jobs."});
   }));
 
+
+  app.get("/api/transport/documents",wrap("Transport document list",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    const {data:provider,error:pErr}=await db.from("jr_riders").select("id").eq("member_id",member.id).maybeSingle();
+    if(pErr)throw pErr;if(!provider)return res.json({ok:true,documents:[]});
+    const {data,error}=await db.from("jr_transport_documents").select("id,provider_id,file_vault_id,document_type,status,review_note,created_at,reviewed_at").eq("provider_id",provider.id).order("created_at",{ascending:false});
+    if(error)throw error;res.json({ok:true,documents:data||[]});
+  }));
+
+  app.post("/api/transport/documents",wrap("Transport secure document link",async(req,res)=>{
+    const member=await requireMember(req,res);if(!member)return;
+    const file_vault_id=clean(req.body.file_vault_id),document_type=clean(req.body.document_type);
+    if(!UUID.test(file_vault_id)||!["identity","driving_licence","vehicle_logbook","insurance","inspection","business_permit","other"].includes(document_type))return bad(res,"Choose a valid secure file and document type.");
+    const {data:provider,error:pErr}=await db.from("jr_riders").select("id").eq("member_id",member.id).maybeSingle();
+    if(pErr)throw pErr;if(!provider)return bad(res,"Submit your provider application first.",409);
+    const {data:file,error:fErr}=await db.from("file_vault").select("id,member_id,category").eq("id",file_vault_id).eq("member_id",member.id).maybeSingle();
+    if(fErr)throw fErr;if(!file)return bad(res,"The secure file was not found in your private vault.",404);
+    if(file.category!=="transport")return bad(res,"Upload this document to your private vault using the Transport category.");
+    const {data,error}=await db.from("jr_transport_documents").insert({provider_id:provider.id,member_id:member.id,file_vault_id,document_type,status:"pending_review"}).select("id,document_type,status,created_at").single();
+    if(error){if(error.code==="23505")return bad(res,"This file is already submitted for this provider.",409);throw error;}
+    await logActivity(member.id,"TRANSPORT_DOCUMENT_SUBMITTED",{document_type});
+    res.status(201).json({ok:true,document:data,message:"Document uploaded to your private vault and submitted for restricted review."});
+  }));
+
   app.post("/api/transport/vehicles",wrap("Transport vehicle registration",async(req,res)=>{
     const member=await requireMember(req,res);if(!member)return;
     const vehicle_type=clean(req.body.vehicle_type),registration_number=clean(req.body.registration_number).toUpperCase();
@@ -308,15 +332,44 @@ module.exports = function mountTransport(ctx) {
     res.json({ok:true,providers:(data||[]).map(x=>({...x,member:byId[x.member_id]||null,vehicles:vehiclesByOwner[x.member_id]||[]}))});
   }));
 
+
+  app.get("/api/transport/admin/documents",wrap("Transport document review queue",async(req,res)=>{
+    const owner=await requireOwner(req,res);if(!owner)return;
+    const {data,error}=await db.from("jr_transport_documents").select("id,provider_id,member_id,file_vault_id,document_type,status,created_at").eq("status","pending_review").order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const providerIds=[...new Set((data||[]).map(x=>x.provider_id))],fileIds=[...new Set((data||[]).map(x=>x.file_vault_id))];
+    const [pr,fr]=await Promise.all([
+      providerIds.length?db.from("jr_riders").select("id,provider_type,service_area_city").in("id",providerIds):Promise.resolve({data:[],error:null}),
+      fileIds.length?db.from("file_vault").select("id,file_name,mime_type,size_bytes,member_id").in("id",fileIds):Promise.resolve({data:[],error:null})
+    ]);
+    if(pr.error)throw pr.error;if(fr.error)throw fr.error;
+    const providers=Object.fromEntries((pr.data||[]).map(x=>[x.id,x])),files=Object.fromEntries((fr.data||[]).map(x=>[x.id,x]));
+    res.json({ok:true,documents:(data||[]).map(x=>({...x,provider:providers[x.provider_id]||null,file:files[x.file_vault_id]||null}))});
+  }));
+
+  app.patch("/api/transport/admin/documents/:id",wrap("Transport document review",async(req,res)=>{
+    const owner=await requireOwner(req,res);if(!owner)return;
+    if(!UUID.test(req.params.id))return bad(res,"Document not found.",404);
+    const status=clean(req.body.status);
+    if(!["verified","rejected","expired"].includes(status))return bad(res,"Choose a valid document review result.");
+    const {data,error}=await db.from("jr_transport_documents").update({status,reviewed_by:owner.id,review_note:clean(req.body.review_note).slice(0,1000)||null,reviewed_at:new Date().toISOString()}).eq("id",req.params.id).eq("status","pending_review").select("id,provider_id,document_type,status").maybeSingle();
+    if(error)throw error;if(!data)return bad(res,"Document not found or already reviewed.",404);
+    await logActivity(owner.id,"TRANSPORT_DOCUMENT_REVIEWED",{document_id:data.id,status});
+    res.json({ok:true,document:data});
+  }));
+
   app.patch("/api/transport/admin/providers/:id",wrap("Transport provider review",async(req,res)=>{
     const owner=await requireOwner(req,res);if(!owner)return;
     if(!UUID.test(req.params.id))return bad(res,"Provider application not found.",404);
     const next=clean(req.body.verification_status);
     if(!["approved","rejected","more_info_required","suspended"].includes(next))return bad(res,"Choose a valid review outcome.");
     const verified=next==="approved";
-    if(verified && !["verified","not_required"].includes(clean(req.body.licence_status)))return bad(res,"Review and record the required licence status before approval.");
-    if(verified && !["verified","not_required"].includes(clean(req.body.insurance_status)))return bad(res,"Review and record the required insurance status before approval.");
-    const patch={verification_status:next,verified,approved:verified,online:false,updated_at:new Date().toISOString()};
+    const {data:providerRow,error:providerError}=await db.from("jr_riders").select("member_id,has_vehicle").eq("id",req.params.id).maybeSingle();
+    if(providerError)throw providerError;if(!providerRow)return bad(res,"Provider application not found.",404);
+    let requiredDocs=["identity","driving_licence"];
+    if(providerRow.has_vehicle)requiredDocs=requiredDocs.concat(["vehicle_logbook","insurance"]);
+    if(verified){const docs=await db.from("jr_transport_documents").select("document_type,status").eq("provider_id",req.params.id).eq("status","verified");if(docs.error)throw docs.error;const valid=new Set((docs.data||[]).map(x=>x.document_type));const missing=requiredDocs.filter(x=>!valid.has(x));if(missing.length)return bad(res,"Required documents have not been verified: "+missing.join(", "),409);}
+    const patch={verification_status:next,verified,approved:verified,online:false,licence_status:verified?"verified":"pending_review",insurance_status:verified&&providerRow.has_vehicle?"verified":"pending_review",updated_at:new Date().toISOString()};
     if(req.body.licence_status!==undefined){const x=clean(req.body.licence_status);if(!["pending_review","verified","rejected","not_required"].includes(x))return bad(res,"Invalid licence status.");patch.licence_status=x;}
     if(req.body.insurance_status!==undefined){const x=clean(req.body.insurance_status);if(!["pending_review","verified","rejected","not_required"].includes(x))return bad(res,"Invalid insurance status.");patch.insurance_status=x;}
     const {data,error}=await db.from("jr_riders").update(patch).eq("id",req.params.id).select("id,member_id,verification_status,verified,approved,licence_status,insurance_status").maybeSingle();
