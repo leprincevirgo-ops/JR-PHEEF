@@ -123,7 +123,7 @@ const WORLD_FEEDS={
 };
 const discoveryCache=new Map();
 function decodeFeedText(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)||32)).replace(/\s+/g," ").trim().slice(0,360);}
-function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\s\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
+function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
 async function loadWorldFeed(world){
  const cacheKey=world==="transport"?"transport":"general",cached=discoveryCache.get(cacheKey);
  if(cached&&Date.now()-cached.at<10*60*1000)return {...cached.data,cached:true};
