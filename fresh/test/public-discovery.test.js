@@ -3,58 +3,67 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const root=path.resolve(__dirname,"../..");
+const root=path.resolve(__dirname,"..");
 const html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
-const css=fs.readFileSync(path.join(root,"public/jr-public-discovery.css"),"utf8");
-const js=fs.readFileSync(path.join(root,"public/jr-public-discovery.js"),"utf8");
-const sw=fs.readFileSync(path.join(root,"public/service-worker.js"),"utf8");
-const server=fs.readFileSync(path.join(root,"fresh/server.js"),"utf8");
-test("public discovery is the first-visit experience before account entry",()=>{
- const landing=html.indexOf('<section id="jr-public-discovery"');
- const auth=html.indexOf('<section id="auth">');
- assert.ok(landing>=0&&auth>landing);
- assert.match(html,/<title>JR PHEEF — Find\. Match\. Trade\.<\/title>/);
- assert.match(html,/jr-public-discovery\.css\?v=3/);
- assert.match(html,/jr-public-discovery\.js\?v=3/);
- assert.match(html,/document\.documentElement\.classList\.add\("jr-public-discovery-mode"\)/);
- assert.match(css,/html\.jr-public-discovery-mode #auth\{display:none!important\}/);
+const css=fs.readFileSync(path.join(root,"public/styles.css"),"utf8");
+const discovery=fs.readFileSync(path.join(root,"public/public-discovery.js"),"utf8");
+const app=fs.readFileSync(path.join(root,"public/app.js"),"utf8");
+const server=fs.readFileSync(path.join(root,"server.js"),"utf8");
+test("the public domain serves the real connected foundation, not the retired brochure page",()=>{
+ assert.match(server,/function sendFoundation\(req,res\)/);
+ assert.match(server,/app\.get\("\/",sendFoundation\)/);
+ assert.match(server,/app\.get\("\/jr-pheef",sendFoundation\)/);
+ assert.match(server,/app\.get\("\/app",sendFoundation\)/);
+ assert.match(server,/path\.join\(__dirname,"public","index\.html"\)/);
+ assert.doesNotMatch(server,/jr-pheef-site\.html/);
 });
-test("public discovery loads source-attributed live general and transport updates",()=>{
- assert.match(html,/id="jpd-live-general"/);
- assert.match(html,/id="jpd-live-transport"/);
- assert.match(html,/data-jpd-action="refresh-feed"/);
- assert.match(js,/fetch\("\/api\/discovery\/feed\?world="/);
- assert.match(js,/url\.protocol!=="https:"/);
- assert.match(js,/link\.textContent=/);
- assert.match(js,/summary\.textContent=/);
+test("visitors understand JR PHEEF before registration and authenticated workspace entry",()=>{
+ const live=html.indexOf('<section class="public-live" id="publicLive">');
+ const workspace=html.indexOf('<section class="workspace" id="workspace" hidden>');
+ const auth=html.indexOf('<section class="auth" id="authPanel" hidden>');
+ assert.ok(live>0&&workspace>live&&auth>workspace);
+ assert.match(html,/A connected world, ready for you/);
+ assert.match(html,/PLATFORM REGISTRATION/);
+ assert.match(html,/Understand\. Register\. Enter\. Grow\./);
+ assert.match(html,/id="publicJoinNow"/);
+ assert.match(app,/\$\("startWithJr"\)\.addEventListener\("click",\(\)=>showAuth\("signup"\)\)/);
+ assert.match(app,/\$\("publicJoinNow"\)\?\.addEventListener\("click",\(\)=>showAuth\("signup"\)\)/);
+ assert.match(app,/if\(publicLive\)publicLive\.hidden=!!user/);
+});
+test("the public experience introduces the four connected environments",()=>{
+ for(const name of ["DIAMOND GLOBAL BUSINESS OPERATORS","FAMILY","JR MOVE","JR LINK"])assert.ok(html.includes(name));
+ for(const route of ["data-company-open=\"dgbo\"","data-company-open=\"family\"","data-company-open=\"turbex\"","data-company-open=\"command\""])assert.ok(html.includes(route));
+});
+test("public live discovery loads attributed general and transport feeds safely",()=>{
+ assert.match(html,/id="publicGeneralFeed"/);
+ assert.match(html,/id="publicTransportFeed"/);
+ assert.match(html,/public-discovery\.js\?v=20261118-founder-live-v1/);
+ assert.match(discovery,/fetch\("\/api\/discovery\/feed\?world="/);
+ assert.match(discovery,/url\.protocol!=="https:"/);
+ assert.match(discovery,/link\.textContent=/);
+ assert.match(discovery,/summary=node\("p","",String\(item\.summary/);
  assert.match(server,/app\.get\("\/api\/discovery\/feed"/);
  assert.match(server,/loadWorldFeed\(world\)/);
 });
-test("JR MOVE public feed uses authoritative aviation industry and regulator sources",()=>{
- assert.ok(server.includes('name:"International Air Transport Association (IATA)"'));
- assert.ok(server.includes('url:"https://www.iata.org/api/rss/pressrelease"'));
- assert.ok(server.includes('name:"Federal Aviation Administration (FAA)"'));
- assert.ok(server.includes('url:"https://www.faa.gov/newsroom/press_releases/rss"'));
+test("JR conversation in the authenticated workspace calls the real server AI endpoint",()=>{
+ assert.match(html,/id="workspacePromptForm"/);
+ assert.match(app,/api\("\/api\/ai\/chat",\{message,mode:"universe",history:/);
+ assert.match(app,/reply\.textContent=answer/);
+ assert.match(server,/app\.post\("\/api\/ai\/chat",rateLimit,sameOrigin/);
+ assert.match(server,/if\(!user\|\|!user\.email_confirmed_at\|\|!req\.jrAccessToken\)/);
+ assert.match(server,/process\.env\.OPENAI_API_KEY/);
 });
-test("public world introductions cover DGBO, FAMILY, JR MOVE and JR LINK",()=>{
- for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'));
+test("founder access is private, role-gated and connected to the protected overview service",()=>{
+ assert.match(html,/id="founderCommand" hidden/);
+ assert.match(app,/user\.role==="founder"&&user\.jpNumber==="JP-01"/);
+ assert.match(app,/loadFounderOverview\(\)/);
+ assert.match(app,/api\("\/api\/founder\/overview"\)/);
+ assert.match(server,/app\.all\("\/api\/founder\/overview",sameOrigin/);
+ assert.match(server,/functions\/v1\/jr-founder-overview/);
+ assert.match(server,/liveAiConnected:Boolean\(process\.env\.OPENAI_API_KEY\)/);
 });
-test("public entry calls the existing account views, not a replacement auth system",()=>{
- assert.match(html,/function showRegister\(\)/);
- assert.match(html,/function showLogin\(\)/);
- assert.match(js,/window\.showRegister\(\)/);
- assert.match(js,/window\.showLogin\(\)/);
- assert.match(html,/data-jpd-action="register"/);
- assert.match(html,/data-jpd-action="login"/);
-});
-test("discovery and authentication views are mutually exclusive and responsive",()=>{
- assert.match(css,/body\.jr-public-discovery-mode #auth\{display:none!important\}/);
- assert.match(css,/body\.jr-public-auth-mode #jr-public-discovery\{display:none!important\}/);
- assert.match(css,/@media\(max-width:560px\)/);
- assert.match(js,/MutationObserver/);
-});
-test("service worker refreshes cached public shell and claims new clients",()=>{
- assert.match(sw,/jr-shell-v23/);
- assert.match(sw,/self\.skipWaiting\(\)/);
- assert.match(sw,/self\.clients\.claim\(\)/);
+test("public discovery layouts adapt to mobile screens",()=>{
+ assert.match(css,/@media\(max-width:620px\)/);
+ assert.match(css,/\.public-world-grid,\.public-live-feeds\{grid-template-columns:1fr\}/);
+ assert.match(css,/\.public-live\[hidden\]\{display:none!important\}/);
 });
