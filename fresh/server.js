@@ -122,7 +122,7 @@ const WORLD_FEEDS={
 };
 const discoveryCache=new Map();
 function decodeFeedText(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)||32)).replace(/\s+/g," ").trim().slice(0,360);}
-function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
+function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\s\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
 async function loadWorldFeed(world){
  const cacheKey=world==="transport"?"transport":"general",cached=discoveryCache.get(cacheKey);
  if(cached&&Date.now()-cached.at<10*60*1000)return {...cached.data,cached:true};
@@ -131,7 +131,7 @@ async function loadWorldFeed(world){
   try{
    const response=await fetch(source.url,{headers:{"User-Agent":"JR-PHEEF-ConnectedWorld/1.0","Accept":"application/rss+xml, application/xml, text/xml"},signal:AbortSignal.timeout(7000)});
    if(!response.ok)return;const xml=(await response.text()).slice(0,1200000);
-   const entries=[...xml.matchAll(/<item(?:\s[^>]*)?>([\\s\\S]*?)<\/item>/gi)].slice(0,8);
+   const entries=[...xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)].slice(0,8);
    for(const entry of entries){
     const body=entry[1],title=feedTag(body,"title"),summary=feedTag(body,"description");
     let url=feedTag(body,"link");if(!url){const link=body.match(/<link[^>]*href=["']([^"']+)["']/i);url=link?.[1]||"";}
