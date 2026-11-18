@@ -30,6 +30,12 @@ test("public discovery loads source-attributed live general and transport update
  assert.match(server,/app\.get\("\/api\/discovery\/feed"/);
  assert.match(server,/loadWorldFeed\(world\)/);
 });
+test("JR MOVE public feed uses authoritative aviation industry and regulator sources",()=>{
+ assert.ok(server.includes('name:"International Air Transport Association (IATA)"'));
+ assert.ok(server.includes('url:"https://www.iata.org/api/rss/pressrelease"'));
+ assert.ok(server.includes('name:"Federal Aviation Administration (FAA)"'));
+ assert.ok(server.includes('url:"https://www.faa.gov/newsroom/press_releases/rss"'));
+});
 test("public world introductions cover DGBO, FAMILY, JR MOVE and JR LINK",()=>{
  for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'));
 });
