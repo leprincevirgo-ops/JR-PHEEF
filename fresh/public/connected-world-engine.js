@@ -29,7 +29,7 @@
    (data.items||[]).slice(0,8).forEach(item=>box.grid.append(card(item.title,item.summary,item.source+" · "+(item.published||"Recent"),item.url)));
    state.textContent=data.items?.length?("Updated "+new Date(data.updatedAt).toLocaleString()+" · "+(data.cached?"cached source snapshot":"source refresh")):"No fresh items were returned. Try again later.";
   }catch(error){state.textContent="Live public feeds are temporarily unavailable. Curated learning and integration directories remain available."; }
-  const refresh=document.createElement("button");refresh.type="button";refresh.className="cwe-refresh";refresh.textContent="Refresh sources";refresh.addEventListener("click",()=>{state.textContent="Refreshing…";box.section.remove();loadFeed(world).then(next=>box.section.after(next));});
+  const refresh=document.createElement("button");refresh.type="button";refresh.className="cwe-refresh";refresh.textContent="Refresh sources";refresh.addEventListener("click",()=>{state.textContent="Refreshing…";box.section.remove();loadFeed(world).then(next=>box.section.replaceWith(next));});
   box.section.append(refresh);return box.section;
  }
  function addDirectory(parent,title,subtitle,items){
