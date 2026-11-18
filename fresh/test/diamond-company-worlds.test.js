@@ -3,6 +3,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
+const {spawnSync}=require("node:child_process");
 const root=path.join(__dirname,"../public");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const js=fs.readFileSync(path.join(root,"diamond-company-worlds.js"),"utf8");
@@ -34,4 +35,9 @@ test("company relationship language preserves planned legal status",()=>{
 test("company images are restricted to the explicitly trusted image host",()=>{
  assert.match(js,/https:\/\/images\.unsplash\.com/);
  assert.match(server,/img-src 'self' data: blob: https:\/\/images\.unsplash\.com/);
+});
+
+test("company environment browser script passes Node syntax validation",()=>{
+ const result=spawnSync(process.execPath,["--check",path.join(root,"diamond-company-worlds.js")],{encoding:"utf8"});
+ assert.equal(result.status,0,result.stderr||result.stdout);
 });
