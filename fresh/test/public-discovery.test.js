@@ -16,6 +16,15 @@ test("public discovery is the first-visit experience before account entry",()=>{
  assert.match(html,/jr-public-discovery\.css\?v=2/);
  assert.match(html,/jr-public-discovery\.js\?v=2/);
 });
+test("public discovery loads source-attributed live general and transport updates",()=>{
+ assert.match(html,/id="jpd-live-general"/);
+ assert.match(html,/id="jpd-live-transport"/);
+ assert.match(html,/data-jpd-action="refresh-feed"/);
+ assert.match(js,/fetch\("\/api\/discovery\/feed\?world="/);
+ assert.match(js,/url\.protocol!=="https:"/);
+ assert.match(js,/link\.textContent=/);
+ assert.match(js,/summary\.textContent=/);
+});
 test("public world introductions cover DGBO, FAMILY, JR MOVE and JR LINK",()=>{
  for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'));
 });
