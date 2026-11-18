@@ -33,3 +33,17 @@ body.jr-public-discovery-mode #auth{display:none!important}body.jr-public-auth-m
 @media(prefers-reduced-motion:reduce){#jr-public-discovery *{animation:none!important;scroll-behavior:auto!important}}
 
 html.jr-public-discovery-mode #auth{display:none!important}
+
+#jr-public-discovery .jpd-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#jr-public-discovery .jpd-live-panel{min-width:0;padding:17px;border:1px solid #6bcfff38;border-radius:18px;background:linear-gradient(145deg,#092746,#041326)}
+#jr-public-discovery .jpd-live-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+#jr-public-discovery .jpd-live-head b{font-size:14px}
+#jr-public-discovery .jpd-live-head button{padding:8px 11px;font-size:10px}
+#jr-public-discovery .jpd-live-items{display:grid;gap:10px}
+#jr-public-discovery .jpd-live-item{padding:12px;border:1px solid #70dfff20;border-radius:12px;background:#061b30}
+#jr-public-discovery .jpd-live-item a{color:#dffaff;font-weight:800;text-decoration:none;line-height:1.4}
+#jr-public-discovery .jpd-live-item a:hover{text-decoration:underline}
+#jr-public-discovery .jpd-live-item p{margin:7px 0;color:#a9c3da;font-size:12px;line-height:1.55}
+#jr-public-discovery .jpd-live-meta{display:flex;flex-wrap:wrap;gap:8px;color:#71dff5;font-size:10px}
+#jr-public-discovery .jpd-live-time{font-size:10px;color:#8daec7;margin:10px 0 0}
+@media(max-width:700px){#jr-public-discovery .jpd-live-grid{grid-template-columns:1fr}}
