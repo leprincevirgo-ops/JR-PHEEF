@@ -11,7 +11,7 @@ test("public JR PHEEF and JR MOVE websites have dedicated routes",()=>{
 });
 test("JR PHEEF public website presents the central connected gateway",()=>{
  const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
- for(const phrase of ["JR PHEEF","Find. Match.","Connected worlds","JR MOVE","Diamond Global Business Operators","FAMILY","/jr-move","name=\"viewport\""])assert.ok(html.includes(phrase),phrase);
+ for(const phrase of ["JR PHEEF","Find. Match.","One connected ecosystem","JR MOVE","FAMILY","JR LINK","name=\"viewport\""])assert.ok(html.includes(phrase),phrase);
 });
 test("JR MOVE public website presents its six service areas and honest readiness",()=>{
  const html=fs.readFileSync(path.join(root,"jr-move-site.html"),"utf8");
@@ -20,7 +20,7 @@ test("JR MOVE public website presents its six service areas and honest readiness
 
 test("JR PHEEF public root is the front door and the ecosystem has a separate app route",()=>{
  assert.match(server,/app\.get\("\/",sendFoundation\)/);
- assert.match(server,/app\.get\("\/app"[^\n]*index\.html/);
+ assert.match(server,/app\.get\("\/app",sendFoundation\)/);
  const publicHtml=fs.readFileSync(path.join(root,"index.html"),"utf8");
  assert.ok(publicHtml.includes("id=\"authPanel\""));
  assert.ok(publicHtml.includes("id=\"publicJoinNow\""));
