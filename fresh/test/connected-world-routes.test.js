@@ -8,7 +8,6 @@ const root=path.join(__dirname,"../public");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const server=fs.readFileSync(path.join(__dirname,"../server.js"),"utf8");
-const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 test("each connected world has a stable shareable route",()=>{
  for(const [route,world] of [["/worlds/dgbo","dgbo"],["/worlds/family","family"],["/worlds/jr-move","turbex"],["/worlds/jr-link","command"]]){
   assert.ok(app.includes('"'+route+'":"'+world+'"'),route+" must resolve to "+world);
