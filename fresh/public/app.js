@@ -165,7 +165,7 @@
   finally{busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent=mode==="login"?"Log in":"Create account";}
  });
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
- $("promptForm").addEventListener("submit",event=>{event.preventDefault();const value=$("prompt").value.trim();if(!value){$("prompt").focus();return;}$("promptReply").textContent="JR could not send that message yet. Please try again.";});
+ $("promptForm").addEventListener("submit",event=>{event.preventDefault();showAuth("signup");});
  const jrConversationHistory=[];
  $("workspacePromptForm")?.addEventListener("submit",async event=>{
   event.preventDefault();
