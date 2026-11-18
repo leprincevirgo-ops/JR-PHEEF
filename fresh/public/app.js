@@ -3,6 +3,10 @@
  const $=id=>document.getElementById(id);
  const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
  let mode="login",busy=false;
+ const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
+ const routeForView={home:"/",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link",jr:"/"};
+ const requestedWorld=worldRoutes[window.location.pathname]||"home";
+ const requestedLink=window.location.pathname==="/worlds/jr-link";
  const setMessage=message=>{$("authMessage").textContent=message||"";};
  let multiWindowMode=false;
  let openWindows=["home"];
@@ -50,7 +54,9 @@
  });
  $("jrWindowColumns")?.addEventListener("change",renderWorkspaceWindows);
  $("jrWindowReset")?.addEventListener("click",()=>{multiWindowMode=false;showWorkspace("home");});
- function showWorkspace(view="home"){
+ function showWorkspace(view="home",options={}){
+   const nextPath=routeForView[view]||"/";
+   if(!options.fromRoute&&window.location.pathname!==nextPath)window.history.pushState({jrWorld:view},"",nextPath);
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   document.querySelectorAll(".workspace-tab").forEach(button=>button.classList.toggle("selected",button.dataset.view===view));
@@ -89,7 +95,7 @@
   window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
-  if(user){const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=false;$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=false;showWorkspace("home");if(isFounder)loadFounderOverview();}
+  if(user){const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=false;$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=false;showWorkspace(requestedWorld);if(isFounder)loadFounderOverview();if(requestedLink&&requestedWorld==="command")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());}
   else{const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=true;workspace.hidden=true;if(hero)hero.hidden=false;panel.hidden=true;conversation.hidden=true;}
  }
  function showAuth(next){
@@ -171,7 +177,8 @@
   finally{button.disabled=false;}
  });
  document.querySelectorAll(".workspace-tab").forEach(button=>button.addEventListener("click",()=>showWorkspace(button.dataset.view)));
- api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
+ window.addEventListener("popstate",()=>{const view=worldRoutes[window.location.pathname]||"home";showWorkspace(view,{fromRoute:true});if(window.location.pathname==="/worlds/jr-link")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());});
+  api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
  const confirmationError=fragment.get("error_description")||fragment.get("error");
