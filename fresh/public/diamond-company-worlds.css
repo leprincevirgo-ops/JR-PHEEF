@@ -1,0 +1,48 @@
+/* Diamond Group company website environments */
+.workspace-view.diamond-company-world{padding:0!important;min-height:0!important;height:min(78vh,900px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;background:#08111c!important;border:1px solid rgba(211,222,235,.14);border-radius:20px;scroll-behavior:smooth}
+.diamond-site-shell{--diamond-accent:#d6ad63;--diamond-line:rgba(214,173,99,.28);color:#f5f7fb;background:radial-gradient(ellipse at 75% 0%,rgba(45,72,99,.24),transparent 45%),#08111c;min-height:100%;font-family:inherit}
+.diamond-green .diamond-site-shell{--diamond-accent:#61c7a2;--diamond-line:rgba(97,199,162,.3);background:radial-gradient(ellipse at 75% 0%,rgba(27,104,83,.22),transparent 45%),#081411}
+.diamond-site-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:13px;padding:11px 16px;background:rgba(5,13,22,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--diamond-line)}
+.diamond-brand-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border:1px solid var(--diamond-accent);border-radius:12px;color:var(--diamond-accent);font-weight:900;letter-spacing:-.04em}
+.diamond-site-top>span:nth-child(2){flex:1;color:#aab7c7;font-size:10px;font-weight:800;letter-spacing:.12em}
+.diamond-return,.diamond-site-footer button{border:1px solid var(--diamond-line);border-radius:999px;padding:8px 12px;background:transparent;color:#f5f7fb;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.diamond-hero{position:relative;display:flex;align-items:flex-end;min-height:340px;overflow:hidden;background:#13283a}
+.diamond-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.66}
+.diamond-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,9,16,.94),rgba(3,9,16,.54) 58%,rgba(3,9,16,.12)),linear-gradient(0deg,rgba(3,9,16,.55),transparent 70%)}
+.diamond-hero-copy{position:relative;z-index:1;max-width:760px;padding:36px clamp(20px,5vw,64px)}
+.diamond-overline,.diamond-section-heading>span{color:var(--diamond-accent);font-size:10px;font-weight:900;letter-spacing:.15em}
+.diamond-hero h1{max-width:700px;margin:12px 0;font-size:clamp(32px,5vw,58px);line-height:1.02;letter-spacing:-.045em}
+.diamond-hero p{max-width:660px;color:#d3dce6;font-size:14px;line-height:1.75}
+.diamond-status{display:inline-flex;margin-top:10px;padding:7px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#e9eef5;font-size:9px;font-weight:850;letter-spacing:.1em}
+.diamond-company-nav{position:sticky;top:60px;z-index:4;display:flex;gap:5px;overflow-x:auto;padding:10px 14px;background:rgba(9,19,30,.96);border-bottom:1px solid var(--diamond-line)}
+.diamond-company-nav button{flex:none;border:1px solid transparent;border-radius:999px;padding:9px 13px;background:transparent;color:#aebccc;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.diamond-company-nav button[aria-current=page]{border-color:var(--diamond-line);background:rgba(255,255,255,.07);color:var(--diamond-accent)}
+.diamond-company-content{padding:0 clamp(14px,3vw,34px) 30px}
+.diamond-section{padding:34px 0;border-bottom:1px solid rgba(255,255,255,.09);scroll-margin-top:118px}
+.diamond-section-heading{max-width:800px;margin-bottom:20px}
+.diamond-section-heading h2{margin:8px 0;font-size:clamp(23px,3vw,35px);letter-spacing:-.035em}
+.diamond-section-heading p,.diamond-content-card p,.diamond-principles p,.diamond-branches p,.diamond-note{color:#aebccc;font-size:13px;line-height:1.7}
+.diamond-feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.diamond-content-card{overflow:hidden;border:1px solid var(--diamond-line);border-radius:15px;background:rgba(255,255,255,.035)}
+.diamond-content-card img{display:block;width:100%;height:150px;object-fit:cover;background:#14283b}
+.diamond-content-card-copy{padding:14px}
+.diamond-content-card h3{margin:6px 0;font-size:16px}
+.diamond-tag{color:var(--diamond-accent);font-size:9px;font-weight:900;letter-spacing:.13em}
+.diamond-relations{max-width:820px;margin:22px auto}
+.diamond-parent{display:grid;gap:5px;max-width:340px;margin:auto;padding:20px;border:1px solid var(--diamond-accent);border-radius:16px;text-align:center;background:rgba(255,255,255,.045)}
+.diamond-parent strong{color:var(--diamond-accent);font-size:21px;letter-spacing:.1em}
+.diamond-parent small,.diamond-branches small{color:#9cabbc;font-size:10px}
+.diamond-branches{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 auto;max-width:700px;padding-top:35px;position:relative}
+.diamond-branches:before{content:"";position:absolute;left:25%;right:25%;top:0;height:18px;border-top:1px solid var(--diamond-accent);border-left:1px solid var(--diamond-accent);border-right:1px solid var(--diamond-accent)}
+.diamond-branches article,.diamond-principles article{padding:17px;border:1px solid var(--diamond-line);border-radius:14px;background:rgba(255,255,255,.035)}
+.diamond-branches b,.diamond-principles b{color:var(--diamond-accent)}
+.diamond-note{padding:13px;border-left:3px solid var(--diamond-accent);background:rgba(255,255,255,.035)}
+.diamond-principles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.diamond-live-panel{display:flex;gap:13px;align-items:flex-start;padding:18px;border:1px solid var(--diamond-line);border-radius:14px;background:rgba(255,255,255,.035)}
+.diamond-live-panel p{margin:5px 0 0;color:#aebccc;font-size:12px;line-height:1.6}
+.diamond-live-dot{width:9px;height:9px;flex:none;margin-top:5px;border-radius:50%;background:#e1b15d;box-shadow:0 0 0 5px rgba(225,177,93,.12)}
+.diamond-primary{border:1px solid var(--diamond-accent);border-radius:999px;padding:12px 19px;background:var(--diamond-accent);color:#10151c;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
+.diamond-site-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:20px clamp(14px,3vw,34px);border-top:1px solid var(--diamond-line);background:rgba(0,0,0,.16)}
+.diamond-site-footer strong{color:var(--diamond-accent);font-size:11px;letter-spacing:.08em}.diamond-site-footer span{flex:1;color:#8fa0b3;font-size:10px}
+@media(max-width:700px){.workspace-view.diamond-company-world{height:calc(100dvh - 170px);max-height:760px;border-radius:14px}.diamond-hero{min-height:300px}.diamond-hero-copy{padding:25px 19px}.diamond-feature-grid{grid-template-columns:1fr}.diamond-content-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.diamond-content-card img{height:100%;min-height:135px}.diamond-content-card-copy{padding:12px}.diamond-branches{gap:9px}.diamond-branches article{padding:12px}.diamond-principles{grid-template-columns:1fr}.diamond-site-top>span:nth-child(2){font-size:8px}.diamond-return{padding:7px 9px}}
+@media(prefers-reduced-motion:reduce){.diamond-company-world{scroll-behavior:auto}}
