@@ -189,7 +189,7 @@ test("Founder can review ads but approval never marks a campaign paid",()=>{
 
 test("Connect sections return to the top of the same workspace",()=>{
  const c=read("public/command-layout.js"),css=read("public/styles.css");
- assert.match(c,/activateConnectTab/);assert.match(c,/window\.scrollTo/);
+ assert.match(c,/activateConnectTab/);assert.match(c,/connect\.scrollTo/);assert.doesNotMatch(c,/window\.scrollTo/);
  assert.match(c,/connectPanel\("status"\)/);assert.match(c,/jrConnectPanel/);
  assert.match(css,/#jrConnectWorkspace \.jr-connect-tabs\{position:sticky/);
 });
