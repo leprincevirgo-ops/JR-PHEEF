@@ -141,7 +141,7 @@ async function loadWorldFeed(world){
    }
   }catch(error){console.warn("JR public feed unavailable:",source.name,String(error?.message||error).slice(0,100));}
  }));
- const unique=[...new Map(items.filter(x=>x.title&&x.url).map(x=>[x.url,x])).values()].slice(0,18);
+ const unique=[...new Map(items.filter(x=>x.title&&x.url).map(x=>[x.url,x])).values()].sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)).slice(0,18);
  const data={ok:true,world:cacheKey,items:unique,updatedAt:new Date().toISOString(),sources:sources.map(x=>x.name)};
  if(unique.length)discoveryCache.set(cacheKey,{at:Date.now(),data});
  if(!unique.length&&cached)return {...cached.data,cached:true,stale:true};
