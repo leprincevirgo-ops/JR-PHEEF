@@ -8,6 +8,7 @@ const root=path.join(__dirname,"../public");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const server=fs.readFileSync(path.join(__dirname,"../server.js"),"utf8");
+const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 test("each connected world has a stable shareable route",()=>{
  for(const [route,world] of [["/worlds/dgbo","dgbo"],["/worlds/family","family"],["/worlds/jr-move","turbex"],["/worlds/jr-link","command"]]){
   assert.ok(app.includes('"'+route+'":"'+world+'"'),route+" must resolve to "+world);
@@ -25,6 +26,10 @@ test("JR LINK deep link opens the communication feed tab",()=>{
 test("world routes use the existing single-page application fallback",()=>{
  assert.match(server,/express\.static\(path\.join\(__dirname,"public"\)/);
  assert.match(server,/res\.sendFile\(path\.join\(__dirname,"public","index\.html"\)\)/);
+});
+test("home directory exposes JR LINK and JR MOVE as distinct branded destinations",()=>{
+ assert.match(html,/data-company-open="command"[^>]*>[\\s\\S]*?JR LINK/);
+ assert.match(html,/data-company-open="turbex"[^>]*>[\\s\\S]*?JR MOVE/);
 });
 test("route-enabled app script passes syntax validation",()=>{
  const result=spawnSync(process.execPath,["--check",path.join(root,"app.js")],{encoding:"utf8"});
