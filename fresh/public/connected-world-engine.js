@@ -6,8 +6,7 @@
   {title:"Khan Academy · Personal finance",type:"Learning",detail:"Free lessons covering budgeting, saving, credit and financial decisions.",url:"https://www.khanacademy.org/college-careers-more/personal-finance"},
   {title:"Consumer Financial Protection Bureau",type:"Money skills",detail:"Practical guides for managing money, borrowing and protecting yourself.",url:"https://www.consumerfinance.gov/consumer-tools/"},
   {title:"UNICEF Parenting",type:"Family learning",detail:"Evidence-informed resources for parenting, child development and family wellbeing.",url:"https://www.unicef.org/parenting"},
-  {title:"NASA learning resources",type:"Science",detail:"Explore space, Earth science, missions and educational material.",url:"https://www.nasa.gov/learning-resources/"},
-  {title:"NASA+ video library",type:"Video library",detail:"Watch documentaries, mission coverage and space science programmes.",url:"https://plus.nasa.gov/"}
+  {title:"NASA learning resources",type:"Science",detail:"Explore space, Earth science, missions and educational material.",url:"https://www.nasa.gov/learning-resources/"}
  ];
  const integrations=[
   ["Maps & routing","Maps, distance and route estimates","Mapping APIs","Directory only"],
