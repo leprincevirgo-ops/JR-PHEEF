@@ -41,7 +41,7 @@ test("public live discovery loads attributed general and transport feeds safely"
  assert.match(html,/public-discovery\.js\?v=20261118-founder-live-v1/);
  assert.match(discovery,/fetch\("\/api\/discovery\/feed\?world="/);
  assert.match(discovery,/url\.protocol!=="https:"/);
- assert.match(discovery,/link\.textContent=/);
+ assert.match(discovery,/link=node\("a","",String\(item\.title/);
  assert.match(discovery,/summary=node\("p","",String\(item\.summary/);
  assert.match(server,/app\.get\("\/api\/discovery\/feed"/);
  assert.match(server,/loadWorldFeed\(world\)/);
