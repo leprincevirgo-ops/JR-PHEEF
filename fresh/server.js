@@ -117,8 +117,8 @@ const WORLD_FEEDS={
   {name:"USGS Earthquake Hazards Program",url:"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom"}
  ],
  transport:[
-  {name:"BBC News",url:"https://feeds.bbci.co.uk/news/business/rss.xml"},
-  {name:"NASA",url:"https://www.nasa.gov/feed/"}
+  {name:"International Air Transport Association (IATA)",url:"https://www.iata.org/api/rss/pressrelease"},
+  {name:"Federal Aviation Administration (FAA)",url:"https://www.faa.gov/newsroom/press_releases/rss"}
  ]
 };
 const discoveryCache=new Map();
