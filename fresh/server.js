@@ -113,7 +113,8 @@ const WORLD_FEEDS={
  general:[
   {name:"BBC News",url:"https://feeds.bbci.co.uk/news/world/rss.xml"},
   {name:"NASA",url:"https://www.nasa.gov/feed/"},
-  {name:"ScienceDaily",url:"https://www.sciencedaily.com/rss/top/science.xml"}
+  {name:"ScienceDaily",url:"https://www.sciencedaily.com/rss/top/science.xml"},
+  {name:"USGS Earthquake Hazards Program",url:"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom"}
  ],
  transport:[
   {name:"BBC News",url:"https://feeds.bbci.co.uk/news/business/rss.xml"},
@@ -131,11 +132,12 @@ async function loadWorldFeed(world){
   try{
    const response=await fetch(source.url,{headers:{"User-Agent":"JR-PHEEF-ConnectedWorld/1.0","Accept":"application/rss+xml, application/xml, text/xml"},signal:AbortSignal.timeout(7000)});
    if(!response.ok)return;const xml=(await response.text()).slice(0,1200000);
-   const entries=[...xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)].slice(0,8);
+   const atom=/<feed(?:\s|>)/i.test(xml);
+   const entries=[...xml.matchAll(atom?/<entry(?:\s[^>]*)?>([\s\S]*?)<\/entry>/gi:/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)].slice(0,8);
    for(const entry of entries){
-    const body=entry[1],title=feedTag(body,"title"),summary=feedTag(body,"description");
+    const body=entry[1],title=feedTag(body,"title"),summary=feedTag(body,"description")||feedTag(body,"summary");
     let url=feedTag(body,"link");if(!url){const link=body.match(/<link[^>]*href=["']([^"']+)["']/i);url=link?.[1]||"";}
-    try{const parsed=new URL(url);if(parsed.protocol!=="https:")continue;items.push({title,summary,url:parsed.href,source:source.name,published:feedTag(body,"pubDate")});}catch{}
+    try{const parsed=new URL(url);if(parsed.protocol!=="https:")continue;items.push({title,summary,url:parsed.href,source:source.name,published:feedTag(body,"pubDate")||feedTag(body,"updated")||feedTag(body,"published")});}catch{}
    }
   }catch(error){console.warn("JR public feed unavailable:",source.name,String(error?.message||error).slice(0,100));}
  }));
@@ -145,7 +147,7 @@ async function loadWorldFeed(world){
  if(!unique.length&&cached)return {...cached.data,cached:true,stale:true};
  return data;
 }
-app.get("/api/discovery/feed",async(req,res)=>{
+app.get("/api/discovery/feed",rateLimit,async(req,res)=>{
  const world=String(req.query.world||"general").toLowerCase();
  if(!["general","transport"].includes(world))return res.status(400).json({ok:false,error:"Unknown discovery channel."});
  try{const data=await loadWorldFeed(world);res.setHeader("Cache-Control","public, max-age=300");return res.json(data);}
