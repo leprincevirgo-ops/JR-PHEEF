@@ -41,3 +41,11 @@ test("company environment browser script passes Node syntax validation",()=>{
  const result=spawnSync(process.execPath,["--check",path.join(root,"diamond-company-worlds.js")],{encoding:"utf8"});
  assert.equal(result.status,0,result.stderr||result.stdout);
 });
+
+test("JR LINK scrolls within its own workspace and does not move the whole document on tab changes",()=>{
+ const layout=fs.readFileSync(path.join(root,"command-layout.js"),"utf8");
+ assert.match(layout,/connect\.scrollTo\(\{top:0/);
+ assert.doesNotMatch(layout,/window\.scrollTo\(\{top:Math\.max\(0,y\)/);
+ assert.match(css,/\.jr-connect-workspace\{[^}]*overflow-y:auto/s);
+ assert.match(css,/\.jr-connect-tabs\{[^}]*position:sticky/s);
+});

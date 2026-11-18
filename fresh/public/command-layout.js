@@ -230,9 +230,8 @@
   connect.querySelectorAll("[data-connect-panel]").forEach(item=>item.hidden=item.dataset.connectPanel!==key);
   if(key==="feed")loadSocialFeed();if(key==="channels")loadChannels();if(key==="ads")loadAdCampaigns();
   connect.dataset.activePanel=key;
-  // The selected section comes to the top of the same JR LINK workspace.
-  const y=connect.getBoundingClientRect().top+window.scrollY-10;
-  window.scrollTo({top:Math.max(0,y),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+  // Keep navigation inside JR LINK; never move the whole document when a tab changes.
+  connect.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
  };
  connect.querySelectorAll("[data-connect-tab]").forEach(button=>button.addEventListener("click",()=>activateConnectTab(button.dataset.connectTab)));
  connect.style.scrollMarginTop="12px";
