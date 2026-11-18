@@ -4,12 +4,6 @@
  if(!root||root.dataset.transportWorldMounted)return;
  root.dataset.transportWorldMounted="true";
  root.classList.add("transport-world");
- const photos=[
-  ["Courier delivery","https://images.unsplash.com/photo- delivery?auto=format&fit=crop&w=900&q=80"],
-  ["Urban mobility","https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=900&q=80"],
-  ["Freight and cargo","https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80"],
-  ["Fleet operations","https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=80"]
- ];
  const img=(url,alt)=>'<img loading="lazy" src="'+url+'" alt="'+alt+'">';
  const cards=[
   ["RIDE","Passenger journeys","Find a suitable ride, describe pickup and destination, and compare provider options when connected.","🚘"],
