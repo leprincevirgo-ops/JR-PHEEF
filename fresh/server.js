@@ -392,6 +392,7 @@ app.all("/api/founder/overview",sameOrigin,async(req,res)=>{
     const response=await fetch(SUPABASE_URL+"/functions/v1/jr-founder-overview",{method:req.method==="POST"?"POST":"GET",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:req.method==="POST"?JSON.stringify(req.body||{}):undefined});
     let data={};try{data=await response.json();}catch{}
     if(!response.ok||!data.ok)return res.status(response.status||502).json({ok:false,error:data.error||"Founder service is unavailable."});
+    data.controls={...(data.controls||{}),liveAiConnected:Boolean(process.env.OPENAI_API_KEY),aiProviderConfigured:Boolean(process.env.OPENAI_API_KEY)};
     return res.json(data);
   }catch(err){console.error("JR PHEEF founder overview:",err.message);return res.status(503).json({ok:false,error:"Founder overview is temporarily unavailable."});}
 });
@@ -405,9 +406,10 @@ app.post("/api/auth/logout",sameOrigin,async(req,res)=>{
     return res.json({ok:true,message:"You have been logged out."});
   }catch{clearAuthCookies(res);return res.json({ok:true});}
 });
-app.get("/",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-pheef-site.html")));
-app.get("/jr-pheef",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-pheef-site.html")));
-app.get("/app",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+function sendFoundation(req,res){res.setHeader("Cache-Control","no-store");return res.sendFile(path.join(__dirname,"public","index.html"));}
+app.get("/",sendFoundation);
+app.get("/jr-pheef",sendFoundation);
+app.get("/app",sendFoundation);
 app.get("/jr-move",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-move-site.html")));
 app.use(express.static(path.join(__dirname,"public"),{extensions:["html"]}));
 app.use((_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
