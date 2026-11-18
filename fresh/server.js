@@ -131,7 +131,7 @@ async function loadWorldFeed(world){
   try{
    const response=await fetch(source.url,{headers:{"User-Agent":"JR-PHEEF-ConnectedWorld/1.0","Accept":"application/rss+xml, application/xml, text/xml"},signal:AbortSignal.timeout(7000)});
    if(!response.ok)return;const xml=(await response.text()).slice(0,1200000);
-   const entries=[...xml.matchAll(/<item(?:\\s[^>]*)?>([\\s\\S]*?)<\\/item>/gi)].slice(0,8);
+   const entries=[...xml.matchAll(/<item(?:\s[^>]*)?>([\\s\\S]*?)<\/item>/gi)].slice(0,8);
    for(const entry of entries){
     const body=entry[1],title=feedTag(body,"title"),summary=feedTag(body,"description");
     let url=feedTag(body,"link");if(!url){const link=body.match(/<link[^>]*href=["']([^"']+)["']/i);url=link?.[1]||"";}
