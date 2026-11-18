@@ -607,3 +607,8 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 .public-live-disclaimer{font-size:.72rem;color:#8ea9bd;line-height:1.55;margin:15px 2px 0}
 @media(max-width:850px){.public-world-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.public-live{padding:18px;margin:14px 0 30px}.public-live-heading{display:block}.public-live-heading .status-pill{display:inline-flex;margin-top:12px}.public-world-grid,.public-live-feeds{grid-template-columns:1fr}.public-world-card{min-height:0}.public-journey{align-items:flex-start;flex-direction:column}.public-journey button{width:100%}}
+
+/* JR PHEEF installable application shell */
+#installAppButton[hidden]{display:none!important}
+#installAppButton{border-color:rgba(125,225,244,.5);color:#a9f8ff}
+@media(max-width:620px){.top-actions{gap:7px}#installAppButton{font-size:.72rem;padding:8px 10px}}
