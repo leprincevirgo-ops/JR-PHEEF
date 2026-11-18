@@ -8,6 +8,7 @@ const html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
 const css=fs.readFileSync(path.join(root,"public/jr-public-discovery.css"),"utf8");
 const js=fs.readFileSync(path.join(root,"public/jr-public-discovery.js"),"utf8");
 const sw=fs.readFileSync(path.join(root,"public/service-worker.js"),"utf8");
+const server=fs.readFileSync(path.join(root,"fresh/server.js"),"utf8");
 test("public discovery is the first-visit experience before account entry",()=>{
  const landing=html.indexOf('<section id="jr-public-discovery"');
  const auth=html.indexOf('<section id="auth">');
@@ -43,7 +44,7 @@ test("discovery and authentication views are mutually exclusive and responsive",
  assert.match(js,/MutationObserver/);
 });
 test("service worker refreshes cached public shell and claims new clients",()=>{
- assert.match(sw,/jr-shell-v22/);
+ assert.match(sw,/jr-shell-v23/);
  assert.match(sw,/self\.skipWaiting\(\)/);
  assert.match(sw,/self\.clients\.claim\(\)/);
 });
