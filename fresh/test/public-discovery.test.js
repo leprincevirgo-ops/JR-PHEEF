@@ -14,8 +14,10 @@ test("public discovery is the first-visit experience before account entry",()=>{
  const auth=html.indexOf('<section id="auth">');
  assert.ok(landing>=0&&auth>landing);
  assert.match(html,/<title>JR PHEEF — Find\. Match\. Trade\.<\/title>/);
- assert.match(html,/jr-public-discovery\.css\?v=2/);
- assert.match(html,/jr-public-discovery\.js\?v=2/);
+ assert.match(html,/jr-public-discovery\.css\?v=3/);
+ assert.match(html,/jr-public-discovery\.js\?v=3/);
+ assert.match(html,/document\.documentElement\.classList\.add\("jr-public-discovery-mode"\)/);
+ assert.match(css,/html\.jr-public-discovery-mode #auth\{display:none!important\}/);
 });
 test("public discovery loads source-attributed live general and transport updates",()=>{
  assert.match(html,/id="jpd-live-general"/);
@@ -25,6 +27,8 @@ test("public discovery loads source-attributed live general and transport update
  assert.match(js,/url\.protocol!=="https:"/);
  assert.match(js,/link\.textContent=/);
  assert.match(js,/summary\.textContent=/);
+ assert.match(server,/app\.get\("\/api\/discovery\/feed"/);
+ assert.match(server,/loadWorldFeed\(world\)/);
 });
 test("public world introductions cover DGBO, FAMILY, JR MOVE and JR LINK",()=>{
  for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'));
