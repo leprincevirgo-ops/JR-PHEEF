@@ -3,6 +3,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
+const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
 const css=fs.readFileSync(path.join(root,"public/styles.css"),"utf8");
@@ -66,4 +67,10 @@ test("public discovery layouts adapt to mobile screens",()=>{
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/\.public-world-grid,\.public-live-feeds\{grid-template-columns:1fr\}/);
  assert.match(css,/\.public-live\[hidden\]\{display:none!important\}/);
+});
+
+test("the deployed server and browser entry scripts parse without syntax errors",()=>{
+ assert.doesNotThrow(()=>new vm.Script(server,{filename:"fresh/server.js"}));
+ assert.doesNotThrow(()=>new vm.Script(app,{filename:"fresh/public/app.js"}));
+ assert.doesNotThrow(()=>new vm.Script(discovery,{filename:"fresh/public/public-discovery.js"}));
 });
