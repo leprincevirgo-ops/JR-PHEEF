@@ -359,7 +359,9 @@ app.post("/api/auth/logout",sameOrigin,async(req,res)=>{
     return res.json({ok:true,message:"You have been logged out."});
   }catch{clearAuthCookies(res);return res.json({ok:true});}
 });
+app.get("/",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-pheef-site.html")));
 app.get("/jr-pheef",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-pheef-site.html")));
+app.get("/app",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.get("/jr-move",(_req,res)=>res.sendFile(path.join(__dirname,"public","jr-move-site.html")));
 app.use(express.static(path.join(__dirname,"public"),{extensions:["html"]}));
 app.use((_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));

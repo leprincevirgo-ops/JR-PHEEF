@@ -17,3 +17,15 @@ test("JR MOVE public website presents its six service areas and honest readiness
  const html=fs.readFileSync(path.join(root,"jr-move-site.html"),"utf8");
  for(const phrase of ["JR MOVE","RIDES","DELIVERY","MOVING","FREIGHT","DRIVERS","FLEETS","verified providers","/worlds/jr-move","/jr-pheef","name=\"viewport\""])assert.ok(html.toLowerCase().includes(phrase.toLowerCase()),phrase);
 });
+
+test("JR PHEEF public root is the front door and the ecosystem has a separate app route",()=>{
+ assert.match(server,/app\.get\("\/"[^\n]*jr-pheef-site\.html/);
+ assert.match(server,/app\.get\("\/app"[^\n]*index\.html/);
+ const publicHtml=fs.readFileSync(path.join(root,"jr-pheef-site.html"),"utf8");
+ assert.ok(publicHtml.includes("/app#login"));
+ assert.ok(publicHtml.includes("/app#signup"));
+});
+test("app route opens the account flow before entering the ecosystem",()=>{
+ const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
+ assert.match(app,/window\.location\.pathname==="\/app"&&\["login","signup"\]\.includes\(fragment\.get\("mode"\)\)\)showAuth/);
+});
