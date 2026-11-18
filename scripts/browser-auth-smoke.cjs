@@ -132,7 +132,26 @@ async function testGroup(browser, name, allowedScripts) {
       for (const [button, pageId] of destinations) {
         const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
         await control.waitFor({ state: "visible", timeout: 8000 });
-        await control.click({ timeout: 5000 });
+        const hitTarget = await control.evaluate(el => {
+          const dock = document.getElementById("jpMobileDock");
+          const rect = el.getBoundingClientRect();
+          const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          const dockStyle = getComputedStyle(dock);
+          return {
+            parentTag: dock && dock.parentElement ? dock.parentElement.tagName : "",
+            pointerEvents: dockStyle.pointerEvents,
+            touchAction: dockStyle.touchAction,
+            hitWithinControl: !!hit && (hit === el || el.contains(hit)),
+            width: rect.width,
+            height: rect.height
+          };
+        });
+        assert.equal(hitTarget.parentTag, "BODY", "mobile dock must escape #app stacking contexts: " + JSON.stringify(hitTarget));
+        assert.equal(hitTarget.pointerEvents, "auto", "mobile dock must receive pointer input: " + JSON.stringify(hitTarget));
+        assert.equal(hitTarget.touchAction, "manipulation", "mobile dock must allow touch interaction: " + JSON.stringify(hitTarget));
+        assert.ok(hitTarget.hitWithinControl && hitTarget.width >= 32 && hitTarget.height >= 32,
+          "the visible center of each destination must be a real touch target: " + JSON.stringify(hitTarget));
+        await control.tap({ timeout: 5000 });
         await page.waitForFunction(id => {
           const active = document.getElementById(id);
           return !!active && !active.classList.contains("hidden") && active.hidden !== true;

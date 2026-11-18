@@ -1,0 +1,60 @@
+name: JR PHEEF PR mobile browser interaction
+
+on:
+  push:
+    branches: [main, fix/mobile-entry-touch-navigation-2026-11-15]
+  pull_request:
+    branches: [main]
+    paths:
+      - "public/**"
+      - "scripts/browser-auth-smoke.cjs"
+      - "scripts/serve-static-test.js"
+      - ".github/workflows/mobile-browser-pr.yml"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install application dependencies
+        run: npm ci
+      - name: Install pinned browser test runner
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start isolated static copy of this PR
+        run: |
+          node scripts/serve-static-test.js > /tmp/jr-pheef-static.log 2>&1 &
+          echo $! > /tmp/jr-pheef-static.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/jr-pheef-static.log
+          exit 1
+      - name: Test entry, authentication UI and mobile touch navigation
+        env:
+          BASE_URL: http://127.0.0.1:4173
+        run: node scripts/browser-auth-smoke.cjs
+      - name: Upload browser diagnostic screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jr-pheef-pr-mobile-browser-diagnostic
+          path: jr-auth-diagnostic.png
+          if-no-files-found: ignore
