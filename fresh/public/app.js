@@ -180,6 +180,7 @@
  window.addEventListener("popstate",()=>{const view=worldRoutes[window.location.pathname]||"home";showWorkspace(view,{fromRoute:true});if(window.location.pathname==="/worlds/jr-link")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());});
   api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
+ if(window.location.pathname==="/app"&&["login","signup"].includes(fragment.get("mode")))showAuth(fragment.get("mode"));
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
  const confirmationError=fragment.get("error_description")||fragment.get("error");
  if(confirmationError){window.history.replaceState({},document.title,window.location.pathname+window.location.search);showAuth("login");setMessage("Email confirmation could not be completed: "+confirmationError.replace(/\+/g," ")+". Request a fresh confirmation email.");}
