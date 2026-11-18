@@ -1,0 +1,31 @@
+{
+  "id": "/",
+  "name": "JR PHEEF — Find. Match. Trade.",
+  "short_name": "JR PHEEF",
+  "description": "One connected world for discovering opportunities, connecting people and getting things done.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#08111f",
+  "theme_color": "#08111f",
+  "categories": [
+    "business",
+    "productivity",
+    "social",
+    "travel"
+  ],
+  "icons": [
+    {
+      "src": "/jr-pheef-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
