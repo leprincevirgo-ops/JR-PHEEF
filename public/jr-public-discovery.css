@@ -31,3 +31,5 @@ body.jr-public-discovery-mode #auth{display:none!important}body.jr-public-auth-m
 @media(max-width:850px){#jr-public-discovery .jpd-hero{grid-template-columns:1fr;min-height:0}#jr-public-discovery .jpd-stage{min-height:260px}#jr-public-discovery .jpd-worlds{grid-template-columns:repeat(2,minmax(0,1fr))}#jr-public-discovery .jpd-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){#jr-public-discovery{padding:10px}#jr-public-discovery .jpd-hero{padding:24px 18px;border-radius:21px}#jr-public-discovery h1{font-size:44px;letter-spacing:-1.8px}#jr-public-discovery .jpd-stage{min-height:220px}#jr-public-discovery .jpd-globe{width:205px}#jr-public-discovery .jpd-worlds{gap:8px}#jr-public-discovery .jpd-world{min-height:190px;padding:13px}#jr-public-discovery .jpd-feature-grid,#jr-public-discovery .jpd-flow{grid-template-columns:1fr 1fr}#jr-public-discovery .jpd-bottom{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){#jr-public-discovery *{animation:none!important;scroll-behavior:auto!important}}
+
+html.jr-public-discovery-mode #auth{display:none!important}
