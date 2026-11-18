@@ -40,6 +40,17 @@
    document.body.classList.add("jr-public-discovery-mode");
    document.body.classList.remove("jr-public-auth-mode");
   }
+  // Follow the existing app shell when asynchronous session restoration completes.
+  if(app&&window.MutationObserver){
+   var observer=new MutationObserver(function(){
+    if(!app.classList.contains("hidden")){
+     var discovery=byId("jr-public-discovery");if(discovery)discovery.hidden=true;
+     document.body.classList.remove("jr-public-discovery-mode","jr-public-auth-mode");
+     observer.disconnect();
+    }
+   });
+   observer.observe(app,{attributes:true,attributeFilter:["class"]});
+  }
   // A returning signed-in session may be resolved asynchronously by the app.
   window.setTimeout(function(){
    if(app&&!app.classList.contains("hidden")){
