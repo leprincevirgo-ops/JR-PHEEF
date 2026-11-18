@@ -14,6 +14,10 @@ assert.match(html,/jr-public-discovery\.js\?v=1/,"public discovery controller mu
 for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'),"missing public world: "+world);
 assert.match(html,/data-jpd-action="register"/,"public registration CTA is required");
 assert.match(html,/data-jpd-action="login"/,"public login CTA is required");
+assert.match(html,/function showRegister\(\)/,"existing registration flow must remain available");
+assert.match(html,/function showLogin\(\)/,"existing login flow must remain available");
+assert.match(js,/window\.showRegister\(\)/,"public registration must call the existing registration view");
+assert.match(js,/window\.showLogin\(\)/,"public sign-in must call the existing login view");
 assert.match(css,/body\.jr-public-discovery-mode #auth\{display:none!important\}/,"auth must stay hidden during discovery");
 assert.match(css,/body\.jr-public-auth-mode #jr-public-discovery\{display:none!important\}/,"discovery must hide during authentication");
 assert.match(js,/MutationObserver/,"signed-in app transition must be observed");
