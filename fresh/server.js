@@ -108,6 +108,50 @@ async function currentUser(req,res){
   return null;
 }
 
+
+const WORLD_FEEDS={
+ general:[
+  {name:"BBC News",url:"https://feeds.bbci.co.uk/news/world/rss.xml"},
+  {name:"NASA",url:"https://www.nasa.gov/feed/"},
+  {name:"ScienceDaily",url:"https://www.sciencedaily.com/rss/top/science.xml"}
+ ],
+ transport:[
+  {name:"BBC News",url:"https://feeds.bbci.co.uk/news/business/rss.xml"},
+  {name:"NASA",url:"https://www.nasa.gov/feed/"}
+ ]
+};
+const discoveryCache=new Map();
+function decodeFeedText(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)||32)).replace(/\s+/g," ").trim().slice(0,360);}
+function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
+async function loadWorldFeed(world){
+ const cacheKey=world==="transport"?"transport":"general",cached=discoveryCache.get(cacheKey);
+ if(cached&&Date.now()-cached.at<10*60*1000)return {...cached.data,cached:true};
+ const sources=WORLD_FEEDS[cacheKey],items=[];
+ await Promise.all(sources.map(async source=>{
+  try{
+   const response=await fetch(source.url,{headers:{"User-Agent":"JR-PHEEF-ConnectedWorld/1.0","Accept":"application/rss+xml, application/xml, text/xml"},signal:AbortSignal.timeout(7000)});
+   if(!response.ok)return;const xml=(await response.text()).slice(0,1200000);
+   const entries=[...xml.matchAll(/<item(?:\\s[^>]*)?>([\\s\\S]*?)<\\/item>/gi)].slice(0,8);
+   for(const entry of entries){
+    const body=entry[1],title=feedTag(body,"title"),summary=feedTag(body,"description");
+    let url=feedTag(body,"link");if(!url){const link=body.match(/<link[^>]*href=["']([^"']+)["']/i);url=link?.[1]||"";}
+    try{const parsed=new URL(url);if(parsed.protocol!=="https:")continue;items.push({title,summary,url:parsed.href,source:source.name,published:feedTag(body,"pubDate")});}catch{}
+   }
+  }catch(error){console.warn("JR public feed unavailable:",source.name,String(error?.message||error).slice(0,100));}
+ }));
+ const unique=[...new Map(items.filter(x=>x.title&&x.url).map(x=>[x.url,x])).values()].slice(0,18);
+ const data={ok:true,world:cacheKey,items:unique,updatedAt:new Date().toISOString(),sources:sources.map(x=>x.name)};
+ if(unique.length)discoveryCache.set(cacheKey,{at:Date.now(),data});
+ if(!unique.length&&cached)return {...cached.data,cached:true,stale:true};
+ return data;
+}
+app.get("/api/discovery/feed",async(req,res)=>{
+ const world=String(req.query.world||"general").toLowerCase();
+ if(!["general","transport"].includes(world))return res.status(400).json({ok:false,error:"Unknown discovery channel."});
+ try{const data=await loadWorldFeed(world);res.setHeader("Cache-Control","public, max-age=300");return res.json(data);}
+ catch{return res.status(503).json({ok:false,error:"Public sources are temporarily unavailable."});}
+});
+
 app.get("/healthz",(_req,res)=>res.status(200).json({
   ok:true,product:"JR PHEEF",identity:"JR",stage:"foundation-auth",
   authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),aiConfigured:Boolean(process.env.OPENAI_API_KEY),paymentsEnabled:false,
