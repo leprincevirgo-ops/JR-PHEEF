@@ -92,6 +92,7 @@
  }
  function setSignedIn(user){
   const publicInfo=$("publicInfo");if(publicInfo)publicInfo.hidden=!!user;
+  const publicLive=$("publicLive");if(publicLive)publicLive.hidden=!!user;
   window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
@@ -145,7 +146,8 @@
  $("resendLoginConfirmation").addEventListener("click",async()=>{const button=$("resendLoginConfirmation");button.disabled=true;setMessage("Requesting a new confirmation email…");try{const result=await api("/api/auth/resend",{email:$("email").value.trim()});setMessage(result.message+" Check spam and promotions too.");}catch(error){setMessage(error.message);}finally{button.disabled=false;}});
 
  $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
- $("startWithJr").addEventListener("click",()=>{conversation.hidden=false;panel.hidden=true;conversation.scrollIntoView({behavior:"smooth",block:"center"});$("prompt").focus({preventScroll:true});});
+ $("startWithJr").addEventListener("click",()=>showAuth("signup"));
+ $("publicJoinNow")?.addEventListener("click",()=>showAuth("signup"));
  form.addEventListener("submit",async event=>{
   event.preventDefault();if(busy||!form.reportValidity())return;busy=true;$("authSubmit").disabled=true;$("authSubmit").textContent=mode==="login"?"Signing in…":"Creating account…";setMessage("");
   const payload={email:$("email").value.trim(),password:$("password").value};
@@ -164,6 +166,21 @@
  });
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
  $("promptForm").addEventListener("submit",event=>{event.preventDefault();const value=$("prompt").value.trim();if(!value){$("prompt").focus();return;}$("promptReply").textContent="JR could not send that message yet. Please try again.";});
+ const jrConversationHistory=[];
+ $("workspacePromptForm")?.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const input=$("workspacePrompt"),reply=$("workspacePromptReply"),button=event.currentTarget.querySelector('button[type="submit"]');
+  const message=input.value.trim();if(!message||button.disabled)return;
+  button.disabled=true;input.disabled=true;reply.textContent="JR is thinking…";
+  try{
+   const result=await api("/api/ai/chat",{message,mode:"universe",history:jrConversationHistory.slice(-8)});
+   const answer=String(result.answer||"").trim();if(!answer)throw new Error("JR did not return a response. Please try again.");
+   jrConversationHistory.push({role:"user",content:message},{role:"assistant",content:answer});
+   if(jrConversationHistory.length>16)jrConversationHistory.splice(0,jrConversationHistory.length-16);
+   reply.textContent=answer;input.value="";
+  }catch(error){reply.textContent=error.message||"JR is temporarily unavailable. Please try again.";}
+  finally{button.disabled=false;input.disabled=false;input.focus();}
+ });
  $("memberOpportunityForm")?.addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const fd=new FormData(form),button=form.querySelector("button[type=submit]"),feedback=$("memberOpportunityFeedback");button.disabled=true;feedback.textContent="Submitting your idea privately to DGBO…";try{const result=await api("/api/workspace",{action:"submit_idea_to_dgbo",title:fd.get("title"),sector:fd.get("sector"),targetMarket:fd.get("targetMarket"),summary:fd.get("summary"),consentToDgbo:fd.get("consentToDgbo")==="on"});form.reset();feedback.textContent=result.data?.message||"Your idea has been submitted for private review.";}catch(error){feedback.textContent=error.message;}finally{button.disabled=false;}});
  $("founderResearchForm")?.addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const fd=new FormData(form),button=form.querySelector("button[type=submit]");const payload={action:"create_opportunity_dossier",sourceType:"public_research"};for(const [k,v] of fd.entries())payload[k]=v;button.disabled=true;$("founderResearchFeedback").textContent="Saving sourced research to DGBO's private queue…";try{const result=await api("/api/founder/overview",payload);form.reset();$("founderResearchFeedback").textContent=result.note||"Research dossier saved.";await loadFounderOverview();}catch(error){$("founderResearchFeedback").textContent=error.message;}finally{button.disabled=false;}});
  $("founderCapabilityForm")?.addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget,fd=new FormData(form),button=form.querySelector("button[type=submit]");button.disabled=true;$("founderCapabilityFeedback").textContent="Adding capability blueprint…";try{const result=await api("/api/founder/overview",{action:"create_capability",capabilityKey:fd.get("capabilityKey"),name:fd.get("name"),category:fd.get("category"),description:fd.get("description")});form.reset();$("founderCapabilityFeedback").textContent=result.note||"Capability blueprint added for founder review.";await loadFounderOverview();}catch(error){$("founderCapabilityFeedback").textContent=error.message;}finally{button.disabled=false;}});
