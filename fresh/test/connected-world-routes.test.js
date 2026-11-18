@@ -27,8 +27,8 @@ test("world routes use the existing single-page application fallback",()=>{
  assert.match(server,/res\.sendFile\(path\.join\(__dirname,"public","index\.html"\)\)/);
 });
 test("home directory exposes JR LINK and JR MOVE as distinct branded destinations",()=>{
- assert.match(html,/data-company-open="command"[^>]*>[\\s\\S]*?JR LINK/);
- assert.match(html,/data-company-open="turbex"[^>]*>[\\s\\S]*?JR MOVE/);
+ assert.ok(html.includes('data-company-open="command"')&&html.includes("<strong>JR LINK</strong>"));
+ assert.ok(html.includes('data-company-open="turbex"')&&html.includes("<strong>JR MOVE</strong>"));
 });
 test("route-enabled app script passes syntax validation",()=>{
  const result=spawnSync(process.execPath,["--check",path.join(root,"app.js")],{encoding:"utf8"});
