@@ -24,6 +24,7 @@ jobs:
       - name: Syntax and route integrity tests
         run: npm test
       - name: Read-only live deployment smoke test
+        if: github.event_name != 'pull_request'
         env:
           BASE_URL: https://jr-pheef-marketplace.onrender.com
           REQUIRE_OPPORTUNITY_FEATURE: "true"
