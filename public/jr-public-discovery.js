@@ -69,12 +69,13 @@
  }
  function returnToDiscovery(){
   const root=$("jr-public-discovery"),node=$("jpd-company-world");if(node)node.hidden=true;
-  if(root)[...root.children].forEach(child=>{child.hidden=false;});
+  if(root)[...root.children].forEach(child=>{if(child!==node)child.hidden=false;});
   document.body.classList.add("jr-public-discovery-mode");document.body.classList.remove("jr-public-auth-mode");
   window.scrollTo({top:0,behavior:"smooth"});
  }
  function enterAuth(mode){
   const node=$("jpd-company-world");if(node)node.hidden=true;
+  const root=$("jr-public-discovery");if(root)[...root.children].forEach(child=>{if(child!==node)child.hidden=false;});
   document.body.classList.remove("jr-public-discovery-mode");document.body.classList.add("jr-public-auth-mode");
   const auth=$("auth");if(auth){auth.hidden=false;auth.scrollIntoView({behavior:"smooth",block:"start"});}
   if(mode==="register"&&typeof window.showRegister==="function")window.showRegister();
