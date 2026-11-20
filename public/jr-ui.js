@@ -43,6 +43,18 @@
  <input id="adLocation" maxlength="120" placeholder="Area (optional)">
  <div class="ad-media-tools"><p class="muted">Add up to five photos or videos from your gallery or camera.</p><label for="adGallery">Gallery — photos and videos</label><input id="adGallery" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple><label for="adCamera">Take a photo</label><input id="adCamera" type="file" accept="image/*" capture="environment"><div class="ad-media-actions"><button type="button" class="dark" onclick="adStartRecording()">RECORD VIDEO</button><button type="button" class="dark" onclick="adExplainLive()">GO LIVE</button><button type="button" class="dark" onclick="adStopRecording()" id="adStopRecord" disabled>STOP RECORDING</button></div><video id="adCameraPreview" class="ad-camera-preview" playsinline muted hidden></video><p id="adRecordMsg" class="muted" aria-live="polite">Public live broadcasting is not active yet; you can record a video clip.</p><div id="adMediaPreview" class="ad-media-preview"></div></div>
  <button class="primary" onclick="adCreate()">SEND FOR REVIEW</button><p id="adMsg" class="muted" aria-live="polite"></p></div>
+ <div class="card" id="jrGrowthPlanner">
+ <h3>JR GROWTH INTELLIGENCE</h3>
+ <p class="muted">Prepare a measurable campaign for JR PHEEF, DGBO, FAMILY or your own business. JR drafts the strategy and copy; it never publishes or spends without approval.</p>
+ <label for="jrGrowthBrand">Brand</label><select id="jrGrowthBrand"><option>JR PHEEF</option><option>DGBO</option><option>FAMILY</option><option>My business</option></select>
+ <label for="jrGrowthObjective">Campaign goal</label><textarea id="jrGrowthObjective" rows="2" maxlength="700" placeholder="What should this campaign achieve?"></textarea>
+ <label for="jrGrowthAudience">Audience</label><input id="jrGrowthAudience" maxlength="300" placeholder="Who should see it?">
+ <label for="jrGrowthRegion">Country, city or market</label><input id="jrGrowthRegion" maxlength="160" placeholder="Where should it reach?">
+ <label for="jrGrowthChannel">Preferred channel</label><select id="jrGrowthChannel"><option value="multi-channel">Multi-channel</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="youtube">YouTube</option><option value="linkedin">LinkedIn</option><option value="x">X</option><option value="website">Website / SEO</option><option value="email">Opt-in email</option></select>
+ <label for="jrGrowthBudget">Proposed budget (KSh; optional)</label><input id="jrGrowthBudget" type="number" min="0" step="1" placeholder="Planning figure only — not permission to spend">
+ <button class="primary" type="button" onclick="jrGrowthPlan()">GENERATE CAMPAIGN PLAN</button><p id="jrGrowthMsg" class="muted" aria-live="polite"></p><div id="jrGrowthDraft"></div>
+ </div>
+ <div class="card"><h3>Growth overview</h3><div id="jrGrowthOverview" class="muted">Campaign figures load when this section opens.</div></div>
  <div class="card"><h3>My ads</h3><div id="adMine"></div></div></div>
 
 <div id="jrsettings" class="page hidden"><div class="card"><h2>JR SETTINGS</h2>
@@ -248,13 +260,47 @@
   async function adUploadMedia(){if(!adMediaFiles.length)return [];const form=new FormData();adMediaFiles.forEach(f=>form.append("media",f));const response=await fetch("/api/ads/media",{method:"POST",credentials:"include",body:form});const data=await response.json().catch(()=>({}));if(!response.ok||!data.ok)throw new Error(data.error||"Media upload failed.");return data.media_urls||[];}
   function adMediaMarkup(urls){return (urls||[]).map(url=>{const v=/\.(mp4|webm|mov)(?:\?|$)/i.test(url);return v?'<div class="jr-video-player"><video src="'+esc(url)+'" controls playsinline preload="metadata" data-jr-audio-player aria-label="Advertisement video with sound" style="max-width:100%;max-height:260px"></video><button type="button" class="jr-enable-sound" data-jr-enable-sound>🔊 ENABLE SOUND</button><small data-jr-audio-note>Use the video controls or enable sound. If the original file has no audio, JR cannot recreate it.</small></div>':'<img src="'+esc(url)+'" alt="Ad media" loading="lazy" style="max-width:100%;max-height:180px;border-radius:10px">';}).join("");}
   async function adLoad() {
-    const [mine, listings] = await Promise.all([call("/api/ads/mine"), call("/api/listings/mine")]);
+    const [mine, listings, growth] = await Promise.all([call("/api/ads/mine"), call("/api/listings/mine"), call("/api/jr/growth/overview")]);
     if (listings.ok) $("adListing").innerHTML = '<option value="">Not linked to a listing</option>' + (listings.listings || []).filter(l => l.status === "active").map(l => `<option value="${esc(l.id)}">${esc(l.item_name)}</option>`).join("");
     $("adMine").innerHTML = mine.ok ? ((mine.ads || []).map(a => `<div class="listing"><b>${esc(a.title)}</b> <span class="badge">${esc(a.status)}</span><br>${esc(a.body)}<br>${adMediaMarkup(a.media_urls)}
       <span class="muted">${Number(a.impressions || 0)} views · ${Number(a.clicks || 0)} clicks${a.ends_at && a.status === "approved" ? " · ends " + esc(when(a.ends_at)) : ""}${a.review_note ? " · " + esc(a.review_note) : ""}</span><br>
       ${a.status === "approved" ? `<button class="dark" onclick="adSet('${esc(a.id)}','paused')">PAUSE</button>` : ""}${a.status === "paused" ? `<button onclick="adSet('${esc(a.id)}','approved')">RESUME</button>` : ""}
       ${["approved", "paused", "pending"].includes(a.status) ? `<button class="danger" onclick="adSet('${esc(a.id)}','ended')">END</button>` : ""}</div>`).join("") || "<p class='muted'>No ads yet.</p>") : esc(mine.error || "");
+    const overview=$("jrGrowthOverview");
+    if(overview)overview.textContent=growth.ok
+      ? String(growth.metrics.campaigns_total||0)+" campaigns · recorded budgets "+KSH(growth.metrics.recorded_campaign_budgets_ksh||0)+" · impressions, conversions and settled spend are not verified by this summary."
+      : (growth.error||"Growth overview unavailable.");
   }
+  let lastGrowthDraft=null;
+  window.jrGrowthPlan=async function(){
+    const msg=$("jrGrowthMsg"),host=$("jrGrowthDraft");
+    if(!msg||!host)return;
+    msg.textContent="JR is preparing a campaign draft…";host.replaceChildren();
+    const d=await call("/api/jr/growth/plan","POST",{
+      brand:$("jrGrowthBrand").value,objective:$("jrGrowthObjective").value,
+      audience:$("jrGrowthAudience").value,region:$("jrGrowthRegion").value,
+      channel:$("jrGrowthChannel").value,budget_ksh:$("jrGrowthBudget").value||undefined
+    });
+    if(!d.ok){msg.textContent=d.error||"Could not prepare the campaign.";return;}
+    lastGrowthDraft=d.plan||{};
+    msg.textContent="Draft ready. Human review is required; no publishing or spending has occurred.";
+    const p=d.plan||{};
+    const section=document.createElement("section");section.className="listing";
+    const heading=document.createElement("h4");heading.textContent=p.campaign_name||"Campaign draft";
+    const positioning=document.createElement("p");positioning.textContent=p.positioning||"";
+    const copy=document.createElement("p");copy.textContent=p.primary_copy||"";
+    const ideas=document.createElement("p");ideas.textContent="Content ideas: "+(p.content_ideas||[]).join(" · ");
+    const risks=document.createElement("p");risks.className="muted";risks.textContent="Review: "+(p.risks||[]).join(" · ");
+    const use=document.createElement("button");use.type="button";use.className="dark";use.textContent="USE DRAFT IN AD FORM";use.addEventListener("click",window.jrGrowthUseDraft);
+    section.append(heading,positioning,copy,ideas,risks,use);host.append(section);
+  };
+  window.jrGrowthUseDraft=function(){
+    if(!lastGrowthDraft)return;
+    $("adTitle").value=String(lastGrowthDraft.campaign_name||"").slice(0,80);
+    $("adBody").value=String(lastGrowthDraft.primary_copy||"").slice(0,300);
+    $("adMsg").textContent="Draft copied into the ad form. Review it and choose SEND FOR REVIEW when ready.";
+    $("adTitle").focus();
+  };
   window.adCreate = async function () {
     const msg=$("adMsg");msg.textContent="Preparing your ad…";try{const media_urls=await adUploadMedia();const d=await call("/api/ads","POST",{title:$("adTitle").value,body:$("adBody").value,listing_id:$("adListing").value||undefined,category:$("adCategory").value,location:$("adLocation").value,media_urls});msg.textContent=d.ok?d.message:(d.error||"Could not send the ad.");if(d.ok){$("adTitle").value="";$("adBody").value="";$("adGallery").value="";$("adCamera").value="";adMediaFiles.length=0;adRenderMedia();adLoad();}}catch(e){msg.textContent=e.message||"Could not upload your ad media.";}
   };

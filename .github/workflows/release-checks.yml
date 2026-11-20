@@ -76,6 +76,7 @@ jobs:
           echo "Partner gateway did not become available after the main-branch release."
           exit 1
       - name: Verify live service journeys without writing production data
+        if: github.event_name != 'pull_request'
         env:
           BASE_URL: https://jr-pheef-marketplace.onrender.com
           REQUIRE_PAYMENTS_OFF: "true"
