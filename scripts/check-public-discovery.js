@@ -22,7 +22,7 @@ assert.match(css,/body\.jr-public-discovery-mode #auth\{display:none!important\}
 assert.match(css,/body\.jr-public-auth-mode #jr-public-discovery\{display:none!important\}/,"discovery must hide during authentication");
 assert.match(js,/MutationObserver/,"signed-in app transition must be observed");
 assert.match(html,/Capabilities shown are product areas, not a claim that every external service/,"public copy must not overstate integration readiness");
-for(const slug of ["dgbo","family","jr-pheef"])assert.match(js,new RegExp('"' + slug + '"\\s*:'),"missing branded company world: "+slug);
+for(const slug of ["dgbo","family","jr-pheef"])assert.ok(js.includes(slug+":")||js.includes('"' + slug + '":'),"missing branded company world: "+slug);
 for(const token of ["jpw-hero","jpw-grid","jpw-back","data-jpw-register","data-jpw-login","returnToDiscovery"])assert.ok(js.includes(token),"company website experience missing: "+token);
 assert.match(js,/FAMILY does not promise returns/,"FAMILY financial authorisation boundary must remain visible");
 assert.match(js,/Separate company records and responsibilities/,"company separation must remain visible");
