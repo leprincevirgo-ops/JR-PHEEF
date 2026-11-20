@@ -18,6 +18,6 @@ assert.match(ui,/id="jrGrowthPlanner"/,"growth planner must be visible in the ad
 assert.match(ui,/jrGrowthPlan\(\)/,"growth planner action must be connected");
 assert.match(ui,/USE DRAFT IN AD FORM/,"campaign draft must flow into the existing ad review process");
 assert.match(ui,/publishing or spending has occurred/,"the UI must state that campaign generation does not publish or spend");
-assert.doesNotMatch(html,/Find\\. Match\\. Trade\\./,"retired JR PHEEF slogan must not appear in the public entry page");
-assert.match(html,/<title>JR PHEEF<\\/title>/,"public title must use JR PHEEF as the primary brand");
+assert.doesNotMatch(html,/Find\. Match\. Trade\./,"retired JR PHEEF slogan must not appear in the public entry page");
+assert.match(html,/<title>JR PHEEF<\/title>/,"public title must use JR PHEEF as the primary brand");
 console.log("PASS: JR Growth Intelligence planning, member-scoped campaign visibility, human approval, no autonomous spend or publishing, and truthful advertising safeguards.");
