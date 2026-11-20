@@ -618,5 +618,79 @@ module.exports = function mountJr(ctx) {
     await logActivity(owner.id, "ADMIN_AD_REVIEW", { ad_id: id, status });
     res.json({ ok: true, ad: data });
   }));
+
+  /* JR Growth Intelligence: safe campaign planning and owned-campaign overview. */
+  app.post("/api/jr/growth/plan", wrap("Growth campaign plan", async (req, res) => {
+    const m = await requireMember(req, res); if (!m) return;
+    if (limited(req, res, "growth-plan", 8, 60 * 60 * 1000)) return;
+    const objective = clean(req.body.objective).slice(0, 700);
+    const audience = clean(req.body.audience).slice(0, 300);
+    const region = clean(req.body.region).slice(0, 160);
+    const brand = clean(req.body.brand).slice(0, 60) || "JR PHEEF";
+    const channel = clean(req.body.channel).toLowerCase().slice(0, 40) || "multi-channel";
+    const budget = money(req.body.budget_ksh);
+    if (objective.length < 8) return bad(res, "Describe the campaign goal in at least 8 characters.");
+    if (req.body.budget_ksh !== undefined && req.body.budget_ksh !== "" && budget === null)
+      return bad(res, "Enter a valid non-negative budget.");
+    const input = { brand, objective, audience: audience || "Not specified", region: region || "Not specified", channel, budget_ksh: budget };
+    const generated = await askAI(
+      "You are JR Growth Intelligence. Create a truthful, respectful, measurable marketing campaign plan. Return ONLY JSON with keys: campaign_name, positioning, audience, message, primary_copy, short_copy, call_to_action, channels (array of strings), content_ideas (array of strings), measures (array of strings), risks (array of strings). Never invent product capabilities, customers, testimonials, certifications, provider availability or results. Never promise earnings, investment returns, health outcomes or guaranteed success. No spam, fake engagement, impersonation, hidden sponsorship or unauthorised data collection. If the brand is FAMILY, avoid promoting regulated financial products or returns; recommend compliance review. The plan is a draft for human review and must not publish, spend or contact anyone.",
+      JSON.stringify(input), 1400
+    );
+    const parsed = parseJson(generated);
+    const take = (value, max, limit) => (Array.isArray(value) ? value : []).map(x => clean(x).slice(0, max)).filter(Boolean).slice(0, limit);
+    const plan = parsed ? {
+      campaign_name: clean(parsed.campaign_name).slice(0, 100) || brand + " awareness",
+      positioning: clean(parsed.positioning).slice(0, 500),
+      audience: clean(parsed.audience).slice(0, 300) || input.audience,
+      message: clean(parsed.message).slice(0, 500),
+      primary_copy: clean(parsed.primary_copy).slice(0, 1200),
+      short_copy: clean(parsed.short_copy).slice(0, 280),
+      call_to_action: clean(parsed.call_to_action).slice(0, 100),
+      channels: take(parsed.channels, 80, 8),
+      content_ideas: take(parsed.content_ideas, 240, 8),
+      measures: take(parsed.measures, 120, 8),
+      risks: take(parsed.risks, 200, 8)
+    } : {
+      campaign_name: brand + " awareness",
+      positioning: "Explain the verified customer problem solved and the real service available today.",
+      audience: input.audience,
+      message: "Discover what " + brand + " can currently do. Check availability and terms before making a decision.",
+      primary_copy: "Explore " + brand + ", review the services currently available in your area, and decide whether they meet your needs.",
+      short_copy: "Explore " + brand + " and see what is available.",
+      call_to_action: "Explore " + brand,
+      channels: ["Website", "Opt-in community channels", "Approved social accounts"],
+      content_ideas: ["A clear product walkthrough", "A real use case with permission", "A frequently asked questions post"],
+      measures: ["Qualified visits", "Registrations", "Activated users", "Retention", "Cost per acquired user"],
+      risks: ["Verify every advertised feature and availability claim.", "Obtain permission before using personal data, images or testimonials.", "Review paid promotion and regulated claims before publication."]
+    };
+    await logActivity(m.id, "GROWTH_CAMPAIGN_PLAN_CREATED", { brand, channel, has_budget: budget !== null });
+    res.json({
+      ok: true, plan, source: parsed ? "AI_DRAFT" : "SAFE_TEMPLATE",
+      execution: { status: "DRAFT_ONLY", publishing_enabled: false, spend_authorised: false, human_review_required: true },
+      inputs: input
+    });
+  }));
+
+  app.get("/api/jr/growth/overview", wrap("Growth campaign overview", async (req, res) => {
+    const m = await requireMember(req, res); if (!m) return;
+    const { data, error } = await db.from("ad_campaigns")
+      .select("id,title,status,budget_ksh,created_at,starts_at,ends_at")
+      .eq("member_id", m.id).order("created_at", { ascending: false }).limit(100);
+    if (error) throw error;
+    const campaigns = data || [];
+    const totalBudget = campaigns.reduce((sum, item) => sum + (Number.isFinite(Number(item.budget_ksh)) ? Math.max(0, Number(item.budget_ksh)) : 0), 0);
+    const counts = campaigns.reduce((out, item) => {
+      const key = clean(item.status) || "unknown";
+      out[key] = (out[key] || 0) + 1;
+      return out;
+    }, {});
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true, generated_at: new Date().toISOString(),
+      metrics: { campaigns_total: campaigns.length, status_counts: counts, recorded_campaign_budgets_ksh: totalBudget },
+      campaigns,
+      measurement_boundary: "Ad impressions, clicks, conversions and settled spend are not reported here unless verified analytics and payment reconciliation are connected."
+    });
+  }));
 };
- 
