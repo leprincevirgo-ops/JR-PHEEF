@@ -2,6 +2,7 @@
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const routes=fs.readFileSync("routes/jr.js","utf8");
+const ui=fs.readFileSync("public/jr-ui.js","utf8");
 assert.match(routes,/app\.post\("\/api\/jr\/growth\/plan"/,"growth campaign planner endpoint missing");
 assert.match(routes,/app\.get\("\/api\/jr\/growth\/overview"/,"member campaign overview endpoint missing");
 assert.match(routes,/requireMember\(req, res\)/,"growth routes must require a signed-in member");
@@ -12,4 +13,8 @@ assert.match(routes,/human_review_required: true/,"campaign plans must require h
 assert.match(routes,/Never invent product capabilities/,"growth generation must prohibit unsupported claims");
 assert.match(routes,/No spam, fake engagement, impersonation/,"growth generation must prohibit spam and deceptive engagement");
 assert.match(routes,/measurement_boundary:/,"analytics must disclose unverified metrics");
+assert.match(ui,/id="jrGrowthPlanner"/,"growth planner must be visible in the advertising centre");
+assert.match(ui,/jrGrowthPlan\(\)/,"growth planner action must be connected");
+assert.match(ui,/USE DRAFT IN AD FORM/,"campaign draft must flow into the existing ad review process");
+assert.match(ui,/publishing or spending has occurred/,"the UI must state that campaign generation does not publish or spend");
 console.log("PASS: JR Growth Intelligence planning, member-scoped campaign visibility, human approval, no autonomous spend or publishing, and truthful advertising safeguards.");
