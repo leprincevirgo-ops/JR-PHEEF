@@ -29,6 +29,5 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
     - name: Production read-only end-to-end smoke
-      if: github.event_name != 'pull_request'
-      if: matrix.node-version == '22.x'
+      if: github.event_name != 'pull_request' && matrix.node-version == '22.x'
       run: npm run test:e2e
