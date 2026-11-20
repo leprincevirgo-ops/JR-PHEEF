@@ -10,7 +10,7 @@ const discovery=html.indexOf('<section id="jr-public-discovery"');
 const auth=html.indexOf('<section id="auth">');
 assert.ok(discovery>=0&&auth>discovery,"public discovery must precede authentication");
 assert.match(html,/jr-public-discovery\.css\?v=2/,"public discovery stylesheet must load at the current cache version");
-assert.match(html,/jr-public-discovery\.js\?v=1/,"public discovery controller must load");
+assert.match(html,/jr-public-discovery\.js\?v=2/,"public discovery controller must load at the current cache version");
 for(const world of ["dgbo","family","move","link"])assert.match(html,new RegExp('data-world="'+world+'"'),"missing public world: "+world);
 assert.match(html,/data-jpd-action="register"/,"public registration CTA is required");
 assert.match(html,/data-jpd-action="login"/,"public login CTA is required");
