@@ -3,6 +3,7 @@ const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const routes=fs.readFileSync("routes/jr.js","utf8");
 const ui=fs.readFileSync("public/jr-ui.js","utf8");
+const html=fs.readFileSync("public/index.html","utf8");
 assert.match(routes,/app\.post\("\/api\/jr\/growth\/plan"/,"growth campaign planner endpoint missing");
 assert.match(routes,/app\.get\("\/api\/jr\/growth\/overview"/,"member campaign overview endpoint missing");
 assert.match(routes,/requireMember\(req, res\)/,"growth routes must require a signed-in member");
@@ -17,4 +18,6 @@ assert.match(ui,/id="jrGrowthPlanner"/,"growth planner must be visible in the ad
 assert.match(ui,/jrGrowthPlan\(\)/,"growth planner action must be connected");
 assert.match(ui,/USE DRAFT IN AD FORM/,"campaign draft must flow into the existing ad review process");
 assert.match(ui,/publishing or spending has occurred/,"the UI must state that campaign generation does not publish or spend");
+assert.doesNotMatch(html,/Find\\. Match\\. Trade\\./,"retired JR PHEEF slogan must not appear in the public entry page");
+assert.match(html,/<title>JR PHEEF<\\/title>/,"public title must use JR PHEEF as the primary brand");
 console.log("PASS: JR Growth Intelligence planning, member-scoped campaign visibility, human approval, no autonomous spend or publishing, and truthful advertising safeguards.");
