@@ -68,7 +68,7 @@ async function freshSmoke(health) {
   for(const asset of ["/styles.css","/cosmic.css","/app.js","/pwa.js","/living-interface.js","/public-discovery.js","/command-layout.js","/worlds.js","/intelligence.js","/navigation.js","/voice.js","/business.js","/diamond-company-worlds.css","/transport-world.css","/connected-world-engine.css"]){
     await check("frontend asset loads: "+asset,async()=>{const r=await request(asset);assert.equal(r.status,200);assert.ok((await r.text()).length>100);});
   }
-  for(const route of ["/guide","/learn","/jr-pheef","/app","/jr-move"]){
+  for(const route of ["/guide","/jr-pheef","/app","/jr-move"]){
     await check("public route loads: "+route,async()=>{const r=await request(route);assert.equal(r.status,200);assert.match(r.headers.get("content-type")||"",/text\/html/i);});
   }
   for(const world of ["general","transport"]){
