@@ -6,6 +6,7 @@ const vm=require("node:vm");
 const html=fs.readFileSync("fresh/public/index.html","utf8");
 const css=fs.readFileSync("fresh/public/styles.css","utf8");
 const js=fs.readFileSync("fresh/public/intelligence.js","utf8");
+const server=fs.readFileSync("fresh/server.js","utf8");
 test("JR intelligence module is loaded after worlds",()=>{assert.match(html,/worlds\.js[^>]*defer><\/script><script src="\/intelligence\.js/);});
 test("FAMILY financial intent is checked before personal family intent",()=>{const finance=js.indexOf('type:"family_finance"');const personal=js.indexOf('type:"family_personal"');assert.ok(finance>=0&&personal>finance);assert.match(js,/family coordination/);const personalRoute=js.slice(personal,js.indexOf("},",personal));assert.doesNotMatch(personalRoute,/keys:\["family"/);});
 test("Family World and FAMILY World remain separate",()=>{assert.match(js,/family_personal/);assert.match(js,/family_finance/);assert.match(js,/Family World/);assert.match(js,/FAMILY World/);});
@@ -25,3 +26,5 @@ test("signed-in JR workspace includes its own usable prompt form",()=>{
  assert.match(js,/workspacePromptForm/);
  assert.match(js,/workspacePromptReply/);
 });
+
+test("JR responses never expose internal provider model identifiers",()=>{assert.match(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),webResearch:body\.use_web===true\}\)/);assert.doesNotMatch(server,/model:process\.env\.OPENAI_MODEL/);});
