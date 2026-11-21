@@ -59,8 +59,8 @@ async function freshSmoke(health) {
   await check("authentication provider is configured",async()=>assert.equal(health.authConfigured,true,"Supabase auth is not configured"));
   await check("live JR AI provider is configured",async()=>assert.equal(health.aiConfigured,true,"OPENAI_API_KEY is not configured; live JR conversation is unavailable"));
   await check("JR public gateway loads",async()=>{
-    const r=await request("/");assert.equal(r.status,200);assert.match(r.headers.get("content-type")||"",/text\\/html/i);
-    const h=await r.text();assert.match(h,/<title>[^<]*JR PHEEF[^<]*<\\/title>/i);assert.match(h,/id="startWithJr"/);assert.match(h,/id="openSignup"/);assert.doesNotMatch(h,/Find\\. Match\\. Trade\\./i);
+    const r=await request("/");assert.equal(r.status,200);assert.match(r.headers.get("content-type")||"",/text\/html/i);
+    const h=await r.text();assert.match(h,/<title>[^<]*JR PHEEF[^<]*<\/title>/i);assert.match(h,/id="startWithJr"/);assert.match(h,/id="openSignup"/);assert.doesNotMatch(h,/Find\. Match\. Trade\./i);
   });
   await check("anonymous session restoration is safe",async()=>{
     const r=await request("/api/auth/session");assert.equal(r.status,200);const d=await r.json();assert.equal(d.ok,true);assert.equal(d.authenticated,false);
@@ -69,7 +69,7 @@ async function freshSmoke(health) {
     await check("frontend asset loads: "+asset,async()=>{const r=await request(asset);assert.equal(r.status,200);assert.ok((await r.text()).length>100);});
   }
   for(const route of ["/guide","/learn","/jr-pheef","/app","/jr-move"]){
-    await check("public route loads: "+route,async()=>{const r=await request(route);assert.equal(r.status,200);assert.match(r.headers.get("content-type")||"",/text\\/html/i);});
+    await check("public route loads: "+route,async()=>{const r=await request(route);assert.equal(r.status,200);assert.match(r.headers.get("content-type")||"",/text\/html/i);});
   }
   for(const world of ["general","transport"]){
     await check("public discovery feed loads: "+world,async()=>{const r=await request("/api/discovery/feed?world="+world);assert.equal(r.status,200);const d=await r.json();assert.ok(Array.isArray(d.items));});
@@ -88,8 +88,8 @@ async function freshSmoke(health) {
     const r=await request("/manifest.webmanifest");assert.equal(r.status,200);const d=await r.json();assert.equal(d.name,"JR PHEEF");assert.equal(d.display,"standalone");
     const sw=await request("/service-worker.js");assert.equal(sw.status,200);assert.match(await sw.text(),/jr-pheef/i);
   });
-  if(failures){console.error("\\n"+passed+" passed, "+failures+" failed against "+base);process.exitCode=1;return;}
-  console.log("\\nAll "+passed+" fresh JR PHEEF read-only release checks passed against "+base);
+  if(failures){console.error("\n"+passed+" passed, "+failures+" failed against "+base);process.exitCode=1;return;}
+  console.log("\nAll "+passed+" fresh JR PHEEF read-only release checks passed against "+base);
 }
 
 async function main() {
