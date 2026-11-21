@@ -16,9 +16,9 @@ assert.ok(sw.includes('const VERSION="jr-shell-v22"'),"new releases must activat
 assert.ok(sw.includes('fetch(request,{cache:"no-cache"})'),"scripts and styles must check the live server before using cached assets");
 assert.ok(sw.indexOf("const response=await fetch(request,{cache:\"no-cache\"})")<sw.indexOf("const cached=await cache.match(request)"),"cached assets must be fallback-only when the network fails");
 assert.ok(sw.includes('const VERSION="jr-shell-v22"'),"service worker must invalidate stale cached app assets after the touch fix");
-assert.match(html,/<title>\\s*JR PHEEF\\s*<\\/title>/i,"public page title must use the current JR PHEEF brand");
+assert.match(html,/<title>\s*JR PHEEF\s*<\/title>/i,"public page title must use the current JR PHEEF brand");
 assert.match(html,/<meta property="og:title" content="JR PHEEF">/i,"social preview must use the current JR PHEEF brand");
-assert.doesNotMatch(html,/Find\\. Match\\. Trade\\./i,"retired slogan must not appear in the public entry page");
+assert.doesNotMatch(html,/Find\. Match\. Trade\./i,"retired slogan must not appear in the public entry page");
 assert.match(sw,/const response=await fetch\(request,\{cache:"no-cache"\}\)[\s\S]*?await cache\.put\(request,response\.clone\(\)\)[\s\S]*?const cached=await cache\.match\(request\)/,"static scripts and styles must be network-first, with cache used only as offline fallback");
 assert.ok(register.includes('navigator.serviceWorker.register("/service-worker.js"'),"service worker registration missing");
 assert.ok(html.includes('/pwa-register.js?v=1'),"service worker registration script is not loaded");
