@@ -19,6 +19,9 @@ assert.ok(sw.includes('const VERSION="jr-shell-v22"'),"service worker must inval
 assert.match(html,/<title>\s*JR PHEEF\s*<\/title>/i,"public page title must use the current JR PHEEF brand");
 assert.match(html,/<meta property="og:title" content="JR PHEEF">/i,"social preview must use the current JR PHEEF brand");
 assert.doesNotMatch(html,/Find\. Match\. Trade\./i,"retired slogan must not appear in the public entry page");
+const freshServer=fs.readFileSync("fresh/server.js","utf8");
+assert.match(freshServer,/store:false/,"JR AI requests must not be persisted by the provider");
+assert.doesNotMatch(freshServer,/return res\.json\(\{ok:true,answer:answer\.trim\(\),model:/,"JR responses must not expose provider model identifiers");
 assert.match(sw,/const response=await fetch\(request,\{cache:"no-cache"\}\)[\s\S]*?await cache\.put\(request,response\.clone\(\)\)[\s\S]*?const cached=await cache\.match\(request\)/,"static scripts and styles must be network-first, with cache used only as offline fallback");
 assert.ok(register.includes('navigator.serviceWorker.register("/service-worker.js"'),"service worker registration missing");
 assert.ok(html.includes('/pwa-register.js?v=1'),"service worker registration script is not loaded");

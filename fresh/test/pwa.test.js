@@ -11,6 +11,8 @@ const worker=fs.readFileSync(path.join(root,"service-worker.js"),"utf8");
 const pwa=fs.readFileSync(path.join(root,"pwa.js"),"utf8");
 test("JR PHEEF is installable as an application from the same public domain",()=>{
  const data=JSON.parse(manifest);
+ assert.equal(data.name,"JR PHEEF");
+ assert.doesNotMatch(data.name,/Find\. Match\. Trade\./i);
  assert.equal(data.start_url,"/");
  assert.equal(data.scope,"/");
  assert.equal(data.display,"standalone");
