@@ -130,6 +130,7 @@ async function main() {
     const body = await response.json();
     assert.equal(body.ok, true, "health payload did not report ok=true");
     assert.equal(body.app, "JR PHEEF", "unexpected app identity");
+    assert.equal(body.ai, "CONFIGURED", "live JR AI provider is not configured");
     assert.ok(body.version, "version missing from health payload");
     assert.ok(["OFF", "ENABLED"].includes(body.daraja), "Daraja state missing");
     if (process.env.REQUIRE_PAYMENTS_OFF === "true") {
