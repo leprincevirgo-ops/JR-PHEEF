@@ -236,7 +236,7 @@ test("JR discovers business opportunities and DGBO evaluates selected opportunit
 
 
 test("JR-to-DGBO opportunity intelligence has private consent-based intake, sourced research, reviews and venture tracking",()=>{
- const member=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),founder=fs.readFileSync(path.join(root,"..","supabase","functions","jr-founder-overview","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261113180539_dgbo_opportunity_pipeline.sql"),"utf8"),html=read("public/index.html"),app=read("public/app.js");
+ const member=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),founder=fs.readFileSync(path.join(root,"..","supabase","functions","jr-founder-overview","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261113183634_dgbo_opportunity_pipeline.sql"),"utf8"),html=read("public/index.html"),app=read("public/app.js");
  assert.match(member,/submit_idea_to_dgbo/);assert.match(member,/consentToDgbo!==true/);assert.match(member,/member_submission/);
  assert.match(founder,/create_opportunity_dossier/);assert.match(founder,/https:\/\//);assert.match(founder,/review_opportunity_dossier/);assert.match(founder,/update_venture_stage/);assert.match(founder,/dgbo_opportunity_reviews/);assert.match(founder,/dgbo_opportunity_events/);
  for(const table of ["dgbo_opportunity_dossiers","dgbo_opportunity_reviews","dgbo_venture_projects","dgbo_opportunity_events"])assert.match(sql,new RegExp("create table if not exists public\\."+table));
@@ -324,13 +324,13 @@ test("business operating intelligence is connected to the Worlds workspace",()=>
  assert.match(s,/jr_business_record_sale/);assert.match(s,/businessAccess/);
 });
 test("business POS records sales and decrements inventory transactionally",()=>{
- const sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ const sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116134551_jr_business_operating_intelligence.sql"),"utf8");
  assert.match(sql,/for update/i);assert.match(sql,/jr_business_record_sale/);assert.match(sql,/stock_quantity=stock_quantity-/);
  assert.match(sql,/enable row level security/i);assert.match(sql,/revoke all on public\.jr_business_products/);
 });
 
 test("business purchasing records supplier orders and receives stock",()=>{
- const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116134551_jr_business_operating_intelligence.sql"),"utf8");
  for(const action of ["create_business_supplier","create_business_purchase_order","receive_business_purchase_order"])assert.ok(b.includes(action)||api.includes(action),"missing "+action);
  assert.match(api,/jr_business_create_purchase_order/);assert.match(api,/jr_business_receive_purchase_order/);
  assert.match(sql,/jr_business_purchase_order_items/);assert.match(sql,/security invoker/i);assert.match(sql,/stock_quantity=stock_quantity\+v_remaining/);
@@ -342,7 +342,7 @@ test("business workspace and command interface scripts parse cleanly",()=>{
 });
 
 test("business customers and expense tracking stay inside the private workspace",()=>{
- const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116130000_jr_business_operating_intelligence.sql"),"utf8");
+ const b=read("public/business.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8"),sql=fs.readFileSync(path.join(root,"..","supabase","migrations","20261116134551_jr_business_operating_intelligence.sql"),"utf8");
  assert.match(b,/jrCustomerForm/);assert.match(b,/jrExpenseForm/);
  assert.match(api,/create_business_customer/);assert.match(api,/record_business_expense/);
  assert.match(sql,/jr_business_customers/);assert.match(sql,/jr_business_expenses/);
