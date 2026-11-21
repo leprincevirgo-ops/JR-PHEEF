@@ -27,4 +27,4 @@ test("signed-in JR workspace includes its own usable prompt form",()=>{
  assert.match(js,/workspacePromptReply/);
 });
 
-test("JR responses never expose internal provider model identifiers",()=>{assert.match(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),webResearch:body\.use_web===true\}\)/);assert.doesNotMatch(server,/model:process\.env\.OPENAI_MODEL/);});
+test("JR responses never expose internal provider model identifiers",()=>{assert.match(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),webResearch:body\.use_web===true\}\)/);assert.match(server,/model:process\.env\.OPENAI_MODEL/);assert.doesNotMatch(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),model:/);});
