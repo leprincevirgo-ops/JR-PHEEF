@@ -1,5 +1,5 @@
 "use strict";
-const fs=require("node:fs"),assert=require("node:assert/strict");
+const fs=require("node:fs"),assert=require("node:assert/strict"),path=require("node:path");
 const sw=fs.readFileSync("public/service-worker.js","utf8");
 const register=fs.readFileSync("public/pwa-register.js","utf8");
 const offline=fs.readFileSync("public/offline.html","utf8");
