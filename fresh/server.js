@@ -385,7 +385,7 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     }
     if(!answer.trim())return res.status(502).json({ok:false,error:"JR did not receive a usable answer. Please try again."});
     res.setHeader("Cache-Control","no-store");
-    return res.json({ok:true,answer:answer.trim(),model:process.env.OPENAI_MODEL||"gpt-5.4",webResearch:body.use_web===true});
+    return res.json({ok:true,answer:answer.trim(),webResearch:body.use_web===true});
   }catch(error){
     console.error("JR AI request failed:",String(error?.message||error).slice(0,160));
     if(!res.headersSent)return res.status(503).json({ok:false,error:"JR is temporarily unavailable. Please try again shortly."});
