@@ -1,0 +1,138 @@
+/* JR PHEEF living cosmic experience */
+body.jr-cosmic-enabled{
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(78,91,190,.24),transparent 34%),
+    radial-gradient(ellipse at 88% 26%,rgba(29,143,164,.17),transparent 32%),
+    radial-gradient(ellipse at 55% 92%,rgba(116,67,163,.14),transparent 38%),
+    linear-gradient(145deg,#050916,#081329 48%,#090d20);
+}
+.jr-cosmic-sky{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:strict}.shell{position:relative;z-index:1}
+.jr-cosmic-sky:before,.jr-cosmic-sky:after{content:"";position:absolute;width:72vw;height:72vw;max-width:900px;max-height:900px;border-radius:50%;filter:blur(70px);opacity:.12}
+.jr-cosmic-sky:before{left:-28vw;top:-32vw;background:radial-gradient(circle,#7966dc,transparent 68%)}
+.jr-cosmic-sky:after{right:-30vw;bottom:-38vw;background:radial-gradient(circle,#20b9c2,transparent 68%)}
+.jr-cosmic-star{position:absolute;width:2px;height:2px;border-radius:50%;background:#e9f5ff;opacity:var(--star-opacity,.55);box-shadow:0 0 7px rgba(183,224,255,.75);animation:jrCosmicTwinkle var(--star-speed,5s) ease-in-out infinite alternate}
+@keyframes jrCosmicTwinkle{from{opacity:.18;transform:scale(.7)}to{opacity:var(--star-opacity,.75);transform:scale(1.3)}}
+.jr-cosmic-home{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(190px,.75fr);gap:20px;align-items:center;margin:0 0 26px;padding:clamp(22px,4vw,38px);min-height:260px;border:1px solid rgba(167,194,255,.2);border-radius:25px;background:radial-gradient(ellipse at 80% 40%,rgba(101,102,220,.23),transparent 40%),linear-gradient(115deg,rgba(8,17,42,.94),rgba(15,28,59,.82) 56%,rgba(8,21,42,.9));box-shadow:0 24px 70px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.07)}
+.jr-cosmic-home:after{content:"";position:absolute;inset:0;z-index:-1;opacity:.4;background:radial-gradient(circle at 12% 24%,#fff 0 1px,transparent 1.8px),radial-gradient(circle at 36% 78%,#d8e6ff 0 1px,transparent 1.8px),radial-gradient(circle at 68% 18%,#fff 0 1px,transparent 1.8px),radial-gradient(circle at 91% 76%,#d8e6ff 0 1px,transparent 1.8px);background-size:150px 130px,190px 170px,210px 160px,180px 190px}
+.jr-cosmic-home-copy{position:relative;z-index:1;max-width:620px}
+.jr-cosmic-kicker{display:inline-flex;align-items:center;gap:8px;color:#b9d4ff;font-size:11px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}
+.jr-cosmic-kicker:before{content:"";width:7px;height:7px;border-radius:50%;background:#8be8df;box-shadow:0 0 13px #8be8df}
+.jr-cosmic-home h2{margin:13px 0 9px;font-size:clamp(27px,4.2vw,43px);line-height:1.08;letter-spacing:-.04em;color:#f5f7ff}
+.jr-cosmic-home p{max-width:560px;color:#c0cce4;line-height:1.65;margin:0}
+.jr-cosmic-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:21px}
+.jr-cosmic-actions button,.jr-cosmic-place-detail button{min-height:42px;padding:0 15px;border:1px solid rgba(179,204,255,.28);border-radius:12px;background:rgba(255,255,255,.07);color:#f4f7ff;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.jr-cosmic-actions button:first-child,.jr-cosmic-place-detail button:first-child{border-color:transparent;background:linear-gradient(110deg,#8be9e3,#9bb5ff);color:#081329}
+.jr-cosmic-actions button:hover,.jr-cosmic-place-detail button:hover{filter:brightness(1.12)}
+.jr-cosmic-planet-wrap{display:grid;place-items:center;min-height:190px;position:relative}
+.jr-cosmic-planet{position:relative;width:clamp(145px,19vw,205px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 31% 27%,#d6e8ff 0,#a1b9f7 8%,#6578d0 27%,#304b91 54%,#17264d 76%,#0a122a 100%);box-shadow:inset -24px -18px 42px rgba(0,0,0,.65),inset 12px 9px 24px rgba(255,255,255,.25),0 0 58px rgba(113,143,255,.3);animation:jrCosmicFloat 9s ease-in-out infinite}
+.jr-cosmic-planet:before{content:"";position:absolute;inset:19% -20%;border:1px solid rgba(173,210,255,.52);border-radius:50%;transform:rotate(-22deg) scaleY(.36);box-shadow:0 0 18px rgba(126,190,255,.22)}
+.jr-cosmic-planet:after{content:"";position:absolute;inset:8%;border-radius:50%;background:linear-gradient(145deg,transparent 45%,rgba(6,12,30,.6));}
+.jr-cosmic-moon{position:absolute;width:25px;height:25px;border-radius:50%;right:13%;top:18%;background:radial-gradient(circle at 32% 28%,#fff,#aab8d8 60%,#566381);box-shadow:0 0 20px rgba(192,213,255,.35)}
+@keyframes jrCosmicFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.jr-cosmic-discoveries{margin:20px 0 26px}
+.jr-cosmic-section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:13px}
+.jr-cosmic-section-head h3{margin:5px 0 0;color:#f3f6ff;font-size:21px}
+.jr-cosmic-section-head p{margin:0;color:#aabbd5;font-size:12px}
+.jr-cosmic-discovery-grid,.jr-cosmic-galaxy-grid,.jr-cosmic-environment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.jr-cosmic-discovery,.jr-cosmic-galaxy,.jr-cosmic-environment{position:relative;overflow:hidden;min-width:0;min-height:142px;padding:17px;border:1px solid rgba(173,196,242,.16);border-radius:17px;text-align:left;color:#f3f6ff;background:linear-gradient(145deg,rgba(28,44,82,.84),rgba(9,20,42,.9));cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.jr-cosmic-discovery:hover,.jr-cosmic-galaxy:hover,.jr-cosmic-environment:hover{transform:translateY(-3px);border-color:rgba(150,198,255,.48)}
+.jr-cosmic-card-icon{display:grid;place-items:center;width:38px;height:38px;margin-bottom:13px;border-radius:12px;background:rgba(154,185,255,.12);font-size:20px}
+.jr-cosmic-discovery strong,.jr-cosmic-galaxy strong,.jr-cosmic-environment strong{display:block;font-size:14px}
+.jr-cosmic-discovery small,.jr-cosmic-galaxy small,.jr-cosmic-environment small{display:block;margin-top:6px;color:#afbed7;font-size:12px;line-height:1.5}
+.jr-cosmic-explorer{margin:8px 0 24px;padding:clamp(16px,3vw,26px);border:1px solid rgba(164,190,244,.17);border-radius:22px;background:linear-gradient(145deg,rgba(9,20,42,.84),rgba(12,22,45,.72))}
+.jr-cosmic-explorer h3{margin:5px 0 8px;font-size:24px;color:#f3f6ff}
+.jr-cosmic-explorer-intro{max-width:720px;margin:0 0 20px;color:#b4c3dc;line-height:1.65;font-size:14px}
+.jr-cosmic-galaxy-grid{margin-bottom:23px}
+.jr-cosmic-galaxy{min-height:125px;background:radial-gradient(circle at 85% 10%,rgba(139,130,255,.23),transparent 42%),linear-gradient(145deg,rgba(31,43,91,.9),rgba(10,20,43,.94))}
+.jr-cosmic-galaxy:nth-child(2){background:radial-gradient(circle at 85% 10%,rgba(71,207,196,.2),transparent 42%),linear-gradient(145deg,rgba(15,58,72,.88),rgba(9,25,43,.94))}
+.jr-cosmic-galaxy:nth-child(3){background:radial-gradient(circle at 85% 10%,rgba(244,132,187,.2),transparent 42%),linear-gradient(145deg,rgba(67,34,76,.88),rgba(21,19,45,.94))}
+.jr-cosmic-galaxy:nth-child(4){background:radial-gradient(circle at 85% 10%,rgba(89,190,141,.2),transparent 42%),linear-gradient(145deg,rgba(17,62,56,.88),rgba(8,27,37,.94))}
+.jr-cosmic-galaxy:nth-child(5){background:radial-gradient(circle at 85% 10%,rgba(242,184,96,.2),transparent 42%),linear-gradient(145deg,rgba(70,49,29,.88),rgba(26,23,34,.94))}
+.jr-cosmic-galaxy:nth-child(6){background:radial-gradient(circle at 85% 10%,rgba(96,164,244,.22),transparent 42%),linear-gradient(145deg,rgba(20,48,82,.9),rgba(8,20,43,.94))}
+.jr-cosmic-environment-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.jr-cosmic-environment{min-height:112px;padding:14px;background:linear-gradient(145deg,rgba(27,45,67,.9),rgba(9,22,38,.96))}
+.jr-cosmic-environment[data-scene="forest"]{background:radial-gradient(ellipse at 90% 0%,rgba(76,184,121,.22),transparent 50%),linear-gradient(145deg,#123a35,#0a1e2a)}
+.jr-cosmic-environment[data-scene="ocean"]{background:radial-gradient(ellipse at 90% 0%,rgba(66,177,229,.25),transparent 50%),linear-gradient(145deg,#103d62,#091d36)}
+.jr-cosmic-environment[data-scene="mountain"]{background:radial-gradient(ellipse at 90% 0%,rgba(178,190,229,.2),transparent 50%),linear-gradient(145deg,#303b5b,#101d37)}
+.jr-cosmic-environment[data-scene="city"]{background:radial-gradient(ellipse at 90% 0%,rgba(239,174,103,.22),transparent 50%),linear-gradient(145deg,#45304c,#151b36)}
+.jr-cosmic-environment[data-scene="underwater"]{background:radial-gradient(ellipse at 90% 0%,rgba(68,218,200,.22),transparent 50%),linear-gradient(145deg,#0b4855,#081d38)}
+.jr-cosmic-environment[data-scene="space"]{background:radial-gradient(ellipse at 90% 0%,rgba(145,131,255,.24),transparent 50%),linear-gradient(145deg,#30275e,#10152f)}
+.jr-cosmic-environment[data-scene="desert"]{background:radial-gradient(ellipse at 90% 0%,rgba(238,180,103,.2),transparent 50%),linear-gradient(145deg,#60442c,#241c2b)}
+.jr-cosmic-environment[data-scene="garden"]{background:radial-gradient(ellipse at 90% 0%,rgba(135,209,130,.2),transparent 50%),linear-gradient(145deg,#234c39,#102a31)}
+.jr-cosmic-place-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;margin-top:18px;padding:17px;border:1px solid rgba(164,190,244,.22);border-radius:16px;background:rgba(5,13,29,.72)}
+.jr-cosmic-place-detail h4{margin:0 0 6px;color:#f5f7ff;font-size:18px}
+.jr-cosmic-place-detail p{margin:0;color:#b7c5dd;font-size:13px;line-height:1.6}
+.jr-cosmic-place-actions{display:flex;gap:8px;flex-wrap:wrap}
+.jr-cosmic-pause{position:absolute;right:14px;top:14px;z-index:2;border:1px solid rgba(190,210,255,.22);border-radius:999px;padding:7px 10px;background:rgba(3,10,24,.45);color:#dce8ff;font-size:11px;cursor:pointer}
+body.jr-cosmic-paused *,body.jr-cosmic-paused *:before,body.jr-cosmic-paused *:after{animation-play-state:paused!important;scroll-behavior:auto!important}
+@media(max-width:760px){.jr-cosmic-home{grid-template-columns:1fr;min-height:0}.jr-cosmic-planet-wrap{min-height:135px;grid-row:1}.jr-cosmic-planet{width:125px}.jr-cosmic-discovery-grid,.jr-cosmic-galaxy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-cosmic-environment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-cosmic-place-detail{grid-template-columns:1fr}}
+@media(max-width:420px){.jr-cosmic-home{padding:18px}.jr-cosmic-discovery-grid,.jr-cosmic-galaxy-grid,.jr-cosmic-environment-grid{grid-template-columns:1fr}.jr-cosmic-discovery,.jr-cosmic-galaxy,.jr-cosmic-environment{min-height:90px}.jr-cosmic-section-head{align-items:start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.jr-cosmic-star,.jr-cosmic-planet{animation:none!important}.jr-cosmic-discovery,.jr-cosmic-galaxy,.jr-cosmic-environment{transition:none}.jr-cosmic-discovery:hover,.jr-cosmic-galaxy:hover,.jr-cosmic-environment:hover{transform:none}}
+
+
+/* Immersive scene cards: illustrated landscapes, changing light and gentle life. */
+body.jr-cosmic-enabled[data-jr-cosmic-time="morning"]{--jr-cosmic-sky:#f1b68b;--jr-cosmic-light:#ffe1a2;--jr-cosmic-shade:#344d72}
+body.jr-cosmic-enabled[data-jr-cosmic-time="day"]{--jr-cosmic-sky:#6db7d7;--jr-cosmic-light:#ffe49a;--jr-cosmic-shade:#284a69}
+body.jr-cosmic-enabled[data-jr-cosmic-time="sunset"]{--jr-cosmic-sky:#d27e80;--jr-cosmic-light:#ffc078;--jr-cosmic-shade:#302c55}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"]{--jr-cosmic-sky:#101a42;--jr-cosmic-light:#c8dcff;--jr-cosmic-shade:#10172e}
+body.jr-cosmic-enabled[data-jr-cosmic-time="day"]{background-image:radial-gradient(ellipse at 12% 8%,rgba(78,125,190,.24),transparent 34%),radial-gradient(ellipse at 88% 26%,rgba(29,143,164,.17),transparent 32%),linear-gradient(145deg,#101b31,#10283a 48%,#14253b)}
+.jr-cosmic-home{background:radial-gradient(ellipse at 80% 35%,rgba(113,142,225,.2),transparent 42%),linear-gradient(115deg,rgba(8,17,42,.88),rgba(15,28,59,.72) 56%,rgba(8,21,42,.82))}
+.jr-cosmic-scene-art{--scene-sky:#182b52;--scene-horizon:#456c86;--scene-ground:#1c3d43;position:relative;isolation:isolate;overflow:hidden;width:100%;min-height:190px;grid-column:1/-1;border:1px solid rgba(184,208,255,.18);border-radius:15px;background:linear-gradient(180deg,var(--scene-sky),var(--scene-horizon) 68%,var(--scene-ground));}
+.jr-cosmic-scene-art:before{content:"";position:absolute;left:-8%;right:-8%;bottom:18%;height:53%;background:linear-gradient(145deg,rgba(13,28,50,.15),rgba(7,17,34,.8));clip-path:polygon(0 100%,0 75%,14% 40%,25% 68%,40% 15%,54% 67%,70% 25%,84% 70%,100% 40%,100% 100%);opacity:.9}
+.jr-cosmic-scene-art:after{content:"";position:absolute;left:-5%;right:-5%;bottom:-5%;height:45%;background:linear-gradient(180deg,rgba(27,69,66,.4),var(--scene-ground));clip-path:polygon(0 25%,18% 0,33% 20%,49% 5%,68% 28%,84% 0,100% 17%,100% 100%,0 100%);opacity:.95}
+.jr-cosmic-scene-sun{position:absolute;z-index:1;top:16%;right:17%;width:46px;height:46px;border-radius:50%;background:var(--jr-cosmic-light,#c8dcff);box-shadow:0 0 34px color-mix(in srgb,var(--jr-cosmic-light,#c8dcff) 60%,transparent)}
+.jr-cosmic-scene-ridge{position:absolute;z-index:2;left:0;right:0;bottom:22%;height:42%;background:linear-gradient(135deg,rgba(69,104,113,.7),rgba(14,34,50,.92));clip-path:polygon(0 100%,0 72%,18% 18%,33% 76%,48% 10%,63% 72%,78% 22%,100% 78%,100% 100%)}
+.jr-cosmic-scene-ground{position:absolute;z-index:3;left:-5%;right:-5%;bottom:-4%;height:35%;background:linear-gradient(180deg,rgba(25,85,76,.55),rgba(8,35,41,.96));border-radius:50% 50% 0 0/18% 18% 0 0}
+.jr-cosmic-scene-glow{position:absolute;z-index:4;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 50%,rgba(0,0,0,.15))}
+.jr-cosmic-scene-art[data-scene="forest"]{--scene-sky:#8ac7b1;--scene-horizon:#4f9a79;--scene-ground:#143e31}
+.jr-cosmic-scene-art[data-scene="ocean"],.jr-cosmic-scene-art[data-scene="underwater"]{--scene-sky:#2b91bd;--scene-horizon:#126c91;--scene-ground:#07334f}
+.jr-cosmic-scene-art[data-scene="mountain"]{--scene-sky:#7d9bbf;--scene-horizon:#8299ae;--scene-ground:#34465d}
+.jr-cosmic-scene-art[data-scene="city"]{--scene-sky:#bc8490;--scene-horizon:#6c5d79;--scene-ground:#28263d}
+.jr-cosmic-scene-art[data-scene="desert"]{--scene-sky:#e6b77e;--scene-horizon:#c58a57;--scene-ground:#75502e}
+.jr-cosmic-scene-art[data-scene="garden"]{--scene-sky:#92cbb5;--scene-horizon:#5eaa7d;--scene-ground:#24583b}
+.jr-cosmic-scene-art[data-scene="space"]{--scene-sky:#141638;--scene-horizon:#33285d;--scene-ground:#10152f}
+.jr-cosmic-scene-art[data-scene="volcano"]{--scene-sky:#30233b;--scene-horizon:#75424b;--scene-ground:#241c2a}
+.jr-cosmic-scene-art[data-scene="volcano"] .jr-cosmic-scene-ridge{background:linear-gradient(135deg,#403344,#151724);clip-path:polygon(0 100%,0 82%,22% 53%,39% 15%,48% 35%,57% 12%,76% 67%,100% 78%,100% 100%)}
+.jr-cosmic-scene-art[data-scene="volcano"] .jr-cosmic-scene-ground{background:radial-gradient(ellipse at 50% 2%,#ffb34c 0, #e55c35 7%,#6f302f 20%,#2b222e 60%)}
+.jr-cosmic-scene-art[data-scene="ocean"] .jr-cosmic-scene-ground,.jr-cosmic-scene-art[data-scene="underwater"] .jr-cosmic-scene-ground{background:repeating-linear-gradient(178deg,rgba(97,213,224,.12) 0 2px,transparent 2px 14px),linear-gradient(180deg,#117d9c,#07334f)}
+.jr-cosmic-scene-art[data-scene="city"] .jr-cosmic-scene-ground{background:linear-gradient(180deg,transparent,#242238)}
+.jr-cosmic-scene-art[data-scene="city"] .jr-cosmic-scene-ridge{clip-path:polygon(0 100%,0 45%,9% 45%,9% 12%,18% 12%,18% 57%,26% 57%,26% 0,38% 0,38% 62%,47% 62%,47% 22%,59% 22%,59% 49%,70% 49%,70% 9%,83% 9%,83% 64%,100% 64%,100% 100%);background:linear-gradient(90deg,#242b48,#4b3b59)}
+.jr-cosmic-scene-art[data-scene="space"] .jr-cosmic-scene-ridge{clip-path:none;inset:12% 12% auto auto;width:30px;height:30px;border-radius:50%;background:#b6a8ef;box-shadow:-90px 50px 0 -12px #f5e7c4,60px 110px 0 -13px #d5dfff}
+.jr-cosmic-scene-art[data-scene="space"] .jr-cosmic-scene-ground{background:radial-gradient(ellipse at 50% 0%,#6652a4,#171638 65%)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"] .jr-cosmic-scene-sun{background:#d4e1ff;box-shadow:0 0 25px rgba(182,208,255,.45)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="night"] .jr-cosmic-scene-art:not([data-scene="space"]){filter:saturate(.75) brightness(.78)}
+.jr-cosmic-place-detail{grid-template-columns:1fr;align-items:start}
+.jr-cosmic-place-copy{min-width:0}
+.jr-cosmic-connections{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.jr-cosmic-connections button{border:1px solid rgba(165,195,255,.23);border-radius:999px;padding:7px 11px;background:rgba(150,180,255,.08);color:#dbe8ff;font:inherit;font-size:11px;cursor:pointer}
+.jr-cosmic-connections button:hover{background:rgba(150,180,255,.18)}
+.jr-cosmic-environment[data-scene="volcano"]{background:radial-gradient(ellipse at 90% 0%,rgba(255,121,69,.26),transparent 50%),linear-gradient(145deg,#512d39,#1b1c31)}
+.jr-cosmic-environment[data-scene="volcano"]:after{content:"";position:absolute;right:14px;bottom:-9px;width:90px;height:70px;background:linear-gradient(135deg,#6d5360,#201e30);clip-path:polygon(0 100%,34% 16%,47% 34%,61% 0,100% 100%)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="morning"] .jr-cosmic-scene-art{filter:saturate(1.08) brightness(1.06)}
+body.jr-cosmic-enabled[data-jr-cosmic-time="sunset"] .jr-cosmic-scene-art{filter:saturate(1.14) sepia(.12)}
+@media(max-width:760px){.jr-cosmic-scene-art{min-height:150px}.jr-cosmic-place-detail{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.jr-cosmic-scene-art:before,.jr-cosmic-scene-art:after{animation:none!important}}
+
+
+/* Full-page worlds and living platform discovery */
+.jr-pulse-board{margin:24px 0 28px;padding:clamp(18px,3vw,28px);border:1px solid rgba(163,193,255,.2);border-radius:22px;background:linear-gradient(135deg,rgba(18,35,69,.88),rgba(10,20,43,.88));}
+.jr-pulse-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.jr-pulse-heading h2{margin:7px 0;color:#f5f7ff;font-size:clamp(22px,3vw,30px)}.jr-pulse-heading p{margin:0;color:#b8c7e0}.jr-pulse-live{border:1px solid rgba(139,232,223,.35);border-radius:999px;padding:7px 11px;color:#a8f0e5;font-size:11px;white-space:nowrap}
+.jr-pulse-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:20px 0}.jr-pulse-actions button{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:118px;padding:14px;border:1px solid rgba(169,194,240,.17);border-radius:15px;background:rgba(255,255,255,.045);color:#f3f6ff;text-align:left;cursor:pointer}.jr-pulse-actions button:hover{border-color:rgba(139,232,223,.55);transform:translateY(-2px)}.jr-pulse-actions button>span{font-size:22px}.jr-pulse-actions strong{font-size:13px}.jr-pulse-actions small{color:#aebdd6;font-size:11px;line-height:1.4}
+.jr-pulse-stream{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.jr-pulse-stream article{padding:14px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(169,194,240,.1)}.jr-pulse-stream article span{display:block;color:#9fe8e0;font-size:10px;font-weight:850;letter-spacing:.14em}.jr-pulse-stream article strong{display:block;margin:8px 0;color:#f1f5ff;font-size:13px}.jr-pulse-stream article small{color:#aebdd6;line-height:1.5}
+.jr-world-page{position:relative;z-index:3;margin:12px 0 30px;padding:clamp(15px,3vw,28px);border:1px solid rgba(169,194,240,.2);border-radius:24px;background:radial-gradient(ellipse at 80% 5%,rgba(100,110,206,.22),transparent 38%),linear-gradient(145deg,rgba(7,17,39,.98),rgba(12,27,54,.98));color:#f4f7ff;min-height:75vh;box-shadow:0 25px 80px rgba(0,0,0,.3)}
+.jr-world-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.jr-world-back,.jr-world-nav button{border:1px solid rgba(176,199,245,.2);border-radius:999px;padding:9px 13px;background:rgba(255,255,255,.06);color:#e8efff;font:inherit;font-size:12px;cursor:pointer}.jr-world-status,.jr-world-kicker{color:#9de5df;font-size:10px;font-weight:850;letter-spacing:.15em}
+.jr-world-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(140px,.6fr);align-items:center;gap:20px;padding:clamp(25px,5vw,50px) 0 28px;border-bottom:1px solid rgba(172,194,236,.14)}.jr-world-hero h1{margin:10px 0;font-size:clamp(34px,6vw,58px);letter-spacing:-.045em}.jr-world-hero p{max-width:720px;color:#c1cde3;line-height:1.7}.jr-world-hero-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}.jr-world-hero-actions button,.jr-world-side-card button{border:1px solid rgba(175,199,245,.25);border-radius:11px;padding:11px 15px;background:linear-gradient(110deg,#8be9e3,#a6b8ff);color:#081329;font-weight:800;cursor:pointer}.jr-world-hero-actions button+button{background:rgba(255,255,255,.07);color:#eff4ff}.jr-world-orb{display:grid;place-items:center;justify-self:center;width:clamp(130px,18vw,205px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 32% 25%,rgba(219,239,255,.8),rgba(110,131,211,.48) 24%,rgba(35,57,112,.8) 60%,rgba(7,15,35,.95));box-shadow:0 0 55px rgba(113,143,255,.23),inset -18px -20px 35px rgba(0,0,0,.45);font-size:clamp(45px,7vw,75px)}
+.jr-world-nav{display:flex;gap:8px;overflow:auto;padding:16px 0;border-bottom:1px solid rgba(172,194,236,.14)}.jr-world-nav button[aria-current="page"]{background:#a5eee5;color:#07152b;border-color:transparent;font-weight:850}
+.jr-world-content{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:22px;padding-top:24px}.jr-world-content-heading h2{margin:8px 0;font-size:24px}.jr-world-content-heading p,.jr-world-side p{color:#b8c7df;line-height:1.6}.jr-world-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:18px 0 26px}.jr-world-tile{display:grid;grid-template-columns:42px 1fr;column-gap:12px;align-items:center;padding:15px;border:1px solid rgba(175,199,245,.15);border-radius:15px;background:rgba(255,255,255,.045);color:#f1f5ff;text-align:left;cursor:pointer}.jr-world-tile>span{grid-row:span 2;font-size:26px}.jr-world-tile strong{font-size:14px}.jr-world-tile small{margin-top:4px;color:#aebdd6;line-height:1.45}.jr-world-tile:hover{border-color:rgba(139,232,223,.5)}
+.jr-world-activity-list h3,.jr-world-side h3{font-size:16px}.jr-world-activity{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(172,194,236,.12)}.jr-world-activity>span{color:#9de5df}.jr-world-activity div{flex:1}.jr-world-activity strong,.jr-world-activity small{display:block}.jr-world-activity strong{font-size:13px}.jr-world-activity small{margin-top:4px;color:#9eafcb;font-size:11px}.jr-world-activity button{border:1px solid rgba(175,199,245,.2);border-radius:9px;background:rgba(255,255,255,.06);color:#edf3ff;padding:7px 10px;cursor:pointer}.jr-world-demo-note{margin-top:20px;color:#91a4c3;font-size:11px;line-height:1.5}
+.jr-world-side{align-self:start;padding:16px;border:1px solid rgba(175,199,245,.14);border-radius:16px;background:rgba(255,255,255,.035)}.jr-world-related{display:grid;gap:7px}.jr-world-related button{border:0;border-radius:9px;padding:10px;background:rgba(255,255,255,.05);color:#dce8ff;text-align:left;cursor:pointer}.jr-world-side-card{margin-top:20px;padding-top:16px;border-top:1px solid rgba(172,194,236,.13)}.jr-world-side-card strong{font-size:13px}.jr-world-side-card p{font-size:12px}
+body.jr-world-open .workspace-view{display:none!important}
+@media(max-width:760px){.jr-pulse-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.jr-pulse-stream{grid-template-columns:1fr}.jr-world-content{grid-template-columns:1fr}.jr-world-side{order:-1}.jr-world-hero{grid-template-columns:1fr}.jr-world-orb{display:none}.jr-world-tiles{grid-template-columns:1fr}.jr-world-top{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.jr-pulse-actions button:hover,.jr-world-tile:hover{transform:none}}
+
+
+/* JR PHEEF web access surface */
+.jr-web-space{position:relative;z-index:3;margin:14px 0 30px;padding:clamp(18px,3.5vw,34px);min-height:65vh;border:1px solid rgba(165,195,245,.2);border-radius:24px;background:radial-gradient(ellipse at 88% 8%,rgba(48,154,185,.22),transparent 36%),linear-gradient(145deg,rgba(7,18,39,.98),rgba(12,31,55,.98));color:#f4f7ff}
+.jr-web-head{display:flex;align-items:center;justify-content:space-between;gap:20px}.jr-web-head h2{margin:8px 0;font-size:clamp(27px,4vw,40px)}.jr-web-head p{max-width:690px;color:#bac9e0;line-height:1.65}.jr-web-orbit{display:grid;place-items:center;width:100px;height:100px;flex:0 0 100px;border:1px solid rgba(139,232,223,.4);border-radius:50%;font-size:62px;color:#9de5df;box-shadow:0 0 48px rgba(65,190,197,.15),inset 0 0 25px rgba(65,190,197,.12)}
+.jr-web-search{display:flex;gap:9px;margin:25px 0 8px}.jr-web-search input{flex:1;min-width:0;min-height:54px;padding:0 16px;border:1px solid rgba(175,199,245,.3);border-radius:14px;background:rgba(255,255,255,.08);color:#fff;font:inherit}.jr-web-search input::placeholder{color:#a8b9d4}.jr-web-search button{min-width:84px;border:0;border-radius:13px;background:linear-gradient(110deg,#8be9e3,#a6b8ff);color:#081329;font-weight:850;cursor:pointer}.jr-web-feedback{min-height:22px;color:#9fe8e0;font-size:12px}.jr-web-shortcuts{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0}.jr-web-shortcuts button,.jr-web-back{padding:10px 14px;border:1px solid rgba(175,199,245,.23);border-radius:999px;background:rgba(255,255,255,.06);color:#eaf1ff;font:inherit;font-size:12px;cursor:pointer}.jr-web-shortcuts button:hover,.jr-web-back:hover{border-color:#8be9e3}.jr-web-note{display:grid;gap:7px;max-width:760px;margin:30px 0 22px;padding:17px;border:1px solid rgba(175,199,245,.15);border-radius:15px;background:rgba(255,255,255,.035)}.jr-web-note strong{color:#c8e5ff;font-size:13px}.jr-web-note span{color:#aebed8;font-size:12px;line-height:1.6}
+@media(max-width:600px){.jr-web-head{align-items:flex-start}.jr-web-orbit{width:58px;height:58px;flex-basis:58px;font-size:35px}.jr-web-search{flex-direction:column}.jr-web-search button{min-height:48px}}
