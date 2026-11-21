@@ -11,7 +11,7 @@ test("public JR PHEEF and JR MOVE websites have dedicated routes",()=>{
 });
 test("JR PHEEF public website presents the central connected gateway",()=>{
  const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
- for(const phrase of ["JR PHEEF","Find. Match.","One connected ecosystem","JR MOVE","FAMILY","JR LINK","name=\"viewport\""])assert.ok(html.includes(phrase),phrase);
+ for(const phrase of ["JR PHEEF","A connected world for learning, connecting and getting things done","One connected ecosystem","JR MOVE","FAMILY","JR LINK","name=\"viewport\""])assert.ok(html.includes(phrase),phrase);
 });
 test("JR MOVE public website presents its six service areas and honest readiness",()=>{
  const html=fs.readFileSync(path.join(root,"jr-move-site.html"),"utf8");

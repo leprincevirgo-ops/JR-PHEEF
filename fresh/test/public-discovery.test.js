@@ -59,7 +59,7 @@ test("founder access is private, role-gated and connected to the protected overv
  assert.match(app,/user\.role==="founder"&&user\.jpNumber==="JP-01"/);
  assert.match(app,/loadFounderOverview\(\)/);
  assert.match(app,/api\("\/api\/founder\/overview"\)/);
- assert.match(server,/app\.all\("\/api\/founder\/overview",sameOrigin/);
+ assert.match(server,/app\.all\("\/api\/founder\/overview",rateLimit,sameOrigin/);
  assert.match(server,/functions\/v1\/jr-founder-overview/);
  assert.match(server,/liveAiConnected:Boolean\(process\.env\.OPENAI_API_KEY\)/);
 });
