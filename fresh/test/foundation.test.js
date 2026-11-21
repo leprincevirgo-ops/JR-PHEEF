@@ -215,7 +215,7 @@ test("DGBO keeps its official identity inside its own company environment",()=>{
 
 test("JR PHEEF public access does not repeat the parent company branding",()=>{
  const html=read("public/index.html");
- assert.match(html,/<title>JR PHEEF \| Find\. Match\. Trade\.<\/title>/);
+ assert.match(html,/<title>JR PHEEF \| A connected world for learning, connecting and getting things done<\/title>/);
  assert.doesNotMatch(html,/class="dgbo-brand-lockup"/);assert.doesNotMatch(html,/class="dgbo-brandbar"/);
  assert.match(html,/id="view-dgbo"/);assert.match(html,/id="view-family"/);
 });
@@ -228,7 +228,7 @@ test("Rooms Near Me supports camera, gallery, cover selection and secure media p
  assert.match(a,/id="roomGallery"/);assert.match(a,/id="roomCamera"/);assert.match(a,/id="roomVideo"/);assert.match(a,/Set as cover/);assert.match(a,/Uploading media/);assert.match(a,/payload\.media/);assert.match(api,/available_from,media/);assert.match(api,/mid\+"\/listing\//);assert.match(api,/signedMedia\(item.media\|\|\[\]\)/);
 });
 test("JR PHEEF leads public branding and DGBO is not repeated on the public entry screen",()=>{
- const h=read("public/index.html");assert.match(h,/<title>JR PHEEF \| Find\. Match\. Trade\.<\/title>/);assert.doesNotMatch(h,/class="dgbo-brandbar"/);assert.doesNotMatch(h,/class="dgbo-brand-lockup"/);assert.match(h,/data-company-open="dgbo"/);
+ const h=read("public/index.html");assert.match(h,/<title>JR PHEEF \| A connected world for learning, connecting and getting things done<\/title>/);assert.doesNotMatch(h,/class="dgbo-brandbar"/);assert.doesNotMatch(h,/class="dgbo-brand-lockup"/);assert.match(h,/data-company-open="dgbo"/);
 });
 test("JR discovers business opportunities and DGBO evaluates selected opportunities",()=>{
  const h=read("public/index.html"),s=read("server.js");assert.match(h,/Receive selected opportunity research from JR PHEEF/);assert.match(h,/evaluate selected opportunities, develop viable ventures/);assert.match(s,/JR discovers, researches and organises business-opportunity intelligence/);assert.match(s,/DGBO evaluates selected opportunity dossiers/);
