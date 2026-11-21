@@ -436,4 +436,4 @@ app.use((err,_req,res,_next)=>{
   console.error("JR PHEEF request error:",err.message);
   res.status(500).json({ok:false,error:"JR PHEEF could not complete that request."});
 });
-app.listen(PORT,"0.0.0.0",()=>console.log("JR PHEEF foundation listening on "+PORT));
+app.listen(PORT,"0.0.0.0",()=>{\n  console.log("JR PHEEF foundation listening on "+PORT);\n  console.log("JR PHEEF runtime flags "+JSON.stringify({authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),authOrigin:AUTH_ORIGIN,allowedOriginCount:ALLOWED_ORIGINS.size,aiConfigured:Boolean(process.env.OPENAI_API_KEY),paymentsEnabled:false}));\n});
