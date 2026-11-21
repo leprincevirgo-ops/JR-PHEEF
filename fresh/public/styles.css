@@ -612,3 +612,11 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 #installAppButton[hidden]{display:none!important}
 #installAppButton{border-color:rgba(125,225,244,.5);color:#a9f8ff}
 @media(max-width:620px){.top-actions{gap:7px}#installAppButton{font-size:.72rem;padding:8px 10px}}
+
+/* Public Welcome Guide entry */
+.guide-callout{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:28px 0;padding:clamp(20px,4vw,34px);border:1px solid rgba(133,203,232,.22);border-radius:22px;background:radial-gradient(ellipse at 90% 0%,rgba(83,157,207,.18),transparent 45%),rgba(12,29,49,.72);backdrop-filter:blur(14px)}
+.guide-callout h2{margin:5px 0 8px;font-size:clamp(22px,3vw,32px);line-height:1.15}
+.guide-callout p:not(.eyebrow){max-width:650px;color:var(--muted,#a9bfd2)}
+.guide-callout-actions{display:flex;flex-wrap:wrap;gap:10px;flex-shrink:0}
+.guide-callout-actions a{text-decoration:none}
+@media(max-width:760px){.guide-callout{align-items:flex-start;flex-direction:column}.guide-callout-actions{width:100%}.guide-callout-actions a{flex:1;text-align:center}}

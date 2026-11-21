@@ -23,7 +23,7 @@ test("Guide assets avoid inline scripts and load under the self-only CSP",()=>{
  const h=read("public/guide.html"),s=read("server.js");
  assert.match(h,/<script src="\/guide\.js" defer><\/script>/);
  assert.doesNotMatch(h,/<script(?! src=)/i);
- assert.match(s,/object-src 'none'/);assert.match(s,/frame-ancestors 'none'/);
+ assert.match(s,/object-src 'none'/);assert.match(s,/frame-ancestors 'none'/);assert.match(read("public/styles.css"),/\.guide-callout/);
 });
 test("authenticated workspace and founder endpoints have burst rate limiting",()=>{
  const s=read("server.js");
