@@ -56,7 +56,7 @@ assert.match(html,/entry-visual-refresh\.css\?v=1/,"the refreshed visual theme m
 assert.match(entryVisual,/\.jr-entry-welcome[\s\S]*?radial-gradient/,"entry welcome must use a layered luminous background");
 assert.match(entryVisual,/body::before[\s\S]*?pointer-events:none/,"decorative background must never intercept mobile taps");
 assert.match(entryVisual,/#jrContinueEntry[\s\S]*?touch-action:manipulation[\s\S]*?pointer-events:auto/,"the primary entry action must accept mobile touch input");
-assert.match(html,/<button id="loginSubmit" class="primary" type="button">LOGIN<\/button>/,
+assert.match(html,/<button id="loginSubmit" class="primary" type="button"(?:\s+[^>]*)?>LOGIN<\/button>/,
   "login must have a stable, non-submit button target");
 assert.doesNotMatch(html,/<button[^>]*onclick="login\(\)"/,
   "login must not depend on an inline onclick handler");
@@ -77,7 +77,7 @@ assert.match(install,/const authVisible=/,"install prompt must detect when the s
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(install,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"install banner must wait for a real browser installability event");
 assert.match(installCss,/@media\(max-width:900px\)\{#jrInstallPrompt\{bottom:calc\(76px \+ env\(safe-area-inset-bottom\)\)!important;z-index:1100!important/,"mobile install banner must sit above, not over, the navigation dock");
-assert.match(worker,/const VERSION="jr-shell-v21"/,
+assert.match(worker,/const VERSION="jr-shell-v22"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
