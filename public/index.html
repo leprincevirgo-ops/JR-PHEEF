@@ -1278,7 +1278,7 @@ function jrUseExample(value){
   input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 
-function jrShowPage(id){
+function show(id){
   const target=$(id);
   if(!target){
     let fallback=$("jrModuleUnavailable");
@@ -1320,71 +1320,6 @@ function jrShowPage(id){
   if(id==="profile") loadAuthPreferences();
 }
 
-/* JR directional history: primary destinations remain ordinary tabs. */
-const jrNavigation={entries:[],index:-1,restoring:false};
-function jrSnapshot(){
-  return {id:document.querySelector("#app>.page:not(.hidden)")?.id||"home",x:window.scrollX||0,y:window.scrollY||0,pageY:(document.querySelector("#app>.page:not(.hidden)")?.scrollTop)||0};
-}
-function jrStoreCurrent(){
-  if(jrNavigation.index>=0)jrNavigation.entries[jrNavigation.index].position=jrSnapshot();
-}
-function jrRenderPosition(entry){
-  if(!entry)return;
-  jrNavigation.restoring=true;
-  jrShowPage(entry.id);
-  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id:entry.id}}));
-  requestAnimationFrame(()=>{window.scrollTo(entry.position?.x||0,entry.position?.y||0);const page=document.getElementById(entry.id);if(page&&entry.position?.pageY)page.scrollTop=entry.position.pageY;jrNavigation.restoring=false;});
-}
-function jrNavigate(id,opts={}){
-  if(!id)return;
-  const current=jrSnapshot();
-  if(jrNavigation.index>=0&&!jrNavigation.restoring)jrNavigation.entries[jrNavigation.index].position=current;
-  if(!opts.pop&&!jrNavigation.restoring){
-    jrNavigation.entries=jrNavigation.entries.slice(0,jrNavigation.index+1);
-    jrNavigation.entries.push({id,position:{x:0,y:0,pageY:0}});
-    jrNavigation.index=jrNavigation.entries.length-1;
-    if(jrNavigation.entries.length>80){jrNavigation.entries.shift();jrNavigation.index--;}
-    history.pushState({jr:true,index:jrNavigation.index},"","#"+encodeURIComponent(id));
-  }
-  jrShowPage(id);
-  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
-  if(!opts.pop&&!jrNavigation.restoring)window.scrollTo(0,0);
-  jrUpdateDirectionalControls();
-}
-function show(id){jrNavigate(id);}
-function jrUpdateDirectionalControls(){
-  const back=document.getElementById("jrArrowBack"),forward=document.getElementById("jrArrowForward");
-  if(back)back.disabled=jrNavigation.index<=0;
-  if(forward)forward.disabled=jrNavigation.index<0||jrNavigation.index>=jrNavigation.entries.length-1;
-}
-function jrBack(){
-  if(jrNavigation.index>0){jrStoreCurrent();history.back();}
-}
-function jrForward(){
-  if(jrNavigation.index>=0&&jrNavigation.index<jrNavigation.entries.length-1){jrStoreCurrent();history.forward();}
-}
-function jrScrollDirection(direction){
-  const page=document.querySelector("#app>.page:not(.hidden)");
-  const amount=Math.max(320,Math.round(window.innerHeight*.78))*direction;
-  if(page&&page.scrollHeight>page.clientHeight+8)page.scrollBy({top:amount,behavior:"smooth"});
-  else window.scrollBy({top:amount,behavior:"smooth"});
-}
-function jrMountDirectionalControls(){
-  const app=document.getElementById("app"),nav=app?.querySelector(".jp-primary-nav");
-  if(!app||!nav||document.getElementById("jrDirectionalControls"))return;
-  const bar=document.createElement("div");bar.id="jrDirectionalControls";bar.className="jr-directional-controls";bar.setAttribute("aria-label","Page navigation");
-  const defs=[["jrArrowBack","←","Back",jrBack],["jrArrowUp","↑","Up",()=>jrScrollDirection(-1)],["jrArrowDown","↓","Down",()=>jrScrollDirection(1)],["jrArrowForward","→","Forward",jrForward]];
-  defs.forEach(([id,glyph,label,fn])=>{const b=document.createElement("button");b.id=id;b.type="button";b.className="jr-direction-arrow";b.title=label;b.setAttribute("aria-label",label);b.innerHTML='<span aria-hidden="true">'+glyph+'</span>';b.addEventListener("click",fn);bar.append(b);});
-  nav.insertAdjacentElement("afterend",bar);jrUpdateDirectionalControls();
-}
-window.addEventListener("popstate",event=>{
-  const index=event.state&&event.state.jr?event.state.index:-1;
-  if(index>=0&&index<jrNavigation.entries.length){jrNavigation.index=index;jrRenderPosition(jrNavigation.entries[index]);}
-  else if(jrNavigation.index>0){jrNavigation.index--;jrRenderPosition(jrNavigation.entries[jrNavigation.index]);}
-  jrUpdateDirectionalControls();
-});
-document.addEventListener("DOMContentLoaded",jrMountDirectionalControls);
-window.addEventListener("scroll",()=>{if(jrNavigation.index>=0&&!jrNavigation.restoring)jrStoreCurrent();},{passive:true});
 
 async function api(url,options={}){
   const r=await fetch(url,{
