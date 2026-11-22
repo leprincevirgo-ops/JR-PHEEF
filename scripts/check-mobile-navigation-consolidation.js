@@ -14,4 +14,4 @@ assert.equal((nav.match(/class="jp-more-wrap"/g)||[]).length,0,"Technical worksp
 assert.ok(!html.includes('id="jpMoreMenu"'),"The old technical More menu must remain removed.");
 assert.ok(css.includes(".jp-global-search{display:none!important}"),"The duplicate mobile global search row must be hidden.");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"The old secondary desktop navigation must remain removed.");
-console.log("PASS: Home → Explore → JR → Messages → Command Centre; technical workspaces stay out of the primary navigation.");
+console.log("PASS: four main arrow destinations; technical workspaces stay out of the primary navigation.");
