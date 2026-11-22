@@ -254,6 +254,7 @@ function renderCommandCentre(p){
 }
 
 const hubGroups={
+ // Keep ecosystem order ["dgbo","family","ecosystem"] grouped together inside Worlds.
  worlds:[
   ["EXPLORE THE WORLD",[["Places & Landscapes","Discover places, nature, cities and destinations","explore"],["Knowledge & Learning","Explore knowledge, lessons and research","teacher"],["Universe & Future","Explore subjects, science and future concepts","universe"]]],
   ["OPPORTUNITIES & WORK",[["Discover Opportunities","Find products, services and opportunities","find"],["Business & Enterprise","Create and manage business activity","create"],["Projects & Ideas","Turn goals into organised work","projects"],["Delivery & Services","Explore delivery and useful services","delivery"]]],
