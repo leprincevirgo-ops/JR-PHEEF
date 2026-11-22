@@ -169,6 +169,7 @@ app.get("/healthz",(_req,res)=>res.status(200).json({
   authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),aiConfigured:Boolean(process.env.OPENAI_API_KEY),paymentsEnabled:false,
   timestamp:new Date().toISOString()
 }));
+const COUNTRY_ORIGIN_CODES = new Set(["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"]);
 app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const {fullName,email,password,phone,birthYear,countryOfOriginCode}=req.body||{};
@@ -178,7 +179,7 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     if(typeof phone!=="string"||phone.trim().length<7||phone.trim().length>25)return res.status(400).json({ok:false,error:"Enter your phone number, including country code."});
     const year=Number(birthYear),currentYear=new Date().getUTCFullYear();
     if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
-    if(typeof countryOfOriginCode!=="string"||!/^[A-Z]{2}$/.test(countryOfOriginCode))return res.status(400).json({ok:false,error:"Choose your country of origin."});
+    if(typeof countryOfOriginCode!=="string"||!COUNTRY_ORIGIN_CODES.has(countryOfOriginCode))return res.status(400).json({ok:false,error:"Choose your country of origin."});
     const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year,country_of_origin_code:countryOfOriginCode}});
     if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
     if(result.data.access_token&&result.data.user?.email_confirmed_at){

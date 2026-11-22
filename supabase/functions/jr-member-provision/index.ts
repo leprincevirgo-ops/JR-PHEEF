@@ -7,6 +7,7 @@ const corsHeaders = {
   "Vary": "Origin",
 };
 
+const COUNTRY_ORIGIN_CODES = new Set(["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"]);
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return Response.json({ ok: false, error: "Method not allowed." }, { status: 405, headers: corsHeaders });
@@ -33,7 +34,7 @@ Deno.serve(async (req: Request) => {
 
     const profile: Record<string, unknown> = { auth_user_id: user.id, email: String(user.email).toLowerCase(), full_name: fullName, phone, birth_year: birthYear, status: "active", account_type: "individual", country: "Kenya" };
     const originCode = String(meta.country_of_origin_code || "").toUpperCase();
-    if (originCode && /^[A-Z]{2}$/.test(originCode)) profile.country_of_origin_code = originCode;
+    if (COUNTRY_ORIGIN_CODES.has(originCode)) profile.country_of_origin_code = originCode;
     const response = await fetch(supabaseUrl + "/rest/v1/members?on_conflict=auth_user_id", {
       method: "POST",
       headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },

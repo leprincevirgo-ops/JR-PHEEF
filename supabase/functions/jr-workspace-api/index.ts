@@ -10,6 +10,7 @@ const cors = {
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: cors });
 const clean = (v: unknown, max = 500) => typeof v === "string" ? v.trim().slice(0, max) : "";
 const uuid = (v: unknown) => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+const COUNTRY_ORIGIN_CODES = new Set(["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"]);
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ ok:false, error:"Method not allowed." },405);
@@ -323,7 +324,7 @@ Deno.serve(async (req: Request) => {
       if(typeof input.profile_photo_hidden_url==="string"&&input.profile_photo_hidden_url===""&&input.profile_photo==="")patch.profile_photo_hidden_url="";
       for(const key of ["public_phone","show_email","show_location"])if(typeof input[key]==="boolean")patch[key]=input[key];
       if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;
-      if(input.country_of_origin_code!==undefined&&member.jp_number!=="JP-01"){const code=clean(input.country_of_origin_code,2).toUpperCase();if(!/^[A-Z]{2}$/.test(code))return json({ok:false,error:"Choose a valid country of origin."},400);patch.country_of_origin_code=code;}
+      if(input.country_of_origin_code!==undefined&&member.jp_number!=="JP-01"){const code=clean(input.country_of_origin_code,2).toUpperCase();if(!COUNTRY_ORIGIN_CODES.has(code))return json({ok:false,error:"Choose a valid country of origin."},400);patch.country_of_origin_code=code;}
       if(!Object.keys(patch).length)return json({ok:false,error:"There are no valid profile changes to save."},400);
       const data=await rest("members?id=eq."+mid,"PATCH",patch);
       return response(data?.[0]||{updated:true});
