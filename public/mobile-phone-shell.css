@@ -89,3 +89,40 @@ img,video,canvas,iframe{max-width:100%}
 }
 
 @media(max-width:900px){#jpMobileDock [data-mobile-destination="command"] .jp-mobile-dock-label{font-size:8px!important;letter-spacing:-.2px!important}}
+
+
+/* Only the four main navigation controls use arrow styling. */
+.jp-primary-nav .jp-arrow-nav-item{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-height:44px!important;padding:8px 17px 8px 13px!important;border-radius:999px 14px 14px 999px!important;border:1px solid rgba(66,245,255,.24)!important;background:linear-gradient(120deg,rgba(5,40,70,.96),rgba(3,20,40,.96))!important;color:#dffaff!important;white-space:nowrap!important}
+.jp-primary-nav .jp-arrow-nav-glyph{font-size:24px!important;line-height:1!important;color:#42f5ff!important}
+.jp-primary-nav .jp-arrow-nav-label{font-size:12px!important;font-weight:800!important}
+.jp-primary-nav .jp-arrow-nav-item.jp-nav-active{border-color:rgba(66,245,255,.58)!important;background:linear-gradient(120deg,rgba(0,150,210,.28),rgba(4,32,58,.98))!important;box-shadow:0 0 18px rgba(0,190,255,.13)!important}
+.jp-primary-nav .jp-arrow-nav-item.jp-nav-assistant{border-color:rgba(214,177,94,.58)!important}
+@media(max-width:900px){
+ #jpMobileDock .jp-mobile-arrow-item{flex-direction:row!important;gap:5px!important;border-radius:999px 12px 12px 999px!important;padding:4px 3px!important;background:linear-gradient(120deg,rgba(5,40,70,.76),rgba(3,20,40,.76))!important}
+ #jpMobileDock .jp-mobile-dock-icon{font-size:24px!important;color:#42f5ff!important}
+ #jpMobileDock .jp-mobile-dock-label{font-size:10px!important;font-weight:800!important}
+ #jpMobileDock .jp-mobile-arrow-item.is-active{border-color:rgba(66,245,255,.5)!important;background:linear-gradient(120deg,rgba(0,150,210,.3),rgba(4,32,58,.96))!important}
+ #jpMobileDock [data-mobile-destination="jr"]{border-color:rgba(214,177,94,.52)!important}
+}
+@media(max-width:390px){#jpMobileDock .jp-mobile-dock-icon{font-size:21px!important}#jpMobileDock .jp-mobile-dock-label{font-size:9px!important}}
+
+
+/* JPC market surface: truthful design-stage state until verified market feeds exist. */
+.jr-jpc-market-panel{margin:18px 0;padding:18px;border:1px solid rgba(214,177,94,.38)!important;border-radius:18px;background:linear-gradient(145deg,rgba(4,26,52,.97),rgba(5,16,35,.97))!important;box-shadow:0 16px 38px rgba(0,0,0,.2)}
+.jr-jpc-market-heading h2{margin:6px 0;color:#f2d28a}
+.jr-jpc-market-heading p,.jr-jpc-market-note{color:#b9cbdc;line-height:1.55}
+.jr-jpc-market-status{margin:12px 0}
+.jr-jpc-status-label{display:inline-flex;padding:7px 11px;border:1px solid rgba(214,177,94,.4);border-radius:999px;color:#f2d28a;font-size:10px;letter-spacing:1px}
+.jr-jpc-market-chart{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:170px;margin:12px 0;padding:20px;text-align:center;border:1px dashed rgba(214,177,94,.38);border-radius:14px;background:linear-gradient(135deg,rgba(4,35,67,.72),rgba(2,13,30,.86))}
+.jr-jpc-market-chart-mark{font-size:28px;color:#f2d28a}
+.jr-jpc-market-chart strong{color:#eaf7ff}
+.jr-jpc-market-chart p{max-width:620px;margin:0;color:#a9c3d6;line-height:1.55}
+.jr-jpc-market-actions{display:flex;flex-wrap:wrap;gap:8px}
+.jr-jpc-market-actions button:disabled{opacity:.55;cursor:not-allowed}
+.jr-jpc-market-note{font-size:11px;margin-top:12px}
+@media(max-width:600px){.jr-jpc-market-panel{padding:14px}.jr-jpc-market-actions button{flex:1 1 100%}}
+
+
+/* Country flags are shown only when the authenticated workspace API returns
+   a public, accepted-contact country code; owner profiles are excluded. */
+.jrcc-country-flag,.jp-contact-country,.jp-country-flag{display:inline-flex;align-items:center;gap:5px;margin-top:3px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#b9d7e8}

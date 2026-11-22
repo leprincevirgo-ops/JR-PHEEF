@@ -157,9 +157,11 @@ This is a consolidated record of relevant decisions, not a verbatim export or mo
 
 The creator's public identity must remain pseudonymous, following the model of a creator known by a pseudonym. Do not publish a legal name, personal contact details, photographs, date of birth, public founder biography or personal social profiles. JP-01 is a protected internal identifier and must not be exposed as a public founder lookup. Private legal ownership, recovery and succession evidence must remain restricted, encrypted, least-privilege and audited. See `docs/PUBLIC-ANONYMITY-AND-FOUNDER-PRIVACY.md`. Provider-level metadata such as source-control account handles, repository ownership, commits, domains and billing may remain externally visible; absolute anonymity must not be claimed until those surfaces are reviewed and any approved migration is completed.
 
-## 12. Navigation decision
+## 12. Navigation decision (updated 2026-11-22)
 
-Back and forward are global history controls, not destination tabs. They belong in the application header, adjacent to the JR PHEEF brand/account controls. The navigation area is reserved for destinations and must not contain duplicate history arrows or duplicate Appearance destinations. Appearance is reached from the single Settings hub. The browser, if enabled, is a tool destination and must not masquerade as back/forward navigation.
+The four primary destinations are HOME, WORLDS, JR and COMMAND CENTER. Their main navigation controls use arrow styling; this applies only to the primary navigation, not to ordinary tabs, buttons, menus or workspace controls. Messages and social communication remain within JR LINK / the relevant workspace rather than becoming a fifth primary destination.
+
+Nested workspaces expose a separate Back arrow. Back returns to the exact previous workspace and restores its window/page scroll position and relevant state. Browser and Android back/forward actions follow the same route history. Navigation must not reset the previous page to its beginning. The back arrow is not a destination tab and must be disabled when no in-app history exists.
 
 ## 13. Conversation continuity
 
@@ -175,3 +177,17 @@ Use this document as the canonical project journey in future JR PHEEF conversati
 - PR #13 remains under selective review for its unique Visual Explore experience and Control Centre styling; its extra Explore navigation tab must not be copied as-is.
 - PR #25 remains under selective review for browser functionality; history controls are being placed in the header, not the destination navigation.
 - PR #1 and #4 were closed without merging because their branches contain duplicated or stale architecture. Unique category validation, glossary, DGBO explainer and POS-preview requirements remain on the roadmap for focused implementation.
+
+
+## 15. Build pass — unified navigation and specialist intelligence (2026-11-22)
+
+- The main navigation is being aligned to four arrow destinations: HOME, WORLDS, JR and COMMAND CENTER. Only those primary controls use arrow styling; other controls retain their ordinary appearance.
+- Nested workspaces receive a working Back arrow. Route history records the prior workspace and scroll positions, and browser history is synchronized for browser/Android back and forward.
+- JR's general assistant gains automatic, behind-the-scenes specialist routing for quantum science, physics, mathematics, human history, civilisation archival preservation and digital-asset market research. Specialist routing does not create separate apps or user-facing mode tabs.
+- Human history intelligence must cover African and global histories, source provenance, competing accounts, chronology and uncertainty. The Civilisation Archive is a long-term preservation capability with privacy, rights, integrity, independent copies, format migration and tested restoration.
+- JPC remains a proposed hybrid fixed-supply digital-asset design. It is not represented as issued, exchange-listed, purchasable or collateral-eligible until a real contract, verified market feed, authorized providers, legal review and tested user flows exist. No fabricated live price or graph is allowed.
+- JR LINK connection requests, acceptance, decline and cancellation are routed through the authenticated workspace Edge Function. Contact data stays private until the recipient accepts and chooses to share it.
+- Country flags are shown only for accepted, public non-owner member profiles with a valid country code. Private profiles and the founder/owner profile do not expose a country flag.
+- The live Node runtime restores the authenticated /api/me profile bridge and permits safe JSON API reads/writes from opaque-origin Android/WebView clients while continuing to block opaque-origin form submissions.
+- Production release requires deploying the required Supabase Edge Functions to the primary JR PHEEF project as well as deploying the Render application; the staging project is not a substitute for production.
+- These changes are isolated in PR #142. They are not merged or deployed to production. Release status must be updated only after CI, staging interaction tests and Render confirms the exact deployed commit.

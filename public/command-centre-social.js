@@ -2,6 +2,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function countryFlag(code){const value=String(code||"").trim().toUpperCase();if(!/^[A-Z]{2}$/.test(value))return "";try{return String.fromCodePoint(...Array.from(value,ch=>127397+ch.charCodeAt(0)));}catch{return value;}}
 let activeTab="jr",member=null,connections=[],recognition=null,silenceTimer=null,maxTimer=null,statusSection=null,chatGrid=null,mounted=false,floatingObserver=null;
 const api=async(url,method="GET",body)=>{try{const r=await fetch(url,{method,credentials:"include",cache:"no-store",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));return r.ok?d:{...d,ok:false};}catch{return{ok:false,error:"Connection unavailable. Please try again."};}};
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
@@ -72,8 +73,8 @@ function switchTab(tab){
 }
 async function loadContacts(){
  const host=$("jrccContacts");if(!host)return;host.textContent="Loading your contacts…";
- const d=await api("/api/connections");if(!d.ok){host.textContent=d.error||"Contacts are unavailable.";return;}
- connections=d.connections||[];renderContacts();
+ const d=await api("/api/workspace","POST",{action:"list_connections"});if(!d.ok){host.textContent=d.error||"Contacts are unavailable.";return;}
+ connections=Array.isArray(d.data)?d.data:[];renderContacts();
 }
 function renderContacts(){
  const host=$("jrccContacts");if(!host)return;const q=(($("jrccContactSearch")?$("jrccContactSearch").value:"")||"").trim().toLowerCase();host.replaceChildren();
@@ -83,6 +84,7 @@ function renderContacts(){
   const o=c.other_member||{},card=node("article","jrcc-contact");
   const avatar=node("span","jrcc-contact-avatar",(o.full_name||"J").trim().slice(0,1).toUpperCase());
   const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","",o.jp_number||"JP identity unavailable"));
+  if(o.country_code)info.append(node("small","jrcc-country-flag",countryFlag(o.country_code)+" "+o.country_code));
   const top=node("div","jrcc-contact-top");top.append(avatar,info,node("span","jrcc-contact-state",c.status==="accepted"?"CONNECTED":c.status==="pending"?"PENDING":String(c.status||"").toUpperCase()));card.append(top);
   const actions=node("div","jrcc-contact-actions");
   if(c.status==="pending"&&String(c.receiver_id)===String((member&&member.id))){
@@ -96,16 +98,16 @@ function renderContacts(){
   if(actions.childNodes.length)card.append(actions);host.append(card);
  });
 }
-async function changeConnection(id,status){const d=await api("/api/connections/"+encodeURIComponent(id),"PATCH",{status});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not update request.";return;}$("jrccContactStatus").textContent="Connection updated.";loadContacts();}
+async function changeConnection(id,status){const d=await api("/api/workspace","POST",{action:"update_connection",connectionId:id,status});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not update request.";return;}$("jrccContactStatus").textContent=(d.data&&d.data.message)||"Connection updated.";loadContacts();}
 async function addContact(){
  const input=$("jrccContactNumber"),note=$("jrccContactStatus"),jp=input.value.trim();if(!jp){note.textContent="Enter a JP number first.";return;}
  const button=$("jrccAddContact");button.disabled=true;note.textContent="Sending connection request…";
- const d=await api("/api/connections/by-jp-number","POST",{jp_number:jp});button.disabled=false;note.textContent=d.message||d.error||"Request processed.";if(d.ok){input.value="";loadContacts();}
+ const d=await api("/api/workspace","POST",{action:"request_connection",jp_number:jp});button.disabled=false;note.textContent=(d.data&&d.data.message)||d.error||"Request processed.";if(d.ok){input.value="";loadContacts();}
 }
 async function loadProfile(){
  const host=$("jrccProfile");if(!host)return;host.textContent="Loading your profile…";
- const d=await api("/api/me");if(!d.ok||!d.member){host.textContent=d.error||"Profile unavailable.";return;}
- member=d.member;window.jrCurrentMemberId=member.id;host.replaceChildren();
+ const d=await api("/api/workspace","POST",{action:"overview"});const own=d.data&&d.data.member;if(!d.ok||!own){host.textContent=d.error||"Profile unavailable.";return;}
+ member=own;window.jrCurrentMemberId=member.id;host.replaceChildren();
  const top=node("div","jrcc-profile-top");const avatar=node("div","jrcc-profile-avatar",(member.full_name||"JR").trim().slice(0,2).toUpperCase());
  const copy=node("div","jrcc-profile-copy");copy.append(node("h3","",member.full_name||"Your profile"),node("p","",member.jp_number||"JP number pending"));top.append(avatar,copy);host.append(top);
  const grid=node("div","jrcc-profile-grid");

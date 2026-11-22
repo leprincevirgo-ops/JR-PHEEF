@@ -2,13 +2,16 @@
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const js=fs.readFileSync("public/command-centre-social.js","utf8");
+const runtime=fs.readFileSync("fresh/server.js","utf8");
 const css=fs.readFileSync("public/command-centre-social.css","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 const messages=fs.readFileSync("public/messages-ui.js","utf8");
 const openApp=html.slice(html.indexOf("async function openApp()"),html.indexOf("function fillProfile()"));
 assert.match(openApp,/show\(["']command["']\)/,"sign-in must open the Command Center");
 for(const tab of ["jr","chats","contacts","status","profile"])assert.match(js,new RegExp('["\\x27]'+tab+'["\\x27]'),"missing "+tab+" tab");
-for(const route of ["/api/connections","/api/connections/by-jp-number","/api/me","/api/jr/command"])assert.ok(js.includes(route),"missing route "+route);
+assert.ok(js.includes('api("/api/workspace","POST",{action:"list_connections"})'),"contacts must use the unified workspace API");
+for(const action of ["list_connections","request_connection","update_connection","overview"])assert.ok(js.includes('action:"'+action+'"'),"missing workspace action "+action);
+assert.ok(js.includes('"/api/jr/command"'),"missing command centre AI route");
 assert.match(js,/continuous\s*=\s*false/,"voice must be one-shot");
 assert.match(js,/setTimeout\(\(\)=>stopVoice[\s\S]{0,100}1800/,"voice must stop after silence");
 assert.match(js,/15000/,"voice must have a hard maximum duration");
@@ -25,5 +28,6 @@ assert.ok(js.includes("jrcc-floating-talk-control"),"floating Talk to JR control
 assert.ok(css.includes("jrcc-command-open .jrcc-floating-talk-control"),"floating launcher must hide while Command Center is open");
 
 assert.ok(fs.readFileSync("server.js","utf8").includes('if(origin==="null")'),"Android/WebView opaque-origin JSON requests must be handled explicitly");
+assert.ok(runtime.includes('if(origin==="null")')&&runtime.includes('req.is("application/json")'),"live runtime must support opaque-origin JSON requests for Android/WebView clients");
 assert.ok(fs.readFileSync("server.js","utf8").includes('!req.is("application/json")'),"opaque origins must not permit cross-site form submissions");
 assert.ok(css.includes(".jrcc-floating-talk-control{margin-bottom:12px!important}"),"floating Talk to JR launcher must be lifted above the navigation edge");

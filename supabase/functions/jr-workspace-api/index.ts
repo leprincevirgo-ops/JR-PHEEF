@@ -332,6 +332,60 @@ Deno.serve(async (req: Request) => {
       if(!path||!storagePath(path))return response({url:null,hidden:!!p?.[0]?.profile_photo_hidden});
       const signed=await signedMedia([{path,kind:"image"}]);return response({url:signed[0]?.url||null,hidden:!!p?.[0]?.profile_photo_hidden});
     }
+    if(action==="list_connections"){
+      const data=await rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status,created_at&order=created_at.desc&limit=100");
+      const ids=[...new Set((data||[]).flatMap((x:any)=>[x.requester_id,x.receiver_id]).filter((id:any)=>String(id)!==String(mid)))];
+      const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,jp_number,dgbo_id,full_name,verified,profile_visibility,country_code,role,account_type,status"):[];
+      const byId=new Map((people||[]).map((person:any)=>[String(person.id),person]));
+      return response((data||[]).map((connection:any)=>{
+        const other=byId.get(String(connection.requester_id)===String(mid)?connection.receiver_id:connection.requester_id);
+        if(!other)return {...connection,other_member:null};
+        const privateProfile=String(other.profile_visibility||"public").toLowerCase()==="private";
+        const owner=[other.role,other.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
+        const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
+        return {...connection,other_member:{
+          jp_number:other.jp_number||null,
+          dgbo_id:other.dgbo_id||null,
+          full_name:privateProfile?"JR PHEEF Member":other.full_name||"JR PHEEF Member",
+          verified:!!other.verified,
+          profile_visibility:privateProfile?"private":"public",
+          country_code:countryCode,
+          connected:connection.status==="accepted"
+        }};
+      }));
+    }
+    if(action==="request_connection"){
+      const targetId=clean(input.member_id,50);
+      let targetRows:any[]=[];
+      if(uuid(targetId)){
+        targetRows=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
+      }else{
+        const jp=clean(input.jp_number,40).toUpperCase().replace(/\\s+/g,"");
+        if(!/^JP-[A-Z0-9]{6,16}$/.test(jp))return json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."},400);
+        targetRows=await rows("members","jp_number=eq."+encodeURIComponent(jp)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
+      }
+      const target=targetRows?.[0];
+      if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").trim().toLowerCase()))return json({ok:false,error:"No active JR PHEEF member found for that JP number."},404);
+      if(String(target.id)===String(mid))return json({ok:false,error:"That is your own JP number."},400);
+      const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+mid+"))&select=id,status,requester_id,receiver_id&limit=1");
+      const memberPreview={jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name,verified:!!target.verified};
+      if(existing?.length)return response({already_exists:true,connection:existing[0],member:memberPreview,message:"A connection request or connection already exists."});
+      const created=await insert("connections",{requester_id:String(mid),receiver_id:String(target.id),status:"pending"});
+      return response({already_exists:false,connection:created?.[0]||created,member:memberPreview,message:"Connection request sent. Their contact details stay private until they choose to share them."});
+    }
+    if(action==="update_connection"){
+      const id=clean(input.connectionId,50),status=clean(input.status,20);
+      if(!uuid(id)||!["accepted","declined","cancelled"].includes(status))return json({ok:false,error:"Choose a valid connection action."},400);
+      const found=await rows("connections","id=eq."+encodeURIComponent(id)+"&select=id,requester_id,receiver_id,status&limit=1");
+      const current=found?.[0];
+      if(!current)return json({ok:false,error:"Connection request not found."},404);
+      if(current.status!=="pending")return json({ok:false,error:"This connection request is no longer pending."},409);
+      const isReceiver=String(current.receiver_id)===String(mid),isRequester=String(current.requester_id)===String(mid);
+      if((status==="accepted"||status==="declined")&&!isReceiver)return json({ok:false,error:"Only the recipient can accept or decline this request."},403);
+      if(status==="cancelled"&&!isRequester)return json({ok:false,error:"Only the requester can cancel this request."},403);
+      const updated=await rest("connections?id=eq."+encodeURIComponent(id),"PATCH",{status,updated_at:new Date().toISOString()});
+      return response({connection:updated?.[0]||{...current,status},message:"Connection updated."});
+    }
     if(action==="find_matches"){
       const query=clean(input.query,240);
       const matchType=clean(input.matchType,30)||"all";
@@ -357,11 +411,15 @@ Deno.serve(async (req: Request) => {
       const term=clean(input.query,80);
       if(term.length<2)return json({ok:false,error:"Enter at least two characters or a JP number."},400);
       const safe=term.replace(/[,%()]/g," ").trim();
-      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
+      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country,country_code,role,account_type&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
       const results=(found||[]).filter((m:any)=>m.id!==mid);
       const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
       const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
-      return response(results.map((m:any)=>({...m,is_following:followed.has(m.id)})));
+      return response(results.map((m:any)=>{
+        const owner=[m.role,m.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
+        const {role,account_type,...publicMember}=m;
+        return {...publicMember,country_code:owner?null:m.country_code||null,is_following:followed.has(m.id)};
+      }));
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");

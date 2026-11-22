@@ -1,6 +1,7 @@
 "use strict";
 const express=require("express");
 const path=require("node:path");
+const inferJrSpecialistMode=require("../lib/jr-specialist-routing");
 const app=express();
 const PORT=Number(process.env.PORT)||10000;
 const SUPABASE_URL=(process.env.SUPABASE_URL||"").replace(/\/$/,"");
@@ -59,6 +60,12 @@ function clearAuthCookies(res){
 }
 function sameOrigin(req,res,next){
   const origin=req.headers.origin;
+  if(origin==="null"){
+    // Embedded Android/WebView clients can use an opaque origin. Permit safe reads
+    // and JSON API calls only; ordinary cross-site HTML form submissions stay blocked.
+    if(req.method==="GET"||req.method==="HEAD"||req.is("application/json"))return next();
+    return res.status(403).json({ok:false,error:"Opaque-origin requests must use the JSON API."});
+  }
   if(origin){
     let normalized;
     try{normalized=new URL(origin).origin;}catch{}
@@ -320,14 +327,27 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
     const body=req.body||{};
     const message=typeof body.message==="string"?body.message.trim().slice(0,5000):"";
     if(!message)return res.status(400).json({ok:false,error:"Tell JR what is on your mind."});
-    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team"]);
+    const allowedModes=new Set(["universe","business","learning","research","personal","opportunities","secretary","agent_team","quantum","physics","mathematics","human_history","civilisation_archive","market_research"]);
     const requestedMode=allowedModes.has(body.mode)?body.mode:"universe";
     const normalisedMessage=message.normalize("NFKD").toLowerCase();
     const isReverseEngineering=new RegExp("\\b(reverse engineer|reverse engineering|decompile|reconstruct|map (the )?(api|system|software|application)|understand how (this|the) (app|system|software|platform) works|legacy system analysis|protocol analysis)\\b").test(normalisedMessage);
     const isArchitecture=new RegExp("\\b(architect|architecture|system design|solution design|technical design|database design|enterprise architecture|integration architecture|infrastructure design)\\b").test(normalisedMessage);
     const isComplex=new RegExp("\\b(coordinate|orchestrate|multiple specialists|whole business|end to end|end-to-end|complete operating model|comprehensive plan)\\b").test(normalisedMessage);
-    const mode=isReverseEngineering?"reverse_engineering":isArchitecture?"architecture":(requestedMode==="universe"&&isComplex?"agent_team":requestedMode);
-    const specialtyInstruction=mode==="architecture"
+    const inferredMode=requestedMode==="universe"?inferJrSpecialistMode(message):requestedMode;
+    const mode=isReverseEngineering?"reverse_engineering":isArchitecture?"architecture":(inferredMode==="universe"&&isComplex?"agent_team":inferredMode);
+    const specialtyInstruction=mode==="quantum"
+      ?"Act as a quantum science specialist. Explain quantum mechanics, quantum information and quantum computing with mathematical care. Separate established theory, experimentally verified results, interpretations, open research and speculation. Never claim a breakthrough or physical capability without reliable evidence."
+      :mode==="physics"
+      ?"Act as a physics specialist. State assumptions, units, equations, derivations, approximations and experimental limits. Distinguish established models from active research and speculation."
+      :mode==="mathematics"
+      ?"Act as a mathematics specialist. Define terms and assumptions, show derivations, check edge cases and distinguish formal proofs from conjectures, numerical evidence or intuition."
+      :mode==="human_history"
+      ?"Act as an evidence-grounded human history researcher. Include African and global perspectives, build clear chronology, distinguish primary sources from later interpretations, compare credible competing accounts and label gaps or disputes. Never present history as predetermined."
+      :mode==="civilisation_archive"
+      ?"Act as a long-term archival preservation specialist. Preserve original records and provenance; address consent, rights, privacy, metadata, open formats, independent copies, checksums, format migration and tested restoration. Never promise permanent survival without evidence."
+      :mode==="market_research"
+      ?"Act as a digital-asset and market researcher. Distinguish proposed token designs from issued assets, verified trades from indicative quotes, and a design graph from live market data. Never invent prices, liquidity, listings, purchases, token supply or returns. Clearly identify legal, custody, exchange and data-feed dependencies."
+      :mode==="architecture"
       ?"Act as a senior cross-disciplinary architect. Design software, enterprise, data, security, integration, operations and business architectures as the request requires. Clarify goals and constraints, define components and boundaries, data flows, interfaces, failure modes, permissions, costs and phased implementation. Produce clear diagrams or structured blueprints when useful. Distinguish a proposed design from deployed infrastructure."
       :mode==="reverse_engineering"
       ?"Analyse only systems, software, devices, APIs or data the user owns or is authorised to inspect. Use supplied source code, documentation, behaviour, schemas, interfaces, dependencies and observable outputs to reconstruct architecture, workflows, data models and integration contracts; identify risks and produce migration or compatibility plans. Do not bypass authentication, DRM, licensing, access controls or security protections, and do not assist theft of secrets or proprietary data. State what evidence is missing; never claim to have inspected a repository, binary or live system unless it was actually supplied or connected."
@@ -389,6 +409,25 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
   }catch(error){
     console.error("JR AI request failed:",String(error?.message||error).slice(0,160));
     if(!res.headersSent)return res.status(503).json({ok:false,error:"JR is temporarily unavailable. Please try again shortly."});
+  }
+});
+
+app.get("/api/me",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.json({ok:false,error:"LOGIN_REQUIRED"});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{
+      method:"POST",
+      headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},
+      body:JSON.stringify({action:"overview"}),
+      signal:AbortSignal.timeout(10000)
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok)return res.json({ok:false,error:data.error||"Profile unavailable."});
+    return res.json({ok:true,member:data.data?.member||null});
+  }catch(error){
+    console.warn("JR member profile lookup unavailable:",String(error?.message||error).slice(0,120));
+    return res.json({ok:false,error:"Profile unavailable."});
   }
 });
 
