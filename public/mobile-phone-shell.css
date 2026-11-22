@@ -121,3 +121,8 @@ img,video,canvas,iframe{max-width:100%}
 .jr-jpc-market-actions button:disabled{opacity:.55;cursor:not-allowed}
 .jr-jpc-market-note{font-size:11px;margin-top:12px}
 @media(max-width:600px){.jr-jpc-market-panel{padding:14px}.jr-jpc-market-actions button{flex:1 1 100%}}
+
+
+/* Country flags are shown only when the authenticated workspace API returns
+   a public, accepted-contact country code; owner profiles are excluded. */
+.jrcc-country-flag,.jp-contact-country,.jp-country-flag{display:inline-flex;align-items:center;gap:5px;margin-top:3px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#b9d7e8}
