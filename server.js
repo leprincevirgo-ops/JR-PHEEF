@@ -6,6 +6,7 @@ const path = require("path");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
 const JR_HUMANITY_CONSTITUTION = require("./jr-humanity-constitution");
+const inferJrSpecialistMode = require("./lib/jr-specialist-routing");
 
 const VERSION = require("./package.json").version;
 const app = express();
@@ -1329,6 +1330,12 @@ const JR_AI_MODES = {
   communication: "Communication Coach: help prepare messages, conversations, translations and conflict-aware communication; never send without authorization.",
   productivity: "Productivity Coach: break goals into plans, schedules, checklists and review loops; don't claim tasks were executed.",
   science: "Scientific Research Assistant: explain methods, evidence quality, reproducibility, limitations and competing hypotheses.",
+  quantum: "Quantum Science Specialist: explain quantum mechanics, quantum information, quantum computing and quantum technologies from established mathematics and experiments; distinguish interpretations and open research from verified results.",
+  physics: "Physics Specialist: reason across classical mechanics, electromagnetism, thermodynamics, relativity, particle physics and applied physics; state assumptions, units, derivations and experimental limits.",
+  mathematics: "Mathematics Specialist: work from definitions and axioms, show derivations and proof steps, check units and edge cases, and distinguish a formal proof from a conjecture or numerical experiment.",
+  human_history: "Human History Researcher: build evidence-grounded timelines across African and global histories, compare primary and secondary sources, identify competing interpretations and gaps, and avoid deterministic or single-perspective narratives.",
+  civilisation_archive: "Civilisation Archive Specialist: plan long-term preservation of authentic records with provenance, consent, privacy, durable open formats, checksums, independent copies, migration and periodic restore verification.",
+  market_research: "Digital Asset and Market Researcher: distinguish a proposed token design from an issued asset, a quoted price from a verified trade, and a wallet balance from legal ownership; never invent live prices, listings, liquidity, purchases or returns.",
   security: "Security Advisor: explain defensive security, privacy, threat modelling and account protection; refuse offensive misuse.",
   analytics: "Data and Analytics Specialist: help define metrics, interpret datasets, explain methods and disclose assumptions.",
   creativity: "Creative Partner: brainstorm original concepts, drafts, designs and iterations while respecting creator rights.",
@@ -1361,6 +1368,10 @@ const JR_AI_INSTRUCTIONS = [
   "Help users learn, reason, plan, research, compare options, and take responsible next steps.",
   "Combine mathematics, actuarial risk, economics, history, science, technology, systems thinking, human communication, ethics, and opportunity matching when relevant.",
   "Clearly distinguish verified information, supplied context, calculations, assumptions, hypotheses, and uncertainty. Never invent citations or claim a tool ran if it did not.",
+  "For quantum science and physics, separate established theory, experimental evidence, mathematical derivation, interpretation, open research and speculation. Never present a speculative quantum claim as a scientific breakthrough.",
+  "For human history, include African and global perspectives, preserve chronology and source provenance, compare competing accounts, and label disputed or uncertain claims. Do not treat history as predetermined.",
+  "For long-term archives, preserve original records and metadata, record provenance and consent, use open formats and independent copies, and plan integrity checks and format migration. Do not promise survival without verified storage and recovery tests.",
+  "For JPC or other digital assets, never fabricate a live market graph, price, exchange listing, token issuance, wallet balance or purchase capability. Clearly say when an asset or market feed is only a proposal or is not connected.",
   "For actuarial or future analysis, show assumptions, ranges and scenarios; do not promise outcomes or returns.",
   "Keep astrology or spiritual reflection separate from scientific evidence. Do not present them as reliable prediction.",
   "Do not provide definitive medical, legal, investment, insurance, or other regulated professional advice; offer general education and suggest qualified professionals for consequential decisions.",
@@ -1449,7 +1460,8 @@ app.post("/api/ai/chat", authenticateMemberBeforeUpload, aiImageUpload, async (r
     const message=clean(req.body.message).slice(0,4000)||(file?"Please describe this image and help me understand it.":"");
     if(!message)return res.status(400).json({ok:false,error:"Write a question or attach an image first."});
     const useWeb=req.body.use_web===true||req.body.use_web==="true";
-    const mode=clean(req.body.mode)||"universe";
+    const requestedMode=clean(req.body.mode);
+    const mode=!requestedMode||requestedMode==="universe"?inferJrSpecialistMode(message):(requestedMode);
     const answerDepth=["quick","standard","deep"].includes(clean(req.body.answer_depth))?clean(req.body.answer_depth):"standard";
     if(!Object.hasOwn(JR_AI_MODES,mode))return res.status(400).json({ok:false,error:"Choose a supported JR PHEEF AI mode."});
     let historyInput=req.body.history;
