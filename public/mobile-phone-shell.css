@@ -126,3 +126,21 @@ img,video,canvas,iframe{max-width:100%}
 /* Country flags are shown only when the authenticated workspace API returns
    a public, accepted-contact country code; owner profiles are excluded. */
 .jrcc-country-flag,.jp-contact-country,.jp-country-flag{display:inline-flex;align-items:center;gap:5px;margin-top:3px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#b9d7e8}
+
+
+/* PRIMARY DESTINATIONS ARE TABS — directional arrows are separate controls. */
+.jp-primary-nav .jp-arrow-nav-item{display:inline-flex!important;gap:0!important;border-radius:12px!important;padding:10px 16px!important;min-height:44px!important;background:rgba(5,27,49,.82)!important;border:1px solid rgba(66,245,255,.2)!important;color:#e5f7ff!important}
+.jp-primary-nav .jp-arrow-nav-glyph{display:none!important}
+.jp-primary-nav .jp-arrow-nav-label{font-size:12px!important;font-weight:800!important}
+.jp-primary-nav button.jp-nav-active{background:rgba(0,150,210,.2)!important;border-color:rgba(66,245,255,.55)!important}
+.jp-primary-nav button.jp-nav-assistant{border-color:rgba(214,177,94,.5)!important}
+#jpMobileDock .jp-mobile-dock-item{flex-direction:column!important;gap:3px!important;border-radius:12px!important;padding:7px 4px!important;background:transparent!important;border:1px solid transparent!important}
+#jpMobileDock .jp-mobile-dock-icon{font-size:20px!important;color:#42f5ff!important}
+#jpMobileDock .jp-mobile-dock-label{font-size:9px!important;font-weight:800!important;letter-spacing:.02em!important}
+#jpMobileDock .jp-mobile-dock-item.is-active{background:rgba(0,150,210,.17)!important;border-color:rgba(66,245,255,.45)!important}
+#jpMobileDock [data-mobile-destination="jr"] .jp-mobile-dock-icon{color:#e0bd70!important}
+.jr-directional-controls{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:7px;padding:7px 12px;margin:0 0 12px;background:rgba(3,16,31,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(66,245,255,.13)}
+.jr-direction-arrow{width:38px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(66,245,255,.26);border-radius:10px;background:rgba(5,37,62,.8);color:#dffaff;font-size:23px;line-height:1;cursor:pointer}
+.jr-direction-arrow:disabled{opacity:.32;cursor:not-allowed}
+.jr-direction-arrow:focus-visible,.jp-primary-nav button:focus-visible,#jpMobileDock button:focus-visible{outline:2px solid #42f5ff;outline-offset:2px}
+@media(max-width:900px){.jp-primary-nav .jp-arrow-nav-item{border-radius:12px!important;padding:9px 12px!important}.jr-directional-controls{padding:6px 10px}.jr-direction-arrow{width:36px;height:34px}}
