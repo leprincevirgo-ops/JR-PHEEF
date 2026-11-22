@@ -98,8 +98,8 @@
   window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
   $("memberGreeting").hidden=!user;$("logoutButton").hidden=!user;$("openLogin").hidden=!!user;$("openSignup").hidden=!!user;
   $("memberGreeting").textContent=user?(user.fullName||user.email||"JR PHEEF member"):"";
-  if(user){const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=false;$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=false;showWorkspace(requestedWorld);if(isFounder)loadFounderOverview();if(requestedLink&&requestedWorld==="command")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());}
-  else{const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=true;workspace.hidden=true;if(hero)hero.hidden=false;panel.hidden=true;conversation.hidden=true;}
+  if(user){const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=false;$("accountName").textContent=user.fullName||"JR PHEEF member";$("accountEmail").textContent=user.email||"";const isFounder=user.role==="founder"&&user.jpNumber==="JP-01";$("founderCommand").hidden=!isFounder;$("memberCommand").hidden=false;showWorkspace(requestedWorld);loadJrConversation().catch(error=>{const status=$("workspacePromptReply");if(status)status.textContent="JR conversation history is temporarily unavailable. "+error.message;});if(isFounder)loadFounderOverview();if(requestedLink&&requestedWorld==="command")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());}
+  else{jrConversationId=null;jrConversationHistory.length=0;const transcript=$("jrChatMessages");if(transcript)transcript.replaceChildren();const ideaForm=$("memberOpportunitySubmission");if(ideaForm)ideaForm.hidden=true;workspace.hidden=true;if(hero)hero.hidden=false;panel.hidden=true;conversation.hidden=true;}
  }
  function showAuth(next){
   mode=next;panel.hidden=false;conversation.hidden=true;setMessage("");
@@ -168,18 +168,74 @@
  });
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
  $("promptForm").addEventListener("submit",event=>{event.preventDefault();showAuth("signup");});
+ let jrConversationId=null;
  const jrConversationHistory=[];
+ async function jrWorkspaceAction(action,fields={}){
+  const result=await api("/api/workspace",{action,...fields});
+  if(!result.ok)throw new Error(result.error||"JR could not access conversation history.");
+  return result.data;
+ }
+ function jrTranscriptMount(){
+  let wrap=$("jrConversationTranscript");
+  if(wrap)return wrap;
+  const form=$("workspacePromptForm");if(!form)return null;
+  wrap=document.createElement("section");wrap.id="jrConversationTranscript";wrap.className="jr-chat-history";wrap.setAttribute("aria-label","Saved JR conversation");
+  const heading=document.createElement("div");heading.className="jr-chat-history-head";
+  const label=document.createElement("strong");label.textContent="Your conversation with JR";
+  const fresh=document.createElement("button");fresh.type="button";fresh.className="jr-chat-new";fresh.textContent="New conversation";
+  fresh.addEventListener("click",async()=>{fresh.disabled=true;try{const data=await jrWorkspaceAction("create_ai_conversation",{title:"New conversation"});jrConversationId=data?.id||null;if(!jrConversationId)throw new Error("JR did not return a conversation ID.");jrConversationHistory.length=0;const messages=wrap.querySelector(".jr-chat-messages");messages.replaceChildren();$("workspacePromptReply").textContent="A new conversation is ready.";}catch(error){$("workspacePromptReply").textContent=error.message;}finally{fresh.disabled=false;}});
+  heading.append(label,fresh);
+  const messages=document.createElement("div");messages.className="jr-chat-messages";messages.id="jrChatMessages";messages.setAttribute("aria-live","polite");
+  wrap.append(heading,messages);form.before(wrap);return wrap;
+ }
+ function jrTranscriptMessage(role,content){
+  const messages=$("jrChatMessages");if(!messages)return;
+  const article=document.createElement("article");article.className="jr-chat-message "+(role==="assistant"?"jr-chat-message-assistant":"jr-chat-message-user");
+  const who=document.createElement("small");who.textContent=role==="assistant"?"JR":"You";
+  const body=document.createElement("p");body.textContent=String(content||"");
+  article.append(who,body);messages.append(article);messages.scrollTop=messages.scrollHeight;
+ }
+ async function loadJrConversation(){
+  const wrap=jrTranscriptMount();if(!wrap)return;
+  const messages=$("jrChatMessages");messages.replaceChildren();
+  jrConversationHistory.length=0;jrConversationId=null;
+  const conversations=await jrWorkspaceAction("list_ai_conversations");
+  const latest=Array.isArray(conversations)?conversations[0]:null;
+  if(!latest?.id){$("workspacePromptReply").textContent="Start a conversation with JR. Your saved conversations will appear here.";return;}
+  jrConversationId=latest.id;
+  const saved=await jrWorkspaceAction("list_ai_messages",{conversationId:jrConversationId});
+  (Array.isArray(saved)?saved:[]).forEach(item=>{
+   if(!["user","assistant"].includes(item.role)||typeof item.content!=="string")return;
+   jrTranscriptMessage(item.role,item.content);
+   jrConversationHistory.push({role:item.role,content:item.content});
+  });
+  if(jrConversationHistory.length>16)jrConversationHistory.splice(0,jrConversationHistory.length-16);
+  $("workspacePromptReply").textContent="Your latest JR conversation has been restored.";
+ }
+ async function ensureJrConversation(){
+  if(jrConversationId)return jrConversationId;
+  const data=await jrWorkspaceAction("create_ai_conversation",{title:"New conversation"});
+  if(!data?.id)throw new Error("JR could not start a saved conversation.");
+  jrConversationId=data.id;return jrConversationId;
+ }
  $("workspacePromptForm")?.addEventListener("submit",async event=>{
   event.preventDefault();
   const input=$("workspacePrompt"),reply=$("workspacePromptReply"),button=event.currentTarget.querySelector('button[type="submit"]');
   const message=input.value.trim();if(!message||button.disabled)return;
   button.disabled=true;input.disabled=true;reply.textContent="JR is thinking…";
   try{
+   const conversationId=await ensureJrConversation();
+   await jrWorkspaceAction("save_ai_message",{conversationId,role:"user",content:message});
+   jrTranscriptMessage("user",message);
    const result=await api("/api/ai/chat",{message,mode:"universe",history:jrConversationHistory.slice(-8)});
    const answer=String(result.answer||"").trim();if(!answer)throw new Error("JR did not return a response. Please try again.");
    jrConversationHistory.push({role:"user",content:message},{role:"assistant",content:answer});
    if(jrConversationHistory.length>16)jrConversationHistory.splice(0,jrConversationHistory.length-16);
-   reply.textContent=answer;input.value="";
+   jrTranscriptMessage("assistant",answer);
+   let persistenceNote="";
+   try{await jrWorkspaceAction("save_ai_message",{conversationId,role:"assistant",content:answer});}
+   catch(error){persistenceNote=" JR replied, but this reply could not be saved to your history.";}
+   reply.textContent=answer+persistenceNote;input.value="";
   }catch(error){reply.textContent=error.message||"JR is temporarily unavailable. Please try again.";}
   finally{button.disabled=false;input.disabled=false;input.focus();}
  });
