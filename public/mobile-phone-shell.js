@@ -9,13 +9,13 @@
     if(!app||!header||!actions||document.getElementById("jpMobileDock"))return;
     const dock=make("nav","jp-mobile-dock");dock.id="jpMobileDock";dock.setAttribute("aria-label","JR PHEEF mobile navigation");
     const entries=[
-      ["home","⌂","Home",()=>route("home")],
-      ["worlds","✧","Worlds",()=>route("worlds")],
-      ["jr","✦","JR",()=>route("assistant")],
-      ["command","▦","Command Center",()=>route("command")]
+      ["home","←","Home",()=>route("home")],
+      ["worlds","↗","Worlds",()=>route("worlds")],
+      ["jr","↑","JR",()=>route("assistant")],
+      ["command","→","Command Center",()=>route("command")]
     ];
     entries.forEach(([key,icon,label,run])=>{
-      const b=make("button","jp-mobile-dock-item");
+      const b=make("button","jp-mobile-dock-item jp-mobile-arrow-item");
       b.type="button";b.dataset.mobileDestination=key;b.setAttribute("aria-label",label);
       const glyph=make("span","jp-mobile-dock-icon",icon);glyph.setAttribute("aria-hidden","true");
       const text=make("span","jp-mobile-dock-label",label);b.append(glyph,text);b.addEventListener("click",run);dock.append(b);
