@@ -306,6 +306,23 @@ function renderHub(p,id){
  });
  p.append(hero,content);
 }
+function renderJpcMarketPanel(p){
+ if(!p||p.querySelector("#jrJpcMarketPanel"))return;
+ const panel=el("section","card jr-jpc-market-panel");panel.id="jrJpcMarketPanel";
+ const head=el("div","jr-jpc-market-heading");
+ head.append(el("span","jp-kicker","JR PHEEF ECONOMY · JPC"),el("h2","","JPC Market & Treasury"),el("p","","The proposed hybrid fixed-supply digital asset, managed inside the JR PHEEF Economy workspace."));
+ const state=el("div","jr-jpc-market-status");
+ state.append(el("span","jr-jpc-status-item","",""));
+ const status=el("strong","jr-jpc-status-label","DESIGN STAGE · NOT ISSUED");
+ const feed=el("div","jr-jpc-market-chart");feed.setAttribute("role","status");feed.setAttribute("aria-live","polite");
+ feed.append(el("span","jr-jpc-market-chart-mark","↗"),el("strong","","Verified market feed not connected"),el("p","","A live price and market-event graph will appear only after an approved JPC contract and verified exchange or market-data source are connected. No price is displayed until then."));
+ const actions=el("div","jr-jpc-market-actions");
+ const buy=el("button","dark","BUY JPC · NOT AVAILABLE");buy.type="button";buy.disabled=true;buy.setAttribute("aria-disabled","true");buy.title="Purchases require legal approval, an issued token and an authorized exchange or custody partner.";
+ const loan=el("button","dark","COLLATERAL LOANS · NOT AVAILABLE");loan.type="button";loan.disabled=true;loan.setAttribute("aria-disabled","true");loan.title="Collateral lending requires a licensed lending partner and independently verified terms.";
+ actions.append(buy,loan);
+ const note=el("p","jr-jpc-market-note","JPC remains a design project. This screen does not represent an issued token, a live market, an investment offer or a promise of value.");
+ panel.append(head,status,feed,actions,note);p.append(panel);
+}
 function ensure(id){
  if(id==="personalhub")id="connecthub";
  let p=pageFor(id);
@@ -313,6 +330,7 @@ function ensure(id){
  else if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
  else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
  if(id==="connections")renderConnections(p);
+ if(id==="economy")renderJpcMarketPanel(p);
  makeChrome(p,id);
  return p;
 }
