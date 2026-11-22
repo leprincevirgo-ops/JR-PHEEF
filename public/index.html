@@ -1332,6 +1332,7 @@ function jrRenderPosition(entry){
   if(!entry)return;
   jrNavigation.restoring=true;
   jrShowPage(entry.id);
+  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id:entry.id}}));
   requestAnimationFrame(()=>{window.scrollTo(entry.position?.x||0,entry.position?.y||0);const page=document.getElementById(entry.id);if(page&&entry.position?.pageY)page.scrollTop=entry.position.pageY;jrNavigation.restoring=false;});
 }
 function jrNavigate(id,opts={}){
@@ -1346,6 +1347,7 @@ function jrNavigate(id,opts={}){
     history.pushState({jr:true,index:jrNavigation.index},"","#"+encodeURIComponent(id));
   }
   jrShowPage(id);
+  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
   if(!opts.pop&&!jrNavigation.restoring)window.scrollTo(0,0);
   jrUpdateDirectionalControls();
 }
