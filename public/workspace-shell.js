@@ -137,20 +137,11 @@ function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section
 function makeChrome(p,id){
  if(!p)return;
  const existing=p.querySelector(".jr-page-chrome");if(existing)existing.remove();
- if(["home","worlds","assistant","command"].includes(id))return;
- const chrome=el("div","jr-page-chrome");
- const back=el("button","jr-page-nav jr-page-back","← Back");
- back.type="button";back.setAttribute("aria-label","Back to previous page");
- back.addEventListener("click",()=>navigate(-1));
- chrome.append(back);
- p.insertBefore(chrome,p.firstChild);
 }
 function updateBackControls(){
- document.querySelectorAll("#app .jr-page-back").forEach(button=>{
-  const disabled=cursor<=0;
-  button.disabled=disabled;
-  button.setAttribute("aria-disabled",String(disabled));
- });
+ const back=document.getElementById("jrArrowBack"),forward=document.getElementById("jrArrowForward");
+ if(back){back.disabled=cursor<=0;back.setAttribute("aria-disabled",String(back.disabled));}
+ if(forward){forward.disabled=cursor<0||cursor>=history.length-1;forward.setAttribute("aria-disabled",String(forward.disabled));}
 }
 function renderGenerated(p,id){
  const meta=catalog.find(x=>x[0]===id)||[id,id.replace(/[-_]/g," "),"JR PHEEF workspace","Organise this area and continue with the relevant next step."];
@@ -373,6 +364,12 @@ function go(id,replace=false){
  updateBackControls();
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
+function jrScrollDirection(direction){
+ const page=document.querySelector("#app>.page:not(.hidden)");
+ const amount=Math.max(320,Math.round(window.innerHeight*.78))*direction;
+ if(page&&page.scrollHeight>page.clientHeight+8)page.scrollBy({top:amount,behavior:"smooth"});
+ else window.scrollBy({top:amount,behavior:"smooth"});
+}
 function updateNav(id){
  const destinations={home:"home",worlds:"worlds",assistant:"assistant",teacher:"worlds",universe:"worlds",explore:"worlds",discover:"worlds",find:"worlds",create:"worlds",projects:"worlds",delivery:"worlds",dgbo:"worlds",family:"worlds",ecosystem:"worlds",partners:"worlds",social:"worlds",connecthub:"command",messages:"command",jpconnect:"command",profile:"command",jpidentity:"command",vault:"command",library:"command",lab:"command",opportunities:"command",businessgrowth:"command",ads:"command",alerts:"command",accessgov:"command",jrsettings:"command",devices:"command",membership:"command",points:"command",referrals:"command",economy:"command",deals:"command",mylistings:"command",rooms:"command",fixedit:"command",connections:"command",apphub:"command",browser:"command",command:"command"};
  const selected=destinations[id]||"command";
@@ -400,18 +397,23 @@ function mount(){
  if(!$("jrEverywhereScript")){const sc=document.createElement("script");sc.id="jrEverywhereScript";sc.src="/jr-everywhere.js";sc.defer=true;document.body.append(sc);}
  concealInternalOrchestration();
  const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
- // Only four destinations belong in the primary arrow navigation: Home, Worlds, JR and Command Center.
- // Messages, social, business tools and specialist workspaces remain inside their relevant workspaces.
+ // Four primary destinations are ordinary tabs. Directional arrows live in a separate control strip.
  const nav=app.querySelector(".nav");
  if(nav){
-  const primary=[["home","←","Home"],["worlds","↗","Worlds"],["assistant","↑","JR"],["command","→","Command Center"]];
+  const primary=[["home","HOME"],["worlds","WORLDS"],["assistant","JR"],["command","COMMAND CENTER"]];
   clearChildren(nav);
-  primary.forEach(([id,glyph,label],index)=>{
-   const b=el("button","jp-arrow-nav-item"+(index===0?" jp-nav-active":""));b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
+  primary.forEach(([id,label],index)=>{
+   const b=el("button","jp-primary-tab"+(index===0?" jp-nav-active":""));b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
    if(id==="assistant")b.classList.add("jp-nav-assistant");
-   const icon=el("span","jp-arrow-nav-glyph",glyph);icon.setAttribute("aria-hidden","true");
-   const name=el("span","jp-arrow-nav-label",label);b.append(icon,name);b.addEventListener("click",()=>go(id));nav.append(b);
+   b.textContent=label;b.addEventListener("click",()=>go(id));nav.append(b);
   });
+  let arrows=document.getElementById("jrDirectionalControls");
+  if(!arrows){
+   arrows=el("div","jr-directional-controls");arrows.id="jrDirectionalControls";arrows.setAttribute("aria-label","Page navigation");
+   const controls=[["jrArrowBack","←","Back",()=>navigate(-1)],["jrArrowUp","↑","Up",()=>jrScrollDirection(-1)],["jrArrowDown","↓","Down",()=>jrScrollDirection(1)],["jrArrowForward","→","Forward",()=>navigate(1)]];
+   controls.forEach(([id,glyph,label,fn])=>{const button=el("button","jr-direction-arrow",glyph);button.id=id;button.type="button";button.title=label;button.setAttribute("aria-label",label);button.addEventListener("click",fn);arrows.append(button);});
+   nav.insertAdjacentElement("afterend",arrows);
+  }
   var desktopExtra=nav.querySelector(".jr-desktop-extra");if(desktopExtra)desktopExtra.parentNode.removeChild(desktopExtra);
   const home=$("home");
   if(home&&!home.querySelector(".jr-desktop-landscapes")){
