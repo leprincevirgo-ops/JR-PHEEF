@@ -2015,8 +2015,8 @@ async function fixedItConnectRequest(memberId){
  if(!memberId||String(memberId)===String(me.id))return;
  const msg=document.getElementById("fixMsg");
  try{
-  const data=await api("/api/connections",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({receiver_id:memberId})});
-  msg.textContent=data.ok?(data.message||"Connection request sent. Check JP Connect for updates."): (data.error||"Could not send connection request.");
+  const data=await api("/api/workspace",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"request_connection",member_id:memberId})});
+  msg.textContent=data.ok?((data.data&&data.data.message)||"Connection request sent. Check JP Connect for updates."): (data.error||"Could not send connection request.");
  }catch(e){msg.textContent="Connection request failed. Please try again.";}
 }
 function startFixedItListing(){
