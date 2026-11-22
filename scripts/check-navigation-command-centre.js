@@ -17,6 +17,8 @@ for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operati
 assert.ok(mobile.includes('["worlds","↗","Worlds",()=>route("worlds")]'),"mobile Worlds arrow destination missing");
 assert.ok(mobile.includes('["home","←","Home",()=>route("home")]')&&mobile.includes('["jr","↑","JR",()=>route("assistant")]')&&mobile.includes('["command","→","Command Center",()=>route("command")]'),"mobile arrow destinations missing");
 assert.ok(shell.includes("function captureNavigationPosition(entry)")&&shell.includes("function restoreNavigationPosition(entry)")&&shell.includes("window.jrWorkspaceBack"),"position-preserving navigation history missing");
+assert.ok(shell.includes('function makeChrome(p,id)')&&shell.includes('"jr-page-back","← Back"')&&shell.includes('back.addEventListener("click",()=>navigate(-1))'),"nested workspaces must expose a working back arrow");
+assert.ok(shell.includes("function updateBackControls()"),"back arrow availability must follow navigation history");
 assert.ok(shell.includes("window.history.pushState")&&shell.includes("jrWorkspaceIndex"),"browser back/forward history integration missing");
 assert.ok(mobile.includes('["command","▦","Command Center",()=>route("command")]'),"mobile Command Center destination missing");
 assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive Command Center styles missing");
