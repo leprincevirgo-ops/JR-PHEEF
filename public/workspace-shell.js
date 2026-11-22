@@ -118,7 +118,7 @@ function activateHistoryEntry(index){
  if(history[cursor])captureNavigationPosition(history[cursor]);
  cursor=index;
  const entry=history[cursor];
- ensure(entry.id);activateOnlyWorkspace(entry.id);updateNav(entry.id);
+ ensure(entry.id);activateOnlyWorkspace(entry.id);updateNav(entry.id);updateBackControls();
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id:entry.id}}));
  restoreNavigationPosition(entry);
  return true;
@@ -134,7 +134,24 @@ function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=
 function clearChildren(node){while(node&&node.firstChild)node.removeChild(node.firstChild);}
 function replaceChildrenCompat(node,...children){clearChildren(node);for(const child of children)if(child)node.appendChild(child);}
 function pageFor(id){let p=$(id);if(p)return p;p=document.createElement("section");p.id=id;p.className="page hidden jr-generated-workspace";(function(){var app=$("app");if(app)app.appendChild(p);})();return p;}
-function makeChrome(p,id){return;}
+function makeChrome(p,id){
+ if(!p)return;
+ const existing=p.querySelector(".jr-page-chrome");if(existing)existing.remove();
+ if(["home","worlds","assistant","command"].includes(id))return;
+ const chrome=el("div","jr-page-chrome");
+ const back=el("button","jr-page-nav jr-page-back","← Back");
+ back.type="button";back.setAttribute("aria-label","Back to previous page");
+ back.addEventListener("click",()=>navigate(-1));
+ chrome.append(back);
+ p.insertBefore(chrome,p.firstChild);
+}
+function updateBackControls(){
+ document.querySelectorAll("#app .jr-page-back").forEach(button=>{
+  const disabled=cursor<=0;
+  button.disabled=disabled;
+  button.setAttribute("aria-disabled",String(disabled));
+ });
+}
 function renderGenerated(p,id){
  const meta=catalog.find(x=>x[0]===id)||[id,id.replace(/[-_]/g," "),"JR PHEEF workspace","Organise this area and continue with the relevant next step."];
  p.innerHTML="";
@@ -291,10 +308,11 @@ function renderHub(p,id){
 function ensure(id){
  if(id==="personalhub")id="connecthub";
  let p=pageFor(id);
- if(hubGroups[id]){renderHub(p,id);return p;}
- if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
+ if(hubGroups[id])renderHub(p,id);
+ else if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
  else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
  if(id==="connections")renderConnections(p);
+ makeChrome(p,id);
  return p;
 }
 function activateOnlyWorkspace(id){
@@ -330,6 +348,7 @@ function go(id,replace=false){
  }else if(replace)syncBrowserNavigation(current,true);
  activateOnlyWorkspace(id);updateNav(id);
  if(!samePage){window.scrollTo(0,0);if(p)p.scrollTop=0;}
+ updateBackControls();
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
 function updateNav(id){
@@ -413,7 +432,7 @@ function mount(){
  }
  // One global navigation only; duplicate page-level navigation bars are disabled.
  const active=document.querySelector("#app .page:not(.hidden)")||$("home");
- if(active){const id=active.id||"home";history=[{id,scrollY:Math.max(0,Number(window.scrollY||window.pageYOffset||0)),pageScrollTop:Math.max(0,Number(active.scrollTop)||0)}];cursor=0;ensure(id);updateNav(id);syncBrowserNavigation(history[0],true);}
+ if(active){const id=active.id||"home";history=[{id,scrollY:Math.max(0,Number(window.scrollY||window.pageYOffset||0)),pageScrollTop:Math.max(0,Number(active.scrollTop)||0)}];cursor=0;ensure(id);updateNav(id);updateBackControls();syncBrowserNavigation(history[0],true);}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 window.jrWorkspaceNavigate=go;
