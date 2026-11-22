@@ -9,6 +9,7 @@ assert.equal(infer("Design a long-term digital archive for historical records"),
 assert.equal(infer("Explain general relativity and thermodynamics"),"physics");
 assert.equal(infer("Prove this calculus theorem"),"mathematics");
 assert.equal(infer("Explain JPC fixed supply and its market graph"),"market_research");
+assert.equal(infer("What if JPC becomes like Bitcoin?"),"market_research");
 assert.equal(infer("Help me plan a small supermarket"),"universe");
 for(const mode of ["quantum","physics","mathematics","human_history","civilisation_archive","market_research"])assert.ok(server.includes(mode+":"),"JR AI specialist mode missing: "+mode);
 assert.ok(server.includes("inferJrSpecialistMode(message)"),"default JR mode must automatically route to relevant specialist intelligence");
