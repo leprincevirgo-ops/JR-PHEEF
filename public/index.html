@@ -534,11 +534,10 @@ body.jr-auth-pending #jrInstallPrompt{display:none!important}
 <section id="app" class="hidden">
 
 <nav class="nav jp-primary-nav" aria-label="Main navigation">
-<button class="jp-nav-active" data-page="home" onclick="show('home')"><span aria-hidden="true">⌂</span><span>Home</span></button>
-<button data-page="worlds" onclick="show('worlds')"><span aria-hidden="true">✧</span><span>Explore</span></button>
-<button class="jp-nav-assistant" data-page="assistant" onclick="show('assistant')"><span aria-hidden="true">✦</span><span>JR</span></button>
-<button data-page="messages" onclick="show('messages')"><span aria-hidden="true">✉</span><span>Messages</span></button>
-<button data-page="command" onclick="show('command')"><span aria-hidden="true">▦</span><span>Command</span></button>
+<button class="jp-nav-active jp-arrow-nav-item" data-page="home" onclick="show('home')"><span class="jp-arrow-nav-glyph" aria-hidden="true">←</span><span class="jp-arrow-nav-label">Home</span></button>
+<button class="jp-arrow-nav-item" data-page="worlds" onclick="show('worlds')"><span class="jp-arrow-nav-glyph" aria-hidden="true">↗</span><span class="jp-arrow-nav-label">Worlds</span></button>
+<button class="jp-nav-assistant jp-arrow-nav-item" data-page="assistant" onclick="show('assistant')"><span class="jp-arrow-nav-glyph" aria-hidden="true">↑</span><span class="jp-arrow-nav-label">JR</span></button>
+<button class="jp-arrow-nav-item" data-page="command" onclick="show('command')"><span class="jp-arrow-nav-glyph" aria-hidden="true">→</span><span class="jp-arrow-nav-label">Command Center</span></button>
 </nav>
 
 <div id="messages" class="page hidden">
