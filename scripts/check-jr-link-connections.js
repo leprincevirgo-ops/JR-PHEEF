@@ -7,6 +7,7 @@ const cc=fs.readFileSync("public/command-centre-social.js","utf8");
 const jp=fs.readFileSync("public/jp-contacts-ui.js","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 assert.ok(edge.includes('if(action==="list_connections")')&&edge.includes('if(action==="request_connection")')&&edge.includes('if(action==="update_connection")'),"JR LINK connection actions are missing");
+assert.ok(edge.includes("const targetId=clean(input.member_id,50)")&&edge.includes("id=eq."+encodeURIComponent(targetId)),"public listing connections must validate the target member ID");
 assert.ok(runtime.includes('app.get("/api/me"')&&runtime.includes('action:"overview"'),"live runtime must restore the authenticated member profile endpoint");
 assert.ok(edge.includes('connection.status==="accepted"&&!privateProfile&&!owner'),"country flags must be limited to accepted, public, non-owner profiles");
 assert.ok(edge.includes('String(value||"").toLowerCase()==="owner"'),"founder/owner country flag exclusion is missing");
