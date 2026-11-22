@@ -405,11 +405,15 @@ Deno.serve(async (req: Request) => {
       const term=clean(input.query,80);
       if(term.length<2)return json({ok:false,error:"Enter at least two characters or a JP number."},400);
       const safe=term.replace(/[,%()]/g," ").trim();
-      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
+      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country,country_code,role,account_type&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
       const results=(found||[]).filter((m:any)=>m.id!==mid);
       const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
       const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
-      return response(results.map((m:any)=>({...m,is_following:followed.has(m.id)})));
+      return response(results.map((m:any)=>{
+        const owner=[m.role,m.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
+        const {role,account_type,...publicMember}=m;
+        return {...publicMember,country_code:owner?null:m.country_code||null,is_following:followed.has(m.id)};
+      }));
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");
