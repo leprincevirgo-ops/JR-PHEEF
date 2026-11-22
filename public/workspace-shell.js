@@ -324,10 +324,15 @@ function renderJpcMarketPanel(p){
 function ensure(id){
  if(id==="personalhub")id="connecthub";
  let p=pageFor(id);
- if(hubGroups[id])renderHub(p,id);
- else if(id==="command"){p.classList.remove("jr-generated-workspace");renderCommandCentre(p);}
- else if(p.classList.contains("jr-generated-workspace"))renderGenerated(p,id);
- if(id==="connections")renderConnections(p);
+ if(hubGroups[id]){
+  if(p.dataset.jrWorkspaceRendered!=="1"){renderHub(p,id);p.dataset.jrWorkspaceRendered="1";}
+ }else if(id==="command"){
+  p.classList.remove("jr-generated-workspace");
+  if(p.dataset.jrWorkspaceRendered!=="1"){renderCommandCentre(p);p.dataset.jrWorkspaceRendered="1";}
+ }else if(p.classList.contains("jr-generated-workspace")&&p.dataset.jrWorkspaceRendered!=="1"){
+  renderGenerated(p,id);p.dataset.jrWorkspaceRendered="1";
+ }
+ if(id==="connections"&&p.dataset.jrWorkspaceRendered!=="1"){renderConnections(p);p.dataset.jrWorkspaceRendered="1";}
  if(id==="economy")renderJpcMarketPanel(p);
  makeChrome(p,id);
  return p;
