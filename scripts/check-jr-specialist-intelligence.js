@@ -1,0 +1,16 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const infer=require("../lib/jr-specialist-routing");
+const server=fs.readFileSync("server.js","utf8");
+assert.equal(infer("Explain quantum entanglement and qubits"),"quantum");
+assert.equal(infer("Compare African history with global history"),"human_history");
+assert.equal(infer("Design a long-term digital archive for historical records"),"civilisation_archive");
+assert.equal(infer("Explain general relativity and thermodynamics"),"physics");
+assert.equal(infer("Prove this calculus theorem"),"mathematics");
+assert.equal(infer("Explain JPC fixed supply and its market graph"),"market_research");
+assert.equal(infer("Help me plan a small supermarket"),"universe");
+for(const mode of ["quantum","physics","mathematics","human_history","civilisation_archive","market_research"])assert.ok(server.includes(mode+":"),"JR AI specialist mode missing: "+mode);
+assert.ok(server.includes("inferJrSpecialistMode(message)"),"default JR mode must automatically route to relevant specialist intelligence");
+assert.ok(server.includes("never fabricate a live market graph"),"market data must not be invented");
+console.log("PASS: JR quantum, physics, mathematics, human history, archive and JPC research routing.");
