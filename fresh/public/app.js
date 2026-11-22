@@ -1,6 +1,8 @@
 "use strict";
 (()=>{
- const $=id=>document.getElementById(id);\n const populateCountrySelect=(select,selected)=>{if(!select||!window.JRCountry)return;const current=selected??select.value;select.replaceChildren(new Option("Choose your country of origin",""));for(const code of window.JRCountry.codes)select.add(new Option(window.JRCountry.label(code),code));select.value=current||"";};\n const countryLabel=code=>window.JRCountry?.label(code)||"";
+ const $=id=>document.getElementById(id);
+ const populateCountrySelect=(select,selected)=>{if(!select||!window.JRCountry)return;const current=selected??select.value;select.replaceChildren(new Option("Choose your country of origin",""));for(const code of window.JRCountry.codes)select.add(new Option(window.JRCountry.label(code),code));select.value=current||"";};
+ const countryLabel=code=>window.JRCountry?.label(code)||"";
  const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
  let mode="login",busy=false;
  const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
@@ -281,7 +283,8 @@
   try{
    const d=await call("overview");me=d.member;hubLoaded=true;
    const pf=document.querySelector('[data-hub-action="update_profile"]');
-   for(const k of ["bio","city","country","profile_visibility"])if(pf.elements[k])pf.elements[k].value=me[k]||({profile_visibility:"public"}[k]||"");\n    const isFounderProfile=me.jp_number==="JP-01";populateCountrySelect(pf.elements.country_of_origin_code,me.country_of_origin_code);pf.elements.country_of_origin_code.disabled=isFounderProfile;pf.elements.country_of_origin_code.required=!isFounderProfile;$("profileCountryOriginLabel").hidden=isFounderProfile;const flag=$("profileCountryFlag");if(flag){flag.textContent=isFounderProfile?"":countryLabel(me.country_of_origin_code);flag.hidden=isFounderProfile||!me.country_of_origin_code;}
+   for(const k of ["bio","city","country","profile_visibility"])if(pf.elements[k])pf.elements[k].value=me[k]||({profile_visibility:"public"}[k]||"");
+    const isFounderProfile=me.jp_number==="JP-01";populateCountrySelect(pf.elements.country_of_origin_code,me.country_of_origin_code);pf.elements.country_of_origin_code.disabled=isFounderProfile;pf.elements.country_of_origin_code.required=false;$("profileCountryOriginLabel").hidden=isFounderProfile;const flag=$("profileCountryFlag");if(flag){flag.textContent=isFounderProfile?"":countryLabel(me.country_of_origin_code);flag.hidden=isFounderProfile||!me.country_of_origin_code;}
    for(const k of ["public_phone","show_email","show_location"])pf.elements[k].checked=!!me[k];
    render("myListings",d.listings,x=>item(x.title,x.description,"KSh "+(x.price??"—")+" · "+(x.location||"No location")+" · "+x.status));
    render("marketFeed",d.marketListings,x=>{const e=item(x.title,x.description,"KSh "+(x.price??"—")+" · "+(x.location||"No location")+" · "+(x.category||"Listing"));if(x.member_id!==me.id){const b=node("button","hub-small-button","Open CHAT / Deal Room");b.type="button";b.addEventListener("click",async()=>{try{const room=await call("create_deal_room",{listingId:x.id});await refresh();await openDealRoom(room.id);}catch(err){b.textContent=err.message;}});e.append(b);}return e;});
@@ -332,7 +335,7 @@
     payload.media.push({...uploaded,isCover:file===chosen.coverFile});
    }}catch(error){const feedback=form.querySelector("#roomMediaFeedback");if(feedback)feedback.textContent=error.message+" You can retry publishing.";return;}
   }
-  if(action==="update_profile"){payload.public_phone=fd.has("public_phone");payload.show_email=fd.has("show_email");payload.show_location=fd.has("show_location");}
+  if(action==="update_profile"){payload.public_phone=fd.has("public_phone");payload.show_email=fd.has("show_email");payload.show_location=fd.has("show_location");if(payload.country_of_origin_code==="")delete payload.country_of_origin_code;}
   const feedback=form.querySelector(".hub-feedback");const button=form.querySelector("button[type=submit],button:not([type])");
   if(button){button.disabled=true;}
   try{const result=await call(action,payload);if(feedback)feedback.textContent=result?.note||"Saved successfully.";form.reset();form.dispatchEvent(new Event("room-media-reset"));await refresh();}

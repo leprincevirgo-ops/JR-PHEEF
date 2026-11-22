@@ -177,7 +177,8 @@ app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
     if(typeof password!=="string"||password.length<8||password.length>128)return res.status(400).json({ok:false,error:"Password must be between 8 and 128 characters."});
     if(typeof phone!=="string"||phone.trim().length<7||phone.trim().length>25)return res.status(400).json({ok:false,error:"Enter your phone number, including country code."});
     const year=Number(birthYear),currentYear=new Date().getUTCFullYear();
-    if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});\n    if(typeof countryOfOriginCode!=="string"||!/^[A-Z]{2}$/.test(countryOfOriginCode))return res.status(400).json({ok:false,error:"Choose your country of origin."});
+    if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
+    if(typeof countryOfOriginCode!=="string"||!/^[A-Z]{2}$/.test(countryOfOriginCode))return res.status(400).json({ok:false,error:"Choose your country of origin."});
     const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year,country_of_origin_code:countryOfOriginCode}});
     if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
     if(result.data.access_token&&result.data.user?.email_confirmed_at){

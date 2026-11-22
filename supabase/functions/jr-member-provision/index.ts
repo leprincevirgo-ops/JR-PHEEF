@@ -31,7 +31,9 @@ Deno.serve(async (req: Request) => {
     if (!user.email_confirmed_at) return Response.json({ ok: false, error: "Confirm your email address before continuing." }, { status: 403, headers: corsHeaders });
     if (!user.email || !fullName || !phone || !Number.isInteger(birthYear) || birthYear < 1900 || birthYear > currentYear - 18) return Response.json({ ok: false, error: "Your verified account is missing valid profile details. Please contact support." }, { status: 422, headers: corsHeaders });
 
-    const profile: Record<string, unknown> = { auth_user_id: user.id, email: String(user.email).toLowerCase(), full_name: fullName, phone, birth_year: birthYear, status: "active", account_type: "individual", country: "Kenya" };\n    const originCode = String(meta.country_of_origin_code || "").toUpperCase();\n    if (originCode && /^[A-Z]{2}$/.test(originCode)) profile.country_of_origin_code = originCode;
+    const profile: Record<string, unknown> = { auth_user_id: user.id, email: String(user.email).toLowerCase(), full_name: fullName, phone, birth_year: birthYear, status: "active", account_type: "individual", country: "Kenya" };
+    const originCode = String(meta.country_of_origin_code || "").toUpperCase();
+    if (originCode && /^[A-Z]{2}$/.test(originCode)) profile.country_of_origin_code = originCode;
     const response = await fetch(supabaseUrl + "/rest/v1/members?on_conflict=auth_user_id", {
       method: "POST",
       headers: { apikey: serviceKey, Authorization: "Bearer " + serviceKey, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },

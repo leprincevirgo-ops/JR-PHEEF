@@ -612,3 +612,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 #installAppButton[hidden]{display:none!important}
 #installAppButton{border-color:rgba(125,225,244,.5);color:#a9f8ff}
 @media(max-width:620px){.top-actions{gap:7px}#installAppButton{font-size:.72rem;padding:8px 10px}}
+
+/* Member-declared country-of-origin identity */
+.profile-country-flag{display:inline-flex;align-items:center;gap:.35rem;margin:.25rem .35rem 0 0;padding:.2rem .5rem;border:1px solid rgba(132,190,230,.28);border-radius:999px;background:rgba(70,140,190,.10);font-size:.82rem;line-height:1.4;}
+#profileCountryFlag{font-size:.9rem;}

@@ -32,7 +32,8 @@ Deno.serve(async (req: Request) => {
     };
     const profiles=await rest("members?auth_user_id=eq."+encodeURIComponent(user.id)+"&select=id,full_name,email,jp_number,role,account_type,verified,status,phone,bio,city,country,country_of_origin_code,theme,profile_photo,profile_photo_hidden,profile_photo_hidden_url,profile_visibility,public_phone,show_email,show_location&limit=1");
     const member=profiles?.[0];
-    if(!member||member.status!=="active")return json({ok:false,error:"Your member profile is not active."},403);\n    if(member.jp_number==="JP-01")member.country_of_origin_code=null;
+    if(!member||member.status!=="active")return json({ok:false,error:"Your member profile is not active."},403);
+    if(member.jp_number==="JP-01")member.country_of_origin_code=null;
     const input=await req.json().catch(()=>({}));
     const action=clean(input.action,60);
     const mid=member.id;
@@ -321,7 +322,8 @@ Deno.serve(async (req: Request) => {
       if(input.profile_photo_hidden===false){patch.profile_photo_hidden=false;const replacingPhoto=typeof input.profile_photo==="string"&&storagePath(input.profile_photo)&&input.profile_photo.startsWith(mid+"/profile/");if(!replacingPhoto&&input.profile_photo!==""&&member.profile_photo_hidden_url){patch.profile_photo=member.profile_photo_hidden_url;patch.profile_photo_hidden_url="";}}
       if(typeof input.profile_photo_hidden_url==="string"&&input.profile_photo_hidden_url===""&&input.profile_photo==="")patch.profile_photo_hidden_url="";
       for(const key of ["public_phone","show_email","show_location"])if(typeof input[key]==="boolean")patch[key]=input[key];
-      if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;\n      if(input.country_of_origin_code!==undefined&&member.jp_number!=="JP-01"){const code=clean(input.country_of_origin_code,2).toUpperCase();if(!/^[A-Z]{2}$/.test(code))return json({ok:false,error:"Choose a valid country of origin."},400);patch.country_of_origin_code=code;}
+      if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;
+      if(input.country_of_origin_code!==undefined&&member.jp_number!=="JP-01"){const code=clean(input.country_of_origin_code,2).toUpperCase();if(!/^[A-Z]{2}$/.test(code))return json({ok:false,error:"Choose a valid country of origin."},400);patch.country_of_origin_code=code;}
       if(!Object.keys(patch).length)return json({ok:false,error:"There are no valid profile changes to save."},400);
       const data=await rest("members?id=eq."+mid,"PATCH",patch);
       return response(data?.[0]||{updated:true});
@@ -517,12 +519,12 @@ Deno.serve(async (req: Request) => {
       const merged=new Map<string,any>();for(const item of [...(publicRows||[]),...followedRows])if(new Date(item.expires_at||item.created_at)>new Date())merged.set(item.id,item);
       const feed=[...merged.values()].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,60);
       const ids=[...new Set(feed.map(x=>x.member_id))];
-      const profiles=ids.length?await rows("members","id=in.("+ids.join(",")+")&select=id,full_name,jp_number,profile_photo,profile_photo_hidden,profile_visibility"):[];
+      const profiles=ids.length?await rows("members","id=in.("+ids.join(",")+")&select=id,full_name,jp_number,country_of_origin_code,profile_photo,profile_photo_hidden,profile_visibility"):[];
       const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
       const result=await Promise.all(feed.map(async(item:any)=>{
         const author:any=profileMap.get(item.member_id)||{};let avatar=null;
         if(author.profile_visibility!=="private"&&!author.profile_photo_hidden&&author.profile_photo&&storagePath(author.profile_photo))avatar=(await signedMedia([{path:author.profile_photo,kind:"image"}]))[0]?.url||null;
-        return {...item,author:{id:item.member_id,name:author.profile_visibility==="private"?"JR PHEEF member":author.full_name||"JR PHEEF member",jpNumber:author.profile_visibility==="private"?"":author.jp_number||"",avatar},media:await signedMedia(item.media||[])};
+        return {...item,author:{id:item.member_id,name:author.profile_visibility==="private"?"JR PHEEF member":author.full_name||"JR PHEEF member",jpNumber:author.profile_visibility==="private"?"":author.jp_number||"",avatar,countryCode:author.jp_number==="JP-01"?null:author.country_of_origin_code||null},media:await signedMedia(item.media||[])};
       }));
       return response({items:result,following:followed});
     }
