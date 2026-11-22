@@ -100,3 +100,14 @@
  .jr-command-grid{grid-template-columns:minmax(0,1fr)}
  .jr-command-card{min-height:130px}
 }
+
+/* Directional page controls are separate from the four ordinary primary tabs. */
+.jr-directional-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;max-width:1180px;margin:7px auto 12px;padding:0 14px}
+.jr-direction-arrow{display:inline-grid;place-items:center;width:38px;height:36px;min-width:38px;border:1px solid rgba(66,210,255,.25);border-radius:11px;background:rgba(5,25,47,.82);color:#c9f6ff;font-size:21px;line-height:1;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease}
+.jr-direction-arrow:hover:not(:disabled),.jr-direction-arrow:focus-visible{border-color:rgba(66,245,255,.65);background:rgba(0,125,174,.28);transform:translateY(-1px);outline:none}
+.jr-direction-arrow:disabled{opacity:.32;cursor:not-allowed}
+@media(max-width:900px){
+ .jr-directional-controls{position:sticky;top:62px;z-index:150;justify-content:flex-end;gap:6px;margin:0;padding:4px 10px;background:rgba(2,10,25,.82);backdrop-filter:blur(12px)}
+ .jr-direction-arrow{width:34px;height:32px;min-width:34px;border-radius:9px;font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){.jr-direction-arrow{transition:none}}
