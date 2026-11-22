@@ -144,3 +144,15 @@ img,video,canvas,iframe{max-width:100%}
 .jr-direction-arrow:disabled{opacity:.32;cursor:not-allowed}
 .jr-direction-arrow:focus-visible,.jp-primary-nav button:focus-visible,#jpMobileDock button:focus-visible{outline:2px solid #42f5ff;outline-offset:2px}
 @media(max-width:900px){.jp-primary-nav .jp-arrow-nav-item{border-radius:12px!important;padding:9px 12px!important}.jr-directional-controls{padding:6px 10px}.jr-direction-arrow{width:36px;height:34px}}
+
+
+/* The four main destinations are tabs, never directional arrows. */
+.jp-primary-nav .jp-primary-tab{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;padding:10px 16px!important;border:1px solid rgba(66,245,255,.2)!important;border-radius:12px!important;background:rgba(5,27,49,.82)!important;color:#e5f7ff!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important}
+.jp-primary-nav .jp-primary-tab.jp-nav-active{background:rgba(0,150,210,.2)!important;border-color:rgba(66,245,255,.55)!important}
+.jp-primary-nav .jp-primary-tab.jp-nav-assistant{border-color:rgba(214,177,94,.5)!important}
+.jp-primary-nav .jp-arrow-nav-item,.jp-primary-nav .jp-arrow-nav-glyph{display:none!important}
+.jr-directional-controls{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:7px;padding:7px 12px;margin:0 0 12px;background:rgba(3,16,31,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(66,245,255,.13)}
+.jr-direction-arrow{width:38px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(66,245,255,.26);border-radius:10px;background:rgba(5,37,62,.8);color:#dffaff;font-size:23px;line-height:1;cursor:pointer}
+.jr-direction-arrow:disabled{opacity:.32;cursor:not-allowed}
+.jr-direction-arrow:focus-visible,.jp-primary-nav button:focus-visible,#jpMobileDock button:focus-visible{outline:2px solid #42f5ff;outline-offset:2px}
+@media(max-width:900px){.jp-primary-nav .jp-primary-tab{border-radius:10px!important;padding:9px 12px!important}.jr-directional-controls{padding:6px 10px}.jr-direction-arrow{width:36px;height:34px}}
