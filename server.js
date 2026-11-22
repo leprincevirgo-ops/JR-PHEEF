@@ -1124,18 +1124,22 @@ app.get("/api/connections", async (req,res) => {
     const ids=[...new Set((data||[]).flatMap(x=>[x.requester_id,x.receiver_id]).filter(x=>x!==String(m.id)))];
     let people={};
     if(ids.length){
-      const p=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,profile_visibility").in("id",ids);
+      const p=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,profile_visibility,country_code,role,account_type").in("id",ids);
       if(!p.error) people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));
     }
     res.json({ok:true,connections:(data||[]).map(x=>{
       const other=people[x.requester_id===String(m.id)?x.receiver_id:x.requester_id]||null;
       const isAccepted=x.status==="accepted";
+      const privateProfile=String(other&&other.profile_visibility||"public").toLowerCase()==="private";
+      const owner=other&&[other.role,other.account_type].some(value=>String(value||"").toLowerCase()==="owner");
+      const countryCode=isAccepted&&other&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
       return {...x,other_member:other?{
         jp_number:other.jp_number||null,
         dgbo_id:other.dgbo_id||null,
-        full_name:other.profile_visibility==="private"?"JR PHEEF Member":other.full_name,
+        full_name:privateProfile?"JR PHEEF Member":other.full_name,
         verified:!!other.verified,
-        profile_visibility:other.profile_visibility||"public",
+        profile_visibility:privateProfile?"private":"public",
+        country_code:countryCode,
         connected:isAccepted
       }:null};
     })});
