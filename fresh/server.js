@@ -60,6 +60,12 @@ function clearAuthCookies(res){
 }
 function sameOrigin(req,res,next){
   const origin=req.headers.origin;
+  if(origin==="null"){
+    // Embedded Android/WebView clients can use an opaque origin. Permit safe reads
+    // and JSON API calls only; ordinary cross-site HTML form submissions stay blocked.
+    if(req.method==="GET"||req.method==="HEAD"||req.is("application/json"))return next();
+    return res.status(403).json({ok:false,error:"Opaque-origin requests must use the JSON API."});
+  }
   if(origin){
     let normalized;
     try{normalized=new URL(origin).origin;}catch{}
