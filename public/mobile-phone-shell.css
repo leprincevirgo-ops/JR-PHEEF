@@ -105,3 +105,19 @@ img,video,canvas,iframe{max-width:100%}
  #jpMobileDock [data-mobile-destination="jr"]{border-color:rgba(214,177,94,.52)!important}
 }
 @media(max-width:390px){#jpMobileDock .jp-mobile-dock-icon{font-size:21px!important}#jpMobileDock .jp-mobile-dock-label{font-size:9px!important}}
+
+
+/* JPC market surface: truthful design-stage state until verified market feeds exist. */
+.jr-jpc-market-panel{margin:18px 0;padding:18px;border:1px solid rgba(214,177,94,.38)!important;border-radius:18px;background:linear-gradient(145deg,rgba(4,26,52,.97),rgba(5,16,35,.97))!important;box-shadow:0 16px 38px rgba(0,0,0,.2)}
+.jr-jpc-market-heading h2{margin:6px 0;color:#f2d28a}
+.jr-jpc-market-heading p,.jr-jpc-market-note{color:#b9cbdc;line-height:1.55}
+.jr-jpc-market-status{margin:12px 0}
+.jr-jpc-status-label{display:inline-flex;padding:7px 11px;border:1px solid rgba(214,177,94,.4);border-radius:999px;color:#f2d28a;font-size:10px;letter-spacing:1px}
+.jr-jpc-market-chart{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:170px;margin:12px 0;padding:20px;text-align:center;border:1px dashed rgba(214,177,94,.38);border-radius:14px;background:linear-gradient(135deg,rgba(4,35,67,.72),rgba(2,13,30,.86))}
+.jr-jpc-market-chart-mark{font-size:28px;color:#f2d28a}
+.jr-jpc-market-chart strong{color:#eaf7ff}
+.jr-jpc-market-chart p{max-width:620px;margin:0;color:#a9c3d6;line-height:1.55}
+.jr-jpc-market-actions{display:flex;flex-wrap:wrap;gap:8px}
+.jr-jpc-market-actions button:disabled{opacity:.55;cursor:not-allowed}
+.jr-jpc-market-note{font-size:11px;margin-top:12px}
+@media(max-width:600px){.jr-jpc-market-panel{padding:14px}.jr-jpc-market-actions button{flex:1 1 100%}}
