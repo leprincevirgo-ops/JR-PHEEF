@@ -2,6 +2,7 @@
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const js=fs.readFileSync("public/command-centre-social.js","utf8");
+const runtime=fs.readFileSync("fresh/server.js","utf8");
 const css=fs.readFileSync("public/command-centre-social.css","utf8");
 const html=fs.readFileSync("public/index.html","utf8");
 const messages=fs.readFileSync("public/messages-ui.js","utf8");
@@ -27,5 +28,6 @@ assert.ok(js.includes("jrcc-floating-talk-control"),"floating Talk to JR control
 assert.ok(css.includes("jrcc-command-open .jrcc-floating-talk-control"),"floating launcher must hide while Command Center is open");
 
 assert.ok(fs.readFileSync("server.js","utf8").includes('if(origin==="null")'),"Android/WebView opaque-origin JSON requests must be handled explicitly");
+assert.ok(runtime.includes('if(origin==="null")')&&runtime.includes('req.is("application/json")'),"live runtime must support opaque-origin JSON requests for Android/WebView clients");
 assert.ok(fs.readFileSync("server.js","utf8").includes('!req.is("application/json")'),"opaque origins must not permit cross-site form submissions");
 assert.ok(css.includes(".jrcc-floating-talk-control{margin-bottom:12px!important}"),"floating Talk to JR launcher must be lifted above the navigation edge");
