@@ -21,7 +21,7 @@ assert.ok(shell.includes('function makeChrome(p,id)')&&shell.includes('"jr-page-
 assert.ok(shell.includes("function updateBackControls()"),"back arrow availability must follow navigation history");
 assert.ok(shell.includes('p.dataset.jrWorkspaceRendered!=="1"'),"previous workspace DOM must remain mounted so form/search/filter state is not reset on back");
 assert.ok(shell.includes("window.history.pushState")&&shell.includes("jrWorkspaceIndex"),"browser back/forward history integration missing");
-assert.ok(mobile.includes('["command","▦","Command Center",()=>route("command")]'),"mobile Command Center destination missing");
+assert.ok(mobile.includes('["command","→","Command Center",()=>route("command")]'),"mobile Command Center arrow destination missing");
 assert.ok(css.includes(".jr-command-grid")&&css.includes("@media(max-width:900px)"),"responsive Command Center styles missing");
 assert.ok(!shell.includes('const extra=el("div","jr-desktop-extra")')&&!shell.includes("nav.append(extra)"),"secondary desktop navigation must remain removed");
 const cacheVersion=Number((sw.match(/const VERSION="jr-shell-v(\d+)"/)||[])[1]||0);
