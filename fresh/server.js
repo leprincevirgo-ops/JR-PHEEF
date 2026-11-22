@@ -406,6 +406,25 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
   }
 });
 
+app.get("/api/me",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.json({ok:false,error:"LOGIN_REQUIRED"});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{
+      method:"POST",
+      headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},
+      body:JSON.stringify({action:"overview"}),
+      signal:AbortSignal.timeout(10000)
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok)return res.json({ok:false,error:data.error||"Profile unavailable."});
+    return res.json({ok:true,member:data.data?.member||null});
+  }catch(error){
+    console.warn("JR member profile lookup unavailable:",String(error?.message||error).slice(0,120));
+    return res.json({ok:false,error:"Profile unavailable."});
+  }
+});
+
 app.post("/api/workspace",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const user=await currentUser(req,res);
