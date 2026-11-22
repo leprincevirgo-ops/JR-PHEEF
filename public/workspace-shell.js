@@ -91,6 +91,44 @@ const providers=[
 ["OpenStreetMap","Open map data and geographic tools","https://www.openstreetmap.org"]
 ];
 let history=[],cursor=-1,wrapped=false;
+function captureNavigationPosition(entry){
+ if(!entry)return;
+ entry.scrollY=Math.max(0,Number(window.scrollY||window.pageYOffset||0));
+ const page=$(entry.id);
+ entry.pageScrollTop=page?Math.max(0,Number(page.scrollTop)||0):0;
+}
+function restoreNavigationPosition(entry){
+ if(!entry)return;
+ const restore=()=>{
+  const page=$(entry.id);
+  if(page)page.scrollTop=Math.max(0,Number(entry.pageScrollTop)||0);
+  window.scrollTo(0,Math.max(0,Number(entry.scrollY)||0));
+ };
+ const raf=window.requestAnimationFrame||function(fn){window.setTimeout(fn,0);};
+ raf(()=>raf(restore));
+}
+function syncBrowserNavigation(entry,replace){
+ if(!entry||!window.history||!window.history.pushState)return;
+ const state=Object.assign({},window.history.state||{},{jrWorkspace:entry.id,jrWorkspaceIndex:cursor});
+ const url=window.location.pathname+window.location.search+window.location.hash;
+ try{if(replace)window.history.replaceState(state,"",url);else window.history.pushState(state,"",url);}catch(e){}
+}
+function activateHistoryEntry(index){
+ if(index<0||index>=history.length)return false;
+ if(history[cursor])captureNavigationPosition(history[cursor]);
+ cursor=index;
+ const entry=history[cursor];
+ ensure(entry.id);activateOnlyWorkspace(entry.id);updateNav(entry.id);
+ document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id:entry.id}}));
+ restoreNavigationPosition(entry);
+ return true;
+}
+window.addEventListener("popstate",event=>{
+ const state=event.state||{};
+ const index=Number(state.jrWorkspaceIndex);
+ if(Number.isInteger(index)&&history[index]&&history[index].id===state.jrWorkspace)activateHistoryEntry(index);
+ else if(cursor>0)activateHistoryEntry(cursor-1);
+});
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 function clearChildren(node){while(node&&node.firstChild)node.removeChild(node.firstChild);}
@@ -280,10 +318,18 @@ function activateOnlyWorkspace(id){
 function go(id,replace=false){
  if(id==="personalhub")id="connecthub";
  if(!id)return;
+ const current=history[cursor],samePage=!!current&&current.id===id;
+ if(current)captureNavigationPosition(current);
  const p=ensure(id);
- if(cursor<0||history[cursor]!==id){history=history.slice(0,cursor+1);history.push(id);cursor=history.length-1;}
- activateOnlyWorkspace(id);
- updateNav(id);window.scrollTo(0,0);
+ if(!samePage){
+  history=history.slice(0,cursor+1);
+  const entry={id,scrollY:0,pageScrollTop:0};
+  if(replace&&cursor>=0)history[cursor]=entry;
+  else{history.push(entry);cursor=history.length-1;}
+  syncBrowserNavigation(entry,!!replace);
+ }else if(replace)syncBrowserNavigation(current,true);
+ activateOnlyWorkspace(id);updateNav(id);
+ if(!samePage){window.scrollTo(0,0);if(p)p.scrollTop=0;}
  document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));
 }
 function updateNav(id){
@@ -291,7 +337,16 @@ function updateNav(id){
  const selected=destinations[id]||"command";
  document.querySelectorAll("#app>.nav [data-page]").forEach(b=>{const active=b.dataset.page===selected;b.classList.toggle("jp-nav-active",active);if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current","page");});
 }
-function navigate(delta){const next=cursor+delta;if(next<0||next>=history.length)return;cursor=next;const id=history[cursor];ensure(id);activateOnlyWorkspace(id);updateNav(id);window.scrollTo(0,0);document.dispatchEvent(new CustomEvent("jr:workspacechange",{detail:{id}}));}
+function navigate(delta,fromPopState=false){
+ const next=cursor+delta;if(next<0||next>=history.length)return;
+ if(!fromPopState&&window.history&&window.history.state&&window.history.state.jrWorkspace){
+  const method=delta<0?"back":"forward";
+  if(typeof window.history[method]==="function"){window.history[method]();return;}
+ }
+ activateHistoryEntry(next);
+}
+window.jrWorkspaceBack=()=>navigate(-1);
+window.jrWorkspaceForward=()=>navigate(1);
 function concealInternalOrchestration(){
  const architecture=$("connectedArchitecture");if(architecture)architecture.hidden=true;
  const directory=$("aiAgentDirectory");if(directory){const card=directory.closest(".card");if(card)card.hidden=true;}
@@ -304,17 +359,17 @@ function mount(){
  if(!$("jrEverywhereScript")){const sc=document.createElement("script");sc.id="jrEverywhereScript";sc.src="/jr-everywhere.js";sc.defer=true;document.body.append(sc);}
  concealInternalOrchestration();
  const observer=new MutationObserver(()=>concealInternalOrchestration());observer.observe(app,{childList:true,subtree:true});
- // Keep the primary navigation limited to Home, Explore, JR Assistant, Connect and More.
- // The ecosystem group order ["dgbo","family","ecosystem"] stays together inside More.
- // All other destinations are grouped inside More; never append workspace buttons to the primary bar.
+ // Only four destinations belong in the primary arrow navigation: Home, Worlds, JR and Command Center.
+ // Messages, social, business tools and specialist workspaces remain inside their relevant workspaces.
  const nav=app.querySelector(".nav");
  if(nav){
-  const primary=[["home","⌂","Home"],["worlds","✧","Explore"],["assistant","✦","JR"],["messages","✉","Messages"],["command","▦","Command"]];
+  const primary=[["home","←","Home"],["worlds","↗","Worlds"],["assistant","↑","JR"],["command","→","Command Center"]];
   clearChildren(nav);
   primary.forEach(([id,glyph,label],index)=>{
-   const b=el("button",index===0?"jp-nav-active":"");b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
-   const icon=el("span","",glyph);icon.setAttribute("aria-hidden","true");
-   const name=el("span","",label);b.append(icon,name);b.addEventListener("click",()=>go(id));nav.append(b);
+   const b=el("button","jp-arrow-nav-item"+(index===0?" jp-nav-active":""));b.type="button";b.dataset.page=id;b.setAttribute("aria-label",label);
+   if(id==="assistant")b.classList.add("jp-nav-assistant");
+   const icon=el("span","jp-arrow-nav-glyph",glyph);icon.setAttribute("aria-hidden","true");
+   const name=el("span","jp-arrow-nav-label",label);b.append(icon,name);b.addEventListener("click",()=>go(id));nav.append(b);
   });
   var desktopExtra=nav.querySelector(".jr-desktop-extra");if(desktopExtra)desktopExtra.parentNode.removeChild(desktopExtra);
   const home=$("home");
@@ -358,8 +413,10 @@ function mount(){
  }
  // One global navigation only; duplicate page-level navigation bars are disabled.
  const active=document.querySelector("#app .page:not(.hidden)")||$("home");
- if(active){const id=active.id||"home";history=[id];cursor=0;ensure(id);updateNav(id);}
+ if(active){const id=active.id||"home";history=[{id,scrollY:Math.max(0,Number(window.scrollY||window.pageYOffset||0)),pageScrollTop:Math.max(0,Number(active.scrollTop)||0)}];cursor=0;ensure(id);updateNav(id);syncBrowserNavigation(history[0],true);}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
 window.jrWorkspaceNavigate=go;
+window.jrWorkspaceBack=()=>navigate(-1);
+window.jrWorkspaceForward=()=>navigate(1);
 })();
