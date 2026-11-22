@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { rankMatches } from "./matching.mjs";
 
 const cors = {
-  "Access-Control-Allow-Origin": "https://jr-pheef-foundation.onrender.com",
+  "Access-Control-Allow-Origin": "https://jr-pheef-marketplace.onrender.com",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
