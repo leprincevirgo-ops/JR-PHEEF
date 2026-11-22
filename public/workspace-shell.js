@@ -311,8 +311,6 @@ function renderJpcMarketPanel(p){
  const panel=el("section","card jr-jpc-market-panel");panel.id="jrJpcMarketPanel";
  const head=el("div","jr-jpc-market-heading");
  head.append(el("span","jp-kicker","JR PHEEF ECONOMY · JPC"),el("h2","","JPC Market & Treasury"),el("p","","The proposed hybrid fixed-supply digital asset, managed inside the JR PHEEF Economy workspace."));
- const state=el("div","jr-jpc-market-status");
- state.append(el("span","jr-jpc-status-item","",""));
  const status=el("strong","jr-jpc-status-label","DESIGN STAGE · NOT ISSUED");
  const feed=el("div","jr-jpc-market-chart");feed.setAttribute("role","status");feed.setAttribute("aria-live","polite");
  feed.append(el("span","jr-jpc-market-chart-mark","↗"),el("strong","","Verified market feed not connected"),el("p","","A live price and market-event graph will appear only after an approved JPC contract and verified exchange or market-data source are connected. No price is displayed until then."));
