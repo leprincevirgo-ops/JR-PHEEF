@@ -1,0 +1,12 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const shell=fs.readFileSync("public/workspace-shell.js","utf8");
+const css=fs.readFileSync("public/mobile-phone-shell.css","utf8");
+assert.ok(shell.includes("function renderJpcMarketPanel(p)"),"JPC market panel must be part of JR PHEEF Economy");
+assert.ok(shell.includes("Verified market feed not connected"),"JPC market must disclose when no verified feed exists");
+assert.ok(shell.includes("BUY JPC · NOT AVAILABLE")&&shell.includes("buy.disabled=true"),"JPC purchase must remain disabled until approved");
+assert.ok(shell.includes("COLLATERAL LOANS · NOT AVAILABLE")&&shell.includes("loan.disabled=true"),"collateral lending must remain disabled until authorized");
+assert.ok(css.includes(".jr-jpc-market-panel")&&css.includes("#f2d28a"),"JPC blue/gold market styling missing");
+assert.ok(!shell.includes("JPC/USD")&&!shell.includes("$0.00"),"do not display fabricated JPC prices");
+console.log("PASS: JPC market surface is integrated in Economy and does not fabricate live data or enable unapproved transactions.");
