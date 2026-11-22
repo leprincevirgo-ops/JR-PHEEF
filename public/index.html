@@ -1278,7 +1278,7 @@ function jrUseExample(value){
   input.dispatchEvent(new Event("input",{bubbles:true}));
 }
 
-function show(id){
+function jrShowPage(id){
   const target=$(id);
   if(!target){
     let fallback=$("jrModuleUnavailable");
@@ -1321,7 +1321,6 @@ function show(id){
 }
 
 /* JR directional history: primary destinations remain ordinary tabs. */
-const jrShowPage=show;
 const jrNavigation={entries:[],index:-1,restoring:false};
 function jrSnapshot(){
   return {id:document.querySelector("#app>.page:not(.hidden)")?.id||"home",x:window.scrollX||0,y:window.scrollY||0,pageY:(document.querySelector("#app>.page:not(.hidden)")?.scrollTop)||0};
