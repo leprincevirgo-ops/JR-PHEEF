@@ -30,9 +30,9 @@ Deno.serve(async (req: Request) => {
       if(!response.ok)throw new Error("Database operation failed ("+response.status+").");
       return data;
     };
-    const profiles=await rest("members?auth_user_id=eq."+encodeURIComponent(user.id)+"&select=id,full_name,email,jp_number,role,account_type,verified,status,phone,bio,city,country,theme,profile_photo,profile_photo_hidden,profile_photo_hidden_url,profile_visibility,public_phone,show_email,show_location&limit=1");
+    const profiles=await rest("members?auth_user_id=eq."+encodeURIComponent(user.id)+"&select=id,full_name,email,jp_number,role,account_type,verified,status,phone,bio,city,country,country_of_origin_code,theme,profile_photo,profile_photo_hidden,profile_photo_hidden_url,profile_visibility,public_phone,show_email,show_location&limit=1");
     const member=profiles?.[0];
-    if(!member||member.status!=="active")return json({ok:false,error:"Your member profile is not active."},403);
+    if(!member||member.status!=="active")return json({ok:false,error:"Your member profile is not active."},403);\n    if(member.jp_number==="JP-01")member.country_of_origin_code=null;
     const input=await req.json().catch(()=>({}));
     const action=clean(input.action,60);
     const mid=member.id;
@@ -321,7 +321,7 @@ Deno.serve(async (req: Request) => {
       if(input.profile_photo_hidden===false){patch.profile_photo_hidden=false;const replacingPhoto=typeof input.profile_photo==="string"&&storagePath(input.profile_photo)&&input.profile_photo.startsWith(mid+"/profile/");if(!replacingPhoto&&input.profile_photo!==""&&member.profile_photo_hidden_url){patch.profile_photo=member.profile_photo_hidden_url;patch.profile_photo_hidden_url="";}}
       if(typeof input.profile_photo_hidden_url==="string"&&input.profile_photo_hidden_url===""&&input.profile_photo==="")patch.profile_photo_hidden_url="";
       for(const key of ["public_phone","show_email","show_location"])if(typeof input[key]==="boolean")patch[key]=input[key];
-      if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;
+      if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;\n      if(input.country_of_origin_code!==undefined&&member.jp_number!=="JP-01"){const code=clean(input.country_of_origin_code,2).toUpperCase();if(!/^[A-Z]{2}$/.test(code))return json({ok:false,error:"Choose a valid country of origin."},400);patch.country_of_origin_code=code;}
       if(!Object.keys(patch).length)return json({ok:false,error:"There are no valid profile changes to save."},400);
       const data=await rest("members?id=eq."+mid,"PATCH",patch);
       return response(data?.[0]||{updated:true});
@@ -357,11 +357,11 @@ Deno.serve(async (req: Request) => {
       const term=clean(input.query,80);
       if(term.length<2)return json({ok:false,error:"Enter at least two characters or a JP number."},400);
       const safe=term.replace(/[,%()]/g," ").trim();
-      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
+      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country,country_of_origin_code&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
       const results=(found||[]).filter((m:any)=>m.id!==mid);
       const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
       const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
-      return response(results.map((m:any)=>({...m,is_following:followed.has(m.id)})));
+      return response(results.map((m:any)=>({...m,country_of_origin_code:m.jp_number==="JP-01"?null:m.country_of_origin_code,is_following:followed.has(m.id)})));
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");
