@@ -355,9 +355,15 @@ Deno.serve(async (req: Request) => {
       }));
     }
     if(action==="request_connection"){
-      const jp=clean(input.jp_number,40).toUpperCase().replace(/\\s+/g,"");
-      if(!/^JP-[A-Z0-9]{6,16}$/.test(jp))return json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."},400);
-      const targetRows=await rows("members","jp_number=eq."+encodeURIComponent(jp)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
+      const targetId=clean(input.member_id,50);
+      let targetRows:any[]=[];
+      if(uuid(targetId)){
+        targetRows=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
+      }else{
+        const jp=clean(input.jp_number,40).toUpperCase().replace(/\\s+/g,"");
+        if(!/^JP-[A-Z0-9]{6,16}$/.test(jp))return json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."},400);
+        targetRows=await rows("members","jp_number=eq."+encodeURIComponent(jp)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
+      }
       const target=targetRows?.[0];
       if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").trim().toLowerCase()))return json({ok:false,error:"No active JR PHEEF member found for that JP number."},404);
       if(String(target.id)===String(mid))return json({ok:false,error:"That is your own JP number."},400);
