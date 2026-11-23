@@ -35,7 +35,7 @@ function runCircuit(){
  const html=rows.map(r=>'<div class="jr-quantum-prob"><div><strong>'+r.state+'</strong><small>Amplitude '+r.amp.re.toFixed(4)+(r.amp.im<0?" − ":" + ")+Math.abs(r.amp.im).toFixed(4)+'i</small></div><div class="jr-quantum-bar"><span style="width:'+(r.p*100).toFixed(2)+'%"></span></div><b>'+(r.p*100).toFixed(2)+'%</b></div>').join("");
  $("jrQuantumResults").innerHTML='<h4>Calculated measurement probabilities</h4>'+html+'<p class="jr-quantum-result-note">Exact state-vector probabilities for this ideal circuit; noise, decoherence and hardware imperfections are not modelled.</p>';
  $("jrQuantumFeedback").textContent="Simulation completed locally · "+gates.length+" gate(s) · 2 qubits.";
-
+}
 $("jrQuantumPreset").addEventListener("change",e=>preset(e.target.value));
 $("jrQuantumAdd").addEventListener("click",()=>{const gate=$("jrQuantumGate").value,target=Number($("jrQuantumTarget").value);if(gates.length>=20){$("jrQuantumFeedback").textContent="Circuit limit: 20 gates.";return;}if(gate==="CNOT"){if(gates.some(g=>g[0]==="CNOT")){$("jrQuantumFeedback").textContent="This teaching simulator supports one CNOT per circuit.";return;}gates.push(["CNOT",0]);}else gates.push([gate,target]);$("jrQuantumPreset").value="custom";renderCircuit();$("jrQuantumFeedback").textContent="Gate added. Run the simulator when ready.";});
 $("jrQuantumClear").addEventListener("click",()=>{gates=[];$("jrQuantumPreset").value="custom";renderCircuit();$("jrQuantumResults").innerHTML="<p>Circuit cleared.</p>";$("jrQuantumFeedback").textContent="Ready for a new circuit.";});
