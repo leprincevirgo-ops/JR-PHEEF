@@ -89,3 +89,14 @@ img,video,canvas,iframe{max-width:100%}
 }
 
 @media(max-width:900px){#jpMobileDock [data-mobile-destination="command"] .jp-mobile-dock-label{font-size:8px!important;letter-spacing:-.2px!important}}
+
+/* JPC market identity: deep blue foundation with restrained gold accents. */
+.jr-jpc-market-panel{
+  border:1px solid rgba(242,210,138,.42)!important;
+  background:radial-gradient(ellipse at 88% 8%,rgba(242,210,138,.13),transparent 38%),linear-gradient(135deg,#082b52,#04162e 72%)!important;
+  box-shadow:0 16px 38px rgba(0,0,0,.24),inset 0 1px rgba(242,210,138,.12)!important;
+}
+.jr-jpc-market-heading h2,.jr-jpc-status-label{color:#f2d28a!important}
+.jr-jpc-market-chart{border:1px solid rgba(242,210,138,.25)!important;background:rgba(3,19,39,.76)!important}
+.jr-jpc-market-chart-mark{color:#f2d28a!important}
+.jr-jpc-market-note{color:#c6d8ec}
