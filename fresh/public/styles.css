@@ -612,3 +612,24 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 #installAppButton[hidden]{display:none!important}
 #installAppButton{border-color:rgba(125,225,244,.5);color:#a9f8ff}
 @media(max-width:620px){.top-actions{gap:7px}#installAppButton{font-size:.72rem;padding:8px 10px}}
+
+/* Private Founder–JR conversation workspace */
+.founder-partner-card{margin:18px 0 24px;padding:20px;border:1px solid rgba(113,205,229,.32);border-radius:18px;background:radial-gradient(circle at 92% 0%,rgba(113,205,229,.12),transparent 35%),linear-gradient(145deg,rgba(7,28,52,.96),rgba(8,18,35,.98));box-shadow:0 18px 42px rgba(0,0,0,.2)}
+.founder-partner-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.founder-partner-head h3{margin:4px 0 8px;font-size:1.25rem;color:#eaf8ff}
+.founder-partner-head .view-copy{max-width:760px;margin:0;color:#a9bfd2;line-height:1.55}
+.founder-partner-private{white-space:nowrap;border:1px solid rgba(242,210,138,.35);border-radius:999px;padding:7px 10px;color:#f2d28a;font-size:.68rem;font-weight:800}
+.founder-partner-guide,.founder-partner-note{color:#9bb4c9;font-size:.78rem;line-height:1.55}
+.founder-partner-transcript{display:grid;gap:10px;max-height:420px;overflow:auto;padding:12px;margin:14px 0;border:1px solid rgba(128,190,220,.16);border-radius:14px;background:rgba(2,12,27,.55)}
+.founder-partner-message{max-width:94%;padding:11px 13px;border-radius:13px;background:rgba(28,58,84,.72);border:1px solid rgba(120,185,218,.16)}
+.founder-partner-message.is-founder{justify-self:end;background:rgba(18,70,92,.72)}
+.founder-partner-speaker{display:block;margin-bottom:5px;color:#f2d28a;font-size:.68rem;letter-spacing:.08em}
+.founder-partner-copy{margin:0;color:#e2eef7;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.58}
+.founder-partner-compose{display:grid;gap:9px}
+.founder-partner-compose textarea{width:100%;min-height:78px;resize:vertical;border:1px solid rgba(128,190,220,.3);border-radius:12px;padding:12px;background:rgba(1,13,28,.8);color:#f3f8fc;font:inherit}
+.founder-partner-controls,.founder-partner-options{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.founder-partner-controls button{min-height:40px}
+.founder-partner-options{margin-top:10px;color:#b7c9d8;font-size:.76rem}
+.founder-partner-options label{display:inline-flex;align-items:center;gap:7px}
+.founder-partner-status{color:#9fe7ef;font-size:.78rem;margin:10px 0 0}
+@media(max-width:620px){.founder-partner-card{padding:14px}.founder-partner-head{display:block}.founder-partner-private{display:inline-flex;margin-top:10px}.founder-partner-message{max-width:100%}.founder-partner-controls button{flex:1}}
