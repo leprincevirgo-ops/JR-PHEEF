@@ -22,6 +22,7 @@ function status(message){if(ui.status)ui.status.textContent=message;}
 function stopVoice(message){
  const current=recognition;recognition=null;
  if(current){current.onend=null;try{current.abort();}catch{try{current.stop();}catch{}}}
+ if(ui.mic){ui.mic.disabled=false;ui.mic.textContent="🎙 Speak";}
  if(window.speechSynthesis)window.speechSynthesis.cancel();
  if(ui.mic){ui.mic.disabled=false;ui.mic.textContent="🎙 Speak";}
  status(message||"Voice stopped. You can continue by typing.");
