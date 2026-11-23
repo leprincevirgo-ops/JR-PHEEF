@@ -23,7 +23,7 @@ for(const item of ["Needs Your Attention","Approvals & Decisions","Daily Operati
 assert.ok(mobile.includes('["worlds","◇","WORLDS",()=>route("worlds")]'),"mobile Worlds tab missing");
 assert.ok(mobile.includes('["home","⌂","HOME",()=>route("home")]')&&mobile.includes('["jr","✧","JR",()=>route("assistant")]')&&mobile.includes('["command","▦","COMMAND CENTER",()=>route("command")]'),"mobile primary tabs missing");
 assert.ok(!mobile.includes("jp-mobile-arrow-item"),"primary mobile tabs must not use directional arrow styling");
-assert.ok(mobile.includes('["home","←","Home",()=>route("home")]')&&mobile.includes('["jr","↑","JR",()=>route("assistant")]')&&mobile.includes('["command","→","Command Center",()=>route("command")]'),"mobile arrow destinations missing");
+assert.ok(shell.includes('["jrArrowBack","←","Back",()=>navigate(-1)]')&&shell.includes('["jrArrowForward","→","Forward",()=>navigate(1)]'),"global directional history controls missing");
 assert.ok(shell.includes("function captureNavigationPosition(entry)")&&shell.includes("function restoreNavigationPosition(entry)")&&shell.includes("window.jrWorkspaceBack"),"position-preserving navigation history missing");
 assert.ok(shell.includes('function makeChrome(p,id)')&&shell.includes("jrDirectionalControls")&&shell.includes('["jrArrowBack","←","Back",()=>navigate(-1)]')&&shell.includes("window.jrWorkspaceBack"),"nested workspaces must use the shared global back arrow and history");
 assert.ok(shell.includes("function updateBackControls()"),"back arrow availability must follow navigation history");
