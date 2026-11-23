@@ -70,14 +70,14 @@ assert.match(html,/button\.removeAttribute\("aria-busy"\)/,
   "login must clear its busy state after completion");
 assert.match(html,/id="loginMsg" role="status" aria-live="polite"/,
   "login status must be announced accessibly");
-assert.match(html,/workspace-shell\.js\?v=command5/,
+assert.match(html,/workspace-shell\.js\?v=[^"\s]+/,
   "workspace shell URL must be cache-busted");
 assert.match(html,/install-prompt\.js\?v=login-safe3/,"login-safe install prompt must be cache-busted");
 assert.match(install,/const authVisible=/,"install prompt must detect when the sign-in screen is visible");
 assert.match(install,/authVisible\(\)\|\|banner/,"install prompt must not cover the sign-in screen");
 assert.match(install,/if\(!deferredPrompt\|\|standalone\(\)\|\|authVisible\(\)\|\|banner\|\|dismissed\(\)\)return/,"install banner must wait for a real browser installability event");
 assert.match(installCss,/@media\(max-width:900px\)\{#jrInstallPrompt\{bottom:calc\(76px \+ env\(safe-area-inset-bottom\)\)!important;z-index:1100!important/,"mobile install banner must sit above, not over, the navigation dock");
-assert.match(worker,/const VERSION="jr-shell-v23"/,
+assert.match(worker,/const VERSION="jr-shell-v25"/,
   "service worker must activate a fresh cache generation");
 assert.ok(pkg.scripts.test.includes("scripts/check-login-entry.js"),
   "focused login regression check must run in npm test");
