@@ -2,11 +2,11 @@
 "use strict";
 
 // Read-only release smoke checks. No accounts, listings, deals, or payments are created.
-// Usage: BASE_URL=https://your-host.example npm run test:e2e
+// Usage: npm run test:e2e (defaults to Foundation staging); override BASE_URL for another environment.
 
 const assert = require("node:assert/strict");
 
-const base = (process.env.BASE_URL || "https://jr-pheef-marketplace.onrender.com").replace(/\/$/, "");
+const base = (process.env.BASE_URL || "https://jr-pheef-foundation.onrender.com").replace(/\/$/, "");
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 45000);
 const attempts = Number(process.env.SMOKE_ATTEMPTS || 2);
 
