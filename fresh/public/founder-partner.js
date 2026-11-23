@@ -42,11 +42,11 @@ function listen(){
  if(!Recognition){status("Voice input is not supported in this browser. You can type instead.");return;}
  stopVoice("Preparing microphone…");
  const r=new Recognition();recognition=r;r.lang=navigator.language||"en-KE";r.continuous=false;r.interimResults=true;r.maxAlternatives=1;
+ const segments=[];
  ui.mic.disabled=true;ui.mic.textContent="Listening…";status("Listening. Tap Stop voice whenever you want.");
  r.onresult=event=>{
-  let words="";
-  for(let i=event.resultIndex;i<event.results.length;i++)words+=event.results[i][0].transcript;
-  if(words)ui.input.value=words.trim();
+  for(let i=event.resultIndex;i<event.results.length;i++)segments[i]=event.results[i][0].transcript;
+  ui.input.value=segments.join(" ").trim();
  };
  r.onerror=event=>{if(recognition===r){recognition=null;ui.mic.disabled=false;ui.mic.textContent="🎙 Speak";status(event.error==="not-allowed"?"Microphone permission was not granted. You can type instead.":"Voice input stopped. You can continue by typing.");}};
  r.onend=()=>{if(recognition===r){recognition=null;ui.mic.disabled=false;ui.mic.textContent="🎙 Speak";status("Speech captured. Review your words, then send.");}};

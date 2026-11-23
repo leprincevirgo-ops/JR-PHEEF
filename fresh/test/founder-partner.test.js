@@ -27,6 +27,7 @@ test("Founder workspace persists its private conversation and offers voice plus 
  assert.match(client,/Founder–JR Partnership/);
  assert.match(client,/save_ai_message/);
  assert.match(client,/SpeechRecognition/);
+ assert.match(client,/segments\\[i\\]=event\\.results\\[i\\]\\[0\\]\\.transcript/);
  assert.match(client,/speechSynthesis/);
  assert.match(client,/Stop voice/);
 });
