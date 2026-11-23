@@ -13,8 +13,8 @@ test("Founder–JR conversation is protected by verified founder identity",()=>{
  new vm.Script(server,{filename:"fresh/server.js"});
  assert.match(server,/app\.post\("\/api\/founder\/partner-chat"/);
  assert.match(server,/functions\/v1\/jr-founder-overview/);
- assert.match(server,/founder\\?\\.role!=="founder"/);
- assert.match(server,/founder\\?\\.jpNumber!=="JP-01"/);
+ assert.match(server,/founder\?\.role!=="founder"/);
+ assert.match(server,/founder\?\.jpNumber!=="JP-01"/);
 });
 test("JR teaches abbreviations in full before using their short form",()=>{
  assert.match(server,/Application Programming Interface \(API\)/);
