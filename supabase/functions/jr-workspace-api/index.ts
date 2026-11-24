@@ -385,7 +385,8 @@ Deno.serve(async (req: Request) => {
       if(existing?.length)return response({already_exists:true,connection:existing[0],message:"A connection request or connection already exists."});
       const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
       await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
-      return response({already_exists:false,connection:created?.[0]||created,message:"Connection request sent. Both JP numbers remain private."});
+      const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
+      return response({already_exists:false,connection:safeSaved,message:"Connection request sent. Both JP numbers remain private."});
     }
     if(action==="request_connection"){
       return json({ok:false,error:"JP numbers are private. Ask the member for a JR PHEEF invitation link or code instead."},410);
@@ -401,7 +402,8 @@ Deno.serve(async (req: Request) => {
       if((status==="accepted"||status==="declined")&&!isReceiver)return json({ok:false,error:"Only the recipient can accept or decline this request."},403);
       if(status==="cancelled"&&!isRequester)return json({ok:false,error:"Only the requester can cancel this request."},403);
       const updated=await rest("connections?id=eq."+encodeURIComponent(id),"PATCH",{status,updated_at:new Date().toISOString()});
-      return response({connection:updated?.[0]||{...current,status},message:"Connection updated."});
+      const saved=updated?.[0]||{...current,status};const {requester_id,receiver_id,...safeSaved}=saved;
+      return response({connection:safeSaved,message:"Connection updated."});
     }
     if(action==="find_matches"){
       const query=clean(input.query,240);
@@ -456,7 +458,8 @@ Deno.serve(async (req: Request) => {
       if(existing?.length&&["pending","accepted"].includes(String(existing[0].status)))return response({already_exists:true,connection:existing[0],message:existing[0].status==="accepted"?"You are already connected.":"A connection request is already pending."});
       const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
       await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
-      return response({already_exists:false,connection:created?.[0]||created,member:{full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name||"JR PHEEF Member",verified:!!target.verified},message:"Connection request sent. JP numbers remain private."});
+      const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
+      return response({already_exists:false,connection:safeSaved,member:{full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name||"JR PHEEF Member",verified:!!target.verified},message:"Connection request sent. JP numbers remain private."});
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");
