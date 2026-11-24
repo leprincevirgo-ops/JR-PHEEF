@@ -722,6 +722,99 @@ Deno.serve(async (req: Request) => {
       const data=await insert("jr_delivery_requests",{requester_id:mid,pickup,destination,description:description||null,status:"open"});
       return response({request:data?.[0]||data,note:"Request recorded. No rider has been assigned and no live tracking or fare estimate is connected yet."});
     }
+    const isFounder=member.role==="founder"&&member.jp_number==="JP-01"&&member.status==="active";
+    if(action==="list_ventures"){
+      const [ventures,memberships]=await Promise.all([
+        rows("ventures","select=slug,name,kind,status,regulated,description&order=kind.asc,name.asc&limit=100"),
+        rows("venture_memberships","member_id=eq."+mid+"&select=id,venture_slug,role_key,status,created_at,updated_at,approved_at&limit=100")
+      ]);
+      const bySlug=new Map((memberships||[]).map((x:any)=>[x.venture_slug,x]));
+      return response((ventures||[]).map((v:any)=>({...v,membership:bySlug.get(v.slug)||null,canApply:v.status!=="paused"&&v.slug!=="jr-pheef"})));
+    }
+    if(action==="get_venture_registration"){
+      const slug=clean(input.ventureSlug,40).toLowerCase();
+      if(!/^[a-z0-9-]{2,40}$/.test(slug))return json({ok:false,error:"Choose a valid venture."},400);
+      const [ventureRows,templateRows]=await Promise.all([
+        rows("ventures","slug=eq."+encodeURIComponent(slug)+"&select=slug,name,kind,status,regulated,description&limit=1"),
+        rows("venture_registration_templates","venture_slug=eq."+encodeURIComponent(slug)+"&select=version,form_schema,active&limit=1")
+      ]);
+      const venture=ventureRows?.[0],template=templateRows?.[0];
+      if(!venture||!template||!template.active)return json({ok:false,error:"This venture registration is not available."},404);
+      return response({venture,template:{version:template.version,...(template.form_schema||{})}});
+    }
+    if(action==="my_venture_memberships"){
+      const data=await rows("venture_memberships","member_id=eq."+mid+"&select=id,venture_slug,role_key,status,consent_version,consented_at,reviewed_at,approved_at,review_note,created_at,updated_at&order=created_at.asc&limit=100");
+      return response(data||[]);
+    }
+    if(action==="apply_venture_membership"){
+      const slug=clean(input.ventureSlug,40).toLowerCase(),roleKey=clean(input.roleKey,60).toLowerCase();
+      if(!/^[a-z0-9-]{2,40}$/.test(slug)||slug==="jr-pheef")return json({ok:false,error:"Core JR PHEEF membership is part of your account; choose another venture."},400);
+      if(input.consent!==true)return json({ok:false,error:"Please review and accept the venture-specific notice before applying."},400);
+      const [ventureRows,templateRows]=await Promise.all([
+        rows("ventures","slug=eq."+encodeURIComponent(slug)+"&select=slug,name,status,regulated&limit=1"),
+        rows("venture_registration_templates","venture_slug=eq."+encodeURIComponent(slug)+"&select=version,form_schema,active&limit=1")
+      ]);
+      const venture=ventureRows?.[0],template=templateRows?.[0];
+      if(!venture||!template||!template.active||venture.status==="paused")return json({ok:false,error:"This venture is not accepting applications."},403);
+      const form=template.form_schema||{},roles=Array.isArray(form.roles)?form.roles:[];
+      if(!roles.some((r:any)=>r&&r.key===roleKey))return json({ok:false,error:"Choose a role offered by this venture."},400);
+      const fields=Array.isArray(form.fields)?form.fields:[],submitted=input.applicationData&&typeof input.applicationData==="object"&&!Array.isArray(input.applicationData)?input.applicationData:{};
+      const applicationData:any={};
+      for(const field of fields){
+        if(!field||typeof field.key!=="string")continue;
+        const value=clean(submitted[field.key],2000);
+        if(field.required&&!value)return json({ok:false,error:"Please complete: "+clean(field.label,100)},400);
+        if(value)applicationData[field.key]=value;
+      }
+      if(new TextEncoder().encode(JSON.stringify(applicationData)).length>10000)return json({ok:false,error:"Application details are too large."},413);
+      const existing=(await rows("venture_memberships","venture_slug=eq."+encodeURIComponent(slug)+"&member_id=eq."+mid+"&select=id,status&limit=1"))?.[0];
+      if(existing&&["applied","approved","suspended"].includes(existing.status))return json({ok:false,error:"You already have a "+existing.status+" membership record for this venture."},409);
+      const now=new Date().toISOString();
+      let membership:any;
+      if(existing){
+        const updated=await rest("venture_memberships?id=eq."+existing.id+"&member_id=eq."+mid,"PATCH",{role_key:roleKey,status:"applied",application_data:applicationData,consent_version:template.version,consented_at:now,reviewed_by:null,reviewed_at:null,review_note:null,approved_at:null,updated_at:now});
+        membership=updated?.[0];
+      }else{
+        const created=await insert("venture_memberships",{venture_slug:slug,member_id:mid,role_key:roleKey,status:"applied",application_data:applicationData,consent_version:template.version,consented_at:now});
+        membership=created?.[0];
+      }
+      if(!membership?.id)throw new Error("Venture application could not be saved.");
+      await insert("venture_membership_events",{membership_id:membership.id,venture_slug:slug,member_id:mid,actor_member_id:mid,event_type:existing?"reapplied":"applied",event_data:{role_key:roleKey,consent_version:template.version}});
+      const applicantName=clean(member.full_name,100)||"A JR PHEEF member";
+      try{
+        await insert("jr_notifications",{member_id:mid,title:"Venture application received",message:"Your "+venture.name+" application as "+roleKey.replace(/_/g," ")+" has been received and is awaiting review.",type:"venture",read:false});
+        const founders=await rows("members","role=eq.founder&jp_number=eq.JP-01&status=eq.active&select=id&limit=5");
+        for(const founder of founders||[])await insert("jr_notifications",{member_id:founder.id,title:"New venture application",message:applicantName+" applied to "+venture.name+" as "+roleKey.replace(/_/g," ")+". Review it in DGBO.",type:"venture",read:false});
+      }catch(error){console.warn("Venture application notification failed:",String(error?.message||error).slice(0,120));}
+      return response({membership,message:"Application received. Venture access remains pending until the founder approves it."});
+    }
+    if(action==="founder_list_venture_memberships"){
+      if(!isFounder)return json({ok:false,error:"Not found."},404);
+      const status=clean(input.status,20);
+      const query="select=id,venture_slug,member_id,role_key,status,application_data,consent_version,consented_at,created_at,updated_at&order=created_at.asc&limit=200"+(status?"&status=eq."+encodeURIComponent(status):"");
+      const applications=await rows("venture_memberships",query);
+      const memberIds=[...new Set((applications||[]).map((x:any)=>x.member_id).filter(uuid))];
+      const profiles=memberIds.length?await rows("members","id=in.("+memberIds.join(",")+")&select=id,full_name,email,jp_number"): [];
+      const byId=new Map((profiles||[]).map((p:any)=>[p.id,p]));
+      return response((applications||[]).map((x:any)=>({...x,applicant:byId.get(x.member_id)||null})));
+    }
+    if(action==="founder_review_venture_membership"){
+      if(!isFounder)return json({ok:false,error:"Not found."},404);
+      const id=clean(input.membershipId,50),status=clean(input.status,20),note=clean(input.reviewNote,1200)||null;
+      if(!uuid(id)||!["approved","rejected","suspended","revoked"].includes(status))return json({ok:false,error:"Choose a valid application and review decision."},400);
+      const current=(await rows("venture_memberships","id=eq."+id+"&select=id,venture_slug,member_id,status,role_key&limit=1"))?.[0];
+      if(!current)return json({ok:false,error:"Application not found."},404);
+      if(current.venture_slug==="jr-pheef")return json({ok:false,error:"Core JR PHEEF account identity cannot be changed here."},409);
+      const allowed=current.status==="applied"?["approved","rejected"].includes(status):current.status==="approved"&&["suspended","revoked"].includes(status);
+      if(!allowed)return json({ok:false,error:"This membership is no longer in a state that allows this review decision."},409);
+      const now=new Date().toISOString();
+      const updated=await rest("venture_memberships?id=eq."+id+"&status=eq."+encodeURIComponent(current.status),"PATCH",{status,reviewed_by:mid,reviewed_at:now,review_note:note,approved_at:status==="approved"?now:null,updated_at:now});
+      const result=updated?.[0];
+      if(!result)return json({ok:false,error:"The application changed during review. Refresh and try again."},409);
+      await insert("venture_membership_events",{membership_id:id,venture_slug:current.venture_slug,member_id:current.member_id,actor_member_id:mid,event_type:status,event_data:{role_key:current.role_key,review_note:note}});
+      try{await insert("jr_notifications",{member_id:current.member_id,title:"Venture application update",message:current.venture_slug.toUpperCase()+" membership application: "+status+(note?" — "+note:"."),type:"venture",read:false});}catch(error){console.warn("Venture review notification failed:",String(error?.message||error).slice(0,120));}
+      return response(result);
+    }
     return json({ok:false,error:"Unknown workspace action."},400);
   } catch(error) {
     console.error("JR workspace API:",error instanceof Error?error.message:"unknown");
