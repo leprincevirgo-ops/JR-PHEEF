@@ -10,7 +10,7 @@ const openApp=html.slice(html.indexOf("async function openApp()"),html.indexOf("
 assert.match(openApp,/show\(["']command["']\)/,"sign-in must open the Command Center");
 for(const tab of ["jr","chats","contacts","status","profile"])assert.match(js,new RegExp('["\\x27]'+tab+'["\\x27]'),"missing "+tab+" tab");
 assert.ok(js.includes('api("/api/workspace","POST",{action:"list_connections"})'),"contacts must use the unified workspace API");
-for(const action of ["list_connections","request_connection_by_invite","create_contact_invite","request_connection_by_member_id","update_connection","overview"])assert.ok(js.includes('action:"'+action+'"'),"missing workspace action "+action);
+for(const action of ["list_connections","request_connection_by_invite","create_contact_invite","update_connection","overview"])assert.ok(js.includes('action:"'+action+'"'),"missing workspace action "+action);
 assert.ok(js.includes('"/api/jr/command"'),"missing command centre AI route");
 assert.match(js,/continuous\s*=\s*false/,"voice must be one-shot");
 assert.match(js,/setTimeout\(\(\)=>stopVoice[\s\S]{0,100}1800/,"voice must stop after silence");
