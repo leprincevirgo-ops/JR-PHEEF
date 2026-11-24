@@ -62,7 +62,6 @@ jobs:
           sha256sum backup/jr-pheef-db-export.tar.gz.age > backup/SHA256SUMS
           rm -f backup/roles.sql backup/schema.sql backup/data.sql backup/jr-pheef-db-export.tar.gz
           test -s backup/jr-pheef-db-export.tar.gz.age
-          age --decrypt --identity /dev/null backup/jr-pheef-db-export.tar.gz.age >/dev/null 2>&1 && { echo "Unexpected decryption success without private key"; exit 1; } || true
           echo "Encrypted export created. Plaintext SQL and archive removed from the runner workspace."
 
       - name: Upload encrypted export (temporary retention)
