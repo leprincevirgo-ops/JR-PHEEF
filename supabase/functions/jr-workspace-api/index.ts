@@ -328,7 +328,7 @@ Deno.serve(async (req: Request) => {
       return response(data?.[0]||{updated:true});
     }
     if(action==="get_profile_photo"){
-      const p=await rows("members?id=eq."+mid+"&select=profile_photo,profile_photo_hidden,profile_photo_hidden_url&limit=1");
+      const p=await rows("members","id=eq."+mid+"&select=profile_photo,profile_photo_hidden,profile_photo_hidden_url&limit=1");
       const path=p?.[0]?.profile_photo_hidden?p?.[0]?.profile_photo_hidden_url:p?.[0]?.profile_photo;
       if(!path||!storagePath(path))return response({url:null,hidden:!!p?.[0]?.profile_photo_hidden});
       const signed=await signedMedia([{path,kind:"image"}]);return response({url:signed[0]?.url||null,hidden:!!p?.[0]?.profile_photo_hidden});
@@ -337,7 +337,7 @@ Deno.serve(async (req: Request) => {
       const data=await rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status,created_at&order=created_at.desc&limit=100");
       const ids=[...new Set((data||[]).flatMap((x:any)=>[x.requester_id,x.receiver_id]).filter((id:any)=>String(id)!==String(mid)))];
       const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,full_name,verified,profile_visibility,country_code,role,account_type,status"):[];
-      const byId=new Map((people||[]).map((person:any)=>[String(person.id),person]));
+      const byId=new Map<string,any>((people||[]).map((person:any)=>[String(person.id),person] as [string,any]));
       return response((data||[]).map((connection:any)=>{
         const other=byId.get(String(connection.requester_id)===String(mid)?connection.receiver_id:connection.requester_id);
         if(!other){const {requester_id,receiver_id,...safeConnection}=connection;return {...safeConnection,direction:String(receiver_id)===String(mid)?"incoming":"outgoing",other_member:null};}
@@ -428,7 +428,7 @@ Deno.serve(async (req: Request) => {
         ...(opportunities||[]).filter((x:any)=>x.owner_user_id!==mid).map((x:any)=>({id:x.id,kind:"opportunity",ownerId:x.owner_user_id,title:x.title,description:x.description,category:x.opportunity_type,opportunityType:x.opportunity_type,location:x.location,price:null,currency:x.currency_code||"KES",verificationStatus:x.verification_status,createdAt:x.created_at})),
         ...(properties||[]).filter((x:any)=>x.member_id!==mid).map((x:any)=>({id:x.id,kind:"property",ownerId:x.member_id,title:x.title,description:x.description,category:x.room_type,location:x.location,price:Number(x.rent_ksh),currency:"KES",availableFrom:x.available_from,createdAt:x.created_at}))
       ];
-      const matches=rankMatches({query,location,matchType,maxPrice,candidates});
+      const matches=rankMatches({query,location,matchType,maxPrice,candidates} as any);
       return response(matches.slice(0,25));
     }
     if(action==="search_members"){
@@ -442,7 +442,7 @@ Deno.serve(async (req: Request) => {
         rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status&limit=300")
       ]);
       const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
-      const connectionByMember=new Map((connections||[]).map((c:any)=>[String(c.requester_id)===String(mid)?String(c.receiver_id):String(c.requester_id),c]));
+      const connectionByMember=new Map<string,any>((connections||[]).map((c:any)=>[String(c.requester_id)===String(mid)?String(c.receiver_id):String(c.requester_id),c] as [string,any]));
       return response(results.map((m:any)=>{
         const owner=[m.role,m.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const {role,account_type,...publicMember}=m;
@@ -538,7 +538,7 @@ Deno.serve(async (req: Request) => {
       return response(result);
     }
     if(action==="create_conversation"||action==="create_group"){
-      const title=clean(input.title,80),ids=Array.isArray(input.memberIds)?[...new Set(input.memberIds.filter((x:any)=>uuid(x)&&x!==mid))].slice(0,49):[];
+      const title=clean(input.title,80),ids:string[]=Array.isArray(input.memberIds)?[...new Set((input.memberIds as unknown[]).filter((x:any)=>uuid(x)&&x!==mid) as string[])].slice(0,49):[];
       if(action==="create_conversation"){const connectionId=clean(input.connectionId,50);if(connectionId){if(!uuid(connectionId))return json({ok:false,error:"Choose a valid JR PHEEF contact."},400);const connection=(await rows("connections","id=eq."+connectionId+"&select=id,requester_id,receiver_id,status&limit=1"))?.[0];if(!connection||connection.status!=="accepted"||![String(connection.requester_id),String(connection.receiver_id)].includes(String(mid)))return json({ok:false,error:"Only accepted contacts can start a private chat."},403);const other=String(connection.requester_id)===String(mid)?String(connection.receiver_id):String(connection.requester_id);ids.push(other);}else{const other=clean(input.otherMemberId,50);if(uuid(other)&&other!==mid)ids.push(other);}}
       const unique=[...new Set(ids)];
       if(!unique.length)return json({ok:false,error:"Select at least one other active member."},400);
