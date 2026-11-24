@@ -102,35 +102,42 @@ Deno.serve(async (req: Request) => {
 
     if (!member) return json({ ok: false, error: "Could not securely link your member profile. Please try again." }, 409);
     if (!member.referral_code) {
-      const assigned = await rest("members?id=eq." + encodeURIComponent(member.id) +
-        "&referral_code=is.null&select=id,jp_number,role,account_type,full_name,email,verified,status,referral_code",
-        "PATCH", { referral_code: makeReferralCode() });
-      if (Array.isArray(assigned) && assigned.length === 1) member = assigned[0];
-      else {
-        const current = await rest("members?id=eq." + encodeURIComponent(member.id) +
-          "&select=id,jp_number,role,account_type,full_name,email,verified,status,referral_code&limit=1");
-        if (Array.isArray(current) && current.length === 1) member = current[0];
+      try {
+        const assigned = await rest("members?id=eq." + encodeURIComponent(member.id) +
+          "&referral_code=is.null&select=id,jp_number,role,account_type,full_name,email,verified,status,referral_code",
+          "PATCH", { referral_code: makeReferralCode() });
+        if (Array.isArray(assigned) && assigned.length === 1) member = assigned[0];
+        else {
+          const current = await rest("members?id=eq." + encodeURIComponent(member.id) +
+            "&select=id,jp_number,role,account_type,full_name,email,verified,status,referral_code&limit=1");
+          if (Array.isArray(current) && current.length === 1) member = current[0];
+        }
+      } catch {
+        console.error("JR personal invitation code assignment failed.");
       }
     }
-    if (!member.referral_code) throw new Error("Could not assign a personal invitation code.");
     if (String(member.status || "").trim().toLowerCase() !== "active")
       return json({ ok: false, error: "This member account is not active. Contact support." }, 403);
 
     const inviteCode = String(meta.referral_code || "").trim().toUpperCase();
     if (createdMember && /^JR-[A-F0-9]{12}$/.test(inviteCode)) {
-      const referrers = await rest("members?referral_code=eq." + encodeURIComponent(inviteCode) + "&select=id,status&limit=2");
-      const referrer = Array.isArray(referrers) && referrers.length === 1 ? referrers[0] : null;
-      if (referrer && referrer.status === "active" && referrer.id !== member.id) {
-        const existingAttribution = await rest("jr_referrals?referred_id=eq." + encodeURIComponent(member.id) + "&select=id&limit=1");
-        if (!Array.isArray(existingAttribution) || existingAttribution.length === 0) {
-          await rest("jr_referrals", "POST", {
-            id: crypto.randomUUID(),
-            referrer_id: referrer.id,
-            referred_id: member.id,
-            reward: 0,
-            status: "pending"
-          }, "resolution=ignore-duplicates,return=minimal");
+      try {
+        const referrers = await rest("members?referral_code=eq." + encodeURIComponent(inviteCode) + "&select=id,status&limit=2");
+        const referrer = Array.isArray(referrers) && referrers.length === 1 ? referrers[0] : null;
+        if (referrer && referrer.status === "active" && referrer.id !== member.id) {
+          const existingAttribution = await rest("jr_referrals?referred_id=eq." + encodeURIComponent(member.id) + "&select=id&limit=1");
+          if (!Array.isArray(existingAttribution) || existingAttribution.length === 0) {
+            await rest("jr_referrals", "POST", {
+              id: crypto.randomUUID(),
+              referrer_id: referrer.id,
+              referred_id: member.id,
+              reward: 0,
+              status: "pending"
+            }, "resolution=ignore-duplicates,return=minimal");
+          }
         }
+      } catch {
+        console.error("JR referral attribution could not be recorded for this sign-up.");
       }
     }
 
@@ -139,7 +146,7 @@ Deno.serve(async (req: Request) => {
       member: {
         id: member.id,
         jpNumber: member.jp_number || null,
-        referralCode: member.referral_code,
+        referralCode: member.referral_code || null,
         role: member.role || "person",
         accountType: member.account_type || "individual",
         fullName: member.full_name || "",
