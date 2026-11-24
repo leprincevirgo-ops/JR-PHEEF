@@ -75,7 +75,7 @@ module.exports = function mountMarket(ctx) {
     res.json({
       ok: true, is_mine: !!mine,
       listing: { ...l, seller_name: displayName(seller), phone: undefined },
-      seller: seller ? { id: seller.id, name: displayName(seller), verified: !!seller.verified, jp_number: seller.jp_number, member_since: seller.created_at } : null
+      seller: seller ? { id: seller.id, name: displayName(seller), verified: !!seller.verified, member_since: seller.created_at } : null
     });
   }));
 
