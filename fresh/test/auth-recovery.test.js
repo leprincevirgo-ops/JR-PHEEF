@@ -27,5 +27,8 @@ test("recovery link is handled separately from signup email confirmation", () =>
 
 test("login screen exposes a forgot-password action", () => {
   assert.match(html, /id="forgotPassword"/);
+  assert.match(html, /id="backToLogin"/);
+  assert.match(app, /showAuth\("requestRecovery"\)/);
+  assert.match(app, /mode==="requestRecovery"/);
   assert.match(app, /api\("\/api\/auth\/recover"/);
 });
