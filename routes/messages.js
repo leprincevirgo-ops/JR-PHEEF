@@ -73,6 +73,13 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     if(error)throw error;
     const recipients=(found||[]).filter(x=>!["blocked","suspended","disabled"].includes(String(x.status||"").toLowerCase()));
     if(recipients.length!==recipientIds.length)return fail(res,"One or more members are not currently available.",404);
+    for(const target of recipients){
+      const {data:connection,error:connectionError}=await db.from("connections").select("id")
+        .or("and(requester_id.eq."+m.id+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+m.id+")")
+        .eq("status","accepted").maybeSingle();
+      if(connectionError)throw connectionError;
+      if(!connection)return fail(res,"The member must accept your JR PHEEF connection request before messaging starts.",403);
+    }
     if(recipients.length===1){
       const {data:mine,error:e1}=await db.from("jr_conversation_participants").select("conversation_id").eq("member_id",m.id);
       if(e1)throw e1;
