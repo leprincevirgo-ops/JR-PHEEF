@@ -25,7 +25,7 @@
    ]))+
    section("opportunities","04 · OPPORTUNITIES & UPDATES","Ideas deserve research before investment.","Approved company news, venture updates, opportunities and public research will appear here after review.",'<div class="diamond-live-panel"><i class="diamond-live-dot pending"></i><div><strong>Publication feed is being prepared</strong><p>No unverified opportunities or invented company announcements are displayed.</p></div></div>')+
    section("governance","05 · GOVERNANCE","Clear responsibilities. Protected boundaries.","The group should coordinate without suffocating the independence of its companies.",principles([["Group oversight","Strategy, ownership records, group policies and consolidated reporting."],["Company autonomy","Each company manages its own people, customers, budgets and daily operations."],["Responsible approvals","Material decisions, financial activity and public statements follow authorised review."],["Privacy by design","Access is based on role and purpose, not simply membership of the group."]]))+
-   section("connect","06 · CONNECT WITH DGBO","Bring a practical idea or partnership proposal.","Use JR PHEEF to prepare a business research request, venture plan or partnership enquiry. A submission is not a funding promise or acceptance.",'<button class="diamond-primary" type="button" data-diamond-jr>Continue with JR</button>');
+   section("connect","06 · CONNECT WITH DGBO","Bring a practical idea or partnership proposal.","Use JR PHEEF to prepare a business research request, venture plan or partnership enquiry. A submission is not a funding promise or acceptance.",'<div class="diamond-actions"><button class="diamond-primary" type="button" data-diamond-jr>Continue with JR</button><button class="diamond-secondary" type="button" data-venture-apply="dgbo">Apply to join DGBO</button></div><p class="diamond-application-status" data-venture-status="dgbo" aria-live="polite"></p>');
   }
   return section("overview","01 · PEOPLE FIRST","Financial confidence starts with understanding.","FAMILY is designed to support people as they learn, plan and explore responsible ways to participate in financial opportunities.",cards([
    ["Understand your money","Build practical knowledge around income, spending, budgeting, saving and financial risk.","https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80","LEARN"],
@@ -40,7 +40,7 @@
    ["Family milestones","Prepare for education, health, housing and other important life goals.","https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80","LIFE"],
    ["Opportunity literacy","Learn how to assess claims, avoid scams and verify providers before committing.","https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=80","SAFETY"]
   ]))+
-  section("connect","06 · GET STARTED","Start with a question. Build a plan.","JR can help explain financial concepts and organise personal goals. It cannot replace qualified advice or an authorised financial provider.",'<button class="diamond-primary" type="button" data-diamond-jr>Talk to JR</button>');
+  section("connect","06 · GET STARTED","Start with a question. Build a plan.","JR can help explain financial concepts and organise personal goals. It cannot replace qualified advice or an authorised financial provider.",'<div class="diamond-actions"><button class="diamond-primary" type="button" data-diamond-jr>Talk to JR</button><button class="diamond-secondary" type="button" data-venture-apply="family">Apply to join FAMILY</button></div><p class="diamond-application-status" data-venture-status="family" aria-live="polite"></p>');
  }
  function mount(key,c){
   const root=document.getElementById(c.id);if(!root||root.dataset.diamondMounted)return;
@@ -50,6 +50,81 @@
   root.querySelectorAll("[data-diamond-nav]").forEach(b=>b.addEventListener("click",()=>{const t=root.querySelector('[data-diamond-section="'+b.dataset.diamondNav+'"]');if(!t)return;root.querySelectorAll("[data-diamond-nav]").forEach(x=>x.removeAttribute("aria-current"));b.setAttribute("aria-current","page");t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});}));
   root.querySelectorAll("[data-diamond-return]").forEach(b=>b.addEventListener("click",()=>document.querySelector('.workspace-tab[data-view="home"]')?.click()));
   root.querySelectorAll("[data-diamond-jr]").forEach(b=>b.addEventListener("click",()=>{document.querySelector('.workspace-tab[data-view="jr"]')?.click();const p=document.getElementById("workspacePrompt");if(p){p.value=key==="dgbo"?"Help me explore DGBO business research, venture development or partnership services.":"Help me create a practical FAMILY financial education or personal savings goal plan.";p.focus();}}));
+
+  async function refreshMemberships(){
+   if(typeof window.jrWorkspaceAction!=="function")return;
+   try{
+    const items=await window.jrWorkspaceAction("list_ventures");
+    for(const slug of ["dgbo","family"]){
+     const venture=(items||[]).find(x=>x.slug===slug);
+     const button=root.querySelector('[data-venture-apply="'+slug+'"]');
+     const status=root.querySelector('[data-venture-status="'+slug+'"]');
+     if(!venture||!button||!status)continue;
+     const membership=venture.membership;
+     if(membership){
+      status.textContent="Membership status: "+membership.status.replace(/_/g," ")+(membership.role_key?" · "+membership.role_key.replace(/_/g," "):"");
+      if(["applied","approved","suspended"].includes(membership.status)){
+       button.disabled=true;
+       button.textContent=membership.status==="approved"?"Membership approved":"Application "+membership.status;
+      }else{
+       button.disabled=false;
+       button.textContent="Reapply to "+(slug==="dgbo"?"DGBO":"FAMILY");
+      }
+     }
+    }
+   }catch{}
+  }
+  root.querySelectorAll("[data-venture-apply]").forEach(button=>button.addEventListener("click",async()=>{
+   const slug=button.getAttribute("data-venture-apply");
+   button.disabled=true;button.textContent="Loading application…";
+   try{
+    const result=await window.jrWorkspaceAction("get_venture_registration",{ventureSlug:slug});
+    const template=result.template||{},roles=Array.isArray(template.roles)?template.roles:[],fields=Array.isArray(template.fields)?template.fields:[];
+    const dialog=document.createElement("dialog");dialog.className="diamond-application-dialog";
+    const form=document.createElement("form");form.method="dialog";form.className="diamond-application-form";
+    const heading=document.createElement("h2");heading.textContent="Apply to "+(result.venture?.name||template.label||slug.toUpperCase());
+    const notice=document.createElement("p");notice.className="diamond-application-notice";notice.textContent=template.notice||"Your application will be reviewed before access is granted.";
+    const roleLabel=document.createElement("label");roleLabel.textContent="How would you like to participate?";
+    const role=document.createElement("select");role.required=true;
+    const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Choose a role";role.append(placeholder);
+    roles.forEach(item=>{const option=document.createElement("option");option.value=item.key;option.textContent=item.label;role.append(option);});
+    roleLabel.append(role);form.append(heading,notice,roleLabel);
+    const controls=[];
+    fields.forEach(field=>{
+     const label=document.createElement("label");label.textContent=field.label||field.key;
+     const input=field.type==="textarea"?document.createElement("textarea"):document.createElement("input");
+     if(input.tagName==="INPUT")input.type="text";
+     input.name=field.key;input.maxLength=2000;input.required=!!field.required;
+     label.append(input);form.append(label);controls.push(input);
+    });
+    const consentLabel=document.createElement("label");consentLabel.className="diamond-consent";
+    const consent=document.createElement("input");consent.type="checkbox";consent.required=true;
+    const consentText=document.createElement("span");consentText.textContent="I have read and agree to the venture-specific notice above.";
+    consentLabel.append(consent,consentText);form.append(consentLabel);
+    const feedback=document.createElement("p");feedback.className="diamond-application-status";feedback.setAttribute("role","status");feedback.setAttribute("aria-live","polite");
+    const actions=document.createElement("div");actions.className="diamond-actions";
+    const close=document.createElement("button");close.type="button";close.className="diamond-secondary";close.textContent="Cancel";close.addEventListener("click",()=>dialog.close());
+    const submit=document.createElement("button");submit.type="submit";submit.className="diamond-primary";submit.textContent="Submit application";
+    actions.append(close,submit);form.append(feedback,actions);dialog.append(form);document.body.append(dialog);
+    form.addEventListener("submit",async event=>{
+     event.preventDefault();if(!form.reportValidity())return;submit.disabled=true;feedback.textContent="Submitting your application…";
+     const applicationData={};controls.forEach(input=>{if(input.value.trim())applicationData[input.name]=input.value.trim();});
+     try{
+      const saved=await window.jrWorkspaceAction("apply_venture_membership",{ventureSlug:slug,roleKey:role.value,consent:consent.checked,applicationData});
+      feedback.textContent=saved.message||"Application received. Access remains pending approval.";
+      submit.textContent="Application received";submit.disabled=true;close.textContent="Close";
+      const status=root.querySelector('[data-venture-status="'+slug+'"]');if(status)status.textContent="Membership status: applied · "+role.value.replace(/_/g," ");
+      const cardButton=root.querySelector('[data-venture-apply="'+slug+'"]');if(cardButton){cardButton.disabled=true;cardButton.textContent="Application pending";}
+     }catch(error){feedback.textContent=error.message;submit.disabled=false;}
+    });
+    dialog.addEventListener("close",()=>dialog.remove());dialog.showModal();button.textContent="Open application";
+   }catch(error){
+    button.textContent="Apply to "+(slug==="dgbo"?"DGBO":"FAMILY");
+    const status=root.querySelector('[data-venture-status="'+slug+'"]');if(status)status.textContent=error.message;
+   }finally{button.disabled=false;}
+  }));
+  window.addEventListener("jr:member-signed-in",refreshMemberships);
+  refreshMemberships();
  }
  Object.entries(configs).forEach(([k,c])=>mount(k,c));
 })();
