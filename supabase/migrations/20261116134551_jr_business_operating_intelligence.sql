@@ -60,7 +60,7 @@ create table if not exists public.jr_business_purchase_orders (
  unique(business_id,order_number)
 );
 create or replace function public.jr_business_record_sale(p_business_id uuid,p_actor_member_id uuid,p_items jsonb,p_payment_method text,p_payment_reference text default null)
-returns jsonb language plpgsql security invoker set search_path=public,pg_temp as $
+returns jsonb language plpgsql security invoker set search_path=public,pg_temp as $$
 declare v_item jsonb; v_product public.jr_business_products%rowtype; v_qty numeric; v_subtotal numeric(14,2):=0;
  v_sale_id uuid; v_receipt text; v_lines jsonb:='[]'::jsonb; v_line numeric(14,2); v_allowed boolean;
 begin
