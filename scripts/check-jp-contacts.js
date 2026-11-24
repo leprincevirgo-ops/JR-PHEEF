@@ -5,6 +5,6 @@ for(const x of ['action:"list_connections"','action:"request_connection_by_invit
 for(const x of ['if(action==="list_connections")','if(action==="request_connection_by_invite")','if(action==="create_contact_invite")','if(action==="update_connection")'])if(!edge.includes(x))throw new Error("Connection action missing "+x);
 if(!runtime.includes('app.post("/api/workspace"'))throw new Error("Unified workspace API proxy missing");
 if(!html.includes("/jp-contacts-ui.js"))throw new Error("JP Contacts script not loaded");
-if(!messages.includes("connection_id")||!messages.includes("status","accepted"))throw new Error("Accepted private contact chat flow missing.");
+if(!messages.includes("connection_id")||!messages.includes('.eq("status","accepted")'))throw new Error("Accepted private contact chat flow missing.");
 if(js.includes("SHARE JP CARD")||js.includes("jp_number")||edge.includes("jp_number:other.jp_number")||social.includes("o.jp_number")||messages.includes("member_jp_number")||messagesUi.includes("member_jp_number")||market.includes("jp_number: seller.jp_number"))throw new Error("JP number is exposed or still used as a public contact key.");
 console.log("PASS: JP numbers stay private; JP Contacts uses expiring invitation links.");
