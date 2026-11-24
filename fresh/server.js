@@ -176,6 +176,27 @@ app.get("/healthz",(_req,res)=>res.status(200).json({
   authConfigured:Boolean(SUPABASE_URL&&SUPABASE_KEY),aiConfigured:Boolean(process.env.OPENAI_API_KEY),paymentsEnabled:false,
   timestamp:new Date().toISOString()
 }));
+
+// Dependency diagnostics are separate from /healthz: the latter remains a fast
+// liveness check so a temporary provider outage does not trigger restart loops.
+app.get("/readyz",async(_req,res)=>{
+  if(!SUPABASE_URL||!SUPABASE_KEY)
+    return res.status(503).json({ok:false,dependencies:{identity:"unconfigured",dataApi:"unconfigured"},timestamp:new Date().toISOString()});
+  const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY};
+  const probes=await Promise.allSettled([
+    fetch(SUPABASE_URL+"/auth/v1/health",{headers,signal:AbortSignal.timeout(3500)}),
+    fetch(SUPABASE_URL+"/rest/v1/",{headers,signal:AbortSignal.timeout(3500)})
+  ]);
+  const identityOk=probes[0].status==="fulfilled"&&probes[0].value.ok;
+  const dataApiOk=probes[1].status==="fulfilled"&&probes[1].value.ok;
+  for(const probe of probes)if(probe.status==="fulfilled")probe.value.body?.cancel().catch(()=>{});
+  const ready=identityOk&&dataApiOk;
+  return res.status(ready?200:503).json({
+    ok:ready,
+    dependencies:{identity:identityOk?"available":"unavailable",dataApi:dataApiOk?"available":"unavailable"},
+    timestamp:new Date().toISOString()
+  });
+});
 app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const {fullName,email,password,phone,birthYear,referralCode}=req.body||{};
