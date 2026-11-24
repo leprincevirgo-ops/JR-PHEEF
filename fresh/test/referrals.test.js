@@ -11,6 +11,7 @@ test("personal invitation links are captured and passed only with account creati
   assert.match(app, /sessionStorage\.setItem\("jr_referral_code"/);
   assert.match(app, /payload\.referralCode=invite\.toUpperCase\(\)/);
   assert.match(server, /referral_code:typeof referralCode==="string"/);
+  assert.match(html, /records that invitation when you complete sign-up/);
 });
 
 test("each signed-in member receives a personal invitation code for sharing", () => {
