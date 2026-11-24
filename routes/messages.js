@@ -121,7 +121,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:rows,error}=await db.from("jr_status_updates").select("id,member_id,body,background,visibility,created_at,expires_at").gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(200);
     if(error)throw error;
     const owners=[...new Set((rows||[]).map(x=>x.member_id))];
-    const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,jp_number,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
+    const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
     if(pe)throw pe;
     const peopleMap=new Map((people||[]).map(p=>[String(p.id),p]));
     const followedSet=new Set(followed.map(String));
