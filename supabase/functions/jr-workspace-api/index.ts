@@ -354,6 +354,9 @@ Deno.serve(async (req: Request) => {
       }));
     }
     if(action==="create_contact_invite"){
+      const since=new Date(Date.now()-24*60*60*1000).toISOString();
+      const recent=await rows("jp_contact_invites","member_id=eq."+encodeURIComponent(String(mid))+"&created_at=gt."+encodeURIComponent(since)+"&select=id&limit=10");
+      if((recent||[]).length>=10)return json({ok:false,error:"You have reached today's invitation limit. Try again tomorrow."},429);
       const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
       const invite=[...bytes].map((b:number)=>b.toString(16).padStart(2,"0")).join("");
       const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(invite));
