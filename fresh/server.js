@@ -262,6 +262,22 @@ app.post("/api/auth/verify-email",rateLimit,sameOrigin,async(req,res)=>{
     return res.json({ok:true,user:{id:result.data.user.id,email:result.data.user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your email is verified. Welcome to JR PHEEF."});
   }catch(err){console.error("JR PHEEF OTP verification:",err.message);return res.status(503).json({ok:false,error:"Email verification is temporarily unavailable. Please try again."});}
 });
+app.post("/api/auth/verify-link",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const tokenHash=typeof req.body?.token_hash==="string"?req.body.token_hash.trim():"";
+    if(tokenHash.length<20||tokenHash.length>512)
+      return res.status(400).json({ok:false,error:"This confirmation link is invalid or expired. Request a fresh confirmation email."});
+    // Verify the hash only after the member opens the app. This avoids a GET link
+    // being consumed by email-security scanners before the member clicks it.
+    const result=await supabaseAuth("verify",{type:"email",token_hash:tokenHash});
+    if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)||"This confirmation link is invalid or expired. Request a fresh email."});
+    if(!result.data.access_token||!result.data.user?.email_confirmed_at)
+      return res.status(400).json({ok:false,error:"Email confirmation could not be completed. Request a fresh confirmation email."});
+    const member=await provisionMember(result.data.access_token);
+    saveSession(res,result.data);
+    return res.json({ok:true,user:{id:result.data.user.id,email:result.data.user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your email is verified. Welcome to JR PHEEF."});
+  }catch(err){console.error("JR PHEEF secure email-link verification:",err.message);return res.status(503).json({ok:false,error:"Email verification is temporarily unavailable. Please try again."});}
+});
 app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const {email,password}=req.body||{};
