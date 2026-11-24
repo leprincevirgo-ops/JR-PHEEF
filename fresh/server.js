@@ -8,7 +8,7 @@ const SUPABASE_URL=(process.env.SUPABASE_URL||"").replace(/\/$/,"");
 const SUPABASE_KEY=process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY||"";
 const ACCESS_COOKIE="jr_access";
 const REFRESH_COOKIE="jr_refresh";
-const AUTH_ORIGIN="https://"+(process.env.RENDER_EXTERNAL_HOSTNAME||"jr-pheef-foundation.onrender.com");
+const AUTH_ORIGIN="https://"+(process.env.RENDER_EXTERNAL_HOSTNAME||"jr-pheef-marketplace.onrender.com");
 const ALLOWED_ORIGINS=new Set([AUTH_ORIGIN,...(process.env.JR_ALLOWED_ORIGINS||"").split(",")]
   .map(value=>{try{return new URL(value.trim()).origin;}catch{return "";}})
   .filter(Boolean));
