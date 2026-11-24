@@ -26,6 +26,7 @@ Deno.serve(async (req: Request) => {
     });
     if (!authResponse.ok) return json({ ok: false, error: "Sign in again to continue." }, 401);
     const user = await authResponse.json();
+    const meta = user.user_metadata || {};
     if (!user.email_confirmed_at) return json({ ok: false, error: "Confirm your email address before continuing." }, 403);
     if (!user.id || !user.email) return json({ ok: false, error: "Your verified account is missing its email identity." }, 422);
 
@@ -75,7 +76,6 @@ Deno.serve(async (req: Request) => {
           "&auth_user_id=is.null", "PATCH", { auth_user_id: user.id, email });
         member = Array.isArray(updated) && updated.length === 1 ? updated[0] : null;
       } else {
-        const meta = user.user_metadata || {};
         const fullName = String(meta.full_name || "").trim().slice(0, 100);
         const phone = String(meta.phone || "").trim().slice(0, 25);
         const birthYear = Number(meta.birth_year);
