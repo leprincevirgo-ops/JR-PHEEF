@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.jp_contact_invites (
 CREATE INDEX IF NOT EXISTS jp_contact_invites_member_created_idx
   ON public.jp_contact_invites(member_id, created_at DESC);
 ALTER TABLE public.jp_contact_invites ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE public.jp_contact_invites FROM anon, authenticated;
+REVOKE ALL ON TABLE public.jp_contact_invites FROM PUBLIC, anon, authenticated;
+GRANT ALL ON TABLE public.jp_contact_invites TO service_role;
 COMMENT ON TABLE public.jp_contact_invites IS
 'Server-only hashed invitation tokens for private JR PHEEF connections. Never exposes JP numbers or member phone numbers.';
