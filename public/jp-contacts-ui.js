@@ -16,7 +16,7 @@ page.innerHTML='<section class="jp-contacts-hero"><span class="jp-kicker">JR PHE
 app.append(page);
 const tile=node("button","jp-dash-tile");tile.type="button";tile.innerHTML='<span class="jp-dash-icon">♧</span><span><span class="jp-dash-title">JP CONTACTS</span><br><span class="jp-dash-sub">Your trusted phonebook</span></span>';tile.onclick=()=>window.show("jpconnect");if(home){const grid=home.querySelector(".jp-dashboard-grid");if(grid)grid.appendChild(tile);}
 const group=[...document.querySelectorAll("#app .jr-nav-group")].find(g=>(function(){const label=g.querySelector(".jr-nav-group-label");return !!label&&label.textContent.trim()==="CONNECT";})());if(group&&!group.querySelector('[data-page="jpconnect"]')){const b=node("button","","♧ JP Contacts");b.type="button";b.dataset.page="jpconnect";b.onclick=()=>window.show("jpconnect");group.append(b);}
-$("jpContactAdd").onclick=add;$("jpContactInvite").onclick=createInvite;$("jpContactRefresh").onclick=load;$("jpContactSearch").oninput=render;
+$("jpContactAdd").onclick=add;$("jpContactInvite").onclick=createInvite;$("jpContactRefresh").onclick=load;$("jpContactSearch").oninput=render;const incomingInvite=new URLSearchParams(window.location.search).get("jp_invite");if(incomingInvite)$("jpContactNumber").value=incomingInvite;
 document.querySelectorAll(".jp-contact-tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".jp-contact-tabs button").forEach(x=>x.classList.toggle("is-active",x===b));render(b.dataset.filter);});
 load();
 }
