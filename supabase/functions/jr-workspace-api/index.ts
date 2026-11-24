@@ -346,6 +346,7 @@ Deno.serve(async (req: Request) => {
         const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
         return {...connection,other_member:{
           contact_key:connection.id,
+          member_id:String(other.id),
           full_name:privateProfile?"JR PHEEF Member":other.full_name||"JR PHEEF Member",
           verified:!!other.verified,
           profile_visibility:privateProfile?"private":"public",
@@ -383,6 +384,7 @@ Deno.serve(async (req: Request) => {
       const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status&limit=1");
       if(existing?.length)return response({already_exists:true,connection:existing[0],message:"A connection request or connection already exists."});
       const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
+      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
       return response({already_exists:false,connection:created?.[0]||created,message:"Connection request sent. Both JP numbers remain private."});
     }
     if(action==="request_connection"){
@@ -444,6 +446,9 @@ Deno.serve(async (req: Request) => {
     if(action==="request_connection_by_member_id"){
       const targetId=clean(input.memberId,50);
       if(!uuid(targetId)||targetId===String(mid))return json({ok:false,error:"Choose a valid other JR PHEEF member."},400);
+      const since=new Date(Date.now()-60*60*1000).toISOString();
+      const recent=await rows("connections","requester_id=eq."+encodeURIComponent(String(mid))+"&status=eq.pending&created_at=gt."+encodeURIComponent(since)+"&select=id&limit=20");
+      if((recent||[]).length>=20)return json({ok:false,error:"You have reached the connection-request limit for this hour."},429);
       const targets=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,full_name,verified,status,profile_visibility&limit=1");
       const target=targets?.[0];
       if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase()))return json({ok:false,error:"This member is not currently available."},404);
