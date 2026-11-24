@@ -423,17 +423,34 @@ Deno.serve(async (req: Request) => {
     }
     if(action==="search_members"){
       const term=clean(input.query,80);
-      if(term.length<2)return json({ok:false,error:"Enter at least two characters or a JP number."},400);
+      if(term.length<2)return json({ok:false,error:"Enter at least two characters of a member's name."},400);
       const safe=term.replace(/[,%()]/g," ").trim();
-      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,jp_number,bio,city,country,country_code,role,account_type&or=(full_name.ilike.*"+encodeURIComponent(safe)+"*,jp_number.ilike.*"+encodeURIComponent(safe)+"*)&limit=15");
+      const found=await rows("members","status=eq.active&profile_visibility=eq.public&select=id,full_name,bio,city,country,country_code,verified,role,account_type&full_name=ilike.*"+encodeURIComponent(safe)+"*&limit=15");
       const results=(found||[]).filter((m:any)=>m.id!==mid);
-      const follows=await rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300");
+      const [follows,connections]=await Promise.all([
+        rows("social_follows","follower_id=eq."+mid+"&select=followee_id&limit=300"),
+        rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status&limit=300")
+      ]);
       const followed=new Set((follows||[]).map((x:any)=>x.followee_id));
+      const connectionByMember=new Map((connections||[]).map((c:any)=>[String(c.requester_id)===String(mid)?String(c.receiver_id):String(c.requester_id),c]));
       return response(results.map((m:any)=>{
         const owner=[m.role,m.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const {role,account_type,...publicMember}=m;
-        return {...publicMember,country_code:owner?null:m.country_code||null,is_following:followed.has(m.id)};
+        const connection=connectionByMember.get(String(m.id));
+        return {...publicMember,country_code:owner?null:m.country_code||null,is_following:followed.has(m.id),connection_id:connection?.id||null,connection_status:connection?.status||null,connection_direction:connection?(String(connection.receiver_id)===String(mid)?"incoming":"outgoing"):null};
       }));
+    }
+    if(action==="request_connection_by_member_id"){
+      const targetId=clean(input.memberId,50);
+      if(!uuid(targetId)||targetId===String(mid))return json({ok:false,error:"Choose a valid other JR PHEEF member."},400);
+      const targets=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,full_name,verified,status,profile_visibility&limit=1");
+      const target=targets?.[0];
+      if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase()))return json({ok:false,error:"This member is not currently available."},404);
+      const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status,requester_id,receiver_id&limit=1");
+      if(existing?.length&&["pending","accepted"].includes(String(existing[0].status)))return response({already_exists:true,connection:existing[0],message:existing[0].status==="accepted"?"You are already connected.":"A connection request is already pending."});
+      const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
+      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
+      return response({already_exists:false,connection:created?.[0]||created,member:{full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name||"JR PHEEF Member",verified:!!target.verified},message:"Connection request sent. JP numbers remain private."});
     }
     if(action==="list_ai_memories"){
       const data=await rows("jr_memory_items","member_id=eq."+mid+"&active=eq.true&consent_ai_context=eq.true&select=memory_kind,memory_text&order=updated_at.desc&limit=30");
@@ -498,7 +515,7 @@ Deno.serve(async (req: Request) => {
       for(const conv of conversations||[]){
         const peers=await rows("jr_conversation_participants","conversation_id=eq."+conv.id+"&member_id=neq."+mid+"&select=member_id&limit=5");
         const peerIds=(peers||[]).map((p:any)=>p.member_id).filter(uuid);
-        const profiles=peerIds.length?await rows("members","id=in.("+peerIds.join(",")+")&select=id,full_name,jp_number&limit=5"):[];
+        const profiles=peerIds.length?await rows("members","id=in.("+peerIds.join(",")+")&select=id,full_name&limit=5"):[];
         const messages=await rows("jr_messages","conversation_id=eq."+conv.id+"&select=body,sender_id,created_at&order=created_at.desc&limit=1");
         result.push({...conv,peers:profiles,lastMessage:messages?.[0]||null});
       }
@@ -513,6 +530,10 @@ Deno.serve(async (req: Request) => {
       const targets=await rows("members","id=in.("+unique.join(",")+")&status=eq.active&select=id");
       if((targets||[]).length!==unique.length)return json({ok:false,error:"One or more selected members are unavailable."},404);
       if(action==="create_conversation"&&unique.length!==1)return json({ok:false,error:"A private chat must have one other member."},400);
+      for(const targetId of unique){
+        const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status&limit=1");
+        if(!existing?.length||existing[0].status!=="accepted")return json({ok:false,error:"Only accepted JR PHEEF contacts can start a private chat or join a group."},403);
+      }
       const conv=await insert("jr_conversations",{created_by:mid,title:title||null,is_group:action==="create_group",description:clean(input.description,500)||null});
       const conversation=conv?.[0];if(!conversation?.id)throw new Error("Conversation could not be created.");
       await insert("jr_conversation_participants",[{conversation_id:conversation.id,member_id:mid,role:"owner"},...unique.map((id:string)=>({conversation_id:conversation.id,member_id:id,role:"member"}))]);
