@@ -313,6 +313,53 @@ app.get("/api/auth/session",async(req,res)=>{
     return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
+app.get("/api/jr/integrations",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify({action:"list_integrations"})});
+    let data={};try{data=await response.json();}catch{}
+    res.set("Cache-Control","no-store");return res.status(response.status).json(data);
+  }catch(err){console.error("JR partner connection list:",err.message);return res.status(503).json({ok:false,error:"Partner connections are temporarily unavailable."});}
+});
+app.post("/api/jr/integrations",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify({action:"create_integration",name:req.body?.name})});
+    let data={};try{data=await response.json();}catch{}
+    res.set("Cache-Control","no-store");return res.status(response.status).json(data);
+  }catch(err){console.error("JR partner connection create:",err.message);return res.status(503).json({ok:false,error:"Partner connection could not be created."});}
+});
+app.get("/api/jr/integrations/events",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify({action:"list_integration_events"})});
+    let data={};try{data=await response.json();}catch{}
+    res.set("Cache-Control","no-store");return res.status(response.status).json(data);
+  }catch(err){console.error("JR partner event inbox:",err.message);return res.status(503).json({ok:false,error:"Partner event inbox is temporarily unavailable."});}
+});
+app.delete("/api/jr/integrations/:id",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-workspace-api",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify({action:"revoke_integration",integrationId:req.params.id})});
+    let data={};try{data=await response.json();}catch{}
+    res.set("Cache-Control","no-store");return res.status(response.status).json(data);
+  }catch(err){console.error("JR partner connection revoke:",err.message);return res.status(503).json({ok:false,error:"Partner connection could not be revoked."});}
+});
+app.post("/api/inbound/jr/events",rateLimit,async(req,res)=>{
+  try{
+    const authorization=typeof req.headers.authorization==="string"?req.headers.authorization:"";
+    if(!/^Bearer\\s+jr_live_[a-f0-9]{64}$/i.test(authorization))return res.status(401).json({ok:false,error:"A valid JR partner bearer token is required."});
+    if(!SUPABASE_URL||!SUPABASE_KEY)return res.status(503).json({ok:false,error:"Partner gateway is not configured."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-partner-event-gateway",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:authorization,"Content-Type":"application/json"},body:JSON.stringify(req.body||{})});
+    let data={};try{data=await response.json();}catch{}
+    res.set("Cache-Control","no-store");return res.status(response.status).json(data);
+  }catch(err){console.error("JR partner event gateway:",err.message);return res.status(503).json({ok:false,error:"Partner event gateway is temporarily unavailable."});}
+});
+
 app.post("/api/partner-inquiry",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const user=await currentUser(req,res);
