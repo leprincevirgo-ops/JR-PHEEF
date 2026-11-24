@@ -54,3 +54,19 @@
 .jr-connect-panel{min-height:0;flex:1}
 @media(max-width:700px){.jr-connect-workspace{height:calc(100dvh - 145px);max-height:760px;margin-top:12px}.jr-connect-heading{top:0}.jr-connect-tabs{top:74px}}
 @media(prefers-reduced-motion:reduce){.jr-connect-workspace{scroll-behavior:auto}}
+
+.diamond-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.diamond-secondary{border:1px solid var(--diamond-line);border-radius:999px;padding:12px 18px;background:rgba(255,255,255,.06);color:#f1f5f9;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.diamond-secondary:disabled,.diamond-primary:disabled{opacity:.55;cursor:not-allowed}
+.diamond-application-status{min-height:1.4em;color:#c5d2df;font-size:12px;line-height:1.5}
+.diamond-application-dialog{width:min(560px,calc(100vw - 28px));max-height:min(86dvh,760px);overflow:auto;border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:0;background:#0c1726;color:#f4f7fb;box-shadow:0 24px 90px rgba(0,0,0,.55)}
+.diamond-application-dialog::backdrop{background:rgba(2,7,15,.76);backdrop-filter:blur(5px)}
+.diamond-application-form{display:grid;gap:14px;padding:22px}
+.diamond-application-form h2{margin:0;font-size:20px;color:#fff}
+.diamond-application-form label{display:grid;gap:7px;font-size:12px;font-weight:700;color:#dce5ef}
+.diamond-application-form input:not([type=checkbox]),.diamond-application-form textarea,.diamond-application-form select{width:100%;border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:11px;background:#101f31;color:#fff;font:inherit;font-size:14px}
+.diamond-application-form textarea{min-height:100px;resize:vertical}
+.diamond-application-notice{margin:0;padding:13px;border-left:3px solid var(--diamond-accent);background:rgba(255,255,255,.045);color:#cbd5e1;font-size:12px;line-height:1.6}
+.diamond-consent{display:flex!important;grid-template-columns:auto 1fr;align-items:start;gap:9px!important}
+.diamond-consent input{margin-top:2px}
+@media(max-width:600px){.diamond-application-form{padding:17px}.diamond-actions>*{flex:1 1 100%}}
