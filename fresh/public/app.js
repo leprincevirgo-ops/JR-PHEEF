@@ -2,7 +2,9 @@
 (()=>{
  const $=id=>document.getElementById(id);
  const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
- let mode="login",busy=false,recoveryAccessToken="",recoveryRefreshToken="";
+ let mode="login",busy=false,recoveryAccessToken="",recoveryRefreshToken="",signedInUser=null;
+ const referralCodePattern=/^JR-[A-F0-9]{12}$/i;
+ try{const incomingReferral=new URLSearchParams(window.location.search).get("ref");if(incomingReferral&&referralCodePattern.test(incomingReferral.trim()))sessionStorage.setItem("jr_referral_code",incomingReferral.trim().toUpperCase());}catch{}
  const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
  const routeForView={home:"/",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link",jr:"/"};
  const requestedWorld=worldRoutes[window.location.pathname]||"home";
@@ -91,6 +93,8 @@
   }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
  }
  function setSignedIn(user){
+  signedInUser=user||null;
+  if(user){try{sessionStorage.removeItem("jr_referral_code");}catch{}}
   const publicInfo=$("publicInfo");if(publicInfo)publicInfo.hidden=!!user;
   const publicLive=$("publicLive");if(publicLive)publicLive.hidden=!!user;
   window.dispatchEvent(new CustomEvent("jr:member-signed-in",{detail:user||null}));
@@ -158,8 +162,9 @@
  const welcomeShare=$("jrWelcomeShare"),welcomeSpeak=$("jrWelcomeSpeak"),welcomeFeedback=$("jrWelcomeFeedback");
  const welcomeText="Hi, I'm JR. Welcome aboard! Wanna experience a little magic? Share JR PHEEF with the person next to you, a friend, or someone across the world. Exchange JP numbers with people you trust, build your circle, discover opportunities, and let's grow together. One connection can open a world of possibilities. Your JP number and phone number stay private unless you choose to share them.";
  welcomeShare?.addEventListener("click",async()=>{
-  const shareData={title:"JR PHEEF — One world. Every possibility.",text:"Meet JR PHEEF: connect with people you trust, discover opportunities, and grow together. One connection can open a world of possibilities.",url:window.location.origin};
-  try{if(navigator.share){await navigator.share(shareData);welcomeFeedback.textContent="Thanks for sharing JR PHEEF.";}else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.text+" "+shareData.url);welcomeFeedback.textContent="JR PHEEF's invitation has been copied. You can share it with someone you trust.";}else{welcomeFeedback.textContent="Use your browser's address bar to copy and share the JR PHEEF link.";}}
+  const inviteUrl=signedInUser?.referralCode&&referralCodePattern.test(signedInUser.referralCode)?window.location.origin+"/?ref="+encodeURIComponent(signedInUser.referralCode):window.location.origin;
+  const shareData={title:"JR PHEEF — One world. Every possibility.",text:"I’m inviting you to JR PHEEF. Connect with people you trust, discover opportunities, and grow together. One connection can open a world of possibilities.",url:inviteUrl};
+  try{if(navigator.share){await navigator.share(shareData);welcomeFeedback.textContent="Thanks for sharing your JR PHEEF invitation.";}else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.text+" "+shareData.url);welcomeFeedback.textContent="JR PHEEF's invitation has been copied. You can share it with someone you trust.";}else{welcomeFeedback.textContent="Use your browser's address bar to copy and share the JR PHEEF link.";}}
   catch(error){if(error?.name!=="AbortError")welcomeFeedback.textContent="Sharing is unavailable right now. You can still copy the JR PHEEF address from your browser.";}
  });
  welcomeSpeak?.addEventListener("click",()=>{
@@ -180,6 +185,7 @@
   if(mode==="signup"){
    if(payload.email.toLowerCase()!==$("confirmEmail").value.trim().toLowerCase()){setMessage("Your email addresses do not match. Please check both fields.");busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent="Create account";$("confirmEmail").focus();return;}
    payload.fullName=$("fullName").value.trim();payload.phone=$("phone").value.trim();payload.birthYear=$("birthYear").value;
+   try{const invite=sessionStorage.getItem("jr_referral_code")||"";if(referralCodePattern.test(invite))payload.referralCode=invite.toUpperCase();}catch{}
   }
   try{
    if(mode==="requestRecovery"){
