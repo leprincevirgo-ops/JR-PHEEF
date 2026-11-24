@@ -7,9 +7,6 @@
   let selected="flow";
   try { const saved=localStorage.getItem(KEY); if(styles.includes(saved)) selected=saved; } catch {}
   const reduced=()=>window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const style=document.createElement("style");
-  style.textContent="";
-  document.head.append(style);
   const dock=document.createElement("div");
   dock.id="jrScrollCompanion";
   dock.className="jr-scroll-companion";
@@ -21,7 +18,7 @@
   function draw(){
     dock.dataset.style=selected;
     glyph.innerHTML=selected==="spider"?spider:selected==="butterfly"?"🦋":selected==="orb"?"":selected==="classic"?"↕":selected==="off"?"": "✧";
-    handle.hidden=selected==="off"||selected==="classic";
+    handle.hidden=selected==="off";
     dock.classList.toggle("is-classic",selected==="classic");
     dock.classList.toggle("is-off",selected==="off");
     handle.setAttribute("aria-label",labels[selected]+". Swipe left for forward, right for back, up for bottom, down for top. Tap to choose a style.");
