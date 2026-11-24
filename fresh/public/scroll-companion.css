@@ -10,8 +10,9 @@
 .jr-scroll-companion[data-style=orb] .jr-sc-handle{background:radial-gradient(circle at 35% 30%,#d8ffff,#54cfe8 42%,#15558c 76%);box-shadow:0 0 28px #72eaff77,inset 0 0 12px #fff8}
 .jr-scroll-companion[data-style=butterfly] .jr-sc-handle{background:rgba(34,30,77,.96);border-color:#c2aaff}
 .jr-scroll-companion[data-style=spider] .jr-sc-handle{background:rgba(13,30,51,.97);border-color:#9beaff}
-.jr-scroll-companion.is-classic{right:3px;top:35%;bottom:35%;width:12px;border-radius:9px;background:rgba(105,227,239,.14);pointer-events:auto}
-.jr-scroll-companion.is-classic:before{content:"";position:absolute;inset:0;border-radius:9px;background:linear-gradient(#76e9f3,#3189ba)}
+.jr-scroll-companion.is-classic{right:3px;top:42%;width:26px;pointer-events:auto}
+.jr-scroll-companion.is-classic .jr-sc-handle{width:18px;height:64px;padding:2px;border-radius:9px;background:linear-gradient(#76e9f3,#3189ba);color:#06213a;box-shadow:0 2px 10px #0006}
+.jr-scroll-companion.is-classic .jr-sc-glyph{font-size:17px}
 .jr-scroll-companion.is-off{display:none}
 .jr-sc-panel{pointer-events:auto;width:min(340px,calc(100vw - 30px));padding:17px;border:1px solid rgba(143,239,255,.38);border-radius:17px;background:#071a2e;color:#f2f9ff;box-shadow:0 15px 45px #000b}
 .jr-sc-panel[hidden]{display:none!important}
