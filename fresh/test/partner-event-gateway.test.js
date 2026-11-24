@@ -23,7 +23,7 @@ test("partner credentials are generated once, hashed, scoped and member-owned", 
   assert.match(workspace, /scopes:\["events:write"\]/);
   assert.match(workspace, /action==="list_integrations"/);
   assert.match(workspace, /action==="revoke_integration"/);
-  assert.match(workspace, /member_id=eq\."+mid/);
+  assert.match(workspace, /member_id=eq\."\+mid/);
 });
 
 test("inbound partner gateway validates bearer credentials, limits payloads and only stores allowlisted events", () => {
