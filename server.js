@@ -1133,7 +1133,8 @@ app.get("/api/connections", async (req,res) => {
       const privateProfile=String(other&&other.profile_visibility||"public").toLowerCase()==="private";
       const owner=other&&[other.role,other.account_type].some(value=>String(value||"").toLowerCase()==="owner");
       const countryCode=isAccepted&&other&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
-      return {...x,other_member:other?{
+      const {requester_id,receiver_id,...safeConnection}=x;
+      return {...safeConnection,direction:String(receiver_id)===String(m.id)?"incoming":"outgoing",other_member:other?{
         contact_key:x.id,
         full_name:privateProfile?"JR PHEEF Member":other.full_name,
         verified:!!other.verified,
