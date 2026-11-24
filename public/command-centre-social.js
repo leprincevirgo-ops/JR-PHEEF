@@ -87,7 +87,7 @@ function renderContacts(){
   if(o.country_code)info.append(node("small","jrcc-country-flag",countryFlag(o.country_code)+" "+o.country_code));
   const top=node("div","jrcc-contact-top");top.append(avatar,info,node("span","jrcc-contact-state",c.status==="accepted"?"CONNECTED":c.status==="pending"?"PENDING":String(c.status||"").toUpperCase()));card.append(top);
   const actions=node("div","jrcc-contact-actions");
-  if(c.status==="pending"&&String(c.receiver_id)===String((member&&member.id))){
+  if(c.status==="pending"&&c.direction==="incoming"){
    const accept=node("button","primary","ACCEPT");accept.onclick=()=>changeConnection(c.id,"accepted");
    const decline=node("button","dark","DECLINE");decline.onclick=()=>changeConnection(c.id,"declined");actions.append(accept,decline);
   }else if(c.status==="pending"){
