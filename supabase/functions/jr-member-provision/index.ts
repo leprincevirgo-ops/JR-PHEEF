@@ -32,12 +32,11 @@ Deno.serve(async (req: Request) => {
     const headers = {
       apikey: serviceKey,
       Authorization: "Bearer " + serviceKey,
-      "Content-Type": "application/json",
-      Prefer: prefer
+      "Content-Type": "application/json"
     };
     const rest = async (path: string, method = "GET", body?: unknown, prefer = "return=representation") => {
       const response = await fetch(url + "/rest/v1/" + path, {
-        method, headers,
+        method, headers: { ...headers, Prefer: prefer },
         body: body === undefined ? undefined : JSON.stringify(body)
       });
       const raw = await response.text();
