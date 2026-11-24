@@ -113,6 +113,7 @@
   for(const [id,visible] of [["nameLabel",signup],["fullName",signup],["phoneLabel",signup],["phone",signup],["birthLabel",signup],["birthYear",signup],["confirmEmailLabel",signup],["confirmEmail",signup]])$(id).hidden=!visible;
   $("emailLabel").hidden=recovery;$("email").hidden=recovery;$("email").required=!recovery;$("passwordLabel").hidden=requestRecovery;$("password").hidden=requestRecovery;$("togglePassword").hidden=requestRecovery;$("password").required=!requestRecovery;$("backToLogin").hidden=!(requestRecovery||recovery);
   $("confirmEmail").required=signup;$("resendLoginConfirmation").hidden=true;$("forgotPassword").hidden=!login;
+  try{$("referralAttributionNote").hidden=!(signup&&!!sessionStorage.getItem("jr_referral_code"));}catch{$("referralAttributionNote").hidden=true;}
   $("fullName").required=signup;$("phone").required=signup;$("birthYear").required=signup;
   $("password").required=true;$("password").autocomplete=login?"current-password":"new-password";
   $("authSubmit").textContent=recovery?"Save new password":requestRecovery?"Send recovery email":login?"Log in":"Create account";
