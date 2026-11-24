@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS jr_riders_vehicle_owner_member_id_idx ON public.jr_riders(vehicle_owner_member_id);
