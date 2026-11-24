@@ -51,8 +51,18 @@
   root.querySelectorAll("[data-diamond-return]").forEach(b=>b.addEventListener("click",()=>document.querySelector('.workspace-tab[data-view="home"]')?.click()));
   root.querySelectorAll("[data-diamond-jr]").forEach(b=>b.addEventListener("click",()=>{document.querySelector('.workspace-tab[data-view="jr"]')?.click();const p=document.getElementById("workspacePrompt");if(p){p.value=key==="dgbo"?"Help me explore DGBO business research, venture development or partnership services.":"Help me create a practical FAMILY financial education or personal savings goal plan.";p.focus();}}));
 
-  async function refreshMemberships(){
-   if(typeof window.jrWorkspaceAction!=="function")return;
+  function clearMemberships(){
+   for(const slug of ["dgbo","family"]){
+    const button=root.querySelector('[data-venture-apply="'+slug+'"]');
+    const status=root.querySelector('[data-venture-status="'+slug+'"]');
+    if(status)status.textContent="";
+    if(button){button.disabled=false;button.textContent="Apply to join "+(slug==="dgbo"?"DGBO":"FAMILY");}
+   }
+  }
+  async function refreshMemberships(event){
+   if(event&&!event.detail){clearMemberships();return;}
+   if(typeof window.jrWorkspaceAction!=="function"){clearMemberships();return;}
+   clearMemberships();
    try{
     const items=await window.jrWorkspaceAction("list_ventures");
     for(const slug of ["dgbo","family"]){
@@ -72,7 +82,7 @@
       }
      }
     }
-   }catch{}
+   }catch{clearMemberships();}
   }
   root.querySelectorAll("[data-venture-apply]").forEach(button=>button.addEventListener("click",async()=>{
    const slug=button.getAttribute("data-venture-apply");
