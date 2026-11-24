@@ -340,7 +340,7 @@ Deno.serve(async (req: Request) => {
       const byId=new Map((people||[]).map((person:any)=>[String(person.id),person]));
       return response((data||[]).map((connection:any)=>{
         const other=byId.get(String(connection.requester_id)===String(mid)?connection.receiver_id:connection.requester_id);
-        if(!other)return {...connection,other_member:null};
+        if(!other){const {requester_id,receiver_id,...safeConnection}=connection;return {...safeConnection,direction:String(receiver_id)===String(mid)?"incoming":"outgoing",other_member:null};}
         const privateProfile=String(other.profile_visibility||"public").toLowerCase()==="private";
         const owner=[other.role,other.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
