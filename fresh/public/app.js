@@ -125,6 +125,10 @@
   const response=await fetch(path,{method:body?"POST":"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});
   let data={};try{data=await response.json();}catch{}if(!response.ok)throw new Error(data.error||"JR PHEEF could not complete that request.");return data;
  }
+ window.jrWorkspaceAction=async(action,payload={})=>{
+  const result=await api("/api/workspace",{action,...payload});
+  return result.data;
+ };
  function showEmailVerification(email){
   let tools=$("emailVerificationTools");
   if(!tools){
