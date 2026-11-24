@@ -247,16 +247,34 @@
  const queryParams=new URLSearchParams(window.location.search);
  const emailTokenHash=queryParams.get("token_hash");
  const emailTokenType=queryParams.get("type");
+ let pendingEmailTokenHash="";
  if(emailTokenHash&&["email","signup"].includes(emailTokenType)){
+  // Keep the one-time token unconsumed until the member explicitly confirms.
+  // Email-security scanners may open this URL, but a passive page load does not verify it.
   window.history.replaceState({},document.title,window.location.pathname);
-  showAuth("login");setMessage("Verifying your email securely…");
-  api("/api/auth/verify-link",{token_hash:emailTokenHash}).then(result=>{
-   if(result.user)setSignedIn(result.user);
-   $("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
-   setMessage(result.message||"Your email is verified. Welcome to JR PHEEF.");
-  }).catch(error=>{
-   showAuth("login");setMessage(error.message||"This confirmation link is invalid or expired. Request a fresh confirmation email.");
-  });
+  showAuth("login");setMessage("Your email link is ready. Tap Confirm email to finish verification.");
+  let linkTools=$("emailLinkVerificationTools");
+  if(!linkTools){
+   linkTools=document.createElement("section");linkTools.id="emailLinkVerificationTools";linkTools.className="email-verification-tools";
+   const heading=document.createElement("h3");heading.textContent="Confirm your email";
+   const copy=document.createElement("p");copy.textContent="Tap the button below to securely confirm this email address.";
+   const verify=document.createElement("button");verify.type="button";verify.id="verifyEmailLink";verify.className="primary wide";verify.textContent="Confirm email";
+   const status=document.createElement("p");status.id="emailLinkVerificationStatus";status.className="form-message";status.setAttribute("role","status");status.setAttribute("aria-live","polite");
+   linkTools.append(heading,copy,verify,status);
+   $("authMessage").insertAdjacentElement("afterend",linkTools);
+   verify.addEventListener("click",async()=>{
+    verify.disabled=true;status.textContent="Confirming your email…";
+    try{
+     const result=await api("/api/auth/verify-link",{token_hash:pendingEmailTokenHash});
+     if(result.user)setSignedIn(result.user);
+     linkTools.hidden=true;
+     $("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
+     status.textContent=result.message||"Your email is verified. Welcome to JR PHEEF.";
+    }catch(error){status.textContent=error.message||"This confirmation link is invalid or expired. Request a fresh confirmation email.";}
+    finally{verify.disabled=false;}
+   });
+  }
+  pendingEmailTokenHash=emailTokenHash;linkTools.hidden=false;
  }
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token"),confirmationType=fragment.get("type");
  const confirmationError=fragment.get("error_description")||fragment.get("error");
