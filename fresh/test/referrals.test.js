@@ -29,4 +29,6 @@ test("referral attribution validates codes, blocks self-referral and issues no r
   assert.match(provision, /referrer\.id !== member\.id/);
   assert.match(provision, /reward: 0/);
   assert.match(provision, /resolution=ignore-duplicates/);
+  assert.match(provision, /JR referral attribution could not be recorded/);
+  assert.match(provision, /referralCode: member\.referral_code \|\| null/);
 });
