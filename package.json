@@ -10,7 +10,7 @@
     "business:daily-plans": "node scripts/run-daily-plans.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.0",
