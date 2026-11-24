@@ -204,6 +204,28 @@ app.post("/api/auth/resend",rateLimit,sameOrigin,async(req,res)=>{
     return res.json({ok:true,message:"A fresh confirmation email has been requested. Check your inbox and spam folder."});
   }catch(err){console.error("JR PHEEF resend confirmation:",err.message);return res.status(503).json({ok:false,error:"We could not resend the confirmation email. Please try again shortly."});}
 });
+app.post("/api/auth/recover",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const email=typeof req.body?.email==="string"?req.body.email.trim().toLowerCase():"";
+    if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter the email address used to create your account."});
+    const result=await supabaseAuth("recover?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email});
+    if(!result.ok&&result.status!==429)return res.status(result.status>=500?503:200).json({ok:true,message:"If an account exists for that address, a recovery email will be sent. Check your inbox and spam folder."});
+    if(!result.ok)return res.status(429).json({ok:false,error:"Too many recovery requests. Please wait and try again."});
+    return res.json({ok:true,message:"If an account exists for that address, a recovery email has been sent. Check your inbox and spam folder."});
+  }catch(err){console.error("JR PHEEF password recovery request:",err.message);return res.status(503).json({ok:false,error:"Password recovery is temporarily unavailable. Please try again shortly."});}
+});
+app.post("/api/auth/password/update",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const {access_token,refresh_token,password}=req.body||{};
+    if(typeof access_token!=="string"||access_token.length<20||access_token.length>8192)return res.status(400).json({ok:false,error:"This recovery link is invalid or expired. Request a new one."});
+    if(typeof password!=="string"||password.length<8||password.length>128)return res.status(400).json({ok:false,error:"Choose a password between 8 and 128 characters."});
+    const response=await fetch(SUPABASE_URL+"/auth/v1/user",{method:"PUT",headers:{"Content-Type":"application/json",apikey:SUPABASE_KEY,Authorization:"Bearer "+access_token},body:JSON.stringify({password})});
+    let data={};try{data=await response.json();}catch{}
+    if(!response.ok)return res.status(response.status===429?429:400).json({ok:false,error:authError(data)||"The recovery link could not update your password. Request a fresh link."});
+    saveSession(res,{access_token,refresh_token:typeof refresh_token==="string"?refresh_token:undefined,expires_in:3600});
+    return res.json({ok:true,message:"Your password has been updated."});
+  }catch(err){console.error("JR PHEEF password update:",err.message);return res.status(503).json({ok:false,error:"Password update is temporarily unavailable. Please try again."});}
+});
 app.post("/api/auth/verify-email",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const email=typeof req.body?.email==="string"?req.body.email.trim().toLowerCase():"";
