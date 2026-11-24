@@ -352,7 +352,7 @@ app.delete("/api/jr/integrations/:id",rateLimit,sameOrigin,async(req,res)=>{
 app.post("/api/inbound/jr/events",rateLimit,async(req,res)=>{
   try{
     const authorization=typeof req.headers.authorization==="string"?req.headers.authorization:"";
-    if(!/^Bearer\\s+jr_live_[a-f0-9]{64}$/i.test(authorization))return res.status(401).json({ok:false,error:"A valid JR partner bearer token is required."});
+    if(!/^Bearer\s+jr_live_[a-f0-9]{64}$/i.test(authorization))return res.status(401).json({ok:false,error:"A valid JR partner bearer token is required."});
     if(!SUPABASE_URL||!SUPABASE_KEY)return res.status(503).json({ok:false,error:"Partner gateway is not configured."});
     const response=await fetch(SUPABASE_URL+"/functions/v1/jr-partner-event-gateway",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:authorization,"Content-Type":"application/json"},body:JSON.stringify(req.body||{})});
     let data={};try{data=await response.json();}catch{}
