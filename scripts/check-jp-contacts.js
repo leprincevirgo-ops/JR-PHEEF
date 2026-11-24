@@ -1,9 +1,9 @@
 "use strict";
-const fs=require("node:fs"),vm=require("node:vm"),js=fs.readFileSync("public/jp-contacts-ui.js","utf8"),edge=fs.readFileSync("supabase/functions/jr-workspace-api/index.ts","utf8"),runtime=fs.readFileSync("fresh/server.js","utf8"),html=fs.readFileSync("public/index.html","utf8");
+const fs=require("node:fs"),vm=require("node:vm"),js=fs.readFileSync("public/jp-contacts-ui.js","utf8"),edge=fs.readFileSync("supabase/functions/jr-workspace-api/index.ts","utf8"),runtime=fs.readFileSync("fresh/server.js","utf8"),html=fs.readFileSync("public/index.html","utf8"),social=fs.readFileSync("public/command-centre-social.js","utf8"),messages=fs.readFileSync("routes/messages.js","utf8"),market=fs.readFileSync("routes/market.js","utf8");
 new vm.Script(js,{filename:"public/jp-contacts-ui.js"});
-for(const x of ['action:"list_connections"','action:"request_connection_by_invite"','action:"update_connection"',"ACCEPT","DECLINE","CREATE MY INVITE","countryFlag(o.country_code)"])if(!js.includes(x))throw new Error("JP Contacts missing "+x);
+for(const x of ['action:"list_connections"','action:"request_connection_by_invite"','action:"update_connection"',"ACCEPT","DECLINE","CREATE MY INVITE",'action:"create_contact_invite"',"countryFlag(o.country_code)"])if(!js.includes(x))throw new Error("JP Contacts missing "+x);
 for(const x of ['if(action==="list_connections")','if(action==="request_connection_by_invite")','if(action==="create_contact_invite")','if(action==="update_connection")'])if(!edge.includes(x))throw new Error("Connection action missing "+x);
 if(!runtime.includes('app.post("/api/workspace"'))throw new Error("Unified workspace API proxy missing");
 if(!html.includes("/jp-contacts-ui.js"))throw new Error("JP Contacts script not loaded");
-if(js.includes("SHARE JP CARD")||js.includes("jp_number||")||edge.includes("jp_number:other.jp_number"))throw new Error("JP number is exposed in member-facing contact UI or API.");
+if(js.includes("SHARE JP CARD")||js.includes("jp_number")||edge.includes("jp_number:other.jp_number")||social.includes("o.jp_number")||messages.includes("member_jp_number")||market.includes("jp_number: seller.jp_number"))throw new Error("JP number is exposed or still used as a public contact key.");
 console.log("PASS: JP numbers stay private; JP Contacts uses expiring invitation links.");
