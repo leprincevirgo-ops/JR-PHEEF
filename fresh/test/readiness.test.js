@@ -26,7 +26,8 @@ test("readiness diagnostics verify identity and data API without exposing secret
   assert.match(route,/identityOk&&dataApiOk/);
   assert.match(route,/res\.status\(ready\?200:503\)/);
   assert.match(route,/dependencies:\{identity:identityOk\?"available":"unavailable",dataApi:dataApiOk\?"available":"unavailable"\}/);
-  assert.doesNotMatch(route,/access_token|service_role|SUPABASE_SECRET_KEY|SUPABASE_KEY\s*[,}]/);
+  const response=route.slice(route.indexOf("return res.status(ready?200:503)"));
+  assert.doesNotMatch(response,/access_token|service_role|SUPABASE_SECRET_KEY|SUPABASE_KEY|Authorization|apikey/);
 });
 
 test("readiness failures are diagnostic only and do not restart the app",()=>{
