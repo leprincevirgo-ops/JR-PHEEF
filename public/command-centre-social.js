@@ -78,32 +78,34 @@ async function loadContacts(){
 }
 function renderContacts(){
  const host=$("jrccContacts");if(!host)return;const q=(($("jrccContactSearch")?$("jrccContactSearch").value:"")||"").trim().toLowerCase();host.replaceChildren();
- const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name,o.jp_number].join(" ").toLowerCase().includes(q);});
- if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Add someone using their JP number, or accept an incoming request."));return;}
+ const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name].join(" ").toLowerCase().includes(q);});
+ if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Ask someone for a private invitation link, or accept an incoming request."));return;}
  rows.forEach(c=>{
   const o=c.other_member||{},card=node("article","jrcc-contact");
   const avatar=node("span","jrcc-contact-avatar",(o.full_name||"J").trim().slice(0,1).toUpperCase());
-  const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","",o.jp_number||"JP identity unavailable"));
+  const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","", "JR PHEEF contact"));
   if(o.country_code)info.append(node("small","jrcc-country-flag",countryFlag(o.country_code)+" "+o.country_code));
   const top=node("div","jrcc-contact-top");top.append(avatar,info,node("span","jrcc-contact-state",c.status==="accepted"?"CONNECTED":c.status==="pending"?"PENDING":String(c.status||"").toUpperCase()));card.append(top);
   const actions=node("div","jrcc-contact-actions");
-  if(c.status==="pending"&&String(c.receiver_id)===String((member&&member.id))){
+  if(c.status==="pending"&&c.direction==="incoming"){
    const accept=node("button","primary","ACCEPT");accept.onclick=()=>changeConnection(c.id,"accepted");
    const decline=node("button","dark","DECLINE");decline.onclick=()=>changeConnection(c.id,"declined");actions.append(accept,decline);
   }else if(c.status==="pending"){
    const cancel=node("button","dark","CANCEL REQUEST");cancel.onclick=()=>changeConnection(c.id,"cancelled");actions.append(cancel);
   }else if(c.status==="accepted"){
-   const chat=node("button","primary","CHAT");chat.onclick=()=>switchTab("chats");actions.append(chat);
+   const chat=node("button","primary","CHAT");chat.onclick=()=>openContactChat(c.id);actions.append(chat);
   }
   if(actions.childNodes.length)card.append(actions);host.append(card);
  });
 }
 async function changeConnection(id,status){const d=await api("/api/workspace","POST",{action:"update_connection",connectionId:id,status});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not update request.";return;}$("jrccContactStatus").textContent=(d.data&&d.data.message)||"Connection updated.";loadContacts();}
+async function openContactChat(id){const d=await api("/api/messages/conversations","POST",{connection_id:id});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not open this chat.";return;}if(window.show)window.show("messages");if(window.jrOpenConversation)await window.jrOpenConversation(d.conversation.id);else switchTab("chats");}
 async function addContact(){
- const input=$("jrccContactNumber"),note=$("jrccContactStatus"),jp=input.value.trim();if(!jp){note.textContent="Enter a JP number first.";return;}
+ const input=$("jrccContactNumber"),note=$("jrccContactStatus"),invite=input.value.trim();if(!invite){note.textContent="Paste a private invitation link or code.";return;}
  const button=$("jrccAddContact");button.disabled=true;note.textContent="Sending connection request…";
- const d=await api("/api/workspace","POST",{action:"request_connection",jp_number:jp});button.disabled=false;note.textContent=(d.data&&d.data.message)||d.error||"Request processed.";if(d.ok){input.value="";loadContacts();}
+ const d=await api("/api/workspace","POST",{action:"request_connection_by_invite",invite_code:invite});button.disabled=false;note.textContent=(d.data&&d.data.message)||d.error||"Request processed.";if(d.ok){input.value="";loadContacts();}
 }
+async function createContactInvite(){const note=$("jrccContactStatus");const d=await api("/api/workspace","POST",{action:"create_contact_invite"});if(!d.ok){note.textContent=d.error||"Could not create an invitation.";return;}const link="https://jr-pheef-marketplace.onrender.com/?jp_invite="+encodeURIComponent(d.data.invite_code);const message="Join me privately on JR PHEEF: "+link+"\nThis invitation expires in seven days.";try{if(navigator.share){await navigator.share({title:"JR PHEEF private invitation",text:message});note.textContent="Invitation ready to share. Your JP number stays private.";return;}await navigator.clipboard.writeText(message);note.textContent="Invitation link copied. Your JP number stays private.";}catch(e){if(e.name!=="AbortError")note.textContent=message;}}
 async function loadProfile(){
  const host=$("jrccProfile");if(!host)return;host.textContent="Loading your profile…";
  const d=await api("/api/workspace","POST",{action:"overview"});const own=d.data&&d.data.member;if(!d.ok||!own){host.textContent=d.error||"Profile unavailable.";return;}
@@ -153,8 +155,8 @@ function mount(){
  input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();askJR();}});
  const chats=node("section","jrcc-panel");chats.dataset.jrccPanel="chats";chats.hidden=true;chats.setAttribute("role","tabpanel");
  const contacts=node("section","jrcc-panel");contacts.dataset.jrccPanel="contacts";contacts.hidden=true;contacts.setAttribute("role","tabpanel");
- const add=node("div","jrcc-add-contact");const jp=node("input");jp.id="jrccContactNumber";jp.maxLength=24;jp.placeholder="JP number e.g. JP-01…";const addButton=node("button","primary","ADD");addButton.id="jrccAddContact";addButton.onclick=addContact;add.append(jp,addButton);
- const search=node("input","jrcc-contact-search");search.id="jrccContactSearch";search.type="search";search.placeholder="Search contacts by name or JP number…";search.oninput=renderContacts;
+ const add=node("div","jrcc-add-contact");const jp=node("input");jp.id="jrccContactNumber";jp.maxLength=220;jp.placeholder="Private invitation link or code";const addButton=node("button","primary","CONNECT");addButton.id="jrccAddContact";addButton.onclick=addContact;const inviteButton=node("button","dark","CREATE MY INVITE");inviteButton.onclick=createContactInvite;add.append(jp,addButton,inviteButton);
+ const search=node("input","jrcc-contact-search");search.id="jrccContactSearch";search.type="search";search.placeholder="Search contacts by name…";search.oninput=renderContacts;
  const contactStatus=node("p","jrcc-note");contactStatus.id="jrccContactStatus";const contactList=node("div","jrcc-contact-list");contactList.id="jrccContacts";contacts.append(add,search,contactStatus,contactList);
  const status=node("section","jrcc-panel");status.dataset.jrccPanel="status";status.hidden=true;status.setAttribute("role","tabpanel");
  const profile=node("section","jrcc-panel");profile.dataset.jrccPanel="profile";profile.hidden=true;profile.setAttribute("role","tabpanel");const profileHost=node("div","");profileHost.id="jrccProfile";profile.append(profileHost);

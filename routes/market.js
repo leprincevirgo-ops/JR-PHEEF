@@ -70,12 +70,12 @@ module.exports = function mountMarket(ctx) {
     if (!l || (l.status !== "active" && !mine)) return bad(res, "Listing not found.", 404);
     if (!mine && await blockedBetween(m.id, l.member_id)) return bad(res, "Listing not found.", 404);
     const { data: seller } = await db.from("members")
-      .select("id,full_name,verified,jp_number,profile_visibility,created_at").eq("id", l.member_id).maybeSingle();
+      .select("id,full_name,verified,profile_visibility,created_at").eq("id", l.member_id).maybeSingle();
     if (!mine) db.from("jr_listings").update({ views: Number(l.views || 0) + 1 }).eq("id", id).then(() => {}).catch(() => {});
     res.json({
       ok: true, is_mine: !!mine,
       listing: { ...l, seller_name: displayName(seller), phone: undefined },
-      seller: seller ? { id: seller.id, name: displayName(seller), verified: !!seller.verified, jp_number: seller.jp_number, member_since: seller.created_at } : null
+      seller: seller ? { id: seller.id, name: displayName(seller), verified: !!seller.verified, member_since: seller.created_at } : null
     });
   }));
 
@@ -220,7 +220,7 @@ module.exports = function mountMarket(ctx) {
     const room = await loadRoom(req, res, m); if (!room) return;
     const [{ data: msgs, error }, { data: people }, { data: listing }] = await Promise.all([
       db.from("jr_deal_messages").select("id,sender_id,body,created_at").eq("room_id", room.id).order("created_at", { ascending: true }).limit(300),
-      db.from("members").select("id,full_name,verified,jp_number,profile_visibility").in("id", [room.buyer_id, room.seller_id]),
+      db.from("members").select("id,full_name,verified,profile_visibility").in("id", [room.buyer_id, room.seller_id]),
       db.from("jr_listings").select("id,item_name,price,photos,status,negotiable").eq("id", room.listing_id).maybeSingle()
     ]);
     if (error) throw error;

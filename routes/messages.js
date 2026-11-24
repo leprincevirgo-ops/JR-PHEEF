@@ -53,21 +53,43 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     ]);
     if(e1||e2)throw e1||e2;
     const others=[...new Set((allParts||[]).filter(p=>String(p.member_id)!==String(m.id)).map(p=>p.member_id))];
-    const {data:people,error:e3}=others.length?await db.from("members").select("id,jp_number,full_name,profile_visibility").in("id",others):{data:[],error:null};
+    const {data:people,error:e3}=others.length?await db.from("members").select("id,full_name,profile_visibility").in("id",others):{data:[],error:null};
     if(e3)throw e3;
-    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||p.jp_number||"Member")]));
+    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||"Member")]));
     res.json({ok:true,conversations:(rooms||[]).map(r=>({...r,participants:(allParts||[]).filter(p=>p.conversation_id===r.id).map(p=>({id:p.member_id,name:String(p.member_id)===String(m.id)?"You":names.get(p.member_id)||"Member"}))}))});
   }));
   app.post("/api/messages/conversations",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-create",20,3600000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"Too many new conversations. Try again later.",429);}
-    const raw=Array.isArray(req.body.member_jp_numbers)?req.body.member_jp_numbers:[req.body.member_jp_number];
-    const numbers=[...new Set(raw.map(x=>clean(typeof x==="string"?x:"").toUpperCase()).filter(Boolean))].slice(0,30);
-    if(!numbers.length)return fail(res,"Enter at least one member JP number.");
-    const {data:found,error}=await db.from("members").select("id,jp_number,status").in("jp_number",numbers);
+    let recipientIds=[];
+    const connectionId=clean(req.body.connection_id,50);
+    if(connectionId){
+      if(!UUID.test(connectionId))return fail(res,"Choose a valid JR PHEEF contact.",400);
+      const {data:connection,error}=await db.from("connections").select("id,requester_id,receiver_id,status").eq("id",connectionId).maybeSingle();
+      if(error)throw error;
+      if(!connection||connection.status!=="accepted"||![String(connection.requester_id),String(connection.receiver_id)].includes(String(m.id)))return fail(res,"Only an accepted contact can start a private conversation.",403);
+      recipientIds=[String(connection.requester_id)===String(m.id)?String(connection.receiver_id):String(connection.requester_id)];
+    }else{
+      const raw=Array.isArray(req.body.invite_codes)?req.body.invite_codes:[req.body.invite_code];
+      const codes=[...new Set(raw.map(x=>{const v=clean(typeof x==="string"?x:"",220);const match=v.match(/(?:jp_invite=)?([a-f0-9]{64})/i);return match?match[1].toLowerCase():"";}).filter(Boolean))].slice(0,30);
+      if(!codes.length)return fail(res,"Paste at least one private JR PHEEF invitation link or code.");
+      const inviteHashes=await Promise.all(codes.map(async code=>{const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(code));return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");}));
+      const {data:invites,error:inviteError}=await db.from("jp_contact_invites").select("member_id").in("token_hash",inviteHashes).is("revoked_at",null).gt("expires_at",new Date().toISOString());
+      if(inviteError)throw inviteError;
+      recipientIds=[...new Set((invites||[]).map(x=>String(x.member_id)).filter(id=>id!==String(m.id)))];
+      if(recipientIds.length!==codes.length)return fail(res,"One or more invitations are invalid, expired or unavailable.",404);
+    }
+    const {data:found,error}=await db.from("members").select("id,status").in("id",recipientIds);
     if(error)throw error;
-    const recipients=(found||[]).filter(x=>String(x.id)!==String(m.id)&&!["blocked","suspended","disabled"].includes(String(x.status||"").toLowerCase()));
-    if(recipients.length!==numbers.length)return fail(res,"One or more JP numbers could not be matched to active members.",404);
+    const recipients=(found||[]).filter(x=>!["blocked","suspended","disabled"].includes(String(x.status||"").toLowerCase()));
+    if(recipients.length!==recipientIds.length)return fail(res,"One or more members are not currently available.",404);
+    for(const target of recipients){
+      const {data:connection,error:connectionError}=await db.from("connections").select("id")
+        .or("and(requester_id.eq."+m.id+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+m.id+")")
+        .eq("status","accepted").maybeSingle();
+      if(connectionError)throw connectionError;
+      if(!connection)return fail(res,"The member must accept your JR PHEEF connection request before messaging starts.",403);
+    }
     if(recipients.length===1){
       const {data:mine,error:e1}=await db.from("jr_conversation_participants").select("conversation_id").eq("member_id",m.id);
       if(e1)throw e1;
@@ -81,8 +103,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     if(isGroup&&!title)return fail(res,"Give your group a name.");
     const {data:room,error:ce}=await db.from("jr_conversations").insert({created_by:m.id,title:isGroup?title:null,is_group:isGroup}).select("id,title,is_group,updated_at").single();
     if(ce)throw ce;
-    const rows=[m.id,...recipients.map(x=>x.id)].map(member_id=>({conversation_id:room.id,member_id}));
-    const {error:pe}=await db.from("jr_conversation_participants").insert(rows);if(pe)throw pe;
+    const participantRows=[m.id,...recipients.map(x=>x.id)].map(member_id=>({conversation_id:room.id,member_id}));
+    const {error:pe}=await db.from("jr_conversation_participants").insert(participantRows);if(pe)throw pe;
     res.status(201).json({ok:true,conversation:room});
   }));
   app.get("/api/messages/conversations/:id",wrap(async(req,res)=>{
@@ -94,8 +116,8 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     ]);
     if(me||pe)throw me||pe;
     const ids=(parts||[]).map(x=>x.member_id);
-    const {data:people,error:e}=await db.from("members").select("id,jp_number,full_name,profile_visibility").in("id",ids);if(e)throw e;
-    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||p.jp_number||"Member")]));
+    const {data:people,error:e}=await db.from("members").select("id,full_name,profile_visibility").in("id",ids);if(e)throw e;
+    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||"Member")]));
     await db.from("jr_conversation_participants").update({last_read_at:new Date().toISOString()}).eq("conversation_id",room.id).eq("member_id",m.id);
     res.json({ok:true,conversation:room,participants:ids.map(id=>({id,name:String(id)===String(m.id)?"You":names.get(id)||"Member"})),messages:(msgs||[]).map(x=>({...x,sender_name:String(x.sender_id)===String(m.id)?"You":names.get(x.sender_id)||"Member"}))});
   }));
@@ -121,12 +143,12 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const {data:rows,error}=await db.from("jr_status_updates").select("id,member_id,body,background,visibility,created_at,expires_at").gt("expires_at",new Date().toISOString()).order("created_at",{ascending:false}).limit(200);
     if(error)throw error;
     const owners=[...new Set((rows||[]).map(x=>x.member_id))];
-    const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,jp_number,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
+    const {data:people,error:pe}=owners.length?await db.from("members").select("id,full_name,profile_photo,profile_visibility").in("id",owners):{data:[],error:null};
     if(pe)throw pe;
     const peopleMap=new Map((people||[]).map(p=>[String(p.id),p]));
     const followedSet=new Set(followed.map(String));
     const visible=(rows||[]).filter(x=>{const owner=peopleMap.get(String(x.member_id));const mine=String(x.member_id)===String(m.id);const connected=followedSet.has(String(x.member_id));return mine||connected||(x.visibility==="everyone"&&owner?.profile_visibility!=="private");});
-    const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||p.jp_number||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
+    const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
     const idsToView=visible.filter(x=>String(x.member_id)!==String(m.id)).map(x=>x.id);
     if(idsToView.length){const {error:ve}=await db.from("jr_status_views").upsert(idsToView.map(status_id=>({status_id,viewer_id:m.id})),{onConflict:"status_id,viewer_id",ignoreDuplicates:true});if(ve)throw ve;}
     const {data:views,error:vie}=visible.length?await db.from("jr_status_views").select("status_id,viewer_id").in("status_id",visible.map(x=>x.id)):{data:[],error:null};

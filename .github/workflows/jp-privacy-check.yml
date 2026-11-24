@@ -1,0 +1,35 @@
+name: JP privacy regression checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [privacy/jp-identity-private]
+
+jobs:
+  privacy-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install application dependencies
+        run: npm install
+      - name: Check JavaScript syntax
+        run: |
+          node --check server.js
+          node --check routes/messages.js
+          node --check routes/market.js
+          node --check routes/delivery.js
+          node --check public/jp-contacts-ui.js
+          node --check public/command-centre-social.js
+          node --check fresh/server.js
+          node --check fresh/public/app.js
+          node --check fresh/public/command-layout.js
+          node --check public/messages-ui.js
+      - uses: denoland/setup-deno@v2
+      - name: Type-check the workspace Edge Function
+        run: deno check --no-config supabase/functions/jr-workspace-api/index.ts
+      - name: Run JR PHEEF regression suite
+        run: npm test
