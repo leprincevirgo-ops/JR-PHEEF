@@ -815,6 +815,33 @@ Deno.serve(async (req: Request) => {
       try{await insert("jr_notifications",{member_id:current.member_id,title:"Venture application update",message:current.venture_slug.toUpperCase()+" membership application: "+status+(note?" — "+note:"."),type:"venture",read:false});}catch(error){console.warn("Venture review notification failed:",String(error?.message||error).slice(0,120));}
       return response(result);
     }
+    if(action==="list_integrations"){
+      const data=await rows("jr_partner_connections","member_id=eq."+mid+"&select=id,name,scopes,active,last_used_at,revoked_at,created_at&order=created_at.desc&limit=100");
+      return response(data||[]);
+    }
+    if(action==="create_integration"){
+      const name=clean(input.name,60);
+      if(name.length<3)return json({ok:false,error:"Give this connection a name between 3 and 60 characters."},400);
+      const bytes=crypto.getRandomValues(new Uint8Array(32));
+      const secret="jr_live_"+Array.from(bytes).map((x:number)=>x.toString(16).padStart(2,"0")).join("");
+      const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(secret));
+      const tokenHash=Array.from(new Uint8Array(digest)).map((x:number)=>x.toString(16).padStart(2,"0")).join("");
+      const created=await insert("jr_partner_connections",{member_id:mid,name,token_hash:tokenHash,scopes:["events:write"],active:true});
+      const connection=created?.[0];
+      if(!connection?.id)throw new Error("Partner connection could not be created.");
+      return json({ok:true,data:{connection:{id:connection.id,name:connection.name,scopes:connection.scopes,active:connection.active,created_at:connection.created_at},token:secret,warning:"Copy this token now. It is displayed once and cannot be retrieved later."}},201);
+    }
+    if(action==="list_integration_events"){
+      const data=await rows("jr_partner_events","member_id=eq."+mid+"&select=id,connection_id,event_type,title,summary,external_event_id,occurred_at,received_at,event_data&order=received_at.desc&limit=100");
+      return response(data||[]);
+    }
+    if(action==="revoke_integration"){
+      const id=clean(input.integrationId,50);
+      if(!uuid(id))return json({ok:false,error:"Choose a valid connection."},400);
+      const revoked=await rest("jr_partner_connections?id=eq."+id+"&member_id=eq."+mid+"&active=eq.true","PATCH",{active:false,revoked_at:new Date().toISOString()});
+      if(!revoked?.length)return json({ok:false,error:"Connection not found or already revoked."},404);
+      return response({id,active:false,revoked_at:revoked[0].revoked_at});
+    }
     return json({ok:false,error:"Unknown workspace action."},400);
   } catch(error) {
     console.error("JR workspace API:",error instanceof Error?error.message:"unknown");
