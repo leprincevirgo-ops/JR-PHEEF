@@ -140,7 +140,7 @@ const WORLD_FEEDS={
 };
 const discoveryCache=new Map();
 function decodeFeedText(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)||32)).replace(/\s+/g," ").trim().slice(0,360);}
-function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
+function feedTag(xml,tag){const m=xml.match(new RegExp("<"+tag+"(?:\s[^>]*)?>([\s\\S]*?)<\\/"+tag+">","i"));return m?decodeFeedText(m[1]):"";}
 async function loadWorldFeed(world){
  const cacheKey=world==="transport"?"transport":"general",cached=discoveryCache.get(cacheKey);
  if(cached&&Date.now()-cached.at<10*60*1000)return {...cached.data,cached:true};
@@ -207,7 +207,7 @@ app.post("/api/auth/resend",rateLimit,sameOrigin,async(req,res)=>{
 app.post("/api/auth/recover",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const email=typeof req.body?.email==="string"?req.body.email.trim().toLowerCase():"";
-    if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter the email address used to create your account."});
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter the email address used to create your account."});
     const result=await supabaseAuth("recover?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email});
     if(!result.ok&&result.status!==429)return res.status(result.status>=500?503:200).json({ok:true,message:"If an account exists for that address, a recovery email will be sent. Check your inbox and spam folder."});
     if(!result.ok)return res.status(429).json({ok:false,error:"Too many recovery requests. Please wait and try again."});
