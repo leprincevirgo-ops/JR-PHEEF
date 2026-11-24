@@ -381,9 +381,14 @@ Deno.serve(async (req: Request) => {
       const targets=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,full_name,verified,status,profile_visibility&limit=1");
       const target=targets?.[0];
       if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase()))return json({ok:false,error:"This member is not currently available."},404);
+      const since=new Date(Date.now()-60*60*1000).toISOString();
+      const recent=await rows("connections","requester_id=eq."+encodeURIComponent(String(mid))+"&status=eq.pending&created_at=gt."+encodeURIComponent(since)+"&select=id&limit=20");
+      if((recent||[]).length>=20)return json({ok:false,error:"You have reached the connection-request limit for this hour."},429);
       const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status&limit=1");
-      if(existing?.length)return response({already_exists:true,connection:existing[0],message:"A connection request or connection already exists."});
-      const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
+      if(existing?.length&&["pending","accepted"].includes(String(existing[0].status))){const {requester_id,receiver_id,...safeExisting}=existing[0];return response({already_exists:true,connection:safeExisting,message:"A connection request or connection already exists."});}
+      let created;
+      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",updated_at:new Date().toISOString()});
+      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
       await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
       const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
       return response({already_exists:false,connection:safeSaved,message:"Connection request sent. Both JP numbers remain private."});
@@ -455,8 +460,10 @@ Deno.serve(async (req: Request) => {
       const target=targets?.[0];
       if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase()))return json({ok:false,error:"This member is not currently available."},404);
       const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status,requester_id,receiver_id&limit=1");
-      if(existing?.length&&["pending","accepted"].includes(String(existing[0].status)))return response({already_exists:true,connection:existing[0],message:existing[0].status==="accepted"?"You are already connected.":"A connection request is already pending."});
-      const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
+      if(existing?.length&&["pending","accepted"].includes(String(existing[0].status))){const {requester_id,receiver_id,...safeExisting}=existing[0];return response({already_exists:true,connection:safeExisting,message:existing[0].status==="accepted"?"You are already connected.":"A connection request is already pending."});}
+      let created;
+      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",updated_at:new Date().toISOString()});
+      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
       await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
       const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
       return response({already_exists:false,connection:safeSaved,member:{full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name||"JR PHEEF Member",verified:!!target.verified},message:"Connection request sent. JP numbers remain private."});
