@@ -154,6 +154,23 @@
  $("resendLoginConfirmation").addEventListener("click",async()=>{const button=$("resendLoginConfirmation");button.disabled=true;setMessage("Requesting a new confirmation email…");try{const result=await api("/api/auth/resend",{email:$("email").value.trim()});setMessage(result.message+" Check spam and promotions too.");}catch(error){setMessage(error.message);}finally{button.disabled=false;}});
 
  $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
+
+ const welcomeShare=$("jrWelcomeShare"),welcomeSpeak=$("jrWelcomeSpeak"),welcomeFeedback=$("jrWelcomeFeedback");
+ const welcomeText="Hi, I'm JR. Welcome aboard! Wanna experience a little magic? Share JR PHEEF with the person next to you, a friend, or someone across the world. Exchange JP numbers with people you trust, build your circle, discover opportunities, and let's grow together. One connection can open a world of possibilities. Your JP number and phone number stay private unless you choose to share them.";
+ welcomeShare?.addEventListener("click",async()=>{
+  const shareData={title:"JR PHEEF — One world. Every possibility.",text:"Meet JR PHEEF: connect with people you trust, discover opportunities, and grow together. One connection can open a world of possibilities.",url:window.location.origin};
+  try{if(navigator.share){await navigator.share(shareData);welcomeFeedback.textContent="Thanks for sharing JR PHEEF.";}else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.text+" "+shareData.url);welcomeFeedback.textContent="JR PHEEF's invitation has been copied. You can share it with someone you trust.";}else{welcomeFeedback.textContent="Use your browser's address bar to copy and share the JR PHEEF link.";}}
+  catch(error){if(error?.name!=="AbortError")welcomeFeedback.textContent="Sharing is unavailable right now. You can still copy the JR PHEEF address from your browser.";}
+ });
+ welcomeSpeak?.addEventListener("click",()=>{
+  if(!("speechSynthesis" in window)){welcomeFeedback.textContent="Read-aloud is not supported by this browser.";return;}
+  if(window.speechSynthesis.speaking){window.speechSynthesis.cancel();welcomeSpeak.textContent="🔊 Read welcome";welcomeSpeak.setAttribute("aria-pressed","false");welcomeFeedback.textContent="Read-aloud stopped.";return;}
+  const utterance=new SpeechSynthesisUtterance(welcomeText);utterance.lang="en-KE";utterance.rate=0.96;
+  utterance.onend=()=>{welcomeSpeak.textContent="🔊 Read welcome";welcomeSpeak.setAttribute("aria-pressed","false");};
+  utterance.onerror=()=>{welcomeSpeak.textContent="🔊 Read welcome";welcomeSpeak.setAttribute("aria-pressed","false");welcomeFeedback.textContent="Read-aloud could not start. Try again.";};
+  window.speechSynthesis.cancel();window.speechSynthesis.speak(utterance);welcomeSpeak.textContent="■ Stop reading";welcomeSpeak.setAttribute("aria-pressed","true");welcomeFeedback.textContent="JR is reading the welcome message.";
+ });
+
  $("startWithJr").addEventListener("click",()=>showAuth("signup"));
  $("publicJoinNow")?.addEventListener("click",()=>showAuth("signup"));
  form.addEventListener("submit",async event=>{
