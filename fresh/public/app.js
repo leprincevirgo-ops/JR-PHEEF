@@ -2,7 +2,7 @@
 (()=>{
  const $=id=>document.getElementById(id);
  const panel=$("authPanel"),conversation=$("conversation"),workspace=$("workspace"),hero=document.querySelector(".hero"),form=$("authForm");
- let mode="login",busy=false;
+ let mode="login",busy=false,recoveryAccessToken="",recoveryRefreshToken="";
  const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
  const routeForView={home:"/",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link",jr:"/"};
  const requestedWorld=worldRoutes[window.location.pathname]||"home";
@@ -101,14 +101,20 @@
  }
  function showAuth(next){
   mode=next;panel.hidden=false;conversation.hidden=true;setMessage("");
-  $("authTitle").textContent=mode==="login"?"Welcome back":"Create your JR PHEEF identity";
-  $("loginTab").classList.toggle("selected",mode==="login");$("signupTab").classList.toggle("selected",mode==="signup");
-  $("loginTab").setAttribute("aria-pressed",String(mode==="login"));$("signupTab").setAttribute("aria-pressed",String(mode==="signup"));
-  for(const [id,visible] of [["nameLabel",mode==="signup"],["fullName",mode==="signup"],["phoneLabel",mode==="signup"],["phone",mode==="signup"],["birthLabel",mode==="signup"],["birthYear",mode==="signup"],["confirmEmailLabel",mode==="signup"],["confirmEmail",mode==="signup"]])$(id).hidden=!visible;
-  $("confirmEmail").required=mode==="signup";$("resendLoginConfirmation").hidden=true;
-  $("fullName").required=mode==="signup";$("phone").required=mode==="signup";$("birthYear").required=mode==="signup";
-  $("password").autocomplete=mode==="login"?"current-password":"new-password";$("authSubmit").textContent=mode==="login"?"Log in":"Create account";$("password").type="password";$("togglePassword").textContent="Show";$("togglePassword").setAttribute("aria-label","Show password");$("togglePassword").setAttribute("aria-pressed","false");
-  $("email").focus({preventScroll:true});panel.scrollIntoView({behavior:"smooth",block:"center"});
+  const recovery=mode==="recovery",login=mode==="login",signup=mode==="signup";
+  $("authTitle").textContent=recovery?"Choose a new password":login?"Welcome back":"Create your JR PHEEF identity";
+  $("loginTab").hidden=recovery;$("signupTab").hidden=recovery;
+  $("loginTab").classList.toggle("selected",login);$("signupTab").classList.toggle("selected",signup);
+  $("loginTab").setAttribute("aria-pressed",String(login));$("signupTab").setAttribute("aria-pressed",String(signup));
+  for(const [id,visible] of [["nameLabel",signup],["fullName",signup],["phoneLabel",signup],["phone",signup],["birthLabel",signup],["birthYear",signup],["confirmEmailLabel",signup],["confirmEmail",signup]])$(id).hidden=!visible;
+  $("emailLabel").hidden=recovery;$("email").hidden=recovery;$("email").required=!recovery;
+  $("confirmEmail").required=signup;$("resendLoginConfirmation").hidden=true;$("forgotPassword").hidden=!login;
+  $("fullName").required=signup;$("phone").required=signup;$("birthYear").required=signup;
+  $("password").required=true;$("password").autocomplete=login?"current-password":"new-password";
+  $("authSubmit").textContent=recovery?"Save new password":login?"Log in":"Create account";
+  $("password").type="password";$("togglePassword").textContent="Show";$("togglePassword").setAttribute("aria-label","Show password");$("togglePassword").setAttribute("aria-pressed","false");
+  if(!recovery)$("email").focus({preventScroll:true});else $("password").focus({preventScroll:true});
+  panel.scrollIntoView({behavior:"smooth",block:"center"});
  }
  async function api(path,body){
   const response=await fetch(path,{method:body?"POST":"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});
@@ -143,26 +149,42 @@
  $("openLogin").addEventListener("click",()=>showAuth("login"));$("openSignup").addEventListener("click",()=>showAuth("signup"));$("openPartnerSignup")?.addEventListener("click",()=>showAuth("signup"));
  $("loginTab").addEventListener("click",()=>showAuth("login"));$("signupTab").addEventListener("click",()=>showAuth("signup"));
  $("togglePassword").addEventListener("click",()=>{const visible=$("password").type==="password";$("password").type=visible?"text":"password";$("togglePassword").textContent=visible?"Hide":"Show";$("togglePassword").setAttribute("aria-label",visible?"Hide password":"Show password");$("togglePassword").setAttribute("aria-pressed",String(visible));});
+ $("forgotPassword").addEventListener("click",async()=>{
+  const email=$("email").value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setMessage("Enter the email address registered to your JR PHEEF account first.");$("email").focus();return;}
+  const button=$("forgotPassword");button.disabled=true;setMessage("Requesting a secure password-recovery email…");
+  try{const result=await api("/api/auth/recover",{email});setMessage(result.message||"If an account exists for that address, a recovery email has been sent. Check your inbox and spam folder.");}
+  catch(error){setMessage(error.message||"We could not request password recovery. Please try again.");}
+  finally{button.disabled=false;}
+ });
  $("resendLoginConfirmation").addEventListener("click",async()=>{const button=$("resendLoginConfirmation");button.disabled=true;setMessage("Requesting a new confirmation email…");try{const result=await api("/api/auth/resend",{email:$("email").value.trim()});setMessage(result.message+" Check spam and promotions too.");}catch(error){setMessage(error.message);}finally{button.disabled=false;}});
 
  $("closeAuth").addEventListener("click",()=>{panel.hidden=true;});
  $("startWithJr").addEventListener("click",()=>showAuth("signup"));
  $("publicJoinNow")?.addEventListener("click",()=>showAuth("signup"));
  form.addEventListener("submit",async event=>{
-  event.preventDefault();if(busy||!form.reportValidity())return;busy=true;$("authSubmit").disabled=true;$("authSubmit").textContent=mode==="login"?"Signing in…":"Creating account…";setMessage("");
+  event.preventDefault();if(busy||!form.reportValidity())return;busy=true;$("authSubmit").disabled=true;setMessage("");
+  $("authSubmit").textContent=mode==="recovery"?"Updating password…":mode==="login"?"Signing in…":"Creating account…";
   const payload={email:$("email").value.trim(),password:$("password").value};
   if(mode==="signup"){
    if(payload.email.toLowerCase()!==$("confirmEmail").value.trim().toLowerCase()){setMessage("Your email addresses do not match. Please check both fields.");busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent="Create account";$("confirmEmail").focus();return;}
    payload.fullName=$("fullName").value.trim();payload.phone=$("phone").value.trim();payload.birthYear=$("birthYear").value;
   }
   try{
+   if(mode==="recovery"){
+    if(!recoveryAccessToken)throw new Error("This recovery link is missing or expired. Request a new password-recovery email.");
+    await api("/api/auth/password/update",{password:payload.password,access_token:recoveryAccessToken,refresh_token:recoveryRefreshToken});
+    $("password").value="";recoveryAccessToken="";recoveryRefreshToken="";
+    const session=await api("/api/auth/session");
+    if(!session.authenticated)throw new Error("Your password was updated. Please log in with your new password.");
+    setSignedIn(session.user);$("promptReply").textContent="Your password has been updated. Welcome back to JR PHEEF.";setMessage("Password updated successfully.");return;
+   }
    const result=await api(mode==="login"?"/api/auth/login":"/api/auth/signup",payload);$("password").value="";
    if(result.emailVerificationRequired){setMessage(result.message+" You can enter the six-digit code below or open the confirmation link.");showEmailVerification(payload.email);return;}
    const session=await api("/api/auth/session");
    if(!session.authenticated)throw new Error("Your account is created, but email confirmation is still required. Confirm your email, then log in.");
    setSignedIn(session.user||{email:payload.email,fullName:payload.fullName});$("promptReply").textContent="Welcome to JR PHEEF. Your account is signed in.";
   }catch(error){setMessage(error.message||"Something went wrong. Please try again.");if(mode==="login"&&/verify your email|email not confirmed|email confirmation/i.test(error.message))$("resendLoginConfirmation").hidden=false;}
-  finally{busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent=mode==="login"?"Log in":"Create account";}
+  finally{busy=false;$("authSubmit").disabled=false;$("authSubmit").textContent=mode==="recovery"?"Save new password":mode==="login"?"Log in":"Create account";}
  });
  $("logoutButton").addEventListener("click",async()=>{$("logoutButton").disabled=true;try{await api("/api/auth/logout",{});}catch{}setSignedIn(null);$("logoutButton").disabled=false;$("promptReply").textContent="You have been logged out of JR PHEEF.";});
  $("promptForm").addEventListener("submit",event=>{event.preventDefault();showAuth("signup");});
@@ -198,10 +220,14 @@
   api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  if(window.location.pathname==="/app"&&["login","signup"].includes(fragment.get("mode")))showAuth(fragment.get("mode"));
- const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token");
+ const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token"),confirmationType=fragment.get("type");
  const confirmationError=fragment.get("error_description")||fragment.get("error");
  if(confirmationError){window.history.replaceState({},document.title,window.location.pathname+window.location.search);showAuth("login");setMessage("Email confirmation could not be completed: "+confirmationError.replace(/\+/g," ")+". Request a fresh confirmation email.");}
- if(confirmationToken){
+ if(confirmationToken&&confirmationType==="recovery"){
+  recoveryAccessToken=confirmationToken;recoveryRefreshToken=confirmationRefresh||"";
+  window.history.replaceState({},document.title,window.location.pathname+window.location.search);
+  showAuth("recovery");setMessage("Your recovery link is valid. Choose a new password to restore access.");
+ }else if(confirmationToken){
   window.history.replaceState({},document.title,window.location.pathname+window.location.search);
   api("/api/auth/session/establish",{access_token:confirmationToken,refresh_token:confirmationRefresh}).then(result=>{
    if(result.user)setSignedIn(result.user);else throw new Error("Email verified. Please log in to continue.");
