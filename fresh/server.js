@@ -178,19 +178,19 @@ app.get("/healthz",(_req,res)=>res.status(200).json({
 }));
 app.post("/api/auth/signup",rateLimit,sameOrigin,async(req,res)=>{
   try{
-    const {fullName,email,password,phone,birthYear}=req.body||{};
+    const {fullName,email,password,phone,birthYear,referralCode}=req.body||{};
     if(typeof fullName!=="string"||fullName.trim().length<2||fullName.trim().length>100)return res.status(400).json({ok:false,error:"Enter your full name."});
     if(typeof email!=="string"||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({ok:false,error:"Enter a valid email address."});
     if(typeof password!=="string"||password.length<8||password.length>128)return res.status(400).json({ok:false,error:"Password must be between 8 and 128 characters."});
     if(typeof phone!=="string"||phone.trim().length<7||phone.trim().length>25)return res.status(400).json({ok:false,error:"Enter your phone number, including country code."});
     const year=Number(birthYear),currentYear=new Date().getUTCFullYear();
     if(!Number.isInteger(year)||year<1900||year>currentYear-18)return res.status(400).json({ok:false,error:"You must be at least 18 to create an account."});
-    const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year}});
+    const result=await supabaseAuth("signup?redirect_to="+encodeURIComponent(AUTH_ORIGIN+"/"),{email:email.trim().toLowerCase(),password,data:{full_name:fullName.trim(),phone:phone.trim(),birth_year:year,referral_code:typeof referralCode==="string"&&/^JR-[A-F0-9]{12}$/i.test(referralCode.trim())?referralCode.trim().toUpperCase():null}});
     if(!result.ok)return res.status(result.status===429?429:400).json({ok:false,error:authError(result.data)});
     if(result.data.access_token&&result.data.user?.email_confirmed_at){
       const member=await provisionMember(result.data.access_token);
       saveSession(res,result.data);
-      return res.status(201).json({ok:true,authenticated:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your JR PHEEF account has been created."});
+      return res.status(201).json({ok:true,authenticated:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your JR PHEEF account has been created."});
     }
     return res.status(201).json({ok:true,authenticated:false,emailVerificationRequired:true,message:"Check your email for a verification link to activate your JR PHEEF account."});
   }catch(err){console.error("JR PHEEF signup service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
@@ -238,7 +238,7 @@ app.post("/api/auth/verify-email",rateLimit,sameOrigin,async(req,res)=>{
       return res.status(400).json({ok:false,error:"Email confirmation could not be completed. Request a fresh code."});
     const member=await provisionMember(result.data.access_token);
     saveSession(res,result.data);
-    return res.json({ok:true,user:{id:result.data.user.id,email:result.data.user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your email is verified. Welcome to JR PHEEF."});
+    return res.json({ok:true,user:{id:result.data.user.id,email:result.data.user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Your email is verified. Welcome to JR PHEEF."});
   }catch(err){console.error("JR PHEEF OTP verification:",err.message);return res.status(503).json({ok:false,error:"Email verification is temporarily unavailable. Please try again."});}
 });
 app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
@@ -250,7 +250,7 @@ app.post("/api/auth/login",rateLimit,sameOrigin,async(req,res)=>{
     if(!result.data.user?.email_confirmed_at)return res.status(403).json({ok:false,error:"Please verify your email before logging in."});
     const member=await provisionMember(result.data.access_token);
     saveSession(res,result.data);
-    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Welcome back to JR PHEEF."});
+    return res.json({ok:true,user:{id:result.data.user?.id,email:result.data.user?.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified},message:"Welcome back to JR PHEEF."});
   }catch(err){console.error("JR PHEEF login service:",err.message);return res.status(503).json({ok:false,error:"Account service is temporarily unavailable. Please try again shortly."});}
 });
 app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
@@ -263,7 +263,7 @@ app.post("/api/auth/session/establish",sameOrigin,async(req,res)=>{
     if(!user.email_confirmed_at)return res.status(403).json({ok:false,error:"Your email address is not confirmed yet."});
     const member=await provisionMember(access_token);
     saveSession(res,{access_token,refresh_token:typeof refresh_token==="string"?refresh_token:undefined,expires_in:3600});
-    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
+    return res.json({ok:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF email confirmation:",err.message);return res.status(503).json({ok:false,error:"Could not complete email confirmation. Please try again."});}
 });
 app.get("/api/auth/session",async(req,res)=>{
@@ -273,7 +273,7 @@ app.get("/api/auth/session",async(req,res)=>{
     if(!user)return res.json({ok:true,authenticated:false,user:null});
     if(!user.email_confirmed_at)return res.json({ok:true,authenticated:false,emailVerificationRequired:true,user:null});
     const member=await provisionMember(req.jrAccessToken);
-    return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
+    return res.json({ok:true,authenticated:true,user:{id:user.id,email:user.email,fullName:member.fullName,jpNumber:member.jpNumber,referralCode:member.referralCode||null,role:member.role,accountType:member.accountType,verified:member.verified,emailVerified:member.emailVerified}});
   }catch(err){console.error("JR PHEEF session service:",err.message);return res.status(503).json({ok:false,error:"Could not verify your session."});}
 });
 app.post("/api/partner-inquiry",rateLimit,sameOrigin,async(req,res)=>{

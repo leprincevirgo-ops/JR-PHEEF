@@ -39,7 +39,8 @@ test("server exposes health endpoint and binds to Render interface",()=>{
 test("member provisioning uses the auth_user_id relation and verifies email",()=>{
  const fn=fs.readFileSync(path.join(root,"..","supabase","functions","jr-member-provision","index.ts"),"utf8");
  assert.match(fn,/auth_user_id:\s*user\.id/);
- assert.match(fn,/on_conflict=auth_user_id/);
+ assert.match(fn,/auth_user_id=eq\./);
+  assert.match(fn,/auth_user_id=is\.null/);
  assert.match(fn,/if\s*\(!user\.email_confirmed_at\)/);
  assert.match(fn,/birthYear\s*>\s*currentYear\s*-\s*18/);
 });
