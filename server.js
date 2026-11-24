@@ -1265,7 +1265,6 @@ app.get("/api/social/feed",async(req,res)=>{
       const own=String(p.member_id)===String(m.id);
       return {...p,author:{
         full_name:!own&&person.profile_visibility==="private"?"JR PHEEF Member":person.full_name,
-        jp_number:own||ids.includes(String(p.member_id))?person.jp_number:null,
         verified:!!person.verified
       }};
     })});
