@@ -55,7 +55,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const others=[...new Set((allParts||[]).filter(p=>String(p.member_id)!==String(m.id)).map(p=>p.member_id))];
     const {data:people,error:e3}=others.length?await db.from("members").select("id,full_name,profile_visibility").in("id",others):{data:[],error:null};
     if(e3)throw e3;
-    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||p.jp_number||"Member")]));
+    const names=new Map((people||[]).map(p=>[p.id,p.profile_visibility==="private"?"JR PHEEF Member":(p.full_name||"Member")]));
     res.json({ok:true,conversations:(rooms||[]).map(r=>({...r,participants:(allParts||[]).filter(p=>p.conversation_id===r.id).map(p=>({id:p.member_id,name:String(p.member_id)===String(m.id)?"You":names.get(p.member_id)||"Member"}))}))});
   }));
   app.post("/api/messages/conversations",wrap(async(req,res)=>{
