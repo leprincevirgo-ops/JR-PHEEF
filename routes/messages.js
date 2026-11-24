@@ -61,14 +61,24 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
   app.post("/api/messages/conversations",wrap(async(req,res)=>{
     const m=await member(req,res);if(!m)return;
     const rate=checkRequestRate(req,"connect-create",20,3600000);if(!rate.allowed){res.setHeader("Retry-After",String(rate.retryAfter));return fail(res,"Too many new conversations. Try again later.",429);}
-    const raw=Array.isArray(req.body.invite_codes)?req.body.invite_codes:[req.body.invite_code];
-    const codes=[...new Set(raw.map(x=>{const v=clean(typeof x==="string"?x:"",220);const match=v.match(/(?:jp_invite=)?([a-f0-9]{64})/i);return match?match[1].toLowerCase():"";}).filter(Boolean))].slice(0,30);
-    if(!codes.length)return fail(res,"Paste at least one private JR PHEEF invitation link or code.");
-    const inviteHashes=await Promise.all(codes.map(async code=>{const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(code));return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");}));
-    const {data:invites,error:inviteError}=await db.from("jp_contact_invites").select("member_id").in("token_hash",inviteHashes).is("revoked_at",null).gt("expires_at",new Date().toISOString());
-    if(inviteError)throw inviteError;
-    const recipientIds=[...new Set((invites||[]).map(x=>String(x.member_id)).filter(id=>id!==String(m.id)))];
-    if(recipientIds.length!==codes.length)return fail(res,"One or more invitations are invalid, expired or unavailable.",404);
+    let recipientIds=[];
+    const connectionId=clean(req.body.connection_id,50);
+    if(connectionId){
+      if(!UUID.test(connectionId))return fail(res,"Choose a valid JR PHEEF contact.",400);
+      const {data:connection,error}=await db.from("connections").select("id,requester_id,receiver_id,status").eq("id",connectionId).maybeSingle();
+      if(error)throw error;
+      if(!connection||connection.status!=="accepted"||![String(connection.requester_id),String(connection.receiver_id)].includes(String(m.id)))return fail(res,"Only an accepted contact can start a private conversation.",403);
+      recipientIds=[String(connection.requester_id)===String(m.id)?String(connection.receiver_id):String(connection.requester_id)];
+    }else{
+      const raw=Array.isArray(req.body.invite_codes)?req.body.invite_codes:[req.body.invite_code];
+      const codes=[...new Set(raw.map(x=>{const v=clean(typeof x==="string"?x:"",220);const match=v.match(/(?:jp_invite=)?([a-f0-9]{64})/i);return match?match[1].toLowerCase():"";}).filter(Boolean))].slice(0,30);
+      if(!codes.length)return fail(res,"Paste at least one private JR PHEEF invitation link or code.");
+      const inviteHashes=await Promise.all(codes.map(async code=>{const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(code));return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");}));
+      const {data:invites,error:inviteError}=await db.from("jp_contact_invites").select("member_id").in("token_hash",inviteHashes).is("revoked_at",null).gt("expires_at",new Date().toISOString());
+      if(inviteError)throw inviteError;
+      recipientIds=[...new Set((invites||[]).map(x=>String(x.member_id)).filter(id=>id!==String(m.id)))];
+      if(recipientIds.length!==codes.length)return fail(res,"One or more invitations are invalid, expired or unavailable.",404);
+    }
     const {data:found,error}=await db.from("members").select("id,status").in("id",recipientIds);
     if(error)throw error;
     const recipients=(found||[]).filter(x=>!["blocked","suspended","disabled"].includes(String(x.status||"").toLowerCase()));
