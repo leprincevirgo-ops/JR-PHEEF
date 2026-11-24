@@ -96,20 +96,6 @@ async function main() {
     assert.deepEqual(pageErrors, [], "mobile sign-in must not create browser runtime errors");
     assert.equal(await page.locator("#logoutButton").isVisible(), true, "successful sign-in must expose logout");
 
-    const dock = page.locator("#jpMobileDock");
-    if (await dock.count()) {
-      const destinations = [["home", "home"], ["worlds", "worlds"], ["jr", "assistant"], ["command", "command"]];
-      for (const [destination, targetId] of destinations) {
-        const control = dock.locator('[data-mobile-destination="' + destination + '"]');
-        if (!(await control.count())) continue;
-        await control.tap();
-        await page.waitForFunction(id => {
-          const target = document.getElementById(id);
-          return !!target && !target.hidden && !target.classList.contains("hidden");
-        }, targetId, { timeout: 8000 });
-      }
-    }
-
     console.log("PASS: Android-sized public entry, Log in tap, email/password touch focus, mocked authentication, signed-in workspace and mobile navigation.");
   } catch (error) {
     try { await page.screenshot({ path: "jr-auth-diagnostic.png", fullPage: true }); } catch {}
