@@ -344,7 +344,7 @@ Deno.serve(async (req: Request) => {
         const privateProfile=String(other.profile_visibility||"public").toLowerCase()==="private";
         const owner=[other.role,other.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
-        return {...connection,other_member:{
+        return {...connection,direction:String(connection.receiver_id)===String(mid)?"incoming":"outgoing",other_member:{
           contact_key:connection.id,
           member_id:String(other.id),
           full_name:privateProfile?"JR PHEEF Member":other.full_name||"JR PHEEF Member",
