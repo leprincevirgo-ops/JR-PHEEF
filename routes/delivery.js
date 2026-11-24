@@ -213,7 +213,7 @@ module.exports = function mountDelivery(ctx) {
     const ids = (data || []).map(r => r.member_id);
     let names = {};
     if (ids.length) {
-      const { data: ms } = await db.from("members").select("id,full_name,phone").in("id", ids);
+      const { data: ms } = await db.from("members").select("id,full_name").in("id", ids);
       names = Object.fromEntries((ms || []).map(x => [String(x.id), x]));
     }
     res.json({ ok: true, riders: (data || []).map(r => ({ ...r, member: names[String(r.member_id)] || null })) });
