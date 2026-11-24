@@ -150,7 +150,7 @@
  $("loginTab").addEventListener("click",()=>showAuth("login"));$("signupTab").addEventListener("click",()=>showAuth("signup"));
  $("togglePassword").addEventListener("click",()=>{const visible=$("password").type==="password";$("password").type=visible?"text":"password";$("togglePassword").textContent=visible?"Hide":"Show";$("togglePassword").setAttribute("aria-label",visible?"Hide password":"Show password");$("togglePassword").setAttribute("aria-pressed",String(visible));});
  $("forgotPassword").addEventListener("click",async()=>{
-  const email=$("email").value.trim();if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){setMessage("Enter the email address registered to your JR PHEEF account first.");$("email").focus();return;}
+  const email=$("email").value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setMessage("Enter the email address registered to your JR PHEEF account first.");$("email").focus();return;}
   const button=$("forgotPassword");button.disabled=true;setMessage("Requesting a secure password-recovery email…");
   try{const result=await api("/api/auth/recover",{email});setMessage(result.message||"If an account exists for that address, a recovery email has been sent. Check your inbox and spam folder.");}
   catch(error){setMessage(error.message||"We could not request password recovery. Please try again.");}
