@@ -1,0 +1,77 @@
+name: JR PHEEF encrypted database export
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jr-pheef-database-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check backup configuration
+        id: config
+        env:
+          DB_URL: ${{ secrets.JR_SUPABASE_DB_URL }}
+          AGE_RECIPIENT: ${{ secrets.JR_BACKUP_AGE_RECIPIENT }}
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$AGE_RECIPIENT" ]; then
+            echo "::warning::Backup not run. Configure JR_SUPABASE_DB_URL and JR_BACKUP_AGE_RECIPIENT in repository Actions secrets."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.configured == 'true'
+
+      - name: Install Supabase CLI
+        if: steps.config.outputs.configured == 'true'
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install age encryption
+        if: steps.config.outputs.configured == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes age
+
+      - name: Export database and encrypt before artifact storage
+        if: steps.config.outputs.configured == 'true'
+        env:
+          JR_SUPABASE_DB_URL: ${{ secrets.JR_SUPABASE_DB_URL }}
+          JR_BACKUP_AGE_RECIPIENT: ${{ secrets.JR_BACKUP_AGE_RECIPIENT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -m 700 backup
+          supabase db dump --db-url "$JR_SUPABASE_DB_URL" --file backup/roles.sql --role-only
+          supabase db dump --db-url "$JR_SUPABASE_DB_URL" --file backup/schema.sql
+          supabase db dump --db-url "$JR_SUPABASE_DB_URL" --file backup/data.sql --use-copy --data-only -x "storage.buckets_vectors" -x "storage.vector_indexes"
+          tar -czf backup/jr-pheef-db-export.tar.gz -C backup roles.sql schema.sql data.sql
+          age --encrypt --recipient "$JR_BACKUP_AGE_RECIPIENT" --output backup/jr-pheef-db-export.tar.gz.age backup/jr-pheef-db-export.tar.gz
+          sha256sum backup/jr-pheef-db-export.tar.gz.age > backup/SHA256SUMS
+          rm -f backup/roles.sql backup/schema.sql backup/data.sql backup/jr-pheef-db-export.tar.gz
+          test -s backup/jr-pheef-db-export.tar.gz.age
+          age --decrypt --identity /dev/null backup/jr-pheef-db-export.tar.gz.age >/dev/null 2>&1 && { echo "Unexpected decryption success without private key"; exit 1; } || true
+          echo "Encrypted export created. Plaintext SQL and archive removed from the runner workspace."
+
+      - name: Upload encrypted export (temporary retention)
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jr-pheef-db-export-${{ github.run_id }}
+          path: |
+            backup/jr-pheef-db-export.tar.gz.age
+            backup/SHA256SUMS
+          retention-days: 7
+          if-no-files-found: error
