@@ -1134,8 +1134,7 @@ app.get("/api/connections", async (req,res) => {
       const owner=other&&[other.role,other.account_type].some(value=>String(value||"").toLowerCase()==="owner");
       const countryCode=isAccepted&&other&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
       return {...x,other_member:other?{
-        jp_number:other.jp_number||null,
-        dgbo_id:other.dgbo_id||null,
+        contact_key:x.id,
         full_name:privateProfile?"JR PHEEF Member":other.full_name,
         verified:!!other.verified,
         profile_visibility:privateProfile?"private":"public",
@@ -1146,23 +1145,8 @@ app.get("/api/connections", async (req,res) => {
   } catch(e){ console.error("Connections list:",e.message); if(!res.headersSent) res.status(500).json({ok:false,error:"Could not load connections."});}
 });
 app.post("/api/connections/by-jp-number", async(req,res)=>{
-  try{
-    const m=await requireMember(req,res); if(!m) return;
-    if(!checkRequestRate(req,"connect",30,3600000).allowed)
-      return res.status(429).json({ok:false,error:"Too many requests. Try again later."});
-    const jp=clean(req.body.jp_number).toUpperCase().replace(/\s+/g,"");
-    if(!/^JP-[A-Z0-9]{6,16}$/.test(jp)) return res.status(400).json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."});
-    const {data:target,error}=await db.from("members").select("id,jp_number,dgbo_id,full_name,verified,status,profile_visibility").eq("jp_number",jp).maybeSingle();
-    if(error) throw error;
-    if(!target || ["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase())) return res.status(404).json({ok:false,error:"No active JR PHEEF member found for that JP number."});
-    if(String(target.id)===String(m.id)) return res.status(400).json({ok:false,error:"That is your own JP number."});
-    const {data:existing}=await db.from("connections").select("id,status,requester_id,receiver_id").or("and(requester_id.eq."+m.id+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+m.id+")").limit(1).maybeSingle();
-    if(existing) return res.json({ok:true,already_exists:true,connection:existing,member:{jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:target.profile_visibility==="private"?"JR PHEEF Member":target.full_name,verified:target.verified}});
-    const {data:connection,error:insertError}=await db.from("connections").insert({requester_id:String(m.id),receiver_id:String(target.id),status:"pending"}).select().single();
-    if(insertError) throw insertError;
-    await logActivity(m.id,"JP_CONNECTION_REQUEST",{receiver_id:target.id});
-    res.status(201).json({ok:true,connection,member:{jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:target.profile_visibility==="private"?"JR PHEEF Member":target.full_name,verified:target.verified},message:"Connection request sent. Their contact details stay private until they choose to share them."});
-  }catch(e){console.error("JP connection:",e.message);if(!res.headersSent)res.status(500).json({ok:false,error:"Could not send connection request."});}
+  const member=await requireMember(req,res);if(!member)return;
+  return res.status(410).json({ok:false,error:"JP numbers are private. Use a JR PHEEF invitation link or code to connect."});
 });
 app.patch("/api/connections/:id",async(req,res)=>{
   try{
