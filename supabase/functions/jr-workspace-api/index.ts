@@ -822,6 +822,8 @@ Deno.serve(async (req: Request) => {
     if(action==="create_integration"){
       const name=clean(input.name,60);
       if(name.length<3)return json({ok:false,error:"Give this connection a name between 3 and 60 characters."},400);
+      const activeConnections=await rows("jr_partner_connections","member_id=eq."+mid+"&active=eq.true&select=id&limit=11");
+      if((activeConnections||[]).length>=10)return json({ok:false,error:"You can have up to 10 active partner connections. Revoke one before creating another."},409);
       const bytes=crypto.getRandomValues(new Uint8Array(32));
       const secret="jr_live_"+Array.from(bytes).map((x:number)=>x.toString(16).padStart(2,"0")).join("");
       const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(secret));
