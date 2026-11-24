@@ -78,12 +78,12 @@ async function loadContacts(){
 }
 function renderContacts(){
  const host=$("jrccContacts");if(!host)return;const q=(($("jrccContactSearch")?$("jrccContactSearch").value:"")||"").trim().toLowerCase();host.replaceChildren();
- const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name,o.jp_number].join(" ").toLowerCase().includes(q);});
+ const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name].join(" ").toLowerCase().includes(q);});
  if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Add someone using their JP number, or accept an incoming request."));return;}
  rows.forEach(c=>{
   const o=c.other_member||{},card=node("article","jrcc-contact");
   const avatar=node("span","jrcc-contact-avatar",(o.full_name||"J").trim().slice(0,1).toUpperCase());
-  const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","",o.jp_number||"JP identity unavailable"));
+  const info=node("div","jrcc-contact-info");info.append(node("strong","",o.full_name||"JR PHEEF Member"),node("small","", "JR PHEEF contact"));
   if(o.country_code)info.append(node("small","jrcc-country-flag",countryFlag(o.country_code)+" "+o.country_code));
   const top=node("div","jrcc-contact-top");top.append(avatar,info,node("span","jrcc-contact-state",c.status==="accepted"?"CONNECTED":c.status==="pending"?"PENDING":String(c.status||"").toUpperCase()));card.append(top);
   const actions=node("div","jrcc-contact-actions");
