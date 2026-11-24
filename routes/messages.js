@@ -131,7 +131,7 @@ module.exports = function mountMessages({ app, db, requireMember, checkRequestRa
     const peopleMap=new Map((people||[]).map(p=>[String(p.id),p]));
     const followedSet=new Set(followed.map(String));
     const visible=(rows||[]).filter(x=>{const owner=peopleMap.get(String(x.member_id));const mine=String(x.member_id)===String(m.id);const connected=followedSet.has(String(x.member_id));return mine||connected||(x.visibility==="everyone"&&owner?.profile_visibility!=="private");});
-    const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||p.jp_number||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
+    const names=new Map((people||[]).map(p=>[String(p.id),{name:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?"JR PHEEF Member":(p.full_name||"Member"),photo:p.profile_visibility==="private"&&String(p.id)!==String(m.id)?null:(p.profile_photo||null)}]));
     const idsToView=visible.filter(x=>String(x.member_id)!==String(m.id)).map(x=>x.id);
     if(idsToView.length){const {error:ve}=await db.from("jr_status_views").upsert(idsToView.map(status_id=>({status_id,viewer_id:m.id})),{onConflict:"status_id,viewer_id",ignoreDuplicates:true});if(ve)throw ve;}
     const {data:views,error:vie}=visible.length?await db.from("jr_status_views").select("status_id,viewer_id").in("status_id",visible.map(x=>x.id)):{data:[],error:null};
