@@ -23,5 +23,5 @@ test("venture membership review is restricted to the verified founder and audite
   assert.match(api, /current\.venture_slug==="jr-pheef"/);
   assert.match(api, /event_type:status/);
   assert.match(api, /reviewed_by:mid/);
-  assert.match(api, /status=eq\.\+encodeURIComponent\(current\.status\)/);
+  assert.match(api, /status=eq\."\+encodeURIComponent\(current\.status\)/);
 });
