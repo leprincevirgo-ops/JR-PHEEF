@@ -22,6 +22,8 @@ test("each signed-in member receives a personal invitation code for sharing", ()
 
 test("referral attribution validates codes, blocks self-referral and issues no reward", () => {
   assert.match(provision, /\^JR-\[A-F0-9\]\{12\}\$/);
+  assert.match(provision, /createdMember &&/);
+  assert.match(provision, /referrer\.status === "active"/);
   assert.match(provision, /referrer\.id !== member\.id/);
   assert.match(provision, /reward: 0/);
   assert.match(provision, /resolution=ignore-duplicates/);
