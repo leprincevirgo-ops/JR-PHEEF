@@ -82,6 +82,10 @@ Deno.serve(async (request) => {
   if (body.occurred_at !== undefined) {
     const parsed = typeof body.occurred_at === "string" ? new Date(body.occurred_at) : new Date(NaN);
     if (Number.isNaN(parsed.getTime())) return json(400, { ok: false, error: "occurred_at must be a valid date-time." });
+    const now = Date.now();
+    if (parsed.getTime() < now - 365 * 24 * 60 * 60 * 1000 || parsed.getTime() > now + 24 * 60 * 60 * 1000) {
+      return json(400, { ok: false, error: "occurred_at must be within the last year and no more than 24 hours in the future." });
+    }
     occurredAt = parsed.toISOString();
   }
 
