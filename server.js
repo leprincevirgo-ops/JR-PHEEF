@@ -1259,7 +1259,7 @@ app.get("/api/social/feed",async(req,res)=>{
       .filter(p=>p.visibility==="public"||(String(p.member_id)===String(m.id))||(p.visibility==="connections"&&ids.includes(String(p.member_id))))
       .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,100);
     const memberIds=[...new Set(posts.map(p=>String(p.member_id)))];
-    let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,jp_number,verified,profile_visibility").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
+    let people={};if(memberIds.length){const p=await db.from("members").select("id,full_name,verified,profile_visibility").in("id",memberIds);if(!p.error)people=Object.fromEntries((p.data||[]).map(x=>[String(x.id),x]));}
     res.json({ok:true,posts:posts.map(p=>{
       const person=people[String(p.member_id)]||{full_name:"JR PHEEF Member"};
       const own=String(p.member_id)===String(m.id);
