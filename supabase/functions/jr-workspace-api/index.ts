@@ -344,8 +344,7 @@ Deno.serve(async (req: Request) => {
         const owner=[other.role,other.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
         return {...connection,other_member:{
-          jp_number:other.jp_number||null,
-          dgbo_id:other.dgbo_id||null,
+          contact_key:connection.id,
           full_name:privateProfile?"JR PHEEF Member":other.full_name||"JR PHEEF Member",
           verified:!!other.verified,
           profile_visibility:privateProfile?"private":"public",
@@ -354,24 +353,36 @@ Deno.serve(async (req: Request) => {
         }};
       }));
     }
+    if(action==="create_contact_invite"){
+      const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
+      const invite=[...bytes].map((b:number)=>b.toString(16).padStart(2,"0")).join("");
+      const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(invite));
+      const tokenHash=[...new Uint8Array(digest)].map((b:number)=>b.toString(16).padStart(2,"0")).join("");
+      const expiresAt=new Date(Date.now()+7*24*60*60*1000).toISOString();
+      await insert("jp_contact_invites",{member_id:mid,token_hash:tokenHash,expires_at:expiresAt});
+      return response({invite_code:invite,expires_at:expiresAt,message:"Private invitation created. It expires in seven days and does not reveal your JP number."});
+    }
+    if(action==="request_connection_by_invite"){
+      const raw=clean(input.invite_code,160);
+      const match=raw.match(/(?:jp_invite=)?([a-f0-9]{64})/i);
+      if(!match)return json({ok:false,error:"Paste a valid JR PHEEF invitation link or code."},400);
+      const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(match[1].toLowerCase()));
+      const tokenHash=[...new Uint8Array(digest)].map((b:number)=>b.toString(16).padStart(2,"0")).join("");
+      const invites=await rows("jp_contact_invites","token_hash=eq."+tokenHash+"&revoked_at=is.null&expires_at=gt."+encodeURIComponent(new Date().toISOString())+"&select=id,member_id&limit=1");
+      const invite=invites?.[0];
+      if(!invite)return json({ok:false,error:"This invitation has expired or is no longer available."},404);
+      const targetId=String(invite.member_id);
+      if(targetId===String(mid))return json({ok:false,error:"This is your own invitation."},400);
+      const targets=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,full_name,verified,status,profile_visibility&limit=1");
+      const target=targets?.[0];
+      if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").toLowerCase()))return json({ok:false,error:"This member is not currently available."},404);
+      const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status&limit=1");
+      if(existing?.length)return response({already_exists:true,connection:existing[0],message:"A connection request or connection already exists."});
+      const created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
+      return response({already_exists:false,connection:created?.[0]||created,message:"Connection request sent. Both JP numbers remain private."});
+    }
     if(action==="request_connection"){
-      const targetId=clean(input.member_id,50);
-      let targetRows:any[]=[];
-      if(uuid(targetId)){
-        targetRows=await rows("members","id=eq."+encodeURIComponent(targetId)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
-      }else{
-        const jp=clean(input.jp_number,40).toUpperCase().replace(/\\s+/g,"");
-        if(!/^JP-[A-Z0-9]{6,16}$/.test(jp))return json({ok:false,error:"Enter a valid JP number, for example JP-12AB34CD56."},400);
-        targetRows=await rows("members","jp_number=eq."+encodeURIComponent(jp)+"&select=id,jp_number,dgbo_id,full_name,verified,status,profile_visibility&limit=1");
-      }
-      const target=targetRows?.[0];
-      if(!target||["blocked","suspended","disabled"].includes(String(target.status||"").trim().toLowerCase()))return json({ok:false,error:"No active JR PHEEF member found for that JP number."},404);
-      if(String(target.id)===String(mid))return json({ok:false,error:"That is your own JP number."},400);
-      const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+target.id+"),and(requester_id.eq."+target.id+",receiver_id.eq."+mid+"))&select=id,status,requester_id,receiver_id&limit=1");
-      const memberPreview={jp_number:target.jp_number,dgbo_id:target.dgbo_id,full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name,verified:!!target.verified};
-      if(existing?.length)return response({already_exists:true,connection:existing[0],member:memberPreview,message:"A connection request or connection already exists."});
-      const created=await insert("connections",{requester_id:String(mid),receiver_id:String(target.id),status:"pending"});
-      return response({already_exists:false,connection:created?.[0]||created,member:memberPreview,message:"Connection request sent. Their contact details stay private until they choose to share them."});
+      return json({ok:false,error:"JP numbers are private. Ask the member for a JR PHEEF invitation link or code instead."},410);
     }
     if(action==="update_connection"){
       const id=clean(input.connectionId,50),status=clean(input.status,20);
