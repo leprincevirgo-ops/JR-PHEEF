@@ -344,9 +344,9 @@ Deno.serve(async (req: Request) => {
         const privateProfile=String(other.profile_visibility||"public").toLowerCase()==="private";
         const owner=[other.role,other.account_type].some((value:any)=>String(value||"").toLowerCase()==="owner");
         const countryCode=connection.status==="accepted"&&!privateProfile&&!owner&&/^[A-Z]{2}$/.test(String(other.country_code||""))?String(other.country_code):null;
-        return {...connection,direction:String(connection.receiver_id)===String(mid)?"incoming":"outgoing",other_member:{
+        const {requester_id,receiver_id,...safeConnection}=connection;
+        return {...safeConnection,direction:String(receiver_id)===String(mid)?"incoming":"outgoing",other_member:{
           contact_key:connection.id,
-          member_id:String(other.id),
           full_name:privateProfile?"JR PHEEF Member":other.full_name||"JR PHEEF Member",
           verified:!!other.verified,
           profile_visibility:privateProfile?"private":"public",
@@ -521,7 +521,7 @@ Deno.serve(async (req: Request) => {
       for(const conv of conversations||[]){
         const peers=await rows("jr_conversation_participants","conversation_id=eq."+conv.id+"&member_id=neq."+mid+"&select=member_id&limit=5");
         const peerIds=(peers||[]).map((p:any)=>p.member_id).filter(uuid);
-        const profiles=peerIds.length?await rows("members","id=in.("+peerIds.join(",")+")&select=id,full_name&limit=5"):[];
+        const profiles=peerIds.length?await rows("members","id=in.("+peerIds.join(",")+")&select=full_name&limit=5"):[];
         const messages=await rows("jr_messages","conversation_id=eq."+conv.id+"&select=body,sender_id,created_at&order=created_at.desc&limit=1");
         result.push({...conv,peers:profiles,lastMessage:messages?.[0]||null});
       }
@@ -529,7 +529,7 @@ Deno.serve(async (req: Request) => {
     }
     if(action==="create_conversation"||action==="create_group"){
       const title=clean(input.title,80),ids=Array.isArray(input.memberIds)?[...new Set(input.memberIds.filter((x:any)=>uuid(x)&&x!==mid))].slice(0,49):[];
-      if(action==="create_conversation"){const other=clean(input.otherMemberId,50);if(uuid(other)&&other!==mid)ids.push(other);}
+      if(action==="create_conversation"){const connectionId=clean(input.connectionId,50);if(connectionId){if(!uuid(connectionId))return json({ok:false,error:"Choose a valid JR PHEEF contact."},400);const connection=(await rows("connections","id=eq."+connectionId+"&select=id,requester_id,receiver_id,status&limit=1"))?.[0];if(!connection||connection.status!=="accepted"||![String(connection.requester_id),String(connection.receiver_id)].includes(String(mid)))return json({ok:false,error:"Only accepted contacts can start a private chat."},403);const other=String(connection.requester_id)===String(mid)?String(connection.receiver_id):String(connection.requester_id);ids.push(other);}else{const other=clean(input.otherMemberId,50);if(uuid(other)&&other!==mid)ids.push(other);}}
       const unique=[...new Set(ids)];
       if(!unique.length)return json({ok:false,error:"Select at least one other active member."},400);
       if(action==="create_group"&&title.length<2)return json({ok:false,error:"Give your group a name."},400);
