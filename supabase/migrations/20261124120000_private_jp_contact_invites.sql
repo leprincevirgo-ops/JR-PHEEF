@@ -1,4 +1,6 @@
 -- Private, expiring invitations let members connect without disclosing JP identifiers.
+-- Existing phone visibility is disabled for every member; numbers are shared only through an explicit future consent flow.
+UPDATE public.members SET public_phone = false WHERE public_phone IS DISTINCT FROM false;
 CREATE TABLE IF NOT EXISTS public.jp_contact_invites (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   member_id uuid NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
