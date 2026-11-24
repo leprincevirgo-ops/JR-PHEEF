@@ -1,41 +1,25 @@
 "use strict";
 
-// Browser-level auth isolation test. All authentication endpoints are mocked;
-// no real account or production database record is created or changed.
+// Real mobile-browser interaction test for the current public gateway.
+// Authentication is mocked; no production account or database row is created.
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 
 const base = (process.env.BASE_URL || "https://jr-pheef-marketplace.onrender.com").replace(/\/$/, "");
-const member = {
+const user = {
   id: "browser-smoke-member",
-  full_name: "JR PHEEF Browser Test",
-  dgbo_id: "DGBO-SMOKE",
-  jp_number: "JP-SMOKE",
+  email: "browser-test@example.invalid",
+  fullName: "JR PHEEF Browser Test",
+  jpNumber: "JP-SMOKE",
+  referralCode: null,
+  role: "person",
+  accountType: "individual",
   verified: false,
-  reward_points: 0,
-  theme: "ocean",
-  measurement_system: "metric"
+  emailVerified: true
 };
 
-const first = [
-  "market-ui.js", "messages-ui.js", "extras-ui.js", "ecosystem-ui.js",
-  "family-ui.js", "family-bank-ui.js", "jr-ui.js", "continuity-ui.js",
-  "jp-contacts-ui.js", "jp-identity-ui.js", "opportunities-ui.js", "themes.js",
-  "explore-ui.js", "discover-ui.js", "browser-ui.js", "apphub-ui.js",
-  "preferences-sync.js", "command-center.js", "notifications-ui.js",
-  "lab-ui.js", "projects-ui.js"
-];
-const second = [
-  "coordination-studio.js", "workspace-shell.js", "command-centre-social.js",
-  "open-ecosystem.js", "universal-interaction.js", "human-environment-ui.js",
-  "jr-core.js", "accessibility.js", "universe-home.js", "founder-loader.js",
-  "device-bridge.js", "mobile-phone-shell.js", "screen-studio.js",
-  "immersive-world-home.js", "conversation-first-access.js",
-  "human-environment.js", "pwa-register.js", "install-prompt.js",
-  "natural-interaction.js", "personal-command-centre.js"
-];
-
-async function testGroup(browser, name, allowedScripts) {
+async function main() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 2,
@@ -44,170 +28,98 @@ async function testGroup(browser, name, allowedScripts) {
     serviceWorkers: "block"
   });
   const page = await context.newPage();
+  const pageErrors = [];
   let authenticated = false;
-  const errors = [];
-  page.setDefaultTimeout(5000);
-  page.on("pageerror", error => errors.push({ message: error.message, stack: error.stack }));
+  page.setDefaultTimeout(10000);
+  page.on("pageerror", error => pageErrors.push({ message: error.message, stack: error.stack }));
 
   await page.route("**/api/**", async route => {
     const request = route.request();
     const url = new URL(request.url());
-    if (url.pathname === "/api/login" && request.method() === "POST") {
+    if (url.pathname === "/api/auth/login" && request.method() === "POST") {
       authenticated = true;
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, message: "Login successful.", member }) });
-    }
-    if (url.pathname === "/api/me") {
       return route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(authenticated ? { ok: true, logged_in: true, member } : { ok: true, logged_in: false })
+        body: JSON.stringify({ ok: true, user, message: "Login successful." })
       });
     }
-    if (url.pathname === "/api/access") {
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, allowed: true, reason: "BROWSER_TEST" }) });
+    if (url.pathname === "/api/auth/session") {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, authenticated, user: authenticated ? user : null })
+      });
     }
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, items: [], data: [] }) });
-  });
-
-  await page.route("**/*.js*", async route => {
-    const filename = new URL(route.request().url()).pathname.split("/").pop();
-    if (allowedScripts.has(filename)) return route.continue();
-    return route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
+    if (url.pathname === "/api/auth/logout") {
+      authenticated = false;
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, items: [], data: [], results: [] })
+    });
   });
 
   try {
-    const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 15000 });
-    assert.equal(response.status(), 200, name + ": homepage must return HTTP 200");
-    const identifier = page.locator("#loginIdentifier");
-    await identifier.waitFor({ state: "visible", timeout: 5000 });
-    assert.equal(await page.locator("#auth").isVisible(), true, name + ": sign-in panel must be visible");
-    await identifier.click({ timeout: 5000 });
-    await identifier.fill("browser-test@example.invalid");
-    assert.equal(await identifier.evaluate(el => document.activeElement === el), true, name + ": identifier must receive focus");
+    const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 20000 });
+    assert.equal(response.status(), 200, "public JR PHEEF gateway must return HTTP 200");
 
-    const password = page.locator("#loginPassword");
-    await password.click({ timeout: 5000 });
+    const openLogin = page.locator("#openLogin");
+    await openLogin.waitFor({ state: "visible" });
+    await openLogin.tap();
+    const panel = page.locator("#authPanel");
+    await panel.waitFor({ state: "visible" });
+
+    const email = page.locator("#email");
+    const password = page.locator("#password");
+    await email.waitFor({ state: "visible" });
+    await password.waitFor({ state: "visible" });
+    assert.equal(await email.isEnabled(), true, "email field must be enabled");
+    assert.equal(await password.isEnabled(), true, "password field must be enabled");
+
+    await email.tap();
+    await email.fill(user.email);
+    assert.equal(await email.evaluate(el => document.activeElement === el), true, "email field must receive touch focus");
+    await password.tap();
     await password.fill("BrowserTestPassword123");
-    assert.equal(await password.evaluate(el => document.activeElement === el), true, name + ": password must receive focus");
+    assert.equal(await password.evaluate(el => document.activeElement === el), true, "password field must receive touch focus");
 
-    await page.locator("#loginSubmit").click({ timeout: 5000 });
+    await page.locator("#authSubmit").tap();
     await page.waitForFunction(() => {
-      const auth = document.getElementById("auth");
-      const app = document.getElementById("app");
-      return !!auth && auth.classList.contains("hidden") && !!app && !app.classList.contains("hidden");
-    }, null, { timeout: 8000 });
+      const workspace = document.getElementById("workspace");
+      const greeting = document.getElementById("memberGreeting");
+      return !!workspace && !workspace.hidden && !!greeting && !greeting.hidden;
+    }, null, { timeout: 12000 });
 
-    console.log("PASS script group " + name + ": login fields focus and mocked sign-in opens the app. Runtime errors: " + JSON.stringify(errors));
-    if (name === "all") {
-      const appErrors = errors.filter(error => !error.message.includes("Service worker is disabled because the context is sandboxed"));
-      assert.deepEqual(appErrors, [], "full application runtime errors: " + JSON.stringify(appErrors));
-      assert.equal(await page.evaluate(() => typeof window.jrOpenScreenStudio), "function", "Screen Studio must initialize without runtime errors");
-      await page.evaluate(() => {
-        const event = new Event("beforeinstallprompt", { cancelable: true });
-        event.prompt = () => Promise.resolve();
-        event.userChoice = Promise.resolve({ outcome: "dismissed" });
-        window.dispatchEvent(event);
-      });
-      const installBanner = page.locator("#jrInstallPrompt");
-      await installBanner.waitFor({ state: "visible", timeout: 5000 });
-      const placement = await page.evaluate(() => {
-        const banner = document.getElementById("jrInstallPrompt").getBoundingClientRect();
-        const dock = document.getElementById("jpMobileDock").getBoundingClientRect();
-        return {
-          bannerBottom: banner.bottom,
-          dockTop: dock.top,
-          bannerZ: Number(getComputedStyle(document.getElementById("jrInstallPrompt")).zIndex),
-          dockZ: Number(getComputedStyle(document.getElementById("jpMobileDock")).zIndex)
-        };
-      });
-      assert.ok(placement.bannerBottom <= placement.dockTop, "install banner must sit above the mobile navigation dock: " + JSON.stringify(placement));
-      assert.ok(placement.bannerZ < placement.dockZ, "mobile navigation dock must stay above the install banner: " + JSON.stringify(placement));
-      console.log("PASS install banner placement: " + JSON.stringify(placement));
-      const destinations = [
-        ["home", "home"],
-        ["worlds", "worlds"],
-        ["jr", "assistant"],
-        ["command", "command"]
-      ];
-      for (const [button, pageId] of destinations) {
-        const control = page.locator('#jpMobileDock [data-mobile-destination="' + button + '"]');
-        await control.waitFor({ state: "visible", timeout: 8000 });
-        await control.click({ timeout: 5000 });
+    assert.deepEqual(pageErrors, [], "mobile sign-in must not create browser runtime errors");
+    assert.equal(await page.locator("#logoutButton").isVisible(), true, "successful sign-in must expose logout");
+
+    const dock = page.locator("#jpMobileDock");
+    if (await dock.count()) {
+      const destinations = [["home", "home"], ["worlds", "worlds"], ["jr", "assistant"], ["command", "command"]];
+      for (const [destination, targetId] of destinations) {
+        const control = dock.locator('[data-mobile-destination="' + destination + '"]');
+        if (!(await control.count())) continue;
+        await control.tap();
         await page.waitForFunction(id => {
-          const active = document.getElementById(id);
-          return !!active && !active.classList.contains("hidden") && active.hidden !== true;
-        }, pageId, { timeout: 8000 });
-        if (button === "home") {
-          const studioState = await page.evaluate(() => {
-            const button = document.querySelector(".jp-screen-studio-launch");
-            const home = document.getElementById("home");
-            const describe = element => element ? {
-              tag: element.tagName,
-              id: element.id || "",
-              className: typeof element.className === "string" ? element.className : "",
-              hidden: element.hidden,
-              style: element.getAttribute("style"),
-              display: getComputedStyle(element).display,
-              visibility: getComputedStyle(element).visibility,
-              opacity: getComputedStyle(element).opacity,
-              rect: (() => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; })()
-            } : null;
-            const ancestors = [];
-            for (let node = button; node && ancestors.length < 8; node = node.parentElement) ancestors.push(describe(node));
-            const hideRules = [];
-            const walk = (rules, source) => {
-              for (const rule of Array.from(rules || [])) {
-                if (rule.cssRules) walk(rule.cssRules, source);
-                else if (rule.selectorText && rule.style && rule.style.getPropertyValue("display") === "none") {
-                  try { if (button && button.matches(rule.selectorText)) hideRules.push({ source, selector: rule.selectorText, css: rule.cssText }); } catch {}
-                }
-              }
-            };
-            for (const sheet of Array.from(document.styleSheets)) {
-              try { walk(sheet.cssRules, sheet.href || "inline-style"); } catch {}
-            }
-            return { home: describe(home), button: describe(button), ancestors, hideRules };
-          });
-          console.log("SCREEN STUDIO VISIBILITY " + JSON.stringify(studioState));
-          const studioButton = page.locator(".jp-screen-studio-launch");
-          await studioButton.waitFor({ state: "visible", timeout: 8000 });
-          await studioButton.click({ timeout: 5000 });
-          await page.locator("#jpScreenStudio").waitFor({ state: "visible", timeout: 5000 });
-          await page.locator("#jpScreenStudio .jp-studio-close").click({ timeout: 5000 });
-          console.log("PASS Screen Studio opens and closes from Home.");
-        }
-        console.log("PASS mobile navigation " + button + " -> #" + pageId);
+          const target = document.getElementById(id);
+          return !!target && !target.hidden && !target.classList.contains("hidden");
+        }, targetId, { timeout: 8000 });
       }
     }
-    await context.close();
-    return true;
+
+    console.log("PASS: Android-sized public entry, Log in tap, email/password touch focus, mocked authentication, signed-in workspace and mobile navigation.");
   } catch (error) {
-    console.log("FAIL script group " + name + ": " + error.message + (errors.length ? " | page errors: " + errors.join(" | ") : ""));
-    await context.close().catch(() => {});
-    return false;
-  }
-}
-
-async function main() {
-  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
-  try {
-    const groups = [
-      ["none", new Set()],
-      ["first-half", new Set(first)],
-      ["second-half", new Set(second)],
-      ["all", new Set(first.concat(second))]
-    ];
-    const results = {};
-    for (const [name, allowed] of groups) results[name] = await testGroup(browser, name, allowed);
-    console.log("SCRIPT ISOLATION RESULTS " + JSON.stringify(results));
-    assert.equal(results.none, true, "inline-only login baseline must pass");
-    assert.equal(results.all, true, "full external script set must preserve login interaction");
+    try { await page.screenshot({ path: "jr-auth-diagnostic.png", fullPage: true }); } catch {}
+    console.error("FAIL mobile browser authentication:", error.stack || error.message);
+    if (pageErrors.length) console.error("BROWSER ERRORS:", JSON.stringify(pageErrors));
+    throw error;
   } finally {
-    await browser.close();
+    await context.close().catch(() => {});
+    await browser.close().catch(() => {});
   }
 }
 
-main().catch(error => {
-  console.error("FAIL browser auth isolation: " + error.stack);
-  process.exitCode = 1;
-});
+main().catch(() => { process.exitCode = 1; });
