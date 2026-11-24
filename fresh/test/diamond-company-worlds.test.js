@@ -7,6 +7,7 @@ const {spawnSync}=require("node:child_process");
 const root=path.join(__dirname,"../public");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const js=fs.readFileSync(path.join(root,"diamond-company-worlds.js"),"utf8");
+const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const css=fs.readFileSync(path.join(root,"diamond-company-worlds.css"),"utf8");
 const server=fs.readFileSync(path.join(__dirname,"../server.js"),"utf8");
 
@@ -48,4 +49,17 @@ test("JR LINK scrolls within its own workspace and does not move the whole docum
  assert.doesNotMatch(layout,/window\.scrollTo\(\{top:Math\.max\(0,y\)/);
  assert.match(css,/\.jr-connect-workspace\{[^}]*overflow-y:auto/s);
  assert.match(css,/\.jr-connect-tabs\{[^}]*position:sticky/s);
+});
+
+test("DGBO and FAMILY membership applications use authenticated server actions and explicit consent",()=>{
+ assert.match(app,/window\.jrWorkspaceAction=async\(action,payload=\{\}\)/);
+ assert.match(js,/data-venture-apply="dgbo"/);
+ assert.match(js,/data-venture-apply="family"/);
+ assert.match(js,/get_venture_registration/);
+ assert.match(js,/apply_venture_membership/);
+ assert.match(js,/consent:consent\.checked/);
+ assert.match(js,/template\.notice/);
+ assert.match(js,/refreshMemberships/);
+ assert.match(js,/if\(event&&!event\.detail\)\{clearMemberships\(\);return;\}/);
+ assert.match(css,/diamond-application-dialog/);
 });
