@@ -3,6 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const server = fs.readFileSync("fresh/server.js", "utf8");
+const html = fs.readFileSync("fresh/public/index.html", "utf8");
 const app = fs.readFileSync("fresh/public/app.js", "utf8");
 const provision = fs.readFileSync("supabase/functions/jr-member-provision/index.ts", "utf8");
 
