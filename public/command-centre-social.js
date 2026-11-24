@@ -93,12 +93,13 @@ function renderContacts(){
   }else if(c.status==="pending"){
    const cancel=node("button","dark","CANCEL REQUEST");cancel.onclick=()=>changeConnection(c.id,"cancelled");actions.append(cancel);
   }else if(c.status==="accepted"){
-   const chat=node("button","primary","CHAT");chat.onclick=()=>switchTab("chats");actions.append(chat);
+   const chat=node("button","primary","CHAT");chat.onclick=()=>openContactChat(c.id);actions.append(chat);
   }
   if(actions.childNodes.length)card.append(actions);host.append(card);
  });
 }
 async function changeConnection(id,status){const d=await api("/api/workspace","POST",{action:"update_connection",connectionId:id,status});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not update request.";return;}$("jrccContactStatus").textContent=(d.data&&d.data.message)||"Connection updated.";loadContacts();}
+async function openContactChat(id){const d=await api("/api/messages/conversations","POST",{connection_id:id});if(!d.ok){$("jrccContactStatus").textContent=d.error||"Could not open this chat.";return;}if(window.show)window.show("messages");if(window.jrOpenConversation)await window.jrOpenConversation(d.conversation.id);else switchTab("chats");}
 async function addContact(){
  const input=$("jrccContactNumber"),note=$("jrccContactStatus"),invite=input.value.trim();if(!invite){note.textContent="Paste a private invitation link or code.";return;}
  const button=$("jrccAddContact");button.disabled=true;note.textContent="Sending connection request…";
