@@ -24,6 +24,7 @@ test("partner credentials are generated once, hashed, scoped and member-owned", 
   assert.match(workspace, /action==="list_integrations"/);
   assert.match(workspace, /action==="revoke_integration"/);
   assert.match(workspace, /member_id=eq\."\+mid/);
+  assert.match(workspace, /activeConnections\|\|\[\]\)\.length>=10/);
 });
 
 test("inbound partner gateway validates bearer credentials, limits payloads and only stores allowlisted events", () => {
@@ -34,6 +35,8 @@ test("inbound partner gateway validates bearer credentials, limits payloads and 
   assert.match(gateway, /\.includes\("events:write"\)/);
   assert.match(gateway, /count \|\| 0\) >= 60/);
   assert.match(gateway, /12_000/);
+  assert.match(gateway, /365 \* 24 \* 60 \* 60 \* 1000/);
+  assert.match(gateway, /24 \* 60 \* 60 \* 1000/);
   assert.match(gateway, /allowedTypes\.has\(eventType\)/);
   assert.match(gateway, /allowedDataKeys\.has\(key\)/);
   assert.match(gateway, /23505/);
