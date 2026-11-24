@@ -29,6 +29,7 @@ test("partner credentials are generated once, hashed, scoped and member-owned", 
 
 test("inbound partner gateway validates bearer credentials, limits payloads and only stores allowlisted events", () => {
   assert.match(server, /app\.post\("\/api\/inbound\/jr\/events",rateLimit/);
+  assert.match(server, /req\.path==="\/api\/discovery\/feed"\|\|req\.path==="\/api\/inbound\/jr\/events"\?60:12/);
   assert.match(server, /Bearer\\s\+jr_live_/);
   assert.match(gateway, /jr_live_\[a-f0-9\]\{64\}/);
   assert.match(gateway, /\.eq\("token_hash", tokenHash\)/);
