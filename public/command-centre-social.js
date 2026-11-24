@@ -79,7 +79,7 @@ async function loadContacts(){
 function renderContacts(){
  const host=$("jrccContacts");if(!host)return;const q=(($("jrccContactSearch")?$("jrccContactSearch").value:"")||"").trim().toLowerCase();host.replaceChildren();
  const rows=connections.filter(c=>{const o=c.other_member||{};return [o.full_name].join(" ").toLowerCase().includes(q);});
- if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Add someone using their JP number, or accept an incoming request."));return;}
+ if(!rows.length){host.append(node("p","jrcc-empty",q?"No matching contacts.":"No connections yet. Ask someone for a private invitation link, or accept an incoming request."));return;}
  rows.forEach(c=>{
   const o=c.other_member||{},card=node("article","jrcc-contact");
   const avatar=node("span","jrcc-contact-avatar",(o.full_name||"J").trim().slice(0,1).toUpperCase());
