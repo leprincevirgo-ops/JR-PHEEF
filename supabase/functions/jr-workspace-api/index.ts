@@ -336,7 +336,7 @@ Deno.serve(async (req: Request) => {
     if(action==="list_connections"){
       const data=await rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status,created_at&order=created_at.desc&limit=100");
       const ids=[...new Set((data||[]).flatMap((x:any)=>[x.requester_id,x.receiver_id]).filter((id:any)=>String(id)!==String(mid)))];
-      const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,jp_number,dgbo_id,full_name,verified,profile_visibility,country_code,role,account_type,status"):[];
+      const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,full_name,verified,profile_visibility,country_code,role,account_type,status"):[];
       const byId=new Map((people||[]).map((person:any)=>[String(person.id),person]));
       return response((data||[]).map((connection:any)=>{
         const other=byId.get(String(connection.requester_id)===String(mid)?connection.receiver_id:connection.requester_id);
@@ -611,12 +611,12 @@ Deno.serve(async (req: Request) => {
       const merged=new Map<string,any>();for(const item of [...(publicRows||[]),...followedRows])if(new Date(item.expires_at||item.created_at)>new Date())merged.set(item.id,item);
       const feed=[...merged.values()].sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,60);
       const ids=[...new Set(feed.map(x=>x.member_id))];
-      const profiles=ids.length?await rows("members","id=in.("+ids.join(",")+")&select=id,full_name,jp_number,profile_photo,profile_photo_hidden,profile_visibility"):[];
+      const profiles=ids.length?await rows("members","id=in.("+ids.join(",")+")&select=id,full_name,profile_photo,profile_photo_hidden,profile_visibility"):[];
       const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
       const result=await Promise.all(feed.map(async(item:any)=>{
         const author:any=profileMap.get(item.member_id)||{};let avatar=null;
         if(author.profile_visibility!=="private"&&!author.profile_photo_hidden&&author.profile_photo&&storagePath(author.profile_photo))avatar=(await signedMedia([{path:author.profile_photo,kind:"image"}]))[0]?.url||null;
-        return {...item,author:{id:item.member_id,name:author.profile_visibility==="private"?"JR PHEEF member":author.full_name||"JR PHEEF member",jpNumber:author.profile_visibility==="private"?"":author.jp_number||"",avatar},media:await signedMedia(item.media||[])};
+        return {...item,author:{id:item.member_id,name:author.profile_visibility==="private"?"JR PHEEF member":author.full_name||"JR PHEEF member",avatar},media:await signedMedia(item.media||[])};
       }));
       return response({items:result,following:followed});
     }
