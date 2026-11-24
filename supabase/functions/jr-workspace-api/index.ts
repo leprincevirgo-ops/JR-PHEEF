@@ -320,7 +320,8 @@ Deno.serve(async (req: Request) => {
       if(input.profile_photo_hidden===true){patch.profile_photo_hidden=true;patch.profile_photo_hidden_url=member.profile_photo||member.profile_photo_hidden_url||"";patch.profile_photo="";}
       if(input.profile_photo_hidden===false){patch.profile_photo_hidden=false;const replacingPhoto=typeof input.profile_photo==="string"&&storagePath(input.profile_photo)&&input.profile_photo.startsWith(mid+"/profile/");if(!replacingPhoto&&input.profile_photo!==""&&member.profile_photo_hidden_url){patch.profile_photo=member.profile_photo_hidden_url;patch.profile_photo_hidden_url="";}}
       if(typeof input.profile_photo_hidden_url==="string"&&input.profile_photo_hidden_url===""&&input.profile_photo==="")patch.profile_photo_hidden_url="";
-      for(const key of ["public_phone","show_email","show_location"])if(typeof input[key]==="boolean")patch[key]=input[key];
+      patch.public_phone=false;
+      for(const key of ["show_email","show_location"])if(typeof input[key]==="boolean")patch[key]=input[key];
       if(typeof input.profile_visibility==="string"&&["public","connections","private"].includes(input.profile_visibility))patch.profile_visibility=input.profile_visibility;
       if(!Object.keys(patch).length)return json({ok:false,error:"There are no valid profile changes to save."},400);
       const data=await rest("members?id=eq."+mid,"PATCH",patch);
