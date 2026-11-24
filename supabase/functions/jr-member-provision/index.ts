@@ -56,6 +56,7 @@ Deno.serve(async (req: Request) => {
       return "JR-" + Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
     };
     const authId = encodeURIComponent(user.id);
+    let createdMember = false;
     let rows = await rest("members?auth_user_id=eq." + authId +
       "&select=id,jp_number,role,account_type,full_name,email,verified,status,referral_code&limit=2");
     let member = Array.isArray(rows) && rows.length === 1 ? rows[0] : null;
@@ -95,6 +96,7 @@ Deno.serve(async (req: Request) => {
           country: "Kenya"
         });
         member = Array.isArray(created) && created.length === 1 ? created[0] : null;
+        createdMember = Boolean(member);
       }
     }
 
@@ -115,10 +117,10 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false, error: "This member account is not active. Contact support." }, 403);
 
     const inviteCode = String(meta.referral_code || "").trim().toUpperCase();
-    if (/^JR-[A-F0-9]{12}$/.test(inviteCode)) {
-      const referrers = await rest("members?referral_code=eq." + encodeURIComponent(inviteCode) + "&select=id&limit=2");
+    if (createdMember && /^JR-[A-F0-9]{12}$/.test(inviteCode)) {
+      const referrers = await rest("members?referral_code=eq." + encodeURIComponent(inviteCode) + "&select=id,status&limit=2");
       const referrer = Array.isArray(referrers) && referrers.length === 1 ? referrers[0] : null;
-      if (referrer && referrer.id !== member.id) {
+      if (referrer && referrer.status === "active" && referrer.id !== member.id) {
         const existingAttribution = await rest("jr_referrals?referred_id=eq." + encodeURIComponent(member.id) + "&select=id&limit=1");
         if (!Array.isArray(existingAttribution) || existingAttribution.length === 0) {
           await rest("jr_referrals", "POST", {
