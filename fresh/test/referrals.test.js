@@ -16,7 +16,7 @@ test("personal invitation links are captured and passed only with account creati
 test("each signed-in member receives a personal invitation code for sharing", () => {
   assert.match(provision, /referral_code/);
   assert.match(provision, /referralCode: member\.referral_code/);
-  assert.match(app, /signedInUser\.referralCode/);
+  assert.match(app, /signedInUser\?\.referralCode/);
   assert.match(app, /\?ref=/);
 });
 
