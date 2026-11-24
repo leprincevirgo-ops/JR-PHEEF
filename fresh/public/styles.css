@@ -633,3 +633,8 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 .founder-partner-options label{display:inline-flex;align-items:center;gap:7px}
 .founder-partner-status{color:#9fe7ef;font-size:.78rem;margin:10px 0 0}
 @media(max-width:620px){.founder-partner-card{padding:14px}.founder-partner-head{display:block}.founder-partner-private{display:inline-flex;margin-top:10px}.founder-partner-message{max-width:100%}.founder-partner-controls button{flex:1}}
+
+/* JR PHEEF daily welcome and consent-based sharing */
+.jr-daily-welcome{margin:0 0 28px;padding:22px 24px;border:1px solid rgba(105,205,225,.28);border-radius:22px;background:linear-gradient(120deg,rgba(21,65,91,.68),rgba(14,31,57,.72));box-shadow:0 14px 42px rgba(0,0,0,.12)}
+.jr-daily-welcome-copy{max-width:780px}.jr-daily-welcome h2{margin:7px 0 12px;font-size:clamp(22px,3.5vw,30px);color:var(--text)}.jr-daily-welcome p{margin:8px 0;color:var(--text);line-height:1.65}.jr-daily-welcome strong{display:block;margin-top:12px;color:#bcefff;font-size:15px}.jr-daily-welcome small{display:block;margin-top:10px;color:var(--muted);line-height:1.5}.jr-welcome-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}.jr-welcome-actions button{min-height:42px;padding:10px 17px;border-radius:999px;border:1px solid rgba(126,220,231,.35);font:inherit;font-weight:700;cursor:pointer}.jr-welcome-share{background:linear-gradient(120deg,#9cecf0,#65c9e5);color:#071b2a}.jr-welcome-speak{background:rgba(255,255,255,.06);color:var(--text)}.jr-welcome-feedback{min-height:1.2em;margin:8px 0 0!important;color:#bcefff!important;font-size:12px}
+@media(max-width:560px){.jr-daily-welcome{padding:18px 16px;border-radius:18px}.jr-welcome-actions button{flex:1}}
