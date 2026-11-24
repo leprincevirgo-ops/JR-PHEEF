@@ -243,6 +243,21 @@
   api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  if(window.location.pathname==="/app"&&["login","signup"].includes(fragment.get("mode")))showAuth(fragment.get("mode"));
+
+ const queryParams=new URLSearchParams(window.location.search);
+ const emailTokenHash=queryParams.get("token_hash");
+ const emailTokenType=queryParams.get("type");
+ if(emailTokenHash&&["email","signup"].includes(emailTokenType)){
+  window.history.replaceState({},document.title,window.location.pathname);
+  showAuth("login");setMessage("Verifying your email securely…");
+  api("/api/auth/verify-link",{token_hash:emailTokenHash}).then(result=>{
+   if(result.user)setSignedIn(result.user);
+   $("promptReply").textContent="Your email is verified. Welcome to JR PHEEF.";
+   setMessage(result.message||"Your email is verified. Welcome to JR PHEEF.");
+  }).catch(error=>{
+   showAuth("login");setMessage(error.message||"This confirmation link is invalid or expired. Request a fresh confirmation email.");
+  });
+ }
  const confirmationToken=fragment.get("access_token"),confirmationRefresh=fragment.get("refresh_token"),confirmationType=fragment.get("type");
  const confirmationError=fragment.get("error_description")||fragment.get("error");
  if(confirmationError){window.history.replaceState({},document.title,window.location.pathname+window.location.search);showAuth("login");setMessage("Email confirmation could not be completed: "+confirmationError.replace(/\+/g," ")+". Request a fresh confirmation email.");}
