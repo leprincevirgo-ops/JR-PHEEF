@@ -638,3 +638,44 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
 .jr-daily-welcome{margin:0 0 28px;padding:22px 24px;border:1px solid rgba(105,205,225,.28);border-radius:22px;background:linear-gradient(120deg,rgba(21,65,91,.68),rgba(14,31,57,.72));box-shadow:0 14px 42px rgba(0,0,0,.12)}
 .jr-daily-welcome-copy{max-width:780px}.jr-daily-welcome h2{margin:7px 0 12px;font-size:clamp(22px,3.5vw,30px);color:var(--text)}.jr-daily-welcome p{margin:8px 0;color:var(--text);line-height:1.65}.jr-daily-welcome strong{display:block;margin-top:12px;color:#bcefff;font-size:15px}.jr-daily-welcome small{display:block;margin-top:10px;color:var(--muted);line-height:1.5}.jr-welcome-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}.jr-welcome-actions button{min-height:42px;padding:10px 17px;border-radius:999px;border:1px solid rgba(126,220,231,.35);font:inherit;font-weight:700;cursor:pointer}.jr-welcome-share{background:linear-gradient(120deg,#9cecf0,#65c9e5);color:#071b2a}.jr-welcome-speak{background:rgba(255,255,255,.06);color:var(--text)}.jr-welcome-feedback{min-height:1.2em;margin:8px 0 0!important;color:#bcefff!important;font-size:12px}
 @media(max-width:560px){.jr-daily-welcome{padding:18px 16px;border-radius:18px}.jr-welcome-actions button{flex:1}}
+
+
+/* Primary member navigation: restore the four destinations as a persistent mobile bottom dock. */
+@media(max-width:700px){
+  .workspace-nav{
+    position:fixed;
+    inset:auto 0 0 0;
+    z-index:9000;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:5px;
+    width:100%;
+    margin:0;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+    border:0;
+    border-top:1px solid rgba(143,218,242,.28);
+    border-radius:16px 16px 0 0;
+    background:rgba(5,17,31,.97);
+    box-shadow:0 -8px 28px rgba(0,0,0,.38);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    overflow:visible;
+  }
+  .workspace-nav .workspace-tab{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+    min-height:54px;
+    padding:8px 3px;
+    border-radius:11px;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    text-align:center;
+    font-size:clamp(9px,2.6vw,11px);
+    line-height:1.2;
+    letter-spacing:.025em;
+  }
+  .workspace-nav .workspace-tab[data-view="command"]{font-size:clamp(8px,2.35vw,10px)}
+  .workspace{padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+}
