@@ -41,7 +41,8 @@ function rateLimit(req,res,next){
     for(const [bucket,value] of rateBuckets)if(now-value.start>120000)rateBuckets.delete(bucket);
   }
   if(rateBuckets.size>12000)return res.status(503).json({ok:false,error:"Service is busy. Please try again shortly."});
-  if(entry.count>12)return res.status(429).json({ok:false,error:"Too many attempts. Please wait a minute and try again."});
+  const limit=req.path==="/api/discovery/feed"||req.path==="/api/inbound/jr/events"?60:12;
+  if(entry.count>limit)return res.status(429).json({ok:false,error:"Too many requests. Please wait a minute and try again."});
   next();
 }
 function cookies(req){
