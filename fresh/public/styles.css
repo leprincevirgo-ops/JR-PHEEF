@@ -689,3 +689,6 @@ footer{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px}
  .workspace-nav .workspace-tab[data-view="command"]{font-size:clamp(8px,2.25vw,10px)}
  .workspace{padding-bottom:36px}
 }
+
+
+.jr-agent-proposal-results{margin:14px 0;padding:12px;border:1px solid rgba(101,196,232,.3);border-radius:14px;background:rgba(4,24,43,.75);display:grid;gap:10px}.jr-agent-proposal-results h4{margin:0;color:#bceeff;font-size:14px}.jr-agent-proposal-card{padding:10px;border-radius:10px;background:rgba(5,15,29,.7);border:1px solid rgba(117,181,226,.16);display:grid;gap:5px}.jr-agent-proposal-card strong{font-size:13px}.jr-agent-proposal-card p{margin:0;font-size:12px;line-height:1.45}.jr-agent-proposal-card small{color:#f5c77e;font-size:11px}.jr-agent-proposal-results button{justify-self:start}

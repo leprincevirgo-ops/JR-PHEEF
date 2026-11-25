@@ -27,4 +27,6 @@ test("signed-in JR workspace includes its own usable prompt form",()=>{
  assert.match(js,/workspacePromptReply/);
 });
 
-test("JR responses never expose internal provider model identifiers",()=>{assert.match(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),webResearch:body\.use_web===true\}\)/);assert.match(server,/model:process\.env\.OPENAI_MODEL/);assert.doesNotMatch(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),model:/);});
+test("JR responses never expose internal provider model identifiers",()=>{assert.match(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),webResearch:body\.use_web===true,agentProposals\}\)/);assert.match(server,/model:process\.env\.OPENAI_MODEL/);assert.doesNotMatch(server,/return res\.json\(\{ok:true,answer:answer\.trim\(\),model:/);});
+
+test("JR conversation can only propose tasks for member-owned connected agents",()=>{assert.match(server,/agentToolMap/);assert.match(server,/connection_status:\"eq.connected\"/);assert.match(server,/status:\"eq.active\"/);assert.match(server,/function_call_output/);assert.match(server,/The member must review it in Agent Universe/);assert.match(js,/addAgentProposalCards/);assert.match(js,/Review in Agent Universe/);});

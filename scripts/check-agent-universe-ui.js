@@ -3,6 +3,8 @@ const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("nod
 const server=fs.readFileSync("fresh/server.js","utf8");
 const route=fs.readFileSync("fresh/routes/agent-universe.js","utf8");
 const ui=fs.readFileSync("fresh/public/agent-universe.js","utf8");
+const intelligence=fs.readFileSync("fresh/public/intelligence.js","utf8");
+const styles=fs.readFileSync("fresh/public/styles.css","utf8");
 const html=fs.readFileSync("fresh/public/index.html","utf8");
 const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
@@ -27,6 +29,11 @@ assert.ok(route.includes('v==="active"')&&route.includes('connection_status!=="c
 assert.ok(route.includes("privateAgentFields=agentFields+\" ,mcp_session_id\"")||route.includes('privateAgentFields=agentFields+",mcp_session_id"'),"MCP session identifiers must remain server-side");
 for(const s of ["endpoint_url","connection_status","mcp_session_id","mcp_tools","tool_arguments","execution_state","execution_result"])assert.ok(runtimeMigration.includes(s),"Missing MCP runtime database field "+s);
 assert.ok(ui.includes("CONNECT & DISCOVER TOOLS")&&ui.includes("ENABLE AGENT")&&ui.includes("PROPOSE TOOL CALL")&&ui.includes("EXECUTE APPROVED TOOL")&&ui.includes("PROPOSE A2A TASK")&&ui.includes("SEND APPROVED A2A TASK")&&ui.includes("REFRESH A2A TASK STATUS"),"MCP connection and execution controls are missing");
+for(const s of ["agentToolMap","jr_mcp_","jr_a2a_","function_call","function_call_output","createAgentProposal","agentProposals","parallel_tool_calls=false","status:\"awaiting_approval\"","execution_state:\"not_started\"","The member must review it in Agent Universe"])assert.ok(server.includes(s),"Missing JR conversation agent governance "+s);
+assert.ok(server.includes("connection_status:\"eq.connected\"")&&server.includes("status:\"eq.active\""),"JR may only discover the signed-in member's active connected agents");
+assert.ok(intelligence.includes("addAgentProposalCards")&&intelligence.includes("Review in Agent Universe"),"JR conversation does not surface agent proposals for member review");
+assert.ok(styles.includes(".jr-agent-proposal-results"),"Agent proposal cards are not styled");
+
 
 assert.ok(route.includes("registry.modelcontextprotocol.io/v0.1/servers"),"Official MCP Registry integration is missing");
 for(const s of ["node:dns","node:https","node:net","dns.lookup","publicIp","redirect:\"error\"","AbortSignal.timeout(8000)","65536","agent-card.json","agent.json","agent_card_url"])assert.ok(route.includes(s),"Missing A2A discovery safeguard "+s);
