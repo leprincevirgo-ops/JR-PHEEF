@@ -1,0 +1,30 @@
+name: JR PHEEF staging release smoke
+
+on:
+  push:
+    branches:
+      - "fresh-foundation/jr-pheef-v1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jr-pheef-staging-smoke
+  cancel-in-progress: false
+
+jobs:
+  staging-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out staging source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify deployed staging routes, quantum workbench, CSP and access boundaries
+        env:
+          BASE_URL: https://jr-pheef-foundation.onrender.com
+        run: node scripts/staging-release-smoke.js
