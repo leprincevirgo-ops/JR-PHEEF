@@ -54,3 +54,5 @@ using (owner_auth_id = (select auth.uid())) with check (owner_auth_id = (select 
 -- Protocol metadata for interoperable agent discovery and adapter selection.
 alter table public.jr_agents add column if not exists protocol text not null default 'manual'
 check (protocol in ('mcp','a2a','openai_compatible','https_api','webhook','human','manual'));
+
+alter table public.jr_agents add column if not exists agent_card_url text;
