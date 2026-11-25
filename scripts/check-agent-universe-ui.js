@@ -6,6 +6,7 @@ const ui=fs.readFileSync("fresh/public/agent-universe.js","utf8");
 const html=fs.readFileSync("fresh/public/index.html","utf8");
 const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261125171000_jr_agent_universe.sql","utf8");
 new vm.Script(route);new vm.Script(ui);
 for(const p of ["/api/agents","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
 for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert.ok(route.includes(s),"Missing auth boundary "+s);
@@ -15,6 +16,7 @@ assert.ok(html.includes("/agent-universe.js")&&html.includes("/agent-universe.cs
 assert.ok(ui.includes("Discover agent blueprints")&&ui.includes("Model Context Protocol (MCP)")&&ui.includes("Agent2Agent (A2A)"),"Agent discovery and protocol browser are missing");
 assert.ok(app.includes('"/agents":"agents"')&&app.includes('agents:"/agents"')&&app.includes('value="agents"'),"Workspace router is missing Agent Universe");
 for(const s of ["enable row level security","owner_auth_id","auth.uid()","with check","grant select"])assert.ok(schema.toLowerCase().includes(s.toLowerCase()),"Missing database safeguard "+s);
+for(const s of ["create table if not exists public.jr_agents","create table if not exists public.jr_agent_runs","enable row level security","owner_auth_id","auth.uid()","grant select"])assert.ok(migration.toLowerCase().includes(s.toLowerCase()),"Missing migration safeguard "+s);
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
 assert.ok(route.includes("approved_not_executed")&&route.includes("execution remains disabled"),"Approval must not silently execute agents");
 assert.ok(!route.includes("fetch(endpoint"),"No unreviewed external endpoint execution");
