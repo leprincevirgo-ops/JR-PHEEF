@@ -50,3 +50,7 @@ using (owner_auth_id = (select auth.uid())) with check (owner_auth_id = (select 
 drop policy if exists "agent owners manage their runs" on public.jr_agent_runs;
 create policy "agent owners manage their runs" on public.jr_agent_runs for all to authenticated
 using (owner_auth_id = (select auth.uid())) with check (owner_auth_id = (select auth.uid()));
+
+-- Protocol metadata for interoperable agent discovery and adapter selection.
+alter table public.jr_agents add column if not exists protocol text not null default 'manual'
+check (protocol in ('mcp','a2a','openai_compatible','https_api','webhook','human','manual'));
