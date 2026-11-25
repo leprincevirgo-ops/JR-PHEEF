@@ -20,10 +20,11 @@ test("Personal learning contains six lessons and local-only progress",()=>{
  assert.match(j,/localStorage/);assert.match(j,/jr-pheef-guide-progress-v1/);
 });
 test("Guide assets avoid inline scripts and load under the self-only CSP",()=>{
- const h=read("public/guide.html"),s=read("server.js");
+ const h=read("public/guide.html"),s=read("server.js"),policy=read("security-policy.js");
  assert.match(h,/<script src="\/guide\.js" defer><\/script>/);
  assert.doesNotMatch(h,/<script(?! src=)/i);
- assert.match(s,/object-src 'none'/);assert.match(s,/frame-ancestors 'none'/);
+ assert.match(s,/buildContentSecurityPolicy\(SUPABASE_URL\)/);
+ assert.match(policy,/object-src 'none'/);assert.match(policy,/frame-ancestors 'none'/);
 });
 test("authenticated workspace and founder endpoints have burst rate limiting",()=>{
  const s=read("server.js");
