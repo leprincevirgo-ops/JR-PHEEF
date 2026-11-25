@@ -290,6 +290,20 @@ module.exports=function mountAgentUniverse(app,deps){
   catch(e){console.error("Agent activity",e.message);res.status(503).json({ok:false,error:"Agent activity unavailable."});}
  });
 
+ app.post("/api/agents/:id/a2a/proposals",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+   const a=await auth(req,res);if(!a)return;
+   const agent=await ownedAgent(a.token,a.member.id,req.params.id);if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
+   if(agent.protocol!=="a2a"||agent.connection_status!=="connected"||agent.status!=="active"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"Connect and explicitly enable this A2A agent first."});
+   const text=clean(req.body?.text,4000),skillId=clean(req.body?.skill_id,80);
+   if(text.length<3)return res.status(400).json({ok:false,error:"Describe the task in at least 3 characters."});
+   if(skillId&&!(agent.a2a_skills||[]).some(x=>x.id===skillId))return res.status(400).json({ok:false,error:"Choose a skill published by this agent."});
+   const args={text,skill_id:skillId||null};
+   const r=await db(a.token,"jr_agent_runs","POST","select="+runFields,{member_id:a.member.id,agent_id:agent.id,task:"A2A task: "+text,capability:"a2a_message",status:"awaiting_approval",risk:"high",approval_required:true,tool_name:"a2a_message/send",tool_arguments:args,execution_state:"not_started"});
+   if(!r.ok)return fail(res,r,"Could not create A2A task proposal.");
+   res.status(201).json({ok:true,run:r.data[0],note:"The A2A agent has not been contacted. Review and approve the exact task before executing."});
+  }catch(e){console.error("A2A proposal",e.message);res.status(503).json({ok:false,error:"A2A task proposal unavailable."});}
+ });
  app.post("/api/agents/:id/tasks",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
