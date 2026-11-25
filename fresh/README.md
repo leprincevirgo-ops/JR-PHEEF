@@ -1,15 +1,70 @@
-# JR PHEEF — fresh foundation
+# JR PHEEF — active production runtime
 
-JR is the central intelligence and personality. JR PHEEF is the connected world JR operates in.
+**Status verified: 2026-11-25**
 
-This staging slice includes an immersive public JR PHEEF discovery front door with live source-attributed general and aviation updates; responsive registration and sign-in entry; email/password authentication routes with email confirmation, secure session cookies and member provisioning; authenticated member workspaces; Worlds discovery and creation; separate DGBO and FAMILY company environments; JR MOVE transport workflows; JR LINK messaging, groups, channels and status media; profile photo upload and visibility controls; a protected founder overview; and a server-side partner enquiry path.
+The `fresh/` directory is the active web application runtime used by the canonical production Render service. It is a historical directory name, not a separate product or a staging-only application.
 
-Public routes: `/` is the public discovery experience; `/app` opens account entry; `/jr-pheef` returns to the public JR PHEEF experience; `/jr-move` opens the public JR MOVE experience. The public discovery feed is served by `GET /api/discovery/feed?world=general|transport`; it displays attributed public source metadata and links to publishers, never full articles. Transport updates use IATA and FAA RSS sources. The page keeps registration hidden until a visitor chooses to join or sign in.
+- Canonical repository: `leprincevirgo-ops/JR-PHEEF`
+- Canonical branch: `main`
+- Production entry point: `fresh/server.js`
+- Production browser application: `fresh/public/`
+- Package start command: `npm test && node fresh/server.js`
+- Production service: `https://jr-pheef-marketplace.onrender.com`
+- Production Supabase project: `tzyrlwshwkbnkbhjnpev`
 
-JR provides an authenticated open-ended AI conversation through `/api/ai/chat` when `OPENAI_API_KEY` is configured; `/healthz` reports whether the provider is configured. Member conversations persist in the member-scoped JR conversation store, and saved memories enter AI context only when the member explicitly consents. Browser speech input and output are available where supported. The private Founder–JR Intelligence Partnership adds an owner-verified conversation, shared approved project context, persistent history and voice/text controls; it is not exposed to ordinary members.
+## Product experience
 
-Platform account registration is separate from formal company registration, DGBO partnership, FAMILY membership and access to regulated financial products. Corporate registration identifiers and licences must only be published after verification. Payments, deposits, lending, investment transactions and production integrations remain disabled in staging.
+JR PHEEF is one integrated ecosystem. The authenticated mobile workspace has four primary destinations:
 
-Run with `npm install && npm start`; open port 10000 and `/healthz`.
+1. HOME — personal starting point and discovery.
+2. WORLDS — create, discover and enter worlds inside JR PHEEF.
+3. JR — the central natural-language text and voice assistant.
+4. COMMAND CENTER — profile, contacts, JR LINK conversations, status, updates, accessibility and account controls.
 
-Architecture sequence: secure identity/session; JR conversation runtime; adaptive/user-created Worlds; Command Center; business, delivery, FAMILY, finance, studio, connect, security and partner integrations. Keep all secrets server-side. Staging must never point to production.
+The public discovery gateway is available before registration. The four member tabs appear after a valid account session.
+
+Company and service environments stay inside this product:
+
+- DGBO — parent business-development, opportunity research, governance and venture stewardship.
+- FAMILY — distinct financial-access and family-wellbeing venture.
+- JR LINK — integrated communications layer.
+- JR MOVE — transport, delivery and logistics environment.
+
+Each company retains its own identity, records, permissions and responsibilities. Shared identity does not grant unrestricted access to another company's data.
+
+## Implemented runtime areas
+
+The active application includes public discovery, email/password authentication and session handling, member workspaces, JR AI conversation, Worlds creation and entry, branded DGBO and FAMILY company worlds, profile and Command Center interfaces, JR LINK communication workflows, founder-only controls, opportunity and venture management, partner integration gateway, business operating intelligence and JR MOVE service discovery/planning.
+
+The presence of a page, API action or database table is not proof that every associated live service is production-ready. In particular:
+
+- JR LINK still needs real multi-member delivery/reconnect acceptance testing; voice/video and end-to-end encryption are not claimed complete.
+- JR MOVE live provider dispatch, booking, tracking and settlement are not yet active.
+- FAMILY regulated financial services remain gated behind authorised providers and applicable approvals.
+- Advertising workflows remain review-controlled; campaign drafts do not autonomously publish or spend.
+- Payments are disabled in the current production runtime (`paymentsEnabled: false`).
+- Company worlds are in-platform visual environments; they do not automatically establish separate legal registrations, domains or independent back offices.
+
+No listing fees or matching fees are charged or should be reintroduced. Future monetisation must use approved optional subscriptions, clearly labelled promotion, justified and disclosed completed-service commissions, business tools or institutional services.
+
+## Development and release rules
+
+- Make member-facing changes against current `main`.
+- Keep one canonical production application and one coherent member experience.
+- Use staging branches and staging databases only for isolated validation. Never point staging at production credentials or production member data.
+- Do not merge heavily diverged rebuild branches wholesale. Port reviewed, compatible changes into the current runtime.
+- Keep all Supabase secret/service-role credentials on the server. Never expose them to browser code.
+- Keep Row Level Security enabled on every exposed user-data table and enforce ownership/role checks on sensitive operations.
+- Run `npm test` before release. Production `npm start` already runs the test suite before starting the server.
+- Verify the deployed commit, startup logs, runtime flags and real end-to-end workflows before calling a feature live.
+
+## Local run
+
+```sh
+npm install
+npm start
+```
+
+The service listens on the configured `PORT` (Render currently supplies port 10000). The health endpoint is `/healthz`; readiness is `/readyz`.
+
+For the unified architecture, implementation status and remaining acceptance gates, see `docs/UNIFIED-PRODUCTION-BASELINE.md`.
