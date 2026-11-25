@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v3";
+const CACHE_NAME="jr-pheef-shell-v4";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
@@ -7,7 +7,7 @@ const APP_SHELL=[
  "/styles.css?v=jr-primary-mobile-bottom-nav-20261125-v1",
  "/cosmic.css?v=jr-cosmic-universe-20261115-v1",
  "/living-interface.css?v=jr-mobile-navigation-20261125-v1",
- "/app.js?v=jr-primary-navigation-20261125-v1",
+ "/app.js?v=jr-primary-navigation-20261125-v2",
  "/founder-partner.js?v=founder-jr-20261124-v1",
  "/pwa.js?v=jr-pwa-20261118-v1",
  "/living-interface.js?v=20261119-space-living-v1",
@@ -15,7 +15,7 @@ const APP_SHELL=[
  "/command-layout.js?v=jr-link-workspace-20261113-v1&brand=jr-dgbo-diamond-brand-20261112-v1",
  "/worlds.js?v=jr-one-world-space-20261112-v2",
  "/intelligence.js?v=jr-central-matching-20261113-v1",
- "/navigation.js?v=jr-arrow-navigation-20261112-v5",
+ "/navigation.js?v=jr-arrow-navigation-20261112-v6",
  "/scroll-companion.css?v=jr-scroll-companion-20261124-v1",
  "/scroll-companion.js?v=jr-scroll-companion-20261124-v1",
  "/voice.js?v=jr-connect-voice-20261112-v3",

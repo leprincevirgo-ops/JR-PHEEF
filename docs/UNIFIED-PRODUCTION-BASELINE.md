@@ -31,7 +31,7 @@ The mobile member workspace has exactly four primary destinations, in this order
 3. **JR** — the central intelligence and natural text/voice conversation.
 4. **COMMAND CENTER** — profile, verification, contacts, JR LINK conversations, status, updates, accessibility and account controls.
 
-The four destinations must remain visible as a persistent mobile bottom dock after sign-in, with touch-safe sizing, safe-area padding and clear selected state. The public discovery gateway appears before account registration; the authenticated member tabs are shown after a valid session. Do not mistake the public sign-in screen for the logged-in member workspace.
+The four destinations must remain visible as a persistent mobile bottom dock after sign-in, with touch-safe sizing, safe-area padding, accessible selected-state announcements and stable deep routes. DGBO, FAMILY and JR MOVE are company/service worlds within WORLDS, so WORLDS remains selected while a member is inside them. The public discovery gateway appears before account registration; the authenticated member tabs are shown after a valid session. Do not mistake the public sign-in screen for the logged-in member workspace.
 
 ### One product, multiple company worlds
 

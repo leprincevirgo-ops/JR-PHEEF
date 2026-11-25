@@ -31,3 +31,19 @@ test("installed JR PHEEF shell caches every local stylesheet and script at its e
  assert.match(worker,/url\.pathname\.startsWith\("\/api\/"\)/);
  assert.match(worker,/url\.pathname==="\/healthz"/);
 });
+
+test("WORLDS and JR have reloadable deep routes, and company worlds stay under WORLDS",()=>{
+ assert.ok(app.includes('"/worlds":"worlds"'));
+ assert.ok(app.includes('"/jr":"jr"'));
+ assert.ok(app.includes('worlds:"/worlds"'));
+ assert.ok(app.includes('jr:"/jr"'));
+ assert.match(app,/\["dgbo","family","turbex"\]\.includes\(view\)\?"worlds":view/);
+ assert.match(app,/button\.setAttribute\("aria-current","page"\)/);
+ assert.match(html,/data-view="home" aria-current="page"/);
+});
+test("navigation history distinguishes company-world URLs and restores deep links",()=>{
+ const navigation=fs.readFileSync("fresh/public/navigation.js","utf8");
+ assert.match(navigation,/last\?\.url===state\.url/);
+ assert.match(navigation,/history\.replaceState\(\{jrWorld:state\.view\}/);
+ assert.match(navigation,/window\.dispatchEvent\(new Event\("popstate"\)\)/);
+});

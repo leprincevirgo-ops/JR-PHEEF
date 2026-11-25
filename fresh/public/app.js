@@ -5,8 +5,8 @@
  let mode="login",busy=false,recoveryAccessToken="",recoveryRefreshToken="",signedInUser=null;
  const referralCodePattern=/^JR-[A-F0-9]{12}$/i;
  try{const incomingReferral=new URLSearchParams(window.location.search).get("ref");if(incomingReferral&&referralCodePattern.test(incomingReferral.trim()))sessionStorage.setItem("jr_referral_code",incomingReferral.trim().toUpperCase());}catch{}
- const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
- const routeForView={home:"/",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link",jr:"/"};
+ const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds":"worlds","/jr":"jr","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
+ const routeForView={home:"/",worlds:"/worlds",jr:"/jr",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link"};
  const requestedWorld=worldRoutes[window.location.pathname]||"home";
  const requestedLink=window.location.pathname==="/worlds/jr-link";
  const setMessage=message=>{$("authMessage").textContent=message||"";};
@@ -61,7 +61,8 @@
    if(!options.fromRoute&&window.location.pathname!==nextPath)window.history.pushState({jrWorld:view},"",nextPath);
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
-  document.querySelectorAll(".workspace-tab").forEach(button=>button.classList.toggle("selected",button.dataset.view===view));
+  const primaryView=["dgbo","family","turbex"].includes(view)?"worlds":view;
+  document.querySelectorAll(".workspace-tab").forEach(button=>{const active=button.dataset.view===primaryView;button.classList.toggle("selected",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
   const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center",dgbo:"Diamond Global Business Operators",family:"FAMILY",turbex:"Transport & Logistics"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
   if(multiWindowMode){if(!openWindows.includes(view)){if(openWindows.length>=4)openWindows[openWindows.length-1]=view;else openWindows.push(view);}}
