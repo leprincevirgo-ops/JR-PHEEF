@@ -5,8 +5,8 @@
  let mode="login",busy=false,recoveryAccessToken="",recoveryRefreshToken="",signedInUser=null;
  const referralCodePattern=/^JR-[A-F0-9]{12}$/i;
  try{const incomingReferral=new URLSearchParams(window.location.search).get("ref");if(incomingReferral&&referralCodePattern.test(incomingReferral.trim()))sessionStorage.setItem("jr_referral_code",incomingReferral.trim().toUpperCase());}catch{}
- const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds":"worlds","/jr":"jr","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command"};
- const routeForView={home:"/",worlds:"/worlds",jr:"/jr",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link"};
+ const worldRoutes={"/":"home","/worlds/jr-pheef":"home","/worlds":"worlds","/jr":"jr","/worlds/dgbo":"dgbo","/worlds/family":"family","/worlds/jr-move":"turbex","/worlds/jr-link":"command","/agents":"agents"};
+ const routeForView={home:"/",worlds:"/worlds",jr:"/jr",dgbo:"/worlds/dgbo",family:"/worlds/family",turbex:"/worlds/jr-move",command:"/worlds/jr-link",agents:"/agents"};
  const requestedWorld=worldRoutes[window.location.pathname]||"home";
  const requestedLink=window.location.pathname==="/worlds/jr-link";
  const setMessage=message=>{$("authMessage").textContent=message||"";};
@@ -18,7 +18,7 @@
  const workspaceWindowToolbar=document.createElement("div");
  workspaceWindowToolbar.id="jrWorkspaceWindowToolbar";
  workspaceWindowToolbar.className="jr-workspace-window-toolbar";
- workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option><option value="dgbo">DGBO</option><option value="family">FAMILY</option><option value="turbex">Transport & Logistics</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
+ workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option><option value="dgbo">DGBO</option><option value="family">FAMILY</option><option value="turbex">Transport & Logistics</option><option value="agents">Agent Universe</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
  const originalWorkspaceViews=[...document.querySelectorAll("#workspace .workspace-view")];
  originalWorkspaceViews.forEach(section=>{
   const key=section.id.replace("view-","");
@@ -63,7 +63,7 @@
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   const primaryView=["dgbo","family","turbex"].includes(view)?"worlds":view;
   document.querySelectorAll(".workspace-tab").forEach(button=>{const active=button.dataset.view===primaryView;button.classList.toggle("selected",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
-  const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center",dgbo:"Diamond Global Business Operators",family:"FAMILY",turbex:"Transport & Logistics"};
+  const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center",dgbo:"Diamond Global Business Operators",family:"FAMILY",turbex:"Transport & Logistics",agents:"JR Agent Universe"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
   if(multiWindowMode){if(!openWindows.includes(view)){if(openWindows.length>=4)openWindows[openWindows.length-1]=view;else openWindows.push(view);}}
   else openWindows=[view];
