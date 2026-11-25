@@ -3,7 +3,7 @@ const fs=require("node:fs"),assert=require("node:assert/strict"),vm=require("nod
 const route=fs.readFileSync("routes/agents.js","utf8"),server=fs.readFileSync("server.js","utf8"),schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
 new vm.Script(route);
 for(const p of ["/api/agents","/api/agents/:id","/api/agents/:id/tasks","/api/agents/runs/:runId/decision","/api/agents/activity"])assert.ok(route.includes(p),"Missing endpoint "+p);
-for(const x of ["awaiting_approval","approved_not_executed","unverified","CAPABILITIES","requireMember"])assert.ok(route.includes(x),"Missing governance control "+x);
+for(const x of ["awaiting_approval","approved_not_executed","unverified","CAPABILITIES","requireMember","current.trust_status!==\"verified\""])assert.ok(route.includes(x),"Missing governance control "+x);
 assert.ok(server.includes('require("./routes/agents")'),"Agent routes not mounted");
 for(const x of ["enable row level security","revoke all","member_id","approval_required"])assert.ok(schema.toLowerCase().includes(x),"Missing schema safeguard "+x);
 assert.ok(!route.includes("fetch("),"External agents must not execute before a reviewed adapter exists");
