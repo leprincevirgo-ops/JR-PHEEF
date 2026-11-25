@@ -48,3 +48,5 @@ using (owner_auth_id=(select auth.uid())) with check (owner_auth_id=(select auth
 drop policy if exists "agent owners manage their runs" on public.jr_agent_runs;
 create policy "agent owners manage their runs" on public.jr_agent_runs for all to authenticated
 using (owner_auth_id=(select auth.uid())) with check (owner_auth_id=(select auth.uid()));
+
+alter table public.jr_agents add column if not exists agent_card_url text;
