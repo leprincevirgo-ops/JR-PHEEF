@@ -79,11 +79,11 @@ Legend:
 | Requirement | Treatment |
 |---|---|
 | Free first month; PRO KSh 99/month; PRIME KSh 149/month | Preserve as product assumptions; confirm taxes, billing periods and entitlement logic before activation |
-| Match fee KSh 30 buyer + KSh 30 seller; Pro/Prime KSh 20 | Preserve as agreed pricing assumption; payments remain gated |
+| Listing and match fees | Permanently removed. Creating listings and matching are free across the ecosystem. Do not reintroduce these charges. |
 | Withdrawal minimum KSh 200 and proposed 50% cash / 50% JR credits; retained split 20% owner revenue / 30% user credits | Requires explicit accounting/legal review; implement only with balanced ledger, clear disclosure and approved provider |
 | 1,000 active users/day modelling | Use for capacity and cost planning, not as a usage or revenue claim |
 | Start with zero capital and prioritise JR PHEEF | Prioritise free/low-cost architecture; no paid resources without approval |
-| M-Pesa and other live payment rails | Not live until credentials, callback security, reconciliation, test-mode and production approval are verified |
+| Optional subscriptions and other monetisation | PRO/PRIME subscriptions, clearly labelled advertising/promotions, business tools, justified disclosed completed-service commissions and institutional services require transparent entitlements and approval before activation |\n| M-Pesa and other live payment rails | Not live until credentials, callback security, reconciliation, test-mode and production approval are verified |
 | AI API provider | Previous logs indicated credit exhaustion; provider billing/quota must be checked before claiming live model functionality |
 
 ## G. Safety and global scope
