@@ -244,15 +244,23 @@ module.exports=function mountAgentUniverse(app,deps){
    const a=await auth(req,res);if(!a)return;
    const agent=await ownedAgent(a.token,a.member.id,req.params.id);
    if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
-   if(agent.protocol!=="mcp"||!agent.endpoint_url)return res.status(400).json({ok:false,error:"This connection adapter currently supports remote MCP servers only."});
    try{
-    const connection=await connectMcp(agent.endpoint_url);
-    const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{connection_status:"connected",mcp_protocol_version:connection.protocolVersion,mcp_session_id:connection.sessionId,mcp_tools:connection.tools,last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
-    if(!saved.ok)return fail(res,saved,"MCP connection succeeded but its status could not be saved.");
-    res.json({ok:true,agent:saved.data[0],server_info:connection.serverInfo,note:"MCP connection verified. Review its tools, then explicitly enable the agent before proposing a tool call."});
+    if(agent.protocol==="mcp"&&agent.endpoint_url){
+     const connection=await connectMcp(agent.endpoint_url);
+     const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{connection_status:"connected",mcp_protocol_version:connection.protocolVersion,mcp_session_id:connection.sessionId,mcp_tools:connection.tools,a2a_skills:[],last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
+     if(!saved.ok)return fail(res,saved,"MCP connection succeeded but its status could not be saved.");
+     return res.json({ok:true,agent:saved.data[0],server_info:connection.serverInfo,note:"MCP connection verified. Review its tools, then explicitly enable the agent before proposing a tool call."});
+    }
+    if(agent.protocol==="a2a"&&agent.agent_card_url){
+     const connection=await fetchA2aCard(agent.agent_card_url);
+     const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{endpoint_url:connection.endpoint,endpoint_domain:new URL(connection.endpoint).hostname,connection_status:"connected",a2a_protocol_version:connection.protocolVersion,a2a_skills:connection.skills,mcp_tools:[],mcp_session_id:null,last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
+     if(!saved.ok)return fail(res,saved,"A2A Agent Card verified but its status could not be saved.");
+     return res.json({ok:true,agent:saved.data[0],note:"A2A Agent Card verified. Review its skills, then explicitly enable the agent before proposing a task."});
+    }
+    return res.status(400).json({ok:false,error:"This agent needs a valid MCP endpoint or A2A Agent Card before connecting."});
    }catch(e){
-    await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{connection_status:"error",last_checked_at:new Date().toISOString(),last_error:clean(e.message,240),mcp_session_id:null,mcp_tools:[],updated_at:new Date().toISOString()}).catch(()=>{});
-    res.status(502).json({ok:false,error:clean(e.message||"MCP connection failed.",240)});
+    await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{connection_status:"error",last_checked_at:new Date().toISOString(),last_error:clean(e.message,240),mcp_session_id:null,mcp_tools:[],a2a_skills:[],updated_at:new Date().toISOString()}).catch(()=>{});
+    res.status(502).json({ok:false,error:clean(e.message||"Agent connection failed.",240)});
    }
   }catch(e){console.error("MCP connect",e.message);res.status(503).json({ok:false,error:"MCP connection service unavailable."});}
  });
