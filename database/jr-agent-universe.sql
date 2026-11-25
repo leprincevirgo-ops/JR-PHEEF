@@ -37,3 +37,16 @@ alter table public.jr_agent_runs enable row level security;
 -- These tables are accessed only by the trusted server using its secret key.
 revoke all on public.jr_agents from anon, authenticated;
 revoke all on public.jr_agent_runs from anon, authenticated;
+
+-- Bind every agent record to the authenticated JR PHEEF identity as a second
+-- ownership boundary. The server supplies members.id; auth.uid() is JWT-derived.
+alter table public.jr_agents add column if not exists owner_auth_id uuid references auth.users(id) on delete cascade default auth.uid();
+alter table public.jr_agent_runs add column if not exists owner_auth_id uuid references auth.users(id) on delete cascade default auth.uid();
+grant select,insert,update,delete on public.jr_agents to authenticated;
+grant select,insert,update,delete on public.jr_agent_runs to authenticated;
+drop policy if exists "agent owners manage their agents" on public.jr_agents;
+create policy "agent owners manage their agents" on public.jr_agents for all to authenticated
+using (owner_auth_id = (select auth.uid())) with check (owner_auth_id = (select auth.uid()));
+drop policy if exists "agent owners manage their runs" on public.jr_agent_runs;
+create policy "agent owners manage their runs" on public.jr_agent_runs for all to authenticated
+using (owner_auth_id = (select auth.uid())) with check (owner_auth_id = (select auth.uid()));
