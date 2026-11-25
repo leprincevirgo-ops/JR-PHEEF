@@ -21,6 +21,29 @@ section.innerHTML=`
   <div class="jr-quantum-actions"><button type="button" id="jrQuantumRun">Run simulation</button><button type="button" class="jr-quantum-secondary" id="jrQuantumReset">Reset experiment</button><span id="jrQuantumFeedback" role="status">Ready. No external job has been submitted.</span></div>
   <div id="jrQuantumResults" class="jr-quantum-results" aria-live="polite"><p>Run an experiment to see its output probabilities.</p></div>
  </div>
+ <div class="jr-quantum-math-lab">
+  <div class="jr-quantum-workbench-title"><div><p class="eyebrow">QUANTUM MATHEMATICS · INTERACTIVE LAB</p><h3>Linear algebra & complex states</h3></div><span class="jr-quantum-chip">Local calculation</span></div>
+  <p class="jr-quantum-help">Explore vectors, complex amplitudes and matrices using JR's mathematics engine. Enter JSON arrays below; a complex number can be written as a normal number or as {"re":1,"im":0}.</p>
+  <div class="jr-quantum-math-controls">
+   <label>Operation<select id="jrQuantumMathOperation">
+    <option value="probabilities">Measurement probabilities · vector</option>
+    <option value="norm">Vector norm · vector</option>
+    <option value="normalize">Normalize vector · vector</option>
+    <option value="innerProduct">Inner product · two vectors</option>
+    <option value="dagger">Matrix adjoint (dagger)</option>
+    <option value="multiplyMatrices">Matrix multiplication · two matrices</option>
+    <option value="tensor">Tensor / Kronecker product</option>
+    <option value="apply">Apply matrix to vector</option>
+    <option value="isUnitary">Check unitary matrix</option>
+    <option value="isHermitian">Check Hermitian matrix</option>
+   </select></label>
+   <label id="jrQuantumMathALabel">State vector A<textarea id="jrQuantumMathA" rows="3" spellcheck="false">[1, 0]</textarea></label>
+   <label id="jrQuantumMathBLabel">Vector B<textarea id="jrQuantumMathB" rows="3" spellcheck="false">[0, 1]</textarea></label>
+   <div class="jr-quantum-math-actions"><button type="button" id="jrQuantumMathRun">Calculate</button><button type="button" class="jr-quantum-secondary" id="jrQuantumMathPreset">Load Hadamard example</button></div>
+  </div>
+  <div class="jr-quantum-math-output"><strong>Result</strong><pre id="jrQuantumMathResult" role="status" aria-live="polite">Ready. Calculations run locally in this browser.</pre></div>
+  <p class="jr-quantum-result-note">This is deterministic mathematical computation, not a physical quantum experiment. Matrix and vector dimensions are checked before calculation.</p>
+ </div>
  <div class="jr-quantum-routing"><h3>Quantum Grid · routing policy</h3><p>JR selects the appropriate compute path. Classical CPUs/GPUs remain the default for ordinary workloads; quantum simulation supports learning and small circuits; real quantum hardware requires a separately authorised provider connection, credentials, cost controls and job monitoring.</p><div class="jr-quantum-route-grid"><div><strong>Classical compute</strong><small>Available locally / connected infrastructure subject to deployment</small></div><div><strong>Quantum simulation</strong><small>Available now in this browser for circuits up to 2 qubits</small></div><div><strong>Quantum hardware</strong><small>Not connected · provider integration pending</small></div></div></div>
  <p class="jr-quantum-footnote">Scientific integrity: simulated results are not hardware experiments, and quantum computing is not faster for every problem. This prototype does not submit cloud jobs, charge users, store research, or promise scientific discoveries.</p>`;
 root.append(section);
@@ -42,4 +65,34 @@ $("jrQuantumClear").addEventListener("click",()=>{gates=[];$("jrQuantumPreset").
 $("jrQuantumRun").addEventListener("click",runCircuit);
 $("jrQuantumReset").addEventListener("click",()=>preset("bell"));
 renderCircuit();
+const math=$("jrQuantumMathOperation"),mathA=$("jrQuantumMathA"),mathB=$("jrQuantumMathB"),mathALabel=$("jrQuantumMathALabel"),mathBLabel=$("jrQuantumMathBLabel"),mathResult=$("jrQuantumMathResult");
+const mathLabels={
+ probabilities:["State vector A","",false],norm:["Vector A","",false],normalize:["Vector A","",false],
+ innerProduct:["Vector A","Vector B",true],dagger:["Matrix A","",false],
+ multiplyMatrices:["Matrix A","Matrix B",true],tensor:["Matrix A","Matrix B",true],
+ apply:["Matrix A","Vector B",true],isUnitary:["Matrix A","",false],isHermitian:["Matrix A","",false]
+};
+function updateMathFields(){
+ const item=mathLabels[math.value]||mathLabels.probabilities;
+ mathALabel.firstChild.textContent=item[0];
+ mathBLabel.firstChild.textContent=item[1];
+ mathBLabel.hidden=!item[2];
+}
+function calculateMath(){
+ try{
+  if(!window.JRQuantumMath)throw new Error("Quantum mathematics engine is not available. Refresh JR PHEEF and try again.");
+  const a=JSON.parse(mathA.value),b=mathBLabel.hidden?undefined:JSON.parse(mathB.value),q=window.JRQuantumMath;
+  const operations={probabilities:()=>q.probabilities(a),norm:()=>q.norm(a),normalize:()=>q.normalize(a),innerProduct:()=>q.innerProduct(a,b),dagger:()=>q.dagger(a),multiplyMatrices:()=>q.multiplyMatrices(a,b),tensor:()=>q.tensor(a,b),apply:()=>q.apply(a,b),isUnitary:()=>q.isUnitary(a),isHermitian:()=>q.isHermitian(a)};
+  if(!operations[math.value])throw new Error("Choose a supported mathematical operation.");
+  const result=operations[math.value]();
+  mathResult.textContent=typeof result==="number"?String(Number(result.toPrecision(12))):JSON.stringify(result,null,2);
+ }catch(error){mathResult.textContent="Calculation not completed: "+(error.message||"Check your input.");}
+}
+math.addEventListener("change",updateMathFields);
+$("jrQuantumMathRun").addEventListener("click",calculateMath);
+$("jrQuantumMathPreset").addEventListener("click",()=>{
+ math.value="isUnitary";mathA.value=JSON.stringify([[1/Math.SQRT2,1/Math.SQRT2],[1/Math.SQRT2,-1/Math.SQRT2]],null,2);
+ updateMathFields();calculateMath();
+});
+updateMathFields();
 })();
