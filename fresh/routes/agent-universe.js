@@ -365,7 +365,7 @@ module.exports=function mountAgentUniverse(app,deps){
      packed=JSON.parse(JSON.stringify(result));failed=Boolean(packed.isError);
     }else{
      const args=run.tool_arguments||{},message={messageId:crypto.randomUUID(),role:"user",parts:[{kind:"text",text:args.text}]};
-     const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"message/send",params:{message,configuration:{acceptedOutputModes:["text/plain"],blocking:true,historyLength:5}}};
+     const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"message/send",params:{message,configuration:{acceptedOutputModes:["text/plain"],blocking:false,historyLength:5}}};
      const response=await pinnedHttps(agent.endpoint_url,JSON.stringify(payload),{},1048576);
      if(response.data?.error)throw new Error(clean(response.data.error.message||"A2A request failed.",300));
      const result=response.data?.result;if(!result)throw new Error("The A2A agent returned no task or message; outcome is unknown.");
