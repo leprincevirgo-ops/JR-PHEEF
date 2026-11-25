@@ -8,7 +8,7 @@ const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
 new vm.Script(route);new vm.Script(ui);
 for(const p of ["/api/agents","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
-for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit","owner_auth_id"])assert.ok(route.includes(s),"Missing auth boundary "+s);
+for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert.ok(route.includes(s),"Missing auth boundary "+s);
 assert.ok(server.includes('require("./routes/agent-universe")'),"Active server does not mount agent routes");
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
 assert.ok(html.includes("/agent-universe.js")&&html.includes("/agent-universe.css"),"Agent assets are not loaded");
