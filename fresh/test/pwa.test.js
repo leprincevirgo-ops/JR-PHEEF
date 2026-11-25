@@ -44,6 +44,6 @@ test("the offline shell caches the exact current navigation and connected worksp
  assert.match(worker,/living-interface\.js\?v=20261119-space-living-v1/);
  assert.match(worker,/app\.js\?v=jr-primary-navigation-20261125-v2/);
  assert.match(worker,/navigation\.js\?v=jr-arrow-navigation-20261112-v6/);
- assert.match(worker,/agent-universe\.css\?v=6/);
- assert.match(worker,/agent-universe\.js\?v=8/);
+ assert.match(worker,/agent-universe\.css\?v=7/);
+ assert.match(worker,/agent-universe\.js\?v=9/);
 });
