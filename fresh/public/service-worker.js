@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v5";
+const CACHE_NAME="jr-pheef-shell-v6";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
@@ -26,7 +26,9 @@ const APP_SHELL=[
  "/connected-world-engine.css?v=connected-world-engine-20261118-v1",
  "/diamond-company-worlds.js?v=diamond-company-worlds-20261118-v1",
  "/transport-world.js?v=jr-move-connected-world-20261118-v1",
- "/connected-world-engine.js?v=connected-world-engine-20261118-v1"
+ "/connected-world-engine.js?v=connected-world-engine-20261118-v1",
+ "/agent-universe.css?v=1",
+ "/agent-universe.js?v=1"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
