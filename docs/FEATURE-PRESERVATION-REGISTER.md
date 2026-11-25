@@ -41,7 +41,7 @@ Legend:
 |---|---|---|---|
 | Buyer/seller combined identity and listings | jr_listings, market routes and UI | Preserve and improve matching/discovery | Needs E2E |
 | Matching and Deal Rooms | jr_deal_rooms, jr_deal_messages | Preserve; creating matches and opening Deal Rooms are free. No matching charge applies. | Needs two-account E2E |
-| Chat, contacts, JP Connect, status and notifications | jr_conversations, participants, messages, status, contacts and notifications modules | Improve delivery, unread, presence, privacy and media | Needs two-account E2E |
+| JR LINK chats, contacts, status and notifications | jr_conversations, participants, messages, status, contacts and notifications modules | Improve delivery, unread, presence, privacy and media | Needs two-account E2E |
 | Social posts, follows, likes, comments and groups | social tables and command-centre social modules | Preserve with moderation/reporting/privacy | Needs E2E |
 | Advertising with camera/gallery/media upload | ad_campaigns, media routes and UI | Preserve; enforce rights, consent, moderation and spend controls | Needs E2E |
 | Opportunity discovery: jobs, services, projects and business | jr_opportunities and related routes | Expand taxonomy and verified source/status labels | Needs E2E |
@@ -113,4 +113,4 @@ For every row, track separate states:
 No row is labelled complete merely because code or a regression script exists. No production data is reset or replaced during rebuild. The existing main branch and production service remain recoverable until cutover approval.
 
 
-> **Canonical repository note (2026-11-24):** Consolidated from the rebuild architecture branch as a product/engineering reference. Its status labels describe the source snapshot and are not proof of current production readiness. The canonical runtime is the `main` branch; merge useful changes selectively, never by blind branch replacement.
+> **Canonical repository note (2026-11-25):** Consolidated from the rebuild architecture branch as a product/engineering reference. Its status labels describe the source snapshot and are not proof of current production readiness. The canonical runtime is the `main` branch; merge useful changes selectively, never by blind branch replacement.

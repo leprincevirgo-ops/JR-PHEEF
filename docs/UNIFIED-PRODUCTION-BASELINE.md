@@ -16,7 +16,7 @@ JR PHEEF is one integrated digital ecosystem, not several competing applications
 - **Production server:** `fresh/server.js`
 - **Workspace data/API:** Supabase Edge Function `jr-workspace-api` and related server-side functions.
 
-The Render production service is configured to deploy from `main`. The repository-root `server.js` is not the production entry point; the production start script runs `fresh/server.js`. Changes intended for members must land in `main` and pass release checks before they are considered production. Other branches are work areas only. Foundation, Rebuild and Staging are not separate JR PHEEF products.
+The Render production service is configured to deploy from `main`. The repository-root `server.js` and root-level `public/` tree are legacy/test artefacts, not the production entry point or served client; the production start script runs `fresh/server.js`, which serves `fresh/public/`. Changes intended for members must land in `main` and pass release checks before they are considered production. Other branches are work areas only. Foundation, Rebuild and Staging are not separate JR PHEEF products.
 
 Do not merge old rebuild branches wholesale. The inspected ecosystem foundation pull request was 121 commits behind production and conflicted; the rebuild candidate was also heavily diverged. Selectively port reviewed features into the current architecture, preserving current production fixes and data.
 
@@ -80,9 +80,9 @@ The following are present in the canonical source and have automated source-leve
 - Production Render service is on `main`.
 - Latest observed production deployment is live at `https://jr-pheef-marketplace.onrender.com`.
 - Runtime reported `authConfigured: true`, production `authOrigin` set to the live service, `aiConfigured: true`, and `paymentsEnabled: false`.
-- Production deployment commit: `cbfeb728a7c9d309b079e44a58fc6d12094bcd6c` (Render deployment `dep-dc39012vmuic73fbno60`, live 2026-11-25).
-- The startup test suite reported **186 tests, 186 passed, 0 failed**.
-- The production read-only release suite passed **31 checks**; the automated mobile Chromium interaction smoke also passed.
+- Production deployment commit: `157861c0d08745f1dec8d079d8f350496f0bc10d` (Render deployment `dep-dc392scmds9s73d41f0g`, live 2026-11-25).
+- The startup test suite reported **188 tests, 188 passed, 0 failed**.
+- The production read-only release smoke, static-and-route checks, Node 20/22/24 builds, syntax checks and automated mobile Chromium interaction smoke passed. The Supabase Preview check did not pass; no database migration was part of this navigation release.
 - Dependency audit (`npm audit --audit-level=high`) reported **0 vulnerabilities**.
 - Production database has **117 public tables**; the audit query found **0 public tables without Row Level Security (RLS)**.
 - Supabase security advisor currently reports one warning: leaked-password protection is disabled. No other security advisor finding was returned in that check.
