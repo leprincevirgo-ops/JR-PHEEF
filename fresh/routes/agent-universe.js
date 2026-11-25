@@ -114,7 +114,7 @@ module.exports=function mountAgentUniverse(app,deps){
   await mcpCall(url,"notifications/initialized",undefined,sessionId,result.protocolVersion,undefined).catch(e=>{
    if(!String(e.message).includes("HTTP 202"))throw e;
   });
-  let cursor=null,requestId=2;const list=[];for(let page=0;page<5;page++){const tools=await mcpCall(url,"tools/list",cursor?{cursor}:{},sessionId,result.protocolVersion,requestId++);const batch=Array.isArray(tools.data?.result?.tools)?tools.data.result.tools:[];list.push(...batch);cursor=tools.data?.result?.nextCursor||null;if(!cursor||list.length>=100)break;}
+  let cursor=null,requestId=2;const list=[];for(let page=0;page<5;page++){const tools=await mcpCall(url,"tools/list",cursor?{cursor}:{},sessionId,result.protocolVersion,requestId++);const batch=Array.isArray(tools.data?.result?.tools)?tools.data.result.tools:[];list.push(...batch);cursor=clean(tools.data?.result?.nextCursor||"",500)||null;if(!cursor||list.length>=100)break;}
   const safe=list.slice(0,100).map(t=>({
    name:clean(t.name,100),description:clean(t.description,700),
    inputSchema:t.inputSchema&&typeof t.inputSchema==="object"?t.inputSchema:{type:"object",properties:{}}
