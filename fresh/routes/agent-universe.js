@@ -313,6 +313,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted MCP tool proposal can run."});
    const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
    if(!agent||agent.protocol!=="mcp"||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The MCP agent is no longer connected and enabled. Reconnect and review it before executing."});
+   const currentTool=(agent.mcp_tools||[]).find(x=>x.name===run.tool_name);if(!currentTool)return res.status(409).json({ok:false,error:"This tool is no longer in the agent catalogue. Refresh and create a new proposal."});const schemaError=validateSchema(run.tool_arguments||{},currentTool.inputSchema||{type:"object",properties:{}});if(schemaError)return res.status(409).json({ok:false,error:"The tool input schema changed. Review and create a new proposal."});
    const claim=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id+"&status=eq.approved_not_executed&execution_state=eq.not_started&select=id",{execution_state:"running",execution_started_at:new Date().toISOString()});
    if(!claim.ok)return fail(res,claim,"Could not claim the approved proposal.");if(!claim.data.length)return res.status(409).json({ok:false,error:"This proposal is already being executed or has already been used."});
    try{
