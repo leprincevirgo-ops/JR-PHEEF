@@ -12,6 +12,7 @@ for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert
 assert.ok(server.includes('require("./routes/agent-universe")'),"Active server does not mount agent routes");
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
 assert.ok(html.includes("/agent-universe.js")&&html.includes("/agent-universe.css"),"Agent assets are not loaded");
+assert.ok(ui.includes("Discover agent blueprints")&&ui.includes("Model Context Protocol (MCP)")&&ui.includes("Agent2Agent (A2A)"),"Agent discovery and protocol browser are missing");
 assert.ok(app.includes('"/agents":"agents"')&&app.includes('agents:"/agents"')&&app.includes('value="agents"'),"Workspace router is missing Agent Universe");
 for(const s of ["enable row level security","owner_auth_id","auth.uid()","with check","grant select"])assert.ok(schema.toLowerCase().includes(s.toLowerCase()),"Missing database safeguard "+s);
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
