@@ -563,21 +563,39 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
       max_output_tokens:1400,
       store:false
     };
-    if(body.use_web===true)payload.tools=[{type:"web_search"}];
-    const upstream=await fetch("https://api.openai.com/v1/responses",{
-      method:"POST",
-      headers:{"Authorization":"Bearer "+process.env.OPENAI_API_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify(payload),
-      signal:AbortSignal.timeout(30000)
-    });
-    const result=await upstream.json().catch(()=>({}));
-    if(!upstream.ok){
-      const providerCode=String(result?.error?.code||result?.error?.type||"provider_error").slice(0,80);
-      console.error("JR AI provider error:",upstream.status,providerCode);
-      return res.status(upstream.status===429?429:502).json({
-        ok:false,
-        error:upstream.status===429?"JR is temporarily at its AI provider's usage limit. Please try again shortly.":"JR could not complete that request. Please try again shortly."
+    if(agentTools.length)payload.instructions+="\nConnected member-owned agents are available for relevant work. Use them only when the member's request genuinely benefits from delegation. The available functions create approval proposals only; they do not execute or contact an agent. Never claim a proposal has run. Tell the member to review it in Agent Universe, approve it, then separately execute it. Never send private memories, credentials or unrelated member data to an agent.";
+    const availableTools=[...(body.use_web===true?[{type:"web_search"}]:[]),...agentTools];
+    if(availableTools.length){payload.tools=availableTools;payload.parallel_tool_calls=false;}
+    let requestPayload=payload,conversationInput=input,result={},upstream;
+    for(let round=0;round<3;round++){
+      upstream=await fetch("https://api.openai.com/v1/responses",{
+        method:"POST",
+        headers:{"Authorization":"Bearer "+process.env.OPENAI_API_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify(requestPayload),
+        signal:AbortSignal.timeout(30000)
       });
+      result=await upstream.json().catch(()=>({}));
+      if(!upstream.ok){
+        const providerCode=String(result?.error?.code||result?.error?.type||"provider_error").slice(0,80);
+        console.error("JR AI provider error:",upstream.status,providerCode);
+        return res.status(upstream.status===429?429:502).json({
+          ok:false,
+          error:upstream.status===429?"JR is temporarily at its AI provider's usage limit. Please try again shortly.":"JR could not complete that request. Please try again shortly."
+        });
+      }
+      const calls=(Array.isArray(result.output)?result.output:[]).filter(item=>item.type==="function_call");
+      if(!calls.length)break;
+      const outputs=[];
+      for(const call of calls.slice(0,Math.max(0,4-agentProposals.length))){
+        const outcome=await createAgentProposal(call);
+        outputs.push({type:"function_call_output",call_id:call.call_id,output:JSON.stringify(outcome)});
+      }
+      for(const call of calls.slice(outputs.length)){
+        outputs.push({type:"function_call_output",call_id:call.call_id,output:JSON.stringify({ok:false,error:"This message has reached JR's four-proposal limit. Ask again to prepare more proposals."})});
+      }
+      conversationInput=[...conversationInput,...result.output,...outputs];
+      requestPayload={...payload,input:conversationInput};
+      if(round===2)console.warn("JR agent proposal loop reached its maximum rounds.");
     }
     let answer=typeof result.output_text==="string"?result.output_text:"";
     if(!answer&&Array.isArray(result.output)){
@@ -585,9 +603,10 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
         .filter(part=>part.type==="output_text"&&typeof part.text==="string")
         .map(part=>part.text).join("\n");
     }
+    if(!answer.trim()&&agentProposals.length)answer="I prepared "+agentProposals.length+" agent proposal"+(agentProposals.length===1?"":"s")+". Nothing has been executed. Review the proposals in Agent Universe, approve each one and then choose Execute.";
     if(!answer.trim())return res.status(502).json({ok:false,error:"JR did not receive a usable answer. Please try again."});
     res.setHeader("Cache-Control","no-store");
-    return res.json({ok:true,answer:answer.trim(),webResearch:body.use_web===true});
+    return res.json({ok:true,answer:answer.trim(),webResearch:body.use_web===true,agentProposals});
   }catch(error){
     console.error("JR AI request failed:",String(error?.message||error).slice(0,160));
     if(!res.headersSent)return res.status(503).json({ok:false,error:"JR is temporarily unavailable. Please try again shortly."});
