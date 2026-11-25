@@ -187,7 +187,6 @@
    await workspaceRequest("save_ai_message",{conversationId:activeAiConversation,role:"assistant",content:data.answer});
    addMessage("assistant",data.answer);
    addAgentProposalCards(data.agentProposals);
-   loadAiConversations(activeAiConversation).catch(()=>{});
    renderResponse("JR is ready. Continue naturally—ask a follow-up, change the subject, or explore an idea.");
   }catch(error){
    const message=error.message||"JR is temporarily unavailable.";
