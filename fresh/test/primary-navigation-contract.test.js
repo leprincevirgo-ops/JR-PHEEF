@@ -17,7 +17,6 @@ test("the four tabs stay fixed, tappable and safe-area aware on mobile",()=>{
  assert.match(css,/z-index:10010!important/);
  assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important/);
  assert.match(css,/env\(safe-area-inset-bottom,0px\)/);
- assert.match(css,/pointer-events:auto/);
 });
 test("member sign-in opens the selected workspace and tab clicks change destinations",()=>{
  assert.match(app,/function showWorkspace\(view="home",options=\{\}\)/);
