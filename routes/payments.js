@@ -10,15 +10,13 @@
 //   MPESA_CALLBACK_SECRET=<long random string, used inside the callback URL>
 //   MPESA_TRANSACTION_TYPE=CustomerPayBillOnline | CustomerBuyGoodsOnline
 //   MPESA_PARTYB=<till number, only for CustomerBuyGoodsOnline; defaults to the shortcode>
-//   CONNECTION_FEES_ENABLED=true               (optional; per-deal fees stay off unless set)
 const crypto = require("crypto");
 const makeHelpers = require("./helpers");
 
 const PLANS = {
-  membership_pro: { plan: "PRO", amount: 99, matchFee: 20, label: "PRO membership (30 days)" },
-  membership_prime: { plan: "PRIME", amount: 149, matchFee: 20, label: "PRIME membership (30 days)" }
+  membership_pro: { plan: "PRO", amount: 99, label: "PRO membership (30 days)" },
+  membership_prime: { plan: "PRIME", amount: 149, label: "PRIME membership (30 days)" }
 };
-const STD_FEE = 30, MEMBER_FEE = 20;
 const DAY = 86400000;
 
 module.exports = function mountPayments(ctx) {
@@ -29,7 +27,6 @@ module.exports = function mountPayments(ctx) {
   const configured = () => !!(E.PAYMENTS_ENABLED === "true" && E.MPESA_CONSUMER_KEY && E.MPESA_CONSUMER_SECRET &&
     E.MPESA_SHORTCODE && E.MPESA_PASSKEY && E.MPESA_CALLBACK_BASE && E.MPESA_CALLBACK_SECRET);
   const apiBase = () => (E.MPESA_ENV === "production" ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke");
-  const feesOn = () => E.CONNECTION_FEES_ENABLED === "true";
   const digest = s => crypto.createHash("sha256").update(String(s)).digest();
   const safeEqual = (a, b) => crypto.timingSafeEqual(digest(a), digest(b));
 
@@ -57,7 +54,6 @@ module.exports = function mountPayments(ctx) {
     if (data && data.expires_at && new Date(data.expires_at) > new Date() && data.plan && data.plan !== "FREE") return data;
     return null;
   }
-  const dealFeeFor = m => (m.plan === "PRO" || m.plan === "PRIME" ? MEMBER_FEE : STD_FEE);
 
   /* ---------- status ---------- */
   app.get("/api/payments/status", wrap("Pay status", async (req, res) => {
@@ -66,7 +62,6 @@ module.exports = function mountPayments(ctx) {
     res.json({
       ok: true, enabled: configured(), environment: E.MPESA_ENV === "production" ? "production" : "sandbox",
       products: { membership_pro: PLANS.membership_pro.amount, membership_prime: PLANS.membership_prime.amount },
-      connection_fees: feesOn() ? { standard: STD_FEE, member: MEMBER_FEE } : null,
       plan: m.plan || "FREE", membership: ms ? { plan: ms.plan, expires_at: ms.expires_at } : null
     });
   }));
@@ -79,15 +74,7 @@ module.exports = function mountPayments(ctx) {
     const product = clean(req.body.product);
     let amount, purpose = product, refId = null, desc;
     if (PLANS[product]) { amount = PLANS[product].amount; desc = PLANS[product].label; }
-    else if (product === "deal_fee") {
-      if (!feesOn()) return bad(res, "Connection fees are not active.", 409);
-      refId = clean(req.body.ref_id);
-      if (!UUID.test(refId)) return bad(res, "Invalid deal.");
-      const { data: room } = await db.from("jr_deal_rooms").select("id,buyer_id,seller_id,status").eq("id", refId).maybeSingle();
-      if (!room || ![String(room.buyer_id), String(room.seller_id)].includes(String(m.id))) return bad(res, "Deal not found.", 404);
-      if (room.status !== "agreed") return bad(res, "A connection fee applies only after both sides agree.", 409);
-      amount = dealFeeFor(m); desc = "JR PHEEF deal fee";
-    } else return bad(res, "Unknown product.");
+ else return bad(res, "Unknown product.");
     const phone = phoneOf(req.body.phone || m.phone);
     if (!/^\+254[17]\d{8}$/.test(phone)) return bad(res, "Enter a valid Safaricom number (07XXXXXXXX).");
     const msisdn = phone.slice(1);
@@ -96,11 +83,6 @@ module.exports = function mountPayments(ctx) {
     const { data: recent } = await db.from("jr_payments").select("id,status").eq("member_id", m.id).eq("purpose", purpose)
       .eq("status", "pending").gt("created_at", since).limit(1);
     if (recent && recent[0]) return res.json({ ok: true, payment_id: recent[0].id, message: "A payment request is already waiting on your phone." });
-    if (purpose === "deal_fee") {
-      const { data: paid } = await db.from("jr_payments").select("id").eq("member_id", m.id).eq("purpose", "deal_fee")
-        .eq("ref_id", refId).eq("status", "completed").limit(1);
-      if (paid && paid[0]) return bad(res, "You have already paid this fee.", 409);
-    }
 
     const { data: pay, error } = await db.from("jr_payments").insert({
       member_id: m.id, amount, currency: "KES", method: "mpesa", purpose, ref_id: refId, phone: msisdn, status: "pending"
@@ -146,13 +128,11 @@ module.exports = function mountPayments(ctx) {
       const base = cur && cur.plan === p.plan && cur.expires_at && new Date(cur.expires_at) > new Date() ? new Date(cur.expires_at).getTime() : Date.now();
       const expires = new Date(base + 30 * DAY).toISOString();
       const { error } = await db.from("jr_memberships").upsert({
-        member_id: pay.member_id, plan: p.plan, price: p.amount, match_fee: p.matchFee, expires_at: expires, updated_at: new Date().toISOString()
+        member_id: pay.member_id, plan: p.plan, price: p.amount, expires_at: expires, updated_at: new Date().toISOString()
       }, { onConflict: "member_id" });
       if (error) throw error;
       await db.from("members").update({ plan: p.plan }).eq("id", pay.member_id);
       await notify(pay.member_id, p.plan + " activated", "Your " + p.plan + " membership is active until " + new Date(expires).toLocaleDateString("en-KE") + ".", "payment");
-    } else if (pay.purpose === "deal_fee") {
-      await notify(pay.member_id, "Fee received", "Your deal fee was received. Thank you.", "payment");
     }
   }
 
