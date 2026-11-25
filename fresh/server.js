@@ -4,6 +4,7 @@ const path=require("node:path");
 const app=express();
 const PORT=Number(process.env.PORT)||10000;
 const SUPABASE_URL=(process.env.SUPABASE_URL||"").replace(/\/$/,"");
+const {buildContentSecurityPolicy}=require("./security-policy");
 const SUPABASE_KEY=process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY||"";
 const ACCESS_COOKIE="jr_access";
 const REFRESH_COOKIE="jr_refresh";
@@ -21,7 +22,7 @@ app.use((req,res,next)=>{
   res.setHeader("Cross-Origin-Opener-Policy","same-origin");
   res.setHeader("Cross-Origin-Resource-Policy","same-origin");
   res.setHeader("X-Permitted-Cross-Domain-Policies","none");
-  res.setHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests");
+  res.setHeader("Content-Security-Policy",buildContentSecurityPolicy(SUPABASE_URL));
   if(req.path.startsWith("/api/"))res.setHeader("Cache-Control","no-store");
   if(req.secure||req.headers["x-forwarded-proto"]==="https") res.setHeader("Strict-Transport-Security","max-age=31536000; includeSubDomains");
   next();
