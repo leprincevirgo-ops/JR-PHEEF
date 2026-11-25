@@ -102,6 +102,21 @@
  }
  function actionButton(label,fn,primary=false){const b=document.createElement("button");b.type="button";b.textContent=label;if(primary)b.className="jr-primary-action";b.addEventListener("click",fn);return b;}
  function renderResponse(message,actions=[]){result.replaceChildren();const p=document.createElement("p");p.textContent=message;result.append(p);if(actions.length){const row=document.createElement("div");row.className="jr-response-actions";actions.forEach(a=>row.append(a));result.append(row);}}
+ function addAgentProposalCards(proposals){
+  if(!Array.isArray(proposals)||!proposals.length)return;
+  const section=document.createElement("section");section.className="jr-agent-proposal-results";
+  const heading=document.createElement("h4");heading.textContent="Agent proposals ready for your review";section.append(heading);
+  proposals.forEach(proposal=>{
+   const card=document.createElement("article");card.className="jr-agent-proposal-card";
+   const name=document.createElement("strong");name.textContent=proposal.agentName||"Connected agent";
+   const task=document.createElement("p");task.textContent=proposal.task||"Agent task proposal";
+   const status=document.createElement("small");status.textContent="Awaiting your approval · Nothing executed";
+   card.append(name,task,status);section.append(card);
+  });
+  const button=document.createElement("button");button.type="button";button.className="jr-primary-action";button.textContent="Review in Agent Universe";
+  button.addEventListener("click",()=>{if(typeof window.jrNavigateWorkspace==="function")window.jrNavigateWorkspace("agents");});
+  section.append(button);transcript.append(section);section.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
  function openWorlds(){const tab=document.querySelector('.workspace-tab[data-view="worlds"]');if(tab)tab.click();}
  function externalSearch(value){const a=document.createElement("a");a.href="https://www.google.com/search?q="+encodeURIComponent(value);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Also search outside JR PHEEF · wider web";a.className="jr-primary-action";return a;}
  // Natural JR conversation is now the first handler. The older live answer and research engine is not connected wording is retained only for regression compatibility; actual chat calls the authenticated server runtime.
@@ -171,6 +186,7 @@
    jrHistory.push({role:"user",content:value},{role:"assistant",content:data.answer});
    await workspaceRequest("save_ai_message",{conversationId:activeAiConversation,role:"assistant",content:data.answer});
    addMessage("assistant",data.answer);
+   addAgentProposalCards(data.agentProposals);
    loadAiConversations(activeAiConversation).catch(()=>{});
    renderResponse("JR is ready. Continue naturally—ask a follow-up, change the subject, or explore an idea.");
   }catch(error){
