@@ -4,7 +4,7 @@ const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
  "/jr-pheef-icon.svg",
- "/styles.css?v=jr-primary-top-navigation-20261125-v1",
+ "/styles.css?v=jr-primary-top-navigation-20261125-v2",
  "/cosmic.css?v=jr-cosmic-universe-20261115-v1",
  "/living-interface.css?v=jr-top-navigation-20261125-v1",
  "/app.js?v=jr-primary-navigation-20261125-v2",
