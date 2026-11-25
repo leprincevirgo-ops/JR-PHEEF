@@ -25,7 +25,7 @@ test("member sign-in opens the selected workspace and tab clicks change destinat
  assert.match(app,/workspace\.hidden=true/);
 });
 test("installed JR PHEEF shell caches every local stylesheet and script at its exact current URL",()=>{
- assert.match(worker,/const CACHE_NAME="jr-pheef-shell-v3"/);
+ assert.match(worker,/const CACHE_NAME="jr-pheef-shell-v4"/);
  const refs=[...html.matchAll(/(?:src|href)="(\/[^"]+)"/g)].map(match=>match[1]).filter(ref=>/\.(?:css|js|webmanifest|svg)(?:\?|$)/.test(ref));
  for(const ref of new Set(refs))assert.ok(worker.includes('"'+ref+'"'),"Missing from app shell cache: "+ref);
  assert.match(worker,/url\.pathname\.startsWith\("\/api\/"\)/);
