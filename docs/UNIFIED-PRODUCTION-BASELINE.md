@@ -80,7 +80,10 @@ The following are present in the canonical source and have automated source-leve
 - Production Render service is on `main`.
 - Latest observed production deployment is live at `https://jr-pheef-marketplace.onrender.com`.
 - Runtime reported `authConfigured: true`, production `authOrigin` set to the live service, `aiConfigured: true`, and `paymentsEnabled: false`.
-- Production deployment commit: `cbfeb728a7c9d309b079e44a58fc6d12094bcd6c` (Render deployment `dep-dc39012vmuic73fbno60`, live 2026-11-25).\n- The startup test suite reported **186 tests, 186 passed, 0 failed**.\n- The production read-only release suite passed **31 checks**; the automated mobile Chromium interaction smoke also passed.\n- Dependency audit (`npm audit --audit-level=high`) reported **0 vulnerabilities**.
+- Production deployment commit: `cbfeb728a7c9d309b079e44a58fc6d12094bcd6c` (Render deployment `dep-dc39012vmuic73fbno60`, live 2026-11-25).
+- The startup test suite reported **186 tests, 186 passed, 0 failed**.
+- The production read-only release suite passed **31 checks**; the automated mobile Chromium interaction smoke also passed.
+- Dependency audit (`npm audit --audit-level=high`) reported **0 vulnerabilities**.
 - Production database has **117 public tables**; the audit query found **0 public tables without Row Level Security (RLS)**.
 - Supabase security advisor currently reports one warning: leaked-password protection is disabled. No other security advisor finding was returned in that check.
 - Supabase performance advisor returned unused-index informational notices. Do not drop indexes solely because they are currently unused; assess actual query plans and workload first.
