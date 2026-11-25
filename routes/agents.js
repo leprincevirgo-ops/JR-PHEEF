@@ -55,7 +55,7 @@ module.exports = function mountAgentUniverse(ctx) {
     const m=await requireMember(req,res);if(!m)return;
     const current=await getOwned(m.id,req.params.id);if(!current)return bad(res,"Agent not found.",404);
     const patch={updated_at:new Date().toISOString()};
-    if(req.body.status!==undefined){const v=clean(req.body.status);if(!STATUSES.has(v))return bad(res,"Invalid agent status.");patch.status=v;}
+    if(req.body.status!==undefined){const v=clean(req.body.status);if(!STATUSES.has(v))return bad(res,"Invalid agent status.");if(v==="active"&&current.trust_status!=="verified")return bad(res,"This agent must pass JR verification before activation.",403);patch.status=v;}
     if(req.body.description!==undefined)patch.description=clean(req.body.description).slice(0,1000);
     if(req.body.name!==undefined){const v=clean(req.body.name).slice(0,100);if(v.length<2)return bad(res,"Agent name is too short.");patch.name=v;}
     if(req.body.capabilities!==undefined){
