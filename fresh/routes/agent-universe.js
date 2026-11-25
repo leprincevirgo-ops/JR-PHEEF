@@ -12,6 +12,7 @@ module.exports=function mountAgentUniverse(app,deps){
  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const clean=(v,n=2000)=>String(v??"").trim().slice(0,n);
  const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,last_checked_at,last_error,created_at,updated_at";
+ const privateAgentFields=agentFields+",mcp_session_id";
  const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,created_at,decided_at,execution_started_at,completed_at";
 
  async function auth(req,res){
@@ -34,7 +35,7 @@ module.exports=function mountAgentUniverse(app,deps){
  }
  async function ownedAgent(token,memberId,id){
   if(!uuid.test(id))return null;
-  const r=await db(token,"jr_agents","GET","select="+agentFields+"&id=eq."+id+"&member_id=eq."+memberId+"&limit=1");
+  const r=await db(token,"jr_agents","GET","select="+privateAgentFields+"&id=eq."+id+"&member_id=eq."+memberId+"&limit=1");
   if(!r.ok)throw new Error("Could not load the agent record.");
   return r.data[0]||null;
  }
@@ -242,7 +243,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(req.body?.status!==undefined){
     const v=clean(req.body.status,20);
     if(!["paused","disabled","active"].includes(v))return res.status(400).json({ok:false,error:"Invalid agent status."});
-    if(v==="active"&&(current.protocol!=="mcp"||current.connection_status!=="connected"||!Array.isArray(current.mcp_tools)))return res.status(403).json({ok:false,error:"Connect an MCP server and review its available tools before enabling it."});
+    if(v==="active"&&(current.protocol!=="mcp"||current.connection_status!=="connected"||!Array.isArray(current.mcp_tools)||!current.mcp_tools.length))return res.status(403).json({ok:false,error:"Connect an MCP server and review its available tools before enabling it."});
     p.status=v;
    }
    if(req.body?.name!==undefined){const v=clean(req.body.name,100);if(v.length<2)return res.status(400).json({ok:false,error:"Name too short."});p.name=v;}
@@ -312,7 +313,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(!rr.ok)return fail(res,rr,"Could not load the approved proposal.");run=rr.data[0];
    if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted MCP tool proposal can run."});
    const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
-   if(!agent||agent.protocol!=="mcp"||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url||!agent.mcp_session_id)return res.status(409).json({ok:false,error:"The MCP agent is no longer connected and enabled. Reconnect and review it before executing."});
+   if(!agent||agent.protocol!=="mcp"||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The MCP agent is no longer connected and enabled. Reconnect and review it before executing."});
    const claim=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id+"&status=eq.approved_not_executed&execution_state=eq.not_started&select=id",{execution_state:"running",execution_started_at:new Date().toISOString()});
    if(!claim.ok)return fail(res,claim,"Could not claim the approved proposal.");if(!claim.data.length)return res.status(409).json({ok:false,error:"This proposal is already being executed or has already been used."});
    try{
