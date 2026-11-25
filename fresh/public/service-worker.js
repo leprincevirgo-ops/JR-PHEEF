@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v6";
+const CACHE_NAME="jr-pheef-shell-v7";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
