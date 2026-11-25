@@ -40,7 +40,7 @@ Legend:
 | Requirement | Existing evidence | Rebuild treatment | Verification |
 |---|---|---|---|
 | Buyer/seller combined identity and listings | jr_listings, market routes and UI | Preserve and improve matching/discovery | Needs E2E |
-| Matching and Deal Rooms | jr_deal_rooms, jr_deal_messages | Preserve; use agreed KSh 30/30 and Pro/Prime KSh 20 only after commercial approval | Payments gated |
+| Matching and Deal Rooms | jr_deal_rooms, jr_deal_messages | Preserve; creating matches and opening Deal Rooms are free. No matching charge applies. | Needs two-account E2E |
 | Chat, contacts, JP Connect, status and notifications | jr_conversations, participants, messages, status, contacts and notifications modules | Improve delivery, unread, presence, privacy and media | Needs two-account E2E |
 | Social posts, follows, likes, comments and groups | social tables and command-centre social modules | Preserve with moderation/reporting/privacy | Needs E2E |
 | Advertising with camera/gallery/media upload | ad_campaigns, media routes and UI | Preserve; enforce rights, consent, moderation and spend controls | Needs E2E |
@@ -83,7 +83,8 @@ Legend:
 | Withdrawal minimum KSh 200 and proposed 50% cash / 50% JR credits; retained split 20% owner revenue / 30% user credits | Requires explicit accounting/legal review; implement only with balanced ledger, clear disclosure and approved provider |
 | 1,000 active users/day modelling | Use for capacity and cost planning, not as a usage or revenue claim |
 | Start with zero capital and prioritise JR PHEEF | Prioritise free/low-cost architecture; no paid resources without approval |
-| Optional subscriptions and other monetisation | PRO/PRIME subscriptions, clearly labelled advertising/promotions, business tools, justified disclosed completed-service commissions and institutional services require transparent entitlements and approval before activation |\n| M-Pesa and other live payment rails | Not live until credentials, callback security, reconciliation, test-mode and production approval are verified |
+| Optional subscriptions and other monetisation | PRO/PRIME subscriptions, clearly labelled advertising/promotions, business tools, justified disclosed completed-service commissions and institutional services require transparent entitlements and approval before activation |
+| M-Pesa and other live payment rails | Not live until credentials, callback security, reconciliation, test-mode and production approval are verified |
 | AI API provider | Previous logs indicated credit exhaustion; provider billing/quota must be checked before claiming live model functionality |
 
 ## G. Safety and global scope
