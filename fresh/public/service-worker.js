@@ -27,7 +27,7 @@ const APP_SHELL=[
  "/diamond-company-worlds.js?v=diamond-company-worlds-20261118-v1",
  "/transport-world.js?v=jr-move-connected-world-20261118-v1",
  "/connected-world-engine.js?v=connected-world-engine-20261118-v1",
- "/agent-universe.css?v=5",
+ "/agent-universe.css?v=6",
  "/agent-universe.js?v=5"
 ];
 self.addEventListener("install",event=>{
