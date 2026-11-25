@@ -1565,6 +1565,8 @@ require("./routes/opportunities")(routeCtx);
 require("./routes/human-environment")(routeCtx);
 /* GLOBAL BUSINESS OS: isolated workspaces and consented import foundations */
 require("./routes/business-os")(routeCtx);
+/* JR AGENT UNIVERSE: private registry and permissioned orchestration */
+require("./routes/agents")(routeCtx);
 
 /* NOT FOUND + ERRORS */
 app.use((req, res) => {

@@ -127,6 +127,9 @@ async function currentUser(req,res){
 }
 
 
+// JR AGENT UNIVERSE: one authenticated, user-scoped agent command surface.
+require("./routes/agent-universe")(app,{currentUser,provisionMember,sameOrigin,rateLimit,supabaseUrl:SUPABASE_URL,supabaseKey:SUPABASE_KEY});
+
 const WORLD_FEEDS={
  general:[
   {name:"BBC News",url:"https://feeds.bbci.co.uk/news/world/rss.xml"},

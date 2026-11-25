@@ -785,7 +785,7 @@ Deno.serve(async (req: Request) => {
         await insert("jr_notifications",{member_id:mid,title:"Venture application received",message:"Your "+venture.name+" application as "+roleKey.replace(/_/g," ")+" has been received and is awaiting review.",type:"venture",read:false});
         const founders=await rows("members","role=eq.founder&jp_number=eq.JP-01&status=eq.active&select=id&limit=5");
         for(const founder of founders||[])await insert("jr_notifications",{member_id:founder.id,title:"New venture application",message:applicantName+" applied to "+venture.name+" as "+roleKey.replace(/_/g," ")+". Review it in DGBO.",type:"venture",read:false});
-      }catch(error){console.warn("Venture application notification failed:",String(error?.message||error).slice(0,120));}
+      }catch(error){console.warn("Venture application notification failed:",String(error).slice(0,120));}
       return response({membership,message:"Application received. Venture access remains pending until the founder approves it."});
     }
     if(action==="founder_list_venture_memberships"){
@@ -812,7 +812,7 @@ Deno.serve(async (req: Request) => {
       const result=updated?.[0];
       if(!result)return json({ok:false,error:"The application changed during review. Refresh and try again."},409);
       await insert("venture_membership_events",{membership_id:id,venture_slug:current.venture_slug,member_id:current.member_id,actor_member_id:mid,event_type:status,event_data:{role_key:current.role_key,review_note:note}});
-      try{await insert("jr_notifications",{member_id:current.member_id,title:"Venture application update",message:current.venture_slug.toUpperCase()+" membership application: "+status+(note?" — "+note:"."),type:"venture",read:false});}catch(error){console.warn("Venture review notification failed:",String(error?.message||error).slice(0,120));}
+      try{await insert("jr_notifications",{member_id:current.member_id,title:"Venture application update",message:current.venture_slug.toUpperCase()+" membership application: "+status+(note?" — "+note:"."),type:"venture",read:false});}catch(error){console.warn("Venture review notification failed:",String(error).slice(0,120));}
       return response(result);
     }
     if(action==="list_integrations"){
