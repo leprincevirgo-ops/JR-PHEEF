@@ -31,3 +31,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run full project and quantum test suite
         run: npm test
+      - name: Verify deployed staging quantum assets and access boundaries
+        env:
+          BASE_URL: https://jr-pheef-foundation.onrender.com
+        run: node scripts/quantum-staging-smoke.js
