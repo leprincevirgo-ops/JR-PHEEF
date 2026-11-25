@@ -11,13 +11,19 @@ test("JR PHEEF retains exactly four primary member destinations in the approved 
  assert.deepEqual(tabs,["home","worlds","jr","command"]);
  assert.match(html,/<nav class="workspace-nav" aria-label="JR PHEEF navigation">/);
 });
-test("the four tabs stay fixed, tappable and safe-area aware on mobile",()=>{
- assert.match(css,/#workspace \.workspace-nav\s*\{[\s\S]*?position:fixed!important/);
- assert.match(css,/bottom:0!important/);
- assert.match(css,/z-index:10010!important/);
- assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important/);
- assert.match(css,/env\(safe-area-inset-bottom,0px\)/);
+test("the four tabs are at the top of the signed-in screen and remain sticky while scrolling",()=>{
+ const navAt=html.indexOf('<nav class="workspace-nav"');
+ const welcomeAt=html.indexOf('<div class="workspace-welcome">');
+ assert.ok(navAt>=0&&navAt<welcomeAt,"Primary navigation must precede the workspace welcome content.");
+ assert.match(css,/\.workspace-nav\s*\{[\s\S]*?position:sticky;[\s\S]*?top:0;/);
+ assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(css,/\.workspace-nav\s*\{[^}]*position:fixed/);
+ const living=fs.readFileSync("fresh/public/living-interface.css","utf8");
+ assert.match(living,/\.workspace-nav\{position:sticky!important;top:0!important/);
+ assert.doesNotMatch(living,/\.workspace-nav\{position:fixed!important;[^}]*bottom:/);
+ assert.match(css,/\.workspace-nav \.workspace-tab\[data-view="command"\]/);
 });
+
 test("member sign-in opens the selected workspace and tab clicks change destinations",()=>{
  assert.match(app,/function showWorkspace\(view="home",options=\{\}\)/);
  assert.match(app,/document\.querySelectorAll\("\.workspace-tab"\)\.forEach\(button=>button\.addEventListener\("click",\(\)=>showWorkspace\(button\.dataset\.view\)\)\)/);
