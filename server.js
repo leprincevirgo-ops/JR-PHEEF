@@ -1526,7 +1526,7 @@ app.post("/api/webhook/whatsapp", async (req, res) => {
         .in("phone", phoneVariants(phone)).limit(1).maybeSingle();
       answer = `JR PHEEF POINTS: ${Number(data?.reward_points || 0)}. Points redemption is not active yet; browsing and listings are free.`;
     } else if (message === "ACCESS") {
-      answer = "JR PHEEF discovery and listings are free. Connection fees are not active in this build. Any future fee must be shown before confirmation. M-Pesa/Daraja payments are not connected yet.";
+      answer = "JR PHEEF listings and matching are free. No listing or match fees apply. Optional subscriptions, clearly labelled promotions, business tools and disclosed completed-service commissions may support the platform when activated. M-Pesa/Daraja payments are not active in this build.";
     } else if (["FLEX", "OKOA", "PAY LATER"].includes(message)) {
       answer = "PHEEF FLEX is being prepared. Credit is not active.";
     } else if (message === "HELP") {
