@@ -273,7 +273,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(req.body?.status!==undefined){
     const v=clean(req.body.status,20);
     if(!["paused","disabled","active"].includes(v))return res.status(400).json({ok:false,error:"Invalid agent status."});
-    if(v==="active"&&(current.protocol!=="mcp"||current.connection_status!=="connected"||!Array.isArray(current.mcp_tools)||!current.mcp_tools.length))return res.status(403).json({ok:false,error:"Connect an MCP server and review its available tools before enabling it."});
+    const mcpReady=current.protocol==="mcp"&&current.connection_status==="connected"&&Array.isArray(current.mcp_tools)&&current.mcp_tools.length>0;const a2aReady=current.protocol==="a2a"&&current.connection_status==="connected"&&Array.isArray(current.a2a_skills)&&current.a2a_skills.length>0;if(v==="active"&&!mcpReady&&!a2aReady)return res.status(403).json({ok:false,error:"Connect the agent and review its available tools or skills before enabling it."});
     p.status=v;
    }
    if(req.body?.name!==undefined){const v=clean(req.body.name,100);if(v.length<2)return res.status(400).json({ok:false,error:"Name too short."});p.name=v;}
