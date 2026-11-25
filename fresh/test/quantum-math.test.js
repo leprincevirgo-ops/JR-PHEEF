@@ -6,7 +6,7 @@ const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-10, a+" not close to "+b);
 test("complex multiplication and conjugation are correct",()=>{assert.deepEqual(q.multiply({re:1,im:2},{re:3,im:4}),{re:-5,im:10});assert.deepEqual(q.conjugate({re:2,im:-3}),{re:2,im:3});});
 test("inner product conjugates its first vector",()=>{assert.deepEqual(q.innerProduct([{re:1,im:1}],[{re:1,im:1}]),{re:2,im:0});});
 test("normalization produces unit norm and rejects zero vector",()=>{const v=q.normalize([3,4]);close(q.norm(v),1);assert.throws(()=>q.normalize([0,0]),/zero vector/);});
-test("dagger and matrix multiplication preserve complex arithmetic",()=>{const m=[[{re:1,im:2},0],[0,1]];const d=q.dagger(m);assert.deepEqual(d[0][0],{re:1,im:-2});assert.deepEqual(q.multiplyMatrices([[1,0],[0,1]],m),m);});
+test("dagger and matrix multiplication preserve complex arithmetic",()=>{const m=[[{re:1,im:2},0],[0,1]];const d=q.dagger(m);assert.deepEqual(d[0][0],{re:1,im:-2});assert.deepEqual(q.multiplyMatrices([[1,0],[0,1]],m),[[{re:1,im:2},{re:0,im:0}],[{re:0,im:0},{re:1,im:0}]]);});
 test("tensor product has expected Kronecker structure",()=>{assert.deepEqual(q.tensor([[1,2]],[[3],[4]]),[[{re:3,im:0},{re:6,im:0}],[{re:4,im:0},{re:8,im:0}]]);});
 test("unitary and Hermitian checks identify common quantum operators",()=>{const h=[[1/Math.sqrt(2),1/Math.sqrt(2)],[1/Math.sqrt(2),-1/Math.sqrt(2)]];const z=[[1,0],[0,-1]];assert.equal(q.isUnitary(h),true);assert.equal(q.isHermitian(z),true);assert.equal(q.isUnitary([[1,1],[0,1]]),false);});
 test("probabilities are normalized and reject invalid states",()=>{const p=q.probabilities([{re:1,im:1},0]);close(p[0],1);close(p[1],0);assert.throws(()=>q.probabilities([0,0]),/non-zero/);});
