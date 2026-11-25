@@ -11,9 +11,9 @@ module.exports=function mountAgentUniverse(app,deps){
  const caps=new Set(["read_public_data","read_member_data","draft_content","analyze_data","send_message","modify_records","make_purchase","move_money","control_device"]);
  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const clean=(v,n=2000)=>String(v??"").trim().slice(0,n);
- const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,last_checked_at,last_error,created_at,updated_at";
+ const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,a2a_skills,a2a_protocol_version,last_checked_at,last_error,created_at,updated_at";
  const privateAgentFields=agentFields+",mcp_session_id";
- const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,created_at,decided_at,execution_started_at,completed_at";
+ const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,a2a_task_id,created_at,decided_at,execution_started_at,completed_at";
 
  async function auth(req,res){
   const user=await currentUser(req,res);
@@ -95,6 +95,29 @@ module.exports=function mountAgentUniverse(app,deps){
    req.on("error",e=>done(reject,e));
    req.end(body);
   });
+ }
+
+ async function fetchA2aCard(cardUrl){
+  const u=new URL(cardUrl);
+  if(u.protocol!=="https:"||u.username||u.password||u.port||u.hash||!(u.pathname==="/.well-known/agent-card.json"||u.pathname==="/.well-known/agent.json"))throw new Error("Use a valid public HTTPS A2A Agent Card URL.");
+  const pin=await publicHost(u.hostname);
+  const card=await new Promise((resolve,reject)=>{
+   const req=https.request({protocol:"https:",hostname:u.hostname,servername:u.hostname,port:443,path:u.pathname+u.search,method:"GET",agent:false,headers:{Accept:"application/json"},timeout:8000,maxHeaderSize:8192,lookup:(_h,opts,cb)=>opts?.all?cb(null,[pin]):cb(null,pin.address,pin.family)},res=>{
+    const chunks=[];let size=0;
+    res.on("data",b=>{size+=b.length;if(size>65536){req.destroy(new Error("Agent Card exceeds the 64 KB limit."));return;}chunks.push(b);});
+    res.on("end",()=>{if(res.statusCode!==200)return reject(new Error("Agent Card returned HTTP "+res.statusCode+"."));try{resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));}catch{reject(new Error("Agent Card is not valid JSON."));}});
+   });
+   req.on("timeout",()=>req.destroy(new Error("Agent Card request timed out.")));req.on("error",reject);req.end();
+  });
+  if(Array.isArray(card.security)&&card.security.length||card.securitySchemes&&Object.keys(card.securitySchemes).length)throw new Error("This A2A agent requires authentication. Credential connections are not enabled yet.");
+  const endpoint=clean(card.url||card.supportedInterfaces?.find(x=>x.protocolBinding==="JSONRPC"||String(x.protocolBinding||"").toLowerCase().includes("json-rpc"))?.url||"",700);
+  if(!endpoint)throw new Error("Agent Card does not publish a JSON-RPC endpoint.");
+  const eu=new URL(endpoint);
+  if(eu.protocol!=="https:"||eu.username||eu.password||eu.port||eu.hash)throw new Error("A2A service endpoint must use HTTPS on the standard port.");
+  await publicHost(eu.hostname);
+  const skills=Array.isArray(card.skills)?card.skills.slice(0,30).map(x=>({id:clean(x.id,80),name:clean(x.name,100),description:clean(x.description,300)})).filter(x=>x.id||x.name):[];
+  if(!skills.length)throw new Error("Agent Card does not publish any usable skills.");
+  return {card,endpoint,skills,protocolVersion:clean(card.protocolVersion||"",40)};
  }
  async function mcpCall(url,method,params,sessionId,protocolVersion,id){
   const headers={};
