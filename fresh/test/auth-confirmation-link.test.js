@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const server = fs.readFileSync("fresh/server.js", "utf8");
 const app = fs.readFileSync("fresh/public/app.js", "utf8");
+const template = fs.readFileSync("supabase/email-templates/confirm-signup.html", "utf8");
 
 test("confirmation links require an explicit member click before consuming the token", () => {
   assert.match(server, /app\.post\("\/api\/auth\/verify-link",rateLimit,sameOrigin/);
@@ -21,4 +22,12 @@ test("confirmation links require an explicit member click before consuming the t
 test("confirmation-link verification accepts only supported email token types and bounds token size", () => {
   assert.match(app, /\["email","signup"\]\.includes\(emailTokenType\)/);
   assert.match(server, /tokenHash\.length<20\|\|tokenHash\.length>512/);
+});
+
+test("signup confirmation template follows the explicit production redirect target",()=>{
+  assert.match(template,/\.RedirectTo/);
+  assert.match(template,/\.TokenHash/);
+  assert.match(server,/signup\?redirect_to=/);
+  assert.match(server,/emailRedirectTo:AUTH_ORIGIN\+"\/"/);
+  assert.doesNotMatch(template,/href="\{\{ \.SiteURL \}\}\/\?token_hash/);
 });
