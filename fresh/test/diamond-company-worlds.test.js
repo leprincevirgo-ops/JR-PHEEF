@@ -9,6 +9,7 @@ const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const js=fs.readFileSync(path.join(root,"diamond-company-worlds.js"),"utf8");
 const css=fs.readFileSync(path.join(root,"diamond-company-worlds.css"),"utf8");
 const server=fs.readFileSync(path.join(__dirname,"../server.js"),"utf8");
+const policy=fs.readFileSync(path.join(__dirname,"../security-policy.js"),"utf8");
 
 test("DGBO and FAMILY immersive company environments are loaded by the foundation app",()=>{
  assert.match(html,/diamond-company-worlds\.css/);
@@ -32,9 +33,12 @@ test("company relationship language preserves planned legal status",()=>{
  assert.match(js,/FAMILY does not currently accept deposits/);
 });
 
-test("company images are restricted to the explicitly trusted image host",()=>{
+test("company images use the trusted image host and configured Supabase media origin",()=>{
  assert.match(js,/https:\/\/images\.unsplash\.com/);
- assert.match(server,/img-src 'self' data: blob: https:\/\/images\.unsplash\.com/);
+ assert.match(policy,/https:\/\/images\.unsplash\.com/);
+ assert.ok(policy.includes("\"img-src \"+mediaSources"));
+ assert.ok(policy.includes("\"media-src \"+mediaSources"));
+ assert.match(server,/buildContentSecurityPolicy\(SUPABASE_URL\)/);
 });
 
 test("company environment browser script passes Node syntax validation",()=>{
