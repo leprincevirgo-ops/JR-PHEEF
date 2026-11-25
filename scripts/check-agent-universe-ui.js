@@ -7,8 +7,9 @@ const html=fs.readFileSync("fresh/public/index.html","utf8");
 const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
 const migration=fs.readFileSync("supabase/migrations/20261125171000_jr_agent_universe.sql","utf8");
+const runtimeMigration=fs.readFileSync("supabase/migrations/20261125173000_jr_agent_mcp_runtime.sql","utf8");
 new vm.Script(route);new vm.Script(ui);
-for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
+for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id/connect","/api/agents/:id/tools/:toolName/proposals","/api/agents/runs/:runId/execute","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
 for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert.ok(route.includes(s),"Missing auth boundary "+s);
 assert.ok(server.includes('require("./routes/agent-universe")'),"Active server does not mount agent routes");
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
@@ -18,11 +19,17 @@ assert.ok(app.includes('"/agents":"agents"')&&app.includes('agents:"/agents"')&&
 for(const s of ["enable row level security","owner_auth_id","auth.uid()","with check","grant select"])assert.ok(schema.toLowerCase().includes(s.toLowerCase()),"Missing database safeguard "+s);
 for(const s of ["create table if not exists public.jr_agents","create table if not exists public.jr_agent_runs","enable row level security","owner_auth_id","auth.uid()","grant select"])assert.ok(migration.toLowerCase().includes(s.toLowerCase()),"Missing migration safeguard "+s);
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
-assert.ok(route.includes("approved_not_executed")&&route.includes("execution remains disabled"),"Approval must not silently execute agents");
+assert.ok(route.includes("approved_not_executed")&&route.includes("Execution still requires a separate command."),"Approval must not silently execute agents");
 assert.ok(!route.includes("fetch(endpoint"),"No unreviewed external endpoint execution");
+for(const s of ["tools/list","tools/call","notifications/initialized","pinnedHttps","publicHost","execution_state","approved_not_executed","execution_state=eq.not_started","execution outcome is uncertain","validateSchema","Mcp-Session-Id","MCP-Protocol-Version"])assert.ok(route.includes(s),"Missing governed MCP runtime safeguard "+s);
+assert.ok(route.includes('v==="active"')&&route.includes('connection_status!=="connected"'),"MCP agents must be connected before owner enablement");
+assert.ok(route.includes("privateAgentFields=agentFields+\" ,mcp_session_id\"")||route.includes('privateAgentFields=agentFields+",mcp_session_id"'),"MCP session identifiers must remain server-side");
+for(const s of ["endpoint_url","connection_status","mcp_session_id","mcp_tools","tool_arguments","execution_state","execution_result"])assert.ok(runtimeMigration.includes(s),"Missing MCP runtime database field "+s);
+assert.ok(ui.includes("CONNECT & DISCOVER TOOLS")&&ui.includes("ENABLE AGENT")&&ui.includes("PROPOSE TOOL CALL")&&ui.includes("EXECUTE APPROVED TOOL"),"MCP connection and execution controls are missing");
+
 assert.ok(route.includes("registry.modelcontextprotocol.io/v0.1/servers"),"Official MCP Registry integration is missing");
 for(const s of ["node:dns","node:https","node:net","dns.lookup","publicIp","redirect:\"error\"","AbortSignal.timeout(8000)","65536","agent-card.json","agent.json","agent_card_url"])assert.ok(route.includes(s),"Missing A2A discovery safeguard "+s);
-assert.ok(route.includes('endpoint_host:endpointHost')&&route.includes('endpoint_url:endpoint'),"A2A Agent Card details are not returned for review");
+assert.ok(route.includes('endpoint_host:eu.hostname')&&route.includes('endpoint_url:endpoint'),"A2A Agent Card details are not returned for review");
 assert.ok(migration.includes("agent_card_url"),"A2A Agent Card reference is not persisted");
 
 console.log("PASS: JR Agent Universe active runtime, workspace routing, private API, ownership policies and execution guardrails.");
