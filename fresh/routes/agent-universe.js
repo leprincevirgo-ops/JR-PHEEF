@@ -403,4 +403,26 @@ module.exports=function mountAgentUniverse(app,deps){
    }
   }catch(e){console.error("Agent execution",e.message);res.status(503).json({ok:false,error:"Agent execution service unavailable."});}
  });;
+ app.post("/api/agents/runs/:runId/poll",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+   const a=await auth(req,res);if(!a)return;
+   if(!uuid.test(req.params.runId))return res.status(404).json({ok:false,error:"Task not found."});
+   const rr=await db(a.token,"jr_agent_runs","GET","select="+runFields+"&id=eq."+req.params.runId+"&member_id=eq."+a.member.id+"&limit=1");
+   if(!rr.ok)return fail(res,rr,"Could not load the A2A task.");const run=rr.data[0];
+   if(!run||run.execution_state!=="running"||!run.a2a_task_id)return res.status(409).json({ok:false,error:"This proposal has no active A2A task to poll."});
+   const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
+   if(!agent||agent.protocol!=="a2a"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The A2A agent is no longer connected."});
+   const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"tasks/get",params:{id:run.a2a_task_id,historyLength:5}};
+   const response=await pinnedHttps(agent.endpoint_url,JSON.stringify(payload),{},1048576);
+   if(response.data?.error)return res.status(502).json({ok:false,error:clean(response.data.error.message||"A2A task status request failed.",240)});
+   const result=response.data?.result;if(!result)return res.status(502).json({ok:false,error:"A2A agent returned no task status."});
+   const packed=JSON.parse(JSON.stringify(result));if(Buffer.byteLength(JSON.stringify(packed))>32768)return res.status(502).json({ok:false,error:"A2A task result exceeds the storage limit."});
+   const state=String((packed.task||packed).status?.state||"").toLowerCase();
+   const failed=["failed","rejected","canceled","cancelled"].includes(state),completed=state==="completed";
+   const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"approved_not_executed",execution_state:failed?"failed":completed?"completed":"running",execution_result:packed,completed_at:failed||completed?new Date().toISOString():null});
+   if(!saved.ok)return fail(res,saved,"Could not save A2A task status.");
+   res.json({ok:true,run:saved.data[0],note:completed?"A2A task completed.":failed?"A2A task failed.":"A2A task is still "+(state||"in progress")+". No duplicate task was sent."});
+  }catch(e){console.error("A2A task poll",e.message);res.status(502).json({ok:false,error:"Could not refresh A2A task status."});}
+ });
+
 };
