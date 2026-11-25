@@ -1,12 +1,15 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v2";
+const CACHE_NAME="jr-pheef-shell-v3";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
  "/jr-pheef-icon.svg",
- "/styles.css?v=jr-primary-navigation-20261125-v1",
+ "/styles.css?v=jr-primary-mobile-bottom-nav-20261125-v1",
+ "/living-interface.css?v=jr-mobile-navigation-20261125-v1",
  "/cosmic.css?v=jr-cosmic-universe-20261115-v1",
  "/app.js?v=jr-primary-navigation-20261125-v1",
+ "/founder-partner.js?v=founder-jr-20261124-v1",
+ "/living-interface.js?v=20261119-space-living-v1",
  "/pwa.js?v=jr-pwa-20261118-v1",
  "/scroll-companion.css?v=jr-scroll-companion-20261124-v1",
  "/scroll-companion.js?v=jr-scroll-companion-20261124-v1",
