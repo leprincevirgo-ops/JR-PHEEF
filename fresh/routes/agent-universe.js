@@ -199,25 +199,11 @@ module.exports=function mountAgentUniverse(app,deps){
  app.post("/api/agents/discover/a2a",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
-   const cardUrl=clean(req.body?.card_url,700),u=new URL(cardUrl);
-   if(u.protocol!=="https:"||u.username||u.password||u.port||!(u.pathname==="/.well-known/agent-card.json"||u.pathname==="/.well-known/agent.json"))return res.status(400).json({ok:false,error:"Use a public HTTPS A2A Agent Card URL ending in /.well-known/agent.json or /.well-known/agent-card.json."});
-   const pin=await publicHost(u.hostname);
-   const card=await new Promise((resolve,reject)=>{
-    const req=https.request({protocol:"https:",hostname:u.hostname,servername:u.hostname,port:443,path:u.pathname+u.search,method:"GET",agent:false,headers:{Accept:"application/json"},timeout:8000,maxHeaderSize:8192,lookup:(_h,opts,cb)=>opts?.all?cb(null,[pin]):cb(null,pin.address,pin.family)},r=>{
-     if(r.statusCode!==200){r.resume();return reject(new Error("Agent Card returned HTTP "+r.statusCode+"."));}
-     const chunks=[];let size=0;r.on("data",b=>{size+=b.length;if(size>65536){req.destroy(new Error("Agent Card exceeds the 64 KB limit."));return;}chunks.push(b);});
-     r.on("end",()=>{try{resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));}catch{reject(new Error("Agent Card is not valid JSON."));}});
-    });req.on("timeout",()=>req.destroy(new Error("Agent Card request timed out.")));req.on("error",reject);req.end();
-   });
-   const name=clean(card.name||card.displayName,100),description=clean(card.description,1000),endpoint=clean(card.url,700);
-   if(name.length<2||!endpoint)return res.status(422).json({ok:false,error:"Agent Card must contain a name and service endpoint."});
-   const eu=new URL(endpoint);if(eu.protocol!=="https:"||eu.username||eu.password||eu.port)return res.status(422).json({ok:false,error:"Agent Card service endpoint must use HTTPS on the standard port."});
-   const skills=Array.isArray(card.skills)?card.skills.slice(0,20).map(x=>({id:clean(x.id,80),name:clean(x.name,100),description:clean(x.description,240)})):[];
+   const cardUrl=clean(req.body?.card_url,700),connection=await fetchA2aCard(cardUrl);
    res.set("Cache-Control","no-store");
-   res.json({ok:true,source:"A2A Agent Card",agent:{name,description,endpoint_url:endpoint,endpoint_host:eu.hostname,card_url:cardUrl,protocol_version:clean(card.protocolVersion||"",40),skills}});
+   res.json({ok:true,source:"A2A Agent Card",agent:{name:clean(connection.card.name||connection.card.displayName,100),description:clean(connection.card.description,1000),endpoint_url:connection.endpoint,endpoint_host:new URL(connection.endpoint).hostname,card_url:cardUrl,protocol_version:connection.protocolVersion,skills:connection.skills}});
   }catch(e){console.error("A2A Agent Card discovery",e.message);res.status(400).json({ok:false,error:clean(e.message||"Agent Card discovery failed.",220)});}
  });
-
  app.post("/api/agents",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
