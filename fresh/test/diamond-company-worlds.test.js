@@ -36,8 +36,8 @@ test("company relationship language preserves planned legal status",()=>{
 test("company images use the trusted image host and configured Supabase media origin",()=>{
  assert.match(js,/https:\/\/images\.unsplash\.com/);
  assert.match(policy,/https:\/\/images\.unsplash\.com/);
- assert.match(policy,/img-src "+mediaSources/);
- assert.match(policy,/media-src "+mediaSources/);
+ assert.ok(policy.includes("\"img-src \"+mediaSources"));
+ assert.ok(policy.includes("\"media-src \"+mediaSources"));
  assert.match(server,/buildContentSecurityPolicy\(SUPABASE_URL\)/);
 });
 
