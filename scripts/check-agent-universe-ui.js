@@ -20,4 +20,9 @@ for(const s of ["create table if not exists public.jr_agents","create table if n
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
 assert.ok(route.includes("approved_not_executed")&&route.includes("execution remains disabled"),"Approval must not silently execute agents");
 assert.ok(!route.includes("fetch(endpoint"),"No unreviewed external endpoint execution");
+assert.ok(route.includes("registry.modelcontextprotocol.io/v0.1/servers"),"Official MCP Registry integration is missing");
+for(const s of ["node:dns","node:https","node:net","dns.lookup","publicIp","redirect:\"error\"","AbortSignal.timeout(8000)","65536","agent-card.json","agent.json","agent_card_url"])assert.ok(route.includes(s),"Missing A2A discovery safeguard "+s);
+assert.ok(route.includes('endpoint_host:endpointHost')&&route.includes('endpoint_url:endpoint'),"A2A Agent Card details are not returned for review");
+assert.ok(migration.includes("agent_card_url"),"A2A Agent Card reference is not persisted");
+
 console.log("PASS: JR Agent Universe active runtime, workspace routing, private API, ownership policies and execution guardrails.");
