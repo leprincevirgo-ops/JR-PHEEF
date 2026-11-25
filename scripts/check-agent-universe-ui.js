@@ -8,8 +8,9 @@ const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
 const migration=fs.readFileSync("supabase/migrations/20261125171000_jr_agent_universe.sql","utf8");
 const runtimeMigration=fs.readFileSync("supabase/migrations/20261125173000_jr_agent_mcp_runtime.sql","utf8");
+const a2aMigration=fs.readFileSync("supabase/migrations/20261125174500_jr_agent_a2a_runtime.sql","utf8");
 new vm.Script(route);new vm.Script(ui);
-for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id/connect","/api/agents/:id/tools/:toolName/proposals","/api/agents/runs/:runId/execute","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
+for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id/connect","/api/agents/:id/tools/:toolName/proposals","/api/agents/:id/a2a/proposals","/api/agents/runs/:runId/execute","/api/agents/runs/:runId/poll","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
 for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert.ok(route.includes(s),"Missing auth boundary "+s);
 assert.ok(server.includes('require("./routes/agent-universe")'),"Active server does not mount agent routes");
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
@@ -25,11 +26,14 @@ for(const s of ["tools/list","tools/call","notifications/initialized","pinnedHtt
 assert.ok(route.includes('v==="active"')&&route.includes('connection_status!=="connected"'),"MCP agents must be connected before owner enablement");
 assert.ok(route.includes("privateAgentFields=agentFields+\" ,mcp_session_id\"")||route.includes('privateAgentFields=agentFields+",mcp_session_id"'),"MCP session identifiers must remain server-side");
 for(const s of ["endpoint_url","connection_status","mcp_session_id","mcp_tools","tool_arguments","execution_state","execution_result"])assert.ok(runtimeMigration.includes(s),"Missing MCP runtime database field "+s);
-assert.ok(ui.includes("CONNECT & DISCOVER TOOLS")&&ui.includes("ENABLE AGENT")&&ui.includes("PROPOSE TOOL CALL")&&ui.includes("EXECUTE APPROVED TOOL"),"MCP connection and execution controls are missing");
+assert.ok(ui.includes("CONNECT & DISCOVER TOOLS")&&ui.includes("ENABLE AGENT")&&ui.includes("PROPOSE TOOL CALL")&&ui.includes("EXECUTE APPROVED TOOL")&&ui.includes("PROPOSE A2A TASK")&&ui.includes("SEND APPROVED A2A TASK")&&ui.includes("REFRESH A2A TASK STATUS"),"MCP connection and execution controls are missing");
 
 assert.ok(route.includes("registry.modelcontextprotocol.io/v0.1/servers"),"Official MCP Registry integration is missing");
 for(const s of ["node:dns","node:https","node:net","dns.lookup","publicIp","redirect:\"error\"","AbortSignal.timeout(8000)","65536","agent-card.json","agent.json","agent_card_url"])assert.ok(route.includes(s),"Missing A2A discovery safeguard "+s);
-assert.ok(route.includes('endpoint_host:eu.hostname')&&route.includes('endpoint_url:endpoint'),"A2A Agent Card details are not returned for review");
+assert.ok(route.includes('endpoint_host:new URL(connection.endpoint).hostname')&&route.includes('endpoint_url:connection.endpoint'),"A2A Agent Card details are not returned for review");
 assert.ok(migration.includes("agent_card_url"),"A2A Agent Card reference is not persisted");
+for(const s of ["a2a_skills","a2a_protocol_version","a2a_task_id"])assert.ok(a2aMigration.includes(s),"Missing A2A runtime field "+s);
+for(const s of ["fetchA2aCard","securitySchemes","message/send","tasks/get","a2a_message/send","a2a_task_id","supportedInterfaces","blocking:false"])assert.ok(route.includes(s),"Missing A2A runtime safeguard "+s);
+
 
 console.log("PASS: JR Agent Universe active runtime, workspace routing, private API, ownership policies and execution guardrails.");

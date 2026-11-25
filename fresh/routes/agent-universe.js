@@ -11,9 +11,9 @@ module.exports=function mountAgentUniverse(app,deps){
  const caps=new Set(["read_public_data","read_member_data","draft_content","analyze_data","send_message","modify_records","make_purchase","move_money","control_device"]);
  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const clean=(v,n=2000)=>String(v??"").trim().slice(0,n);
- const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,last_checked_at,last_error,created_at,updated_at";
+ const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,a2a_skills,a2a_protocol_version,last_checked_at,last_error,created_at,updated_at";
  const privateAgentFields=agentFields+",mcp_session_id";
- const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,created_at,decided_at,execution_started_at,completed_at";
+ const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,a2a_task_id,created_at,decided_at,execution_started_at,completed_at";
 
  async function auth(req,res){
   const user=await currentUser(req,res);
@@ -96,6 +96,29 @@ module.exports=function mountAgentUniverse(app,deps){
    req.end(body);
   });
  }
+
+ async function fetchA2aCard(cardUrl){
+  const u=new URL(cardUrl);
+  if(u.protocol!=="https:"||u.username||u.password||u.port||u.hash||!(u.pathname==="/.well-known/agent-card.json"||u.pathname==="/.well-known/agent.json"))throw new Error("Use a valid public HTTPS A2A Agent Card URL.");
+  const pin=await publicHost(u.hostname);
+  const card=await new Promise((resolve,reject)=>{
+   const req=https.request({protocol:"https:",hostname:u.hostname,servername:u.hostname,port:443,path:u.pathname+u.search,method:"GET",agent:false,headers:{Accept:"application/json"},timeout:8000,maxHeaderSize:8192,lookup:(_h,opts,cb)=>opts?.all?cb(null,[pin]):cb(null,pin.address,pin.family)},res=>{
+    const chunks=[];let size=0;
+    res.on("data",b=>{size+=b.length;if(size>65536){req.destroy(new Error("Agent Card exceeds the 64 KB limit."));return;}chunks.push(b);});
+    res.on("end",()=>{if(res.statusCode!==200)return reject(new Error("Agent Card returned HTTP "+res.statusCode+"."));try{resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));}catch{reject(new Error("Agent Card is not valid JSON."));}});
+   });
+   req.on("timeout",()=>req.destroy(new Error("Agent Card request timed out.")));req.on("error",reject);req.end();
+  });
+  if(Array.isArray(card.security)&&card.security.length||card.securitySchemes&&Object.keys(card.securitySchemes).length)throw new Error("This A2A agent requires authentication. Credential connections are not enabled yet.");
+  const endpoint=clean(card.url||card.supportedInterfaces?.find(x=>x.protocolBinding==="JSONRPC"||String(x.protocolBinding||"").toLowerCase().includes("json-rpc"))?.url||"",700);
+  if(!endpoint)throw new Error("Agent Card does not publish a JSON-RPC endpoint.");
+  const eu=new URL(endpoint);
+  if(eu.protocol!=="https:"||eu.username||eu.password||eu.port||eu.hash)throw new Error("A2A service endpoint must use HTTPS on the standard port.");
+  await publicHost(eu.hostname);
+  const skills=Array.isArray(card.skills)?card.skills.slice(0,30).map(x=>({id:clean(x.id,80),name:clean(x.name,100),description:clean(x.description,300)})).filter(x=>x.id||x.name):[];
+  if(!skills.length)throw new Error("Agent Card does not publish any usable skills.");
+  return {card,endpoint,skills,protocolVersion:clean(card.protocolVersion||"",40)};
+ }
  async function mcpCall(url,method,params,sessionId,protocolVersion,id){
   const headers={};
   if(sessionId)headers["Mcp-Session-Id"]=sessionId;
@@ -176,25 +199,11 @@ module.exports=function mountAgentUniverse(app,deps){
  app.post("/api/agents/discover/a2a",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
-   const cardUrl=clean(req.body?.card_url,700),u=new URL(cardUrl);
-   if(u.protocol!=="https:"||u.username||u.password||u.port||!(u.pathname==="/.well-known/agent-card.json"||u.pathname==="/.well-known/agent.json"))return res.status(400).json({ok:false,error:"Use a public HTTPS A2A Agent Card URL ending in /.well-known/agent.json or /.well-known/agent-card.json."});
-   const pin=await publicHost(u.hostname);
-   const card=await new Promise((resolve,reject)=>{
-    const req=https.request({protocol:"https:",hostname:u.hostname,servername:u.hostname,port:443,path:u.pathname+u.search,method:"GET",agent:false,headers:{Accept:"application/json"},timeout:8000,maxHeaderSize:8192,lookup:(_h,opts,cb)=>opts?.all?cb(null,[pin]):cb(null,pin.address,pin.family)},r=>{
-     if(r.statusCode!==200){r.resume();return reject(new Error("Agent Card returned HTTP "+r.statusCode+"."));}
-     const chunks=[];let size=0;r.on("data",b=>{size+=b.length;if(size>65536){req.destroy(new Error("Agent Card exceeds the 64 KB limit."));return;}chunks.push(b);});
-     r.on("end",()=>{try{resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));}catch{reject(new Error("Agent Card is not valid JSON."));}});
-    });req.on("timeout",()=>req.destroy(new Error("Agent Card request timed out.")));req.on("error",reject);req.end();
-   });
-   const name=clean(card.name||card.displayName,100),description=clean(card.description,1000),endpoint=clean(card.url,700);
-   if(name.length<2||!endpoint)return res.status(422).json({ok:false,error:"Agent Card must contain a name and service endpoint."});
-   const eu=new URL(endpoint);if(eu.protocol!=="https:"||eu.username||eu.password||eu.port)return res.status(422).json({ok:false,error:"Agent Card service endpoint must use HTTPS on the standard port."});
-   const skills=Array.isArray(card.skills)?card.skills.slice(0,20).map(x=>({id:clean(x.id,80),name:clean(x.name,100),description:clean(x.description,240)})):[];
+   const cardUrl=clean(req.body?.card_url,700),connection=await fetchA2aCard(cardUrl);
    res.set("Cache-Control","no-store");
-   res.json({ok:true,source:"A2A Agent Card",agent:{name,description,endpoint_url:endpoint,endpoint_host:eu.hostname,card_url:cardUrl,protocol_version:clean(card.protocolVersion||"",40),skills}});
+   res.json({ok:true,source:"A2A Agent Card",agent:{name:clean(connection.card.name||connection.card.displayName,100),description:clean(connection.card.description,1000),endpoint_url:connection.endpoint,endpoint_host:new URL(connection.endpoint).hostname,card_url:cardUrl,protocol_version:connection.protocolVersion,skills:connection.skills}});
   }catch(e){console.error("A2A Agent Card discovery",e.message);res.status(400).json({ok:false,error:clean(e.message||"Agent Card discovery failed.",220)});}
  });
-
  app.post("/api/agents",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
@@ -221,15 +230,23 @@ module.exports=function mountAgentUniverse(app,deps){
    const a=await auth(req,res);if(!a)return;
    const agent=await ownedAgent(a.token,a.member.id,req.params.id);
    if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
-   if(agent.protocol!=="mcp"||!agent.endpoint_url)return res.status(400).json({ok:false,error:"This connection adapter currently supports remote MCP servers only."});
    try{
-    const connection=await connectMcp(agent.endpoint_url);
-    const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{connection_status:"connected",mcp_protocol_version:connection.protocolVersion,mcp_session_id:connection.sessionId,mcp_tools:connection.tools,last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
-    if(!saved.ok)return fail(res,saved,"MCP connection succeeded but its status could not be saved.");
-    res.json({ok:true,agent:saved.data[0],server_info:connection.serverInfo,note:"MCP connection verified. Review its tools, then explicitly enable the agent before proposing a tool call."});
+    if(agent.protocol==="mcp"&&agent.endpoint_url){
+     const connection=await connectMcp(agent.endpoint_url);
+     const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{connection_status:"connected",mcp_protocol_version:connection.protocolVersion,mcp_session_id:connection.sessionId,mcp_tools:connection.tools,a2a_skills:[],last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
+     if(!saved.ok)return fail(res,saved,"MCP connection succeeded but its status could not be saved.");
+     return res.json({ok:true,agent:saved.data[0],server_info:connection.serverInfo,note:"MCP connection verified. Review its tools, then explicitly enable the agent before proposing a tool call."});
+    }
+    if(agent.protocol==="a2a"&&agent.agent_card_url){
+     const connection=await fetchA2aCard(agent.agent_card_url);
+     const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{endpoint_url:connection.endpoint,endpoint_domain:new URL(connection.endpoint).hostname,connection_status:"connected",a2a_protocol_version:connection.protocolVersion,a2a_skills:connection.skills,mcp_tools:[],mcp_session_id:null,last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
+     if(!saved.ok)return fail(res,saved,"A2A Agent Card verified but its status could not be saved.");
+     return res.json({ok:true,agent:saved.data[0],note:"A2A Agent Card verified. Review its skills, then explicitly enable the agent before proposing a task."});
+    }
+    return res.status(400).json({ok:false,error:"This agent needs a valid MCP endpoint or A2A Agent Card before connecting."});
    }catch(e){
-    await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{connection_status:"error",last_checked_at:new Date().toISOString(),last_error:clean(e.message,240),mcp_session_id:null,mcp_tools:[],updated_at:new Date().toISOString()}).catch(()=>{});
-    res.status(502).json({ok:false,error:clean(e.message||"MCP connection failed.",240)});
+    await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{connection_status:"error",last_checked_at:new Date().toISOString(),last_error:clean(e.message,240),mcp_session_id:null,mcp_tools:[],a2a_skills:[],updated_at:new Date().toISOString()}).catch(()=>{});
+    res.status(502).json({ok:false,error:clean(e.message||"Agent connection failed.",240)});
    }
   }catch(e){console.error("MCP connect",e.message);res.status(503).json({ok:false,error:"MCP connection service unavailable."});}
  });
@@ -242,7 +259,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(req.body?.status!==undefined){
     const v=clean(req.body.status,20);
     if(!["paused","disabled","active"].includes(v))return res.status(400).json({ok:false,error:"Invalid agent status."});
-    if(v==="active"&&(current.protocol!=="mcp"||current.connection_status!=="connected"||!Array.isArray(current.mcp_tools)||!current.mcp_tools.length))return res.status(403).json({ok:false,error:"Connect an MCP server and review its available tools before enabling it."});
+    const mcpReady=current.protocol==="mcp"&&current.connection_status==="connected"&&Array.isArray(current.mcp_tools)&&current.mcp_tools.length>0;const a2aReady=current.protocol==="a2a"&&current.connection_status==="connected"&&Array.isArray(current.a2a_skills)&&current.a2a_skills.length>0;if(v==="active"&&!mcpReady&&!a2aReady)return res.status(403).json({ok:false,error:"Connect the agent and review its available tools or skills before enabling it."});
     p.status=v;
    }
    if(req.body?.name!==undefined){const v=clean(req.body.name,100);if(v.length<2)return res.status(400).json({ok:false,error:"Name too short."});p.name=v;}
@@ -259,6 +276,20 @@ module.exports=function mountAgentUniverse(app,deps){
   catch(e){console.error("Agent activity",e.message);res.status(503).json({ok:false,error:"Agent activity unavailable."});}
  });
 
+ app.post("/api/agents/:id/a2a/proposals",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+   const a=await auth(req,res);if(!a)return;
+   const agent=await ownedAgent(a.token,a.member.id,req.params.id);if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
+   if(agent.protocol!=="a2a"||agent.connection_status!=="connected"||agent.status!=="active"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"Connect and explicitly enable this A2A agent first."});
+   const text=clean(req.body?.text,4000),skillId=clean(req.body?.skill_id,80);
+   if(text.length<3)return res.status(400).json({ok:false,error:"Describe the task in at least 3 characters."});
+   if(skillId&&!(agent.a2a_skills||[]).some(x=>x.id===skillId))return res.status(400).json({ok:false,error:"Choose a skill published by this agent."});
+   const args={text,skill_id:skillId||null};
+   const r=await db(a.token,"jr_agent_runs","POST","select="+runFields,{member_id:a.member.id,agent_id:agent.id,task:"A2A task: "+text,capability:"a2a_message",status:"awaiting_approval",risk:"high",approval_required:true,tool_name:"a2a_message/send",tool_arguments:args,execution_state:"not_started"});
+   if(!r.ok)return fail(res,r,"Could not create A2A task proposal.");
+   res.status(201).json({ok:true,run:r.data[0],note:"The A2A agent has not been contacted. Review and approve the exact task before executing."});
+  }catch(e){console.error("A2A proposal",e.message);res.status(503).json({ok:false,error:"A2A task proposal unavailable."});}
+ });
  app.post("/api/agents/:id/tasks",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
@@ -310,26 +341,74 @@ module.exports=function mountAgentUniverse(app,deps){
    if(!uuid.test(req.params.runId))return res.status(404).json({ok:false,error:"Proposal not found."});
    const rr=await db(a.token,"jr_agent_runs","GET","select="+runFields+"&id=eq."+req.params.runId+"&member_id=eq."+a.member.id+"&limit=1");
    if(!rr.ok)return fail(res,rr,"Could not load the approved proposal.");run=rr.data[0];
-   if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted MCP tool proposal can run."});
+   if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted agent proposal can run."});
    const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
-   if(!agent||agent.protocol!=="mcp"||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The MCP agent is no longer connected and enabled. Reconnect and review it before executing."});
-   const currentTool=(agent.mcp_tools||[]).find(x=>x.name===run.tool_name);if(!currentTool)return res.status(409).json({ok:false,error:"This tool is no longer in the agent catalogue. Refresh and create a new proposal."});const schemaError=validateSchema(run.tool_arguments||{},currentTool.inputSchema||{type:"object",properties:{}});if(schemaError)return res.status(409).json({ok:false,error:"The tool input schema changed. Review and create a new proposal."});
+   if(!agent||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The agent is no longer connected and enabled. Reconnect and review it before executing."});
+   if(agent.protocol==="mcp"){
+    if(run.capability!=="mcp_tool")return res.status(409).json({ok:false,error:"This proposal is not an MCP tool call."});
+    const currentTool=(agent.mcp_tools||[]).find(x=>x.name===run.tool_name);
+    if(!currentTool)return res.status(409).json({ok:false,error:"This tool is no longer in the agent catalogue. Refresh and create a new proposal."});
+    const schemaError=validateSchema(run.tool_arguments||{},currentTool.inputSchema||{type:"object",properties:{}});
+    if(schemaError)return res.status(409).json({ok:false,error:"The tool input schema changed. Review and create a new proposal."});
+   }else if(agent.protocol==="a2a"){
+    if(run.tool_name!=="a2a_message/send"||run.capability!=="a2a_message")return res.status(409).json({ok:false,error:"This proposal is not an A2A task."});
+    const text=clean(run.tool_arguments?.text,4000),skillId=clean(run.tool_arguments?.skill_id,80);
+    if(text.length<3||skillId&&!(agent.a2a_skills||[]).some(x=>x.id===skillId))return res.status(409).json({ok:false,error:"The A2A skill or task changed. Review and create a new proposal."});
+   }else return res.status(409).json({ok:false,error:"This agent protocol does not have an execution adapter."});
    const claim=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id+"&status=eq.approved_not_executed&execution_state=eq.not_started&select=id",{execution_state:"running",execution_started_at:new Date().toISOString()});
    if(!claim.ok)return fail(res,claim,"Could not claim the approved proposal.");if(!claim.data.length)return res.status(409).json({ok:false,error:"This proposal is already being executed or has already been used."});
    try{
-    const response=await mcpCall(agent.endpoint_url,"tools/call",{name:run.tool_name,arguments:run.tool_arguments||{}},agent.mcp_session_id,agent.mcp_protocol_version,crypto.randomInt(1,2147483647));
-    const result=response.data?.result;
-    if(!result)throw new Error("The MCP server returned no tool result; execution outcome is unknown.");
-    const packed=JSON.parse(JSON.stringify(result));
-    if(Buffer.byteLength(JSON.stringify(packed))>32768)throw new Error("Tool result exceeded the 32 KB storage limit; remote execution outcome is unknown.");
-    const failed=Boolean(packed.isError);
-    const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"completed",execution_state:failed?"failed":"completed",execution_result:packed,completed_at:new Date().toISOString()});
-    if(!saved.ok)throw new Error("Tool responded, but JR could not save the execution result. Check the remote system before retrying.");
-    res.json({ok:!failed,run:saved.data[0],note:failed?"The MCP tool reported an error. Inspect the result before taking further action.":"The approved MCP tool call completed."});
+    let packed,taskId=null,failed=false,stillRunning=false;
+    if(agent.protocol==="mcp"){
+     const response=await mcpCall(agent.endpoint_url,"tools/call",{name:run.tool_name,arguments:run.tool_arguments||{}},agent.mcp_session_id,agent.mcp_protocol_version,crypto.randomInt(1,2147483647));
+     const result=response.data?.result;if(!result)throw new Error("The MCP server returned no tool result; execution outcome is unknown.");
+     packed=JSON.parse(JSON.stringify(result));failed=Boolean(packed.isError);
+    }else{
+     const args=run.tool_arguments||{},message={messageId:crypto.randomUUID(),role:"user",parts:[{kind:"text",text:args.text}]};
+     const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"message/send",params:{message,configuration:{acceptedOutputModes:["text/plain"],blocking:false,historyLength:5}}};
+     const response=await pinnedHttps(agent.endpoint_url,JSON.stringify(payload),{},1048576);
+     if(response.data?.error)throw new Error(clean(response.data.error.message||"A2A request failed.",300));
+     const result=response.data?.result;if(!result)throw new Error("The A2A agent returned no task or message; outcome is unknown.");
+     packed=JSON.parse(JSON.stringify(result));
+     const task=packed.task||packed;
+     if(task&&typeof task==="object"&&task.id&&task.status?.state){
+      taskId=clean(task.id,200);
+      const state=String(task.status.state).toLowerCase();
+      failed=["failed","rejected","canceled","cancelled"].includes(state);
+      stillRunning=!["completed","failed","rejected","canceled","cancelled"].includes(state);
+     }
+    }
+    if(Buffer.byteLength(JSON.stringify(packed))>32768)throw new Error("Remote result exceeded the 32 KB storage limit; execution outcome is unknown.");
+    const nextState=failed?"failed":stillRunning?"running":"completed";
+    const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"approved_not_executed",execution_state:nextState,execution_result:packed,a2a_task_id:taskId,completed_at:stillRunning?null:new Date().toISOString()});
+    if(!saved.ok)throw new Error("The agent responded, but JR could not save the result. Check the external service before retrying.");
+    res.json({ok:!failed,run:saved.data[0],note:failed?"The remote agent reported a failed task.":stillRunning?"The A2A task is still running. JR will monitor it when you request a status refresh.":"The approved agent task completed."});
    }catch(e){
     await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:"failed",execution_state:"unknown",execution_result:{error:clean(e.message,300),outcome:"unknown_remote_execution_may_have_occurred"},completed_at:new Date().toISOString()}).catch(()=>{});
-    res.status(502).json({ok:false,error:"MCP execution outcome is uncertain. JR will not retry automatically. Check the external service before proposing another call."});
+    res.status(502).json({ok:false,error:"Remote execution outcome is uncertain. JR will not retry automatically. Check the external service before proposing another call."});
    }
-  }catch(e){console.error("MCP execution",e.message);res.status(503).json({ok:false,error:"MCP execution service unavailable."});}
+  }catch(e){console.error("Agent execution",e.message);res.status(503).json({ok:false,error:"Agent execution service unavailable."});}
+ });;
+ app.post("/api/agents/runs/:runId/poll",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+   const a=await auth(req,res);if(!a)return;
+   if(!uuid.test(req.params.runId))return res.status(404).json({ok:false,error:"Task not found."});
+   const rr=await db(a.token,"jr_agent_runs","GET","select="+runFields+"&id=eq."+req.params.runId+"&member_id=eq."+a.member.id+"&limit=1");
+   if(!rr.ok)return fail(res,rr,"Could not load the A2A task.");const run=rr.data[0];
+   if(!run||run.execution_state!=="running"||!run.a2a_task_id)return res.status(409).json({ok:false,error:"This proposal has no active A2A task to poll."});
+   const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
+   if(!agent||agent.protocol!=="a2a"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The A2A agent is no longer connected."});
+   const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"tasks/get",params:{id:run.a2a_task_id,historyLength:5}};
+   const response=await pinnedHttps(agent.endpoint_url,JSON.stringify(payload),{},1048576);
+   if(response.data?.error)return res.status(502).json({ok:false,error:clean(response.data.error.message||"A2A task status request failed.",240)});
+   const result=response.data?.result;if(!result)return res.status(502).json({ok:false,error:"A2A agent returned no task status."});
+   const packed=JSON.parse(JSON.stringify(result));if(Buffer.byteLength(JSON.stringify(packed))>32768)return res.status(502).json({ok:false,error:"A2A task result exceeds the storage limit."});
+   const state=String((packed.task||packed).status?.state||"").toLowerCase();
+   const failed=["failed","rejected","canceled","cancelled"].includes(state),completed=state==="completed";
+   const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"approved_not_executed",execution_state:failed?"failed":completed?"completed":"running",execution_result:packed,completed_at:failed||completed?new Date().toISOString():null});
+   if(!saved.ok)return fail(res,saved,"Could not save A2A task status.");
+   res.json({ok:true,run:saved.data[0],note:completed?"A2A task completed.":failed?"A2A task failed.":"A2A task is still "+(state||"in progress")+". No duplicate task was sent."});
+  }catch(e){console.error("A2A task poll",e.message);res.status(502).json({ok:false,error:"Could not refresh A2A task status."});}
  });
+
 };
