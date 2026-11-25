@@ -16,7 +16,7 @@ JR PHEEF is one integrated digital ecosystem, not several competing applications
 - **Production server:** `fresh/server.js`
 - **Workspace data/API:** Supabase Edge Function `jr-workspace-api` and related server-side functions.
 
-The Render production service is configured to deploy from `main`. Changes intended for members must land in `main) and pass release checks before they are considered production. Other branches are work areas only. Foundation, Rebuild and Staging are not separate JR PHEEF products.
+The Render production service is configured to deploy from `main`. The repository-root `server.js` is not the production entry point; the production start script runs `fresh/server.js`. Changes intended for members must land in `main` and pass release checks before they are considered production. Other branches are work areas only. Foundation, Rebuild and Staging are not separate JR PHEEF products.
 
 Do not merge old rebuild branches wholesale. The inspected ecosystem foundation pull request was 121 commits behind production and conflicted; the rebuild candidate was also heavily diverged. Selectively port reviewed features into the current architecture, preserving current production fixes and data.
 

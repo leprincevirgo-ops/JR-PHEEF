@@ -1,5 +1,7 @@
 # JR PHEEF — Canonical Project Journey & Completion Register
 
+> **Current-status note (2026-11-25):** This is a historical decision and journey record. For the current production branch, deployment, verified capabilities, security posture and remaining acceptance gates, use [`docs/UNIFIED-PRODUCTION-BASELINE.md`](UNIFIED-PRODUCTION-BASELINE.md). The newer baseline supersedes this document's older deployment snapshot, but not the historical product decisions recorded below.
+
 Last consolidated: 2026-10-30
 
 This document is the working source of truth for decisions recovered from the JR PHEEF, DGBO ecosystem and FAMILY conversations, together with verified repository/deployment observations. It does not claim that planned capabilities are already operational.
