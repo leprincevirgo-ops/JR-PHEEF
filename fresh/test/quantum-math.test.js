@@ -11,3 +11,5 @@ test("tensor product has expected Kronecker structure",()=>{assert.deepEqual(q.t
 test("unitary and Hermitian checks identify common quantum operators",()=>{const h=[[1/Math.sqrt(2),1/Math.sqrt(2)],[1/Math.sqrt(2),-1/Math.sqrt(2)]];const z=[[1,0],[0,-1]];assert.equal(q.isUnitary(h),true);assert.equal(q.isHermitian(z),true);assert.equal(q.isUnitary([[1,1],[0,1]]),false);});
 test("probabilities are normalized and reject invalid states",()=>{const p=q.probabilities([{re:1,im:1},0]);close(p[0],1);close(p[1],0);assert.throws(()=>q.probabilities([0,0]),/non-zero/);});
 test("dimension mismatches and non-finite values fail safely",()=>{assert.throws(()=>q.multiplyMatrices([[1,2]],[[1,2]]),/dimensions/);assert.throws(()=>q.normalize([NaN]),/finite/);});
+
+test("public norm validates vector shape and complex values",()=>{close(q.norm([3,4]),5);assert.throws(()=>q.norm([]),/vector/);assert.throws(()=>q.norm([NaN]),/finite/);});

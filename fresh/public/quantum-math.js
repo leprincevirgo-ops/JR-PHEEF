@@ -14,7 +14,7 @@
   const matrix=(m)=>{shape(m);return m.map(r=>r.map(assertComplex));};
   const vector=(v)=>{if(!Array.isArray(v)||!v.length)throw new TypeError("Expected a non-empty vector.");return v.map(assertComplex);};
   const innerProduct=(a,b)=>{a=vector(a);b=vector(b);if(a.length!==b.length)throw new RangeError("Vector dimensions must match.");return a.reduce((s,x,i)=>add(s,multiply(conjugate(x),b[i])),{re:0,im:0});};
-  const norm=(v)=>Math.sqrt(v.reduce((s,x)=>s+magnitudeSquared(x),0));
+  const norm=(v)=>Math.sqrt(vector(v).reduce((s,x)=>s+magnitudeSquared(x),0));
   const normalize=(v)=>{v=vector(v);const n=norm(v);if(n<=EPS)throw new RangeError("The zero vector cannot be normalized.");return v.map(x=>({re:x.re/n,im:x.im/n}));};
   const dagger=(m)=>{m=matrix(m);return m[0].map((_,j)=>m.map(r=>conjugate(r[j])));};
   const multiplyMatrices=(a,b)=>{a=matrix(a);b=matrix(b);const [ar,ac]=shape(a),[br,bc]=shape(b);if(ac!==br)throw new RangeError("Matrix dimensions do not allow multiplication.");return Array.from({length:ar},(_,i)=>Array.from({length:bc},(_,j)=>a[i].reduce((s,x,k)=>add(s,multiply(x,b[k][j])),{re:0,im:0})));};
