@@ -355,26 +355,52 @@ module.exports=function mountAgentUniverse(app,deps){
    if(!uuid.test(req.params.runId))return res.status(404).json({ok:false,error:"Proposal not found."});
    const rr=await db(a.token,"jr_agent_runs","GET","select="+runFields+"&id=eq."+req.params.runId+"&member_id=eq."+a.member.id+"&limit=1");
    if(!rr.ok)return fail(res,rr,"Could not load the approved proposal.");run=rr.data[0];
-   if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted MCP tool proposal can run."});
+   if(!run||run.status!=="approved_not_executed"||run.execution_state!=="not_started"||!run.tool_name)return res.status(409).json({ok:false,error:"Only an approved, unexecuted agent proposal can run."});
    const agent=await ownedAgent(a.token,a.member.id,run.agent_id);
-   if(!agent||agent.protocol!=="mcp"||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The MCP agent is no longer connected and enabled. Reconnect and review it before executing."});
-   const currentTool=(agent.mcp_tools||[]).find(x=>x.name===run.tool_name);if(!currentTool)return res.status(409).json({ok:false,error:"This tool is no longer in the agent catalogue. Refresh and create a new proposal."});const schemaError=validateSchema(run.tool_arguments||{},currentTool.inputSchema||{type:"object",properties:{}});if(schemaError)return res.status(409).json({ok:false,error:"The tool input schema changed. Review and create a new proposal."});
+   if(!agent||agent.status!=="active"||agent.connection_status!=="connected"||!agent.endpoint_url)return res.status(409).json({ok:false,error:"The agent is no longer connected and enabled. Reconnect and review it before executing."});
+   if(agent.protocol==="mcp"){
+    if(run.capability!=="mcp_tool")return res.status(409).json({ok:false,error:"This proposal is not an MCP tool call."});
+    const currentTool=(agent.mcp_tools||[]).find(x=>x.name===run.tool_name);
+    if(!currentTool)return res.status(409).json({ok:false,error:"This tool is no longer in the agent catalogue. Refresh and create a new proposal."});
+    const schemaError=validateSchema(run.tool_arguments||{},currentTool.inputSchema||{type:"object",properties:{}});
+    if(schemaError)return res.status(409).json({ok:false,error:"The tool input schema changed. Review and create a new proposal."});
+   }else if(agent.protocol==="a2a"){
+    if(run.tool_name!=="a2a_message/send"||run.capability!=="a2a_message")return res.status(409).json({ok:false,error:"This proposal is not an A2A task."});
+    const text=clean(run.tool_arguments?.text,4000),skillId=clean(run.tool_arguments?.skill_id,80);
+    if(text.length<3||skillId&&!(agent.a2a_skills||[]).some(x=>x.id===skillId))return res.status(409).json({ok:false,error:"The A2A skill or task changed. Review and create a new proposal."});
+   }else return res.status(409).json({ok:false,error:"This agent protocol does not have an execution adapter."});
    const claim=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id+"&status=eq.approved_not_executed&execution_state=eq.not_started&select=id",{execution_state:"running",execution_started_at:new Date().toISOString()});
    if(!claim.ok)return fail(res,claim,"Could not claim the approved proposal.");if(!claim.data.length)return res.status(409).json({ok:false,error:"This proposal is already being executed or has already been used."});
    try{
-    const response=await mcpCall(agent.endpoint_url,"tools/call",{name:run.tool_name,arguments:run.tool_arguments||{}},agent.mcp_session_id,agent.mcp_protocol_version,crypto.randomInt(1,2147483647));
-    const result=response.data?.result;
-    if(!result)throw new Error("The MCP server returned no tool result; execution outcome is unknown.");
-    const packed=JSON.parse(JSON.stringify(result));
-    if(Buffer.byteLength(JSON.stringify(packed))>32768)throw new Error("Tool result exceeded the 32 KB storage limit; remote execution outcome is unknown.");
-    const failed=Boolean(packed.isError);
-    const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"completed",execution_state:failed?"failed":"completed",execution_result:packed,completed_at:new Date().toISOString()});
-    if(!saved.ok)throw new Error("Tool responded, but JR could not save the execution result. Check the remote system before retrying.");
-    res.json({ok:!failed,run:saved.data[0],note:failed?"The MCP tool reported an error. Inspect the result before taking further action.":"The approved MCP tool call completed."});
+    let packed,taskId=null,failed=false,stillRunning=false;
+    if(agent.protocol==="mcp"){
+     const response=await mcpCall(agent.endpoint_url,"tools/call",{name:run.tool_name,arguments:run.tool_arguments||{}},agent.mcp_session_id,agent.mcp_protocol_version,crypto.randomInt(1,2147483647));
+     const result=response.data?.result;if(!result)throw new Error("The MCP server returned no tool result; execution outcome is unknown.");
+     packed=JSON.parse(JSON.stringify(result));failed=Boolean(packed.isError);
+    }else{
+     const args=run.tool_arguments||{},message={messageId:crypto.randomUUID(),role:"user",parts:[{kind:"text",text:args.text}]};
+     const payload={jsonrpc:"2.0",id:crypto.randomInt(1,2147483647),method:"message/send",params:{message,configuration:{acceptedOutputModes:["text/plain"],blocking:true,historyLength:5}}};
+     const response=await pinnedHttps(agent.endpoint_url,JSON.stringify(payload),{},1048576);
+     if(response.data?.error)throw new Error(clean(response.data.error.message||"A2A request failed.",300));
+     const result=response.data?.result;if(!result)throw new Error("The A2A agent returned no task or message; outcome is unknown.");
+     packed=JSON.parse(JSON.stringify(result));
+     const task=packed.task||packed;
+     if(task&&typeof task==="object"&&task.id&&task.status?.state){
+      taskId=clean(task.id,200);
+      const state=String(task.status.state).toLowerCase();
+      failed=["failed","rejected","canceled","cancelled"].includes(state);
+      stillRunning=!["completed","failed","rejected","canceled","cancelled"].includes(state);
+     }
+    }
+    if(Buffer.byteLength(JSON.stringify(packed))>32768)throw new Error("Remote result exceeded the 32 KB storage limit; execution outcome is unknown.");
+    const nextState=failed?"failed":stillRunning?"running":"completed";
+    const saved=await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:failed?"failed":"approved_not_executed",execution_state:nextState,execution_result:packed,a2a_task_id:taskId,completed_at:stillRunning?null:new Date().toISOString()});
+    if(!saved.ok)throw new Error("The agent responded, but JR could not save the result. Check the external service before retrying.");
+    res.json({ok:!failed,run:saved.data[0],note:failed?"The remote agent reported a failed task.":stillRunning?"The A2A task is still running. JR will monitor it when you request a status refresh.":"The approved agent task completed."});
    }catch(e){
     await db(a.token,"jr_agent_runs","PATCH","id=eq."+run.id+"&member_id=eq."+a.member.id,{status:"failed",execution_state:"unknown",execution_result:{error:clean(e.message,300),outcome:"unknown_remote_execution_may_have_occurred"},completed_at:new Date().toISOString()}).catch(()=>{});
-    res.status(502).json({ok:false,error:"MCP execution outcome is uncertain. JR will not retry automatically. Check the external service before proposing another call."});
+    res.status(502).json({ok:false,error:"Remote execution outcome is uncertain. JR will not retry automatically. Check the external service before proposing another call."});
    }
-  }catch(e){console.error("MCP execution",e.message);res.status(503).json({ok:false,error:"MCP execution service unavailable."});}
- });
+  }catch(e){console.error("Agent execution",e.message);res.status(503).json({ok:false,error:"Agent execution service unavailable."});}
+ });;
 };
