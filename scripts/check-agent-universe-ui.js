@@ -44,6 +44,8 @@ assert.ok(styles.includes(".jr-agent-proposal-results"),"Agent proposal cards ar
 
 assert.ok(route.includes("registry.modelcontextprotocol.io/v0.1/servers"),"Official MCP Registry integration is missing");
 for(const s of ["node:dns","node:https","node:net","dns.lookup","publicIp","redirect:\"error\"","AbortSignal.timeout(8000)","65536","agent-card.json","agent.json","agent_card_url"])assert.ok(route.includes(s),"Missing A2A discovery safeguard "+s);
+assert.ok(route.includes("eu.hostname.toLowerCase()!==u.hostname.toLowerCase()"),"A2A bearer tokens must not be forwarded to a different host");
+
 assert.ok(route.includes('endpoint_host:new URL(connection.endpoint).hostname')&&route.includes('endpoint_url:connection.endpoint'),"A2A Agent Card details are not returned for review");
 assert.ok(migration.includes("agent_card_url"),"A2A Agent Card reference is not persisted");
 for(const s of ["a2a_skills","a2a_protocol_version","a2a_task_id"])assert.ok(a2aMigration.includes(s),"Missing A2A runtime field "+s);
