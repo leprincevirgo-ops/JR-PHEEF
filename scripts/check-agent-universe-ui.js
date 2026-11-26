@@ -10,9 +10,10 @@ const app=fs.readFileSync("fresh/public/app.js","utf8");
 const schema=fs.readFileSync("database/jr-agent-universe.sql","utf8");
 const migration=fs.readFileSync("supabase/migrations/20261125171000_jr_agent_universe.sql","utf8");
 const runtimeMigration=fs.readFileSync("supabase/migrations/20261125173000_jr_agent_mcp_runtime.sql","utf8");
+const credentialMigration=fs.readFileSync("supabase/migrations/20261126110000_jr_agent_credential_vault.sql","utf8");
 const a2aMigration=fs.readFileSync("supabase/migrations/20261125174500_jr_agent_a2a_runtime.sql","utf8");
 new vm.Script(route);new vm.Script(ui);
-for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id/connect","/api/agents/:id/tools/:toolName/proposals","/api/agents/:id/a2a/proposals","/api/agents/runs/:runId/execute","/api/agents/runs/:runId/poll","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
+for(const p of ["/api/agents","/api/agents/discover/mcp","/api/agents/discover/a2a","/api/agents/:id/connect","/api/agents/:id/credentials","/api/agents/:id/tools/:toolName/proposals","/api/agents/:id/a2a/proposals","/api/agents/runs/:runId/execute","/api/agents/runs/:runId/poll","/api/agents/:id","/api/agents/activity","/api/agents/:id/tasks","/api/agents/runs/:runId/decision"])assert.ok(route.includes(p),"Missing API route "+p);
 for(const s of ["currentUser","provisionMember","sameOrigin","rateLimit"])assert.ok(route.includes(s),"Missing auth boundary "+s);
 assert.ok(server.includes('require("./routes/agent-universe")'),"Active server does not mount agent routes");
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
@@ -24,6 +25,12 @@ for(const s of ["create table if not exists public.jr_agents","create table if n
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
 assert.ok(route.includes("approved_not_executed")&&route.includes("Execution still requires a separate command."),"Approval must not silently execute agents");
 assert.ok(!route.includes("fetch(endpoint"),"No unreviewed external endpoint execution");
+for(const s of ["aes-256-gcm","createCipheriv","createDecipheriv","JR_AGENT_VAULT_KEY","encrypted_credentials","bearerToken","Authorization","/api/agents/:id/credentials"])assert.ok(route.includes(s),"Missing encrypted credential safeguard "+s);
+assert.ok(route.includes("encrypted_credentials:encrypted")&&route.includes("credential_saved:true"),"Agent credentials must be encrypted before storage");
+assert.ok(!route.includes("encrypted_credentials,")&&!route.includes("encrypted_credentials:agent"),"Encrypted credentials must never be returned by public agent API fields");
+assert.ok(credentialMigration.includes("encrypted_credentials")&&credentialMigration.includes("credential_updated_at"),"Credential vault schema is missing");
+assert.ok(ui.includes("Provider bearer token (optional)")&&ui.includes("SAVE TOKEN")&&ui.includes("REMOVE TOKEN"),"Credential management UI is missing");
+
 for(const s of ["tools/list","tools/call","notifications/initialized","pinnedHttps","publicHost","execution_state","approved_not_executed","execution_state=eq.not_started","execution outcome is uncertain","validateSchema","Mcp-Session-Id","MCP-Protocol-Version"])assert.ok(route.includes(s),"Missing governed MCP runtime safeguard "+s);
 assert.ok(route.includes('v==="active"')&&route.includes('connection_status!=="connected"'),"MCP agents must be connected before owner enablement");
 assert.ok(route.includes("privateAgentFields=agentFields+\" ,mcp_session_id\"")||route.includes('privateAgentFields=agentFields+",mcp_session_id"'),"MCP session identifiers must remain server-side");
