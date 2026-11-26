@@ -204,7 +204,7 @@ module.exports=function mountAgentUniverse(app,deps){
  app.post("/api/agents/discover/a2a",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
-   const cardUrl=clean(req.body?.card_url,700),connection=await fetchA2aCard(cardUrl);
+   const cardUrl=clean(req.body?.card_url,700),credentials={bearerToken:clean(req.body?.bearer_token,4096)},connection=await fetchA2aCard(cardUrl,credentials);
    res.set("Cache-Control","no-store");
    res.json({ok:true,source:"A2A Agent Card",agent:{name:clean(connection.card.name||connection.card.displayName,100),description:clean(connection.card.description,1000),endpoint_url:connection.endpoint,endpoint_host:new URL(connection.endpoint).hostname,card_url:cardUrl,protocol_version:connection.protocolVersion,skills:connection.skills}});
   }catch(e){console.error("A2A Agent Card discovery",e.message);res.status(400).json({ok:false,error:clean(e.message||"Agent Card discovery failed.",220)});}
