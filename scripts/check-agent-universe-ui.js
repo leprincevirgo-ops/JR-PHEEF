@@ -30,6 +30,8 @@ assert.ok(route.includes("encrypted_credentials:encrypted")&&route.includes("cre
 assert.ok(!route.includes("encrypted_credentials,")&&!route.includes("encrypted_credentials:agent"),"Encrypted credentials must never be returned by public agent API fields");
 assert.ok(credentialMigration.includes("encrypted_credentials")&&credentialMigration.includes("credential_updated_at"),"Credential vault schema is missing");
 assert.ok(ui.includes("Provider bearer token (optional)")&&ui.includes("SAVE TOKEN")&&ui.includes("REMOVE TOKEN"),"Credential management UI is missing");
+assert.ok(route.includes("credential_updated_at")&&ui.includes("Last checked ")&&ui.includes("bearer token saved")&&ui.includes("Last connection issue:"),"Agent health and credential status monitoring is missing");
+
 
 for(const s of ["tools/list","tools/call","notifications/initialized","pinnedHttps","publicHost","execution_state","approved_not_executed","execution_state=eq.not_started","execution outcome is uncertain","validateSchema","Mcp-Session-Id","MCP-Protocol-Version"])assert.ok(route.includes(s),"Missing governed MCP runtime safeguard "+s);
 assert.ok(route.includes('v==="active"')&&route.includes('connection_status!=="connected"'),"MCP agents must be connected before owner enablement");
