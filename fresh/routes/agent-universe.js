@@ -118,7 +118,7 @@ module.exports=function mountAgentUniverse(app,deps){
   if(!endpoint)throw new Error("Agent Card does not publish a JSON-RPC endpoint.");
   const eu=new URL(endpoint);
   if(eu.protocol!=="https:"||eu.username||eu.password||eu.port||eu.hash)throw new Error("A2A service endpoint must use HTTPS on the standard port.");
-  await publicHost(eu.hostname);
+  await publicHost(eu.hostname);if(credentials?.bearerToken&&eu.hostname.toLowerCase()!==u.hostname.toLowerCase())throw new Error("For safety, a bearer token may only be sent when the A2A card and task endpoint use the same hostname.");
   const skills=Array.isArray(card.skills)?card.skills.slice(0,30).map(x=>({id:clean(x.id,80),name:clean(x.name,100),description:clean(x.description,300)})).filter(x=>x.id||x.name):[];
   if(!skills.length)throw new Error("Agent Card does not publish any usable skills.");
   return {card,endpoint,skills,protocolVersion:clean(card.protocolVersion||"",40)};
