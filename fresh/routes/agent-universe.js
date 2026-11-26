@@ -230,6 +230,24 @@ module.exports=function mountAgentUniverse(app,deps){
   }catch(e){console.error("Agent create",e.message);res.status(503).json({ok:false,error:"Agent registration unavailable."});}
  });
 
+ app.post("/api/agents/:id/credentials",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+   const a=await auth(req,res);if(!a)return;
+   const agent=await ownedAgent(a.token,a.member.id,req.params.id);if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
+   if(!["mcp","a2a"].includes(agent.protocol))return res.status(400).json({ok:false,error:"Credentials are supported only for MCP and A2A agents."});
+   const token=typeof req.body?.bearer_token==="string"?req.body.bearer_token.trim():"";
+   if(token.length>4096||token&&/[\r\n]/.test(token))return res.status(400).json({ok:false,error:"Enter a valid bearer token under 4096 characters."});
+   if(!token){
+    const r=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{encrypted_credentials:null,credential_updated_at:null,connection_status:"unconnected",status:"paused",mcp_session_id:null,mcp_tools:[],a2a_skills:[],updated_at:new Date().toISOString()});
+    if(!r.ok)return fail(res,r,"Could not remove the saved credential.");
+    return res.json({ok:true,credential_saved:false,note:"Saved provider credential removed. Agent paused."});
+   }
+   const encrypted=encryptCredentials({bearerToken:token});
+   const r=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id,{encrypted_credentials:encrypted,credential_updated_at:new Date().toISOString(),connection_status:"unconnected",status:"paused",mcp_session_id:null,mcp_tools:[],a2a_skills:[],updated_at:new Date().toISOString()});
+   if(!r.ok)return fail(res,r,"Could not save the encrypted provider credential.");
+   res.json({ok:true,credential_saved:true,note:"Credential encrypted and saved. It is never returned to the browser. Reconnect to verify it."});
+  }catch(e){console.error("Agent credential vault",e.message);res.status(503).json({ok:false,error:"Secure credential storage is unavailable."});}
+ });
  app.post("/api/agents/:id/connect",rateLimit,sameOrigin,async(req,res)=>{
   try{
    const a=await auth(req,res);if(!a)return;
@@ -237,7 +255,7 @@ module.exports=function mountAgentUniverse(app,deps){
    if(!agent)return res.status(404).json({ok:false,error:"Agent not found."});
    try{
     if(agent.protocol==="mcp"&&agent.endpoint_url){
-     const connection=await connectMcp(agent.endpoint_url);
+     const credentials=decryptCredentials(agent.encrypted_credentials);const connection=await connectMcp(agent.endpoint_url,credentials);
      const saved=await db(a.token,"jr_agents","PATCH","id=eq."+agent.id+"&member_id=eq."+a.member.id+"&select="+agentFields,{connection_status:"connected",mcp_protocol_version:connection.protocolVersion,mcp_session_id:connection.sessionId,mcp_tools:connection.tools,a2a_skills:[],last_checked_at:new Date().toISOString(),last_error:null,updated_at:new Date().toISOString()});
      if(!saved.ok)return fail(res,saved,"MCP connection succeeded but its status could not be saved.");
      return res.json({ok:true,agent:saved.data[0],server_info:connection.serverInfo,note:"MCP connection verified. Review its tools, then explicitly enable the agent before proposing a tool call."});
