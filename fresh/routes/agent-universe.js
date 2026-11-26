@@ -12,9 +12,13 @@ module.exports=function mountAgentUniverse(app,deps){
  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const clean=(v,n=2000)=>String(v??"").trim().slice(0,n);
  const agentFields="id,name,description,provider,agent_type,protocol,endpoint_domain,endpoint_url,agent_card_url,capabilities,status,trust_status,connection_status,mcp_protocol_version,mcp_tools,a2a_skills,a2a_protocol_version,last_checked_at,last_error,created_at,updated_at";
- const privateAgentFields=agentFields+",mcp_session_id";
+ const privateAgentFields=agentFields+",mcp_session_id,encrypted_credentials";
  const runFields="id,agent_id,task,capability,status,risk,approval_required,tool_name,tool_arguments,execution_state,execution_result,a2a_task_id,created_at,decided_at,execution_started_at,completed_at";
 
+ function vaultKey(){const raw=String(process.env.JR_AGENT_VAULT_KEY||"");const key=Buffer.from(raw,"base64");if(key.length!==32)throw new Error("Agent credential vault is not configured.");return key;}
+ function encryptCredentials(value){const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv("aes-256-gcm",vaultKey(),iv);const body=Buffer.concat([cipher.update(JSON.stringify(value),"utf8"),cipher.final()]);return [iv.toString("base64"),cipher.getAuthTag().toString("base64"),body.toString("base64")].join(".");}
+ function decryptCredentials(value){if(!value)return {};const parts=String(value).split(".");if(parts.length!==3)throw new Error("Stored agent credential is invalid.");const iv=Buffer.from(parts[0],"base64"),tag=Buffer.from(parts[1],"base64"),body=Buffer.from(parts[2],"base64");if(iv.length!==12||tag.length!==16)throw new Error("Stored agent credential is invalid.");const decipher=crypto.createDecipheriv("aes-256-gcm",vaultKey(),iv);decipher.setAuthTag(tag);return JSON.parse(Buffer.concat([decipher.update(body),decipher.final()]).toString("utf8"));}
+ function authHeaders(credentials){const token=clean(credentials?.bearerToken,4096);return token?{Authorization:"Bearer "+token}:{};}
  async function auth(req,res){
   const user=await currentUser(req,res);
   if(!user||!user.email_confirmed_at||!req.jrAccessToken){res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account."});return null;}
@@ -119,25 +123,26 @@ module.exports=function mountAgentUniverse(app,deps){
   if(!skills.length)throw new Error("Agent Card does not publish any usable skills.");
   return {card,endpoint,skills,protocolVersion:clean(card.protocolVersion||"",40)};
  }
- async function mcpCall(url,method,params,sessionId,protocolVersion,id){
+ async function mcpCall(url,method,params,sessionId,protocolVersion,id,credentials){
   const headers={};
   if(sessionId)headers["Mcp-Session-Id"]=sessionId;
   if(protocolVersion)headers["MCP-Protocol-Version"]=protocolVersion;
+  Object.assign(headers,authHeaders(credentials));
   const payload={jsonrpc:"2.0",id,method};
   if(params!==undefined)payload.params=params;
   const response=await pinnedHttps(url,JSON.stringify(payload),headers);
   if(response.data?.error)throw new Error(clean(response.data.error.message||"MCP request failed.",300));
   return response;
  }
- async function connectMcp(url){
-  const init=await mcpCall(url,"initialize",{protocolVersion:"2025-11-25",capabilities:{},clientInfo:{name:"JR PHEEF Agent Gateway",version:"1.0.0"}},null,null,1);
+ async function connectMcp(url,credentials){
+  const init=await mcpCall(url,"initialize",{protocolVersion:"2025-11-25",capabilities:{},clientInfo:{name:"JR PHEEF Agent Gateway",version:"1.0.0"}},null,null,1,credentials);
   const result=init.data?.result;
   if(!result?.protocolVersion)throw new Error("The server did not complete MCP initialization.");
   const sessionId=clean(init.headers["mcp-session-id"]||"",300)||null;
-  await mcpCall(url,"notifications/initialized",undefined,sessionId,result.protocolVersion,undefined).catch(e=>{
+  await mcpCall(url,"notifications/initialized",undefined,sessionId,result.protocolVersion,undefined,credentials).catch(e=>{
    if(!String(e.message).includes("HTTP 202"))throw e;
   });
-  let cursor=null,requestId=2;const list=[];for(let page=0;page<5;page++){const tools=await mcpCall(url,"tools/list",cursor?{cursor}:{},sessionId,result.protocolVersion,requestId++);const batch=Array.isArray(tools.data?.result?.tools)?tools.data.result.tools:[];list.push(...batch);cursor=clean(tools.data?.result?.nextCursor||"",500)||null;if(!cursor||list.length>=100)break;}
+  let cursor=null,requestId=2;const list=[];for(let page=0;page<5;page++){const tools=await mcpCall(url,"tools/list",cursor?{cursor}:{},sessionId,result.protocolVersion,requestId++,credentials);const batch=Array.isArray(tools.data?.result?.tools)?tools.data.result.tools:[];list.push(...batch);cursor=clean(tools.data?.result?.nextCursor||"",500)||null;if(!cursor||list.length>=100)break;}
   const safe=list.slice(0,100).map(t=>({
    name:clean(t.name,100),description:clean(t.description,700),
    inputSchema:t.inputSchema&&typeof t.inputSchema==="object"?t.inputSchema:{type:"object",properties:{}}
