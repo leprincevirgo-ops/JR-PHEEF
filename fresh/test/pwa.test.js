@@ -37,7 +37,7 @@ test("install prompt and service worker code parse correctly",()=>{
 });
 
 test("the offline shell caches the exact current navigation and connected workspace assets",()=>{
- assert.match(worker,/CACHE_NAME="jr-pheef-shell-v23"/);
+ assert.match(worker,/CACHE_NAME="jr-pheef-shell-v27"/);
  assert.match(worker,/styles\.css\?v=jr-fullscreen-pages-20261127-v1/);
  assert.match(worker,/living-interface\.css\?v=jr-top-navigation-20261125-v1/);
  assert.match(worker,/founder-partner\.js\?v=founder-jr-20261124-v1/);
