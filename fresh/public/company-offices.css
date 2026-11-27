@@ -1,0 +1,26 @@
+#founderCompanyOffices{margin:22px 0 30px;padding:20px;border:1px solid rgba(125,185,220,.22);border-radius:20px;background:linear-gradient(145deg,rgba(18,45,70,.72),rgba(7,20,34,.78));color:#edf5fb}
+.company-office-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+.company-office-eyebrow{color:#80d9ef;font-size:10px;font-weight:900;letter-spacing:.15em}
+.company-office-heading h3{margin:7px 0;font-size:22px}
+.company-office-heading p,.company-office-muted,.company-office-footnote{color:#a9bdce;font-size:12px;line-height:1.65}
+.company-office-updated{color:#8fa9bd;font-size:10px;text-align:right}
+.company-office-tabs{display:flex;gap:7px;overflow-x:auto;padding:3px 0 13px}
+.company-office-tabs button{flex:none;border:1px solid rgba(143,185,215,.24);border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.035);color:#bfd0de;font:inherit;font-size:11px;font-weight:850}
+.company-office-tabs button.is-selected{border-color:#79d6ec;background:rgba(61,165,200,.17);color:#b7f2ff}
+.company-office-panel{padding-top:4px}
+.company-office-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.company-office-metric{min-width:0;padding:13px;border:1px solid rgba(143,185,215,.16);border-radius:13px;background:rgba(255,255,255,.035)}
+.company-office-metric strong{display:block;color:#f5fbff;font-size:22px;font-variant-numeric:tabular-nums}
+.company-office-metric span{display:block;margin-top:4px;color:#9eb4c7;font-size:10px;line-height:1.45}
+.company-office-body{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.company-office-block{min-width:0;padding:15px;border:1px solid rgba(143,185,215,.16);border-radius:14px;background:rgba(255,255,255,.025)}
+.company-office-block h4{margin:0 0 9px;font-size:13px}
+.company-office-block p{color:#c1d0dc;font-size:11px;line-height:1.65}
+.company-office-muted{color:#91a9bc!important}
+.company-office-checklist{padding-left:17px;color:#c1d0dc;font-size:11px;line-height:1.8}
+.company-office-note{padding:9px;border-left:2px solid #d5ad63;background:rgba(213,173,99,.07)}
+.company-office-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.company-office-primary,.company-office-secondary{border:1px solid rgba(116,210,235,.55);border-radius:999px;padding:10px 15px;background:#78d7ed;color:#082033;font:inherit;font-size:11px;font-weight:900}
+.company-office-secondary{background:rgba(255,255,255,.045);color:#d7e7f2;border-color:rgba(143,185,215,.28)}
+.company-office-footnote{margin:13px 0 0;font-size:10px}
+@media(max-width:760px){#founderCompanyOffices{padding:14px}.company-office-heading{display:block}.company-office-updated{display:block;margin-top:8px;text-align:left}.company-office-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.company-office-body{grid-template-columns:1fr}.company-office-heading h3{font-size:19px}}
