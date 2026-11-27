@@ -313,7 +313,7 @@ test("Transport and logistics has a distinct venture environment without an uncl
  assert.match(html,/data-company-open="turbex"/);
  assert.match(html,/id="view-turbex"/);
  for(const item of ["ROAD OPERATIONS","CARGO SERVICES","FLEET &amp; PROVIDERS","FUTURE EXPANSION","independent providers","not a live transport booking or dispatch service"])assert.ok(html.includes(item),"missing "+item);
- assert.match(html,/value="turbex">Transport &amp; Logistics/);assert.doesNotMatch(html,/TURBEX/);assert.ok(app.includes("jrAddWindowSelect")&&app.includes("turbex"),"Transport workspace remains reachable through its internal route");assert.match(app,/Transport & Logistics/);assert.doesNotMatch(app,/TURBEX/);
+ assert.match(html,/value="turbex">Transport &amp; Logistics/);assert.doesNotMatch(html,/TURBEX/);assert.ok(app.includes('turbex:"/worlds/jr-move"')&&app.includes('view==="turbex"'),"Transport workspace remains reachable through its full-screen route");assert.match(app,/Transport & Logistics/);assert.doesNotMatch(app,/TURBEX/);
  for(const item of ["turbex-provider","turbex-operations","turbex-partners"])assert.ok(app.includes(item),"missing "+item);
  assert.match(css,/\.company-turbex/);assert.match(css,/\.company-entry-turbex/);
 });
