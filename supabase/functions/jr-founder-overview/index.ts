@@ -117,20 +117,39 @@ Deno.serve(async (req: Request) => {
       }
       return json({ok:false,error:"Unknown founder action."},400);
     }
-    const count=async(table:string)=>{
-      const response=await fetch(url+"/rest/v1/"+table+"?select=id",{method:"HEAD",headers:{apikey:serviceKey,Authorization:"Bearer "+serviceKey,Prefer:"count=exact",Range:"0-0"}});
+    const count=async(table:string,filter="")=>{
+      const query=filter?"&"+filter:"";
+      const response=await fetch(url+"/rest/v1/"+table+"?select=id"+query,{method:"HEAD",headers:{apikey:serviceKey,Authorization:"Bearer "+serviceKey,Prefer:"count=exact",Range:"0-0"}});
       if(!response.ok)return null;const range=response.headers.get("content-range")||"",total=range.slice(range.lastIndexOf("/")+1),parsed=Number(total);return Number.isFinite(parsed)?parsed:0;
     };
-    const [members,ventures,opportunities,listings,conversations,deliveries,businesses,ventureRows,decisions,capabilities,adCampaigns,dossiers,ventureProjects]=await Promise.all([
-      count("members"),count("ventures"),count("jr_opportunities"),count("jr_listings"),count("jr_conversations"),count("jr_delivery_requests"),count("jr_business_workspaces"),
-      rest("ventures?select=slug,name,kind,status,regulated,licence_ref,description&order=kind.asc,name.asc"),
+    const mid=encodeURIComponent(member.id);
+    const [members,activeMembers,verifiedMembers,ventures,opportunities,listings,conversations,deliveries,businesses,
+      agents,activeAgents,agentRunsPending,agentRunsCompleted,
+      dgboMembers,dgboPending,dgboStaff,dgboOpenDossiers,dgboProjects,dgboDecisionsPending,
+      familyMembers,familyPending,familyStaff,
+      moveMembers,movePending,moveStaff,moveProviders,moveApprovedProviders,moveVerifiedProviders,moveDocumentsPending,moveDocumentsVerified,moveDeliveriesOpen,moveDeliveriesAccepted,moveDeliveriesDelivered,
+      ventureRows,decisions,capabilities,adCampaigns,dossiers,ventureProjects]=await Promise.all([
+      count("members"),count("members","status=eq.active"),count("members","verified=eq.true"),count("ventures"),count("jr_opportunities"),count("jr_listings"),count("jr_conversations"),count("jr_delivery_requests"),count("jr_business_workspaces"),
+      count("jr_agents","member_id=eq."+mid),count("jr_agents","member_id=eq."+mid+"&status=eq.active"),count("jr_agent_runs","member_id=eq."+mid+"&status=eq.awaiting_approval"),count("jr_agent_runs","member_id=eq."+mid+"&status=eq.completed"),
+      count("venture_memberships","venture_slug=eq.dgbo&status=eq.approved"),count("venture_memberships","venture_slug=eq.dgbo&status=eq.applied"),count("venture_memberships","venture_slug=eq.dgbo&status=eq.approved&role_key=in.(staff,manager,team_lead,operations_manager,consultant)"),count("dgbo_opportunity_dossiers","status=in.(ready_for_review,in_review,needs_research)"),count("dgbo_venture_projects"),count("dgbo_decisions","status=eq.proposed"),
+      count("venture_memberships","venture_slug=eq.family&status=eq.approved"),count("venture_memberships","venture_slug=eq.family&status=eq.applied"),count("venture_memberships","venture_slug=eq.family&status=eq.approved&role_key=in.(staff,manager,team_lead,coordinator,goal_coordinator)"),
+      count("venture_memberships","venture_slug=eq.turbex&status=eq.approved"),count("venture_memberships","venture_slug=eq.turbex&status=eq.applied"),count("venture_memberships","venture_slug=eq.turbex&status=eq.approved&role_key=in.(staff,manager,team_lead,operations_manager,dispatcher,driver,rider,fleet_operator)"),
+      count("jr_riders"),count("jr_riders","approved=eq.true"),count("jr_riders","verified=eq.true"),count("jr_transport_documents","status=eq.pending_review"),count("jr_transport_documents","status=eq.verified"),
+      count("jr_delivery_requests","status=eq.open"),count("jr_delivery_requests","status=eq.accepted"),count("jr_delivery_requests","status=eq.delivered"),
+      rest("ventures?select=slug,name,kind,status,regulated,licence_ref,description,legal_entity_status,operating_structure,parent_venture_slug,ownership_percent&order=kind.asc,name.asc"),
       rest("dgbo_decisions?select=id,title,venture,details,status,created_at,decided_at&order=created_at.desc&limit=30"),
       rest("dgbo_capabilities?select=id,capability_key,name,category,description,status,created_at,updated_at&order=category.asc,name.asc&limit=200"),
       rest("ad_campaigns?status=eq.pending&select=id,member_id,title,body,category,location,budget_ksh,paid,status,created_at,media_urls&order=created_at.asc&limit=100"),
       rest("dgbo_opportunity_dossiers?select=id,title,summary,sector,target_market,source_type,source_name,source_url,customer_problem,proposed_solution,revenue_model,startup_requirements,startup_cost_estimate,risks,research_notes,confidence_score,submitted_by_member_id,consent_to_dgbo,status,created_at&status=in.(ready_for_review,in_review,needs_research,approved,rejected)&order=created_at.desc&limit=100"),
       rest("dgbo_venture_projects?select=id,dossier_id,venture_name,stage,business_model,validation_plan,next_milestone,target_date,owner_member_id,created_at,updated_at&order=updated_at.desc&limit=100")
     ]);
-    return json({ok:true,founder:{fullName:member.full_name,jpNumber:member.jp_number,role:member.role,accountType:member.account_type,verified:Boolean(member.verified),status:member.status},environment:"STAGING",metrics:{memberAccounts:members,registeredVentures:ventures,opportunities,listings,conversations,deliveryRequests:deliveries,businessWorkspaces:businesses},ventures:ventureRows,decisions,capabilities,adCampaigns,dossiers,ventureProjects,controls:{paymentsEnabled:false,productionConnected:false,liveAiConnected:false},principles:{purpose:"The ecosystem serves humanity; people contribute to its growth; companies strengthen one another and adapt to human needs.",dgbo:"Parent governance and stewardship",jrPheef:"Flagship human-facing technology ecosystem",family:"Financial access and participation serving the entire ecosystem"}});
+    const companyOperations={
+      jrPheef:{members,activeMembers,verifiedMembers,listings,opportunities,conversations,businessWorkspaces:businesses,agents,activeAgents,agentRunsPending,agentRunsCompleted},
+      dgbo:{approvedMembers:dgboMembers,pendingApplications:dgboPending,teamMembers:dgboStaff,openDossiers:dgboOpenDossiers,ventureProjects:dgboProjects,proposedDecisions:dgboDecisionsPending},
+      family:{approvedMembers:familyMembers,pendingApplications:familyPending,teamMembers:familyStaff,financialTransactionsEnabled:false,regulatedServicesEnabled:false},
+      jrMove:{approvedMembers:moveMembers,pendingApplications:movePending,teamMembers:moveStaff,providers:moveProviders,approvedProviders:moveApprovedProviders,verifiedProviders:moveVerifiedProviders,documentsPending:moveDocumentsPending,documentsVerified:moveDocumentsVerified,deliveriesOpen:moveDeliveriesOpen,deliveriesAccepted:moveDeliveriesAccepted,deliveriesDelivered:moveDeliveriesDelivered,liveDispatchEnabled:false,liveGpsEnabled:false}
+    };
+    return json({ok:true,founder:{fullName:member.full_name,jpNumber:member.jp_number,role:member.role,accountType:member.account_type,verified:Boolean(member.verified),status:member.status},environment:"STAGING",metrics:{memberAccounts:members,registeredVentures:ventures,opportunities,listings,conversations,deliveryRequests:deliveries,businessWorkspaces:businesses},companyOperations,ventures:ventureRows,decisions,capabilities,adCampaigns,dossiers,ventureProjects,controls:{paymentsEnabled:false,productionConnected:false,liveAiConnected:false},principles:{purpose:"The ecosystem serves humanity; people contribute to its growth; companies strengthen one another and adapt to human needs.",dgbo:"Parent governance and stewardship",jrPheef:"Flagship human-facing technology ecosystem",family:"Financial access and participation serving the entire ecosystem"}});
   }catch(error){
     console.error("Founder overview failed:",error instanceof Error?error.message:"unknown");
     return json({ok:false,error:"Founder overview is temporarily unavailable."},500);
