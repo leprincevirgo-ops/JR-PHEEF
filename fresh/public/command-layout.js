@@ -232,7 +232,15 @@
  const connectPanel=name=>connect.querySelector('[data-connect-panel="'+name+'"]');
  const move=(node,target)=>{if(node&&target)target.append(node);};
  const statusPanel=$("memberStatusPanel");move(statusPanel,connectPanel("channels"));move($("memberUpdatesPanel"),connectPanel("channels"));
- move($("memberContactsPanel"),connectPanel("chats"));move($("memberChatsPanel"),connectPanel("chats"));
+ move($("memberChatsPanel"),connectPanel("chats"));move($("memberContactsPanel"),connectPanel("chats"));
+ const peopleHeading=$("memberContactsPanel")?.querySelector(".command-panel-heading h3");if(peopleHeading)peopleHeading.textContent="Friends & requests";
+ const businessRequestCard=document.createElement("section");businessRequestCard.id="jrBusinessRequestsCard";businessRequestCard.style.cssText="margin:14px 0;padding:15px;border:1px solid rgba(130,190,220,.22);border-radius:15px;background:linear-gradient(130deg,rgba(32,76,102,.28),rgba(25,42,70,.22))";
+ const businessTitle=document.createElement("h4");businessTitle.textContent="Business requests";businessTitle.style.margin="0 0 6px";
+ const businessCopy=document.createElement("p");businessCopy.textContent="Business proposals and partnership enquiries stay separate from friend requests and everyday chats. Prepare a request with JR, review it, then choose where to send it. Nothing is sent automatically.";businessCopy.style.cssText="font-size:12px;line-height:1.5;color:#aec4d4;margin:0 0 10px";
+ const businessAction=document.createElement("button");businessAction.type="button";businessAction.textContent="Prepare a business request with JR";businessAction.style.cssText="border:1px solid rgba(130,210,230,.3);border-radius:999px;padding:9px 12px;background:rgba(255,255,255,.05);color:inherit";
+ businessAction.addEventListener("click",()=>{window.jrNavigateWorkspace?.("jr");const field=$("workspacePrompt");if(field){field.value="Help me prepare a business request or partnership proposal. Ask who it is for, the business purpose, the proposed value and next step. Draft it for my review; do not send it automatically.";field.focus();}});
+ businessRequestCard.append(businessTitle,businessCopy,businessAction);connectPanel("chats")?.append(businessRequestCard);
+
  move(channels,connectPanel("channels"));move($("memberProfilePanel"),connectPanel("profile"));move($("memberAccessibilityPanel"),connectPanel("profile"));
  $("memberTalkPanel")?.remove();
  const activateConnectTab=key=>{
