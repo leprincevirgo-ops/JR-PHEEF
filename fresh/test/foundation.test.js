@@ -154,6 +154,19 @@ test("Command Center sections follow the agreed five-part order",()=>{
  assert.match(css,/\.jr-connect-workspace/);assert.match(css,/\.jr-connect-tabs/);
  assert.match(h,/Your profile\. Your people\. Your conversations\./);
 });
+test("friend requests show sender photos and optional introductions",()=>{
+ const c=read("public/command-layout.js"),api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
+ assert.match(c,/jr-connection-avatar/);assert.match(c,/Add a short introduction/);
+ assert.match(api,/request_message/);assert.match(api,/profile_photo_url/);
+ assert.match(api,/signedMedia/);
+});
+test("personal settings provide global themes without replacing company branding",()=>{
+ const s=read("public/personal-settings.js");
+ assert.match(s,/Themes & wallpapers/);assert.match(s,/jr_personal_theme/);
+ assert.match(s,/official JR PHEEF, DGBO, JR MOVE and FAMILY logos and brand colours remain protected/);
+ assert.match(s,/jrMenuLogout/);assert.match(s,/Log out/);
+ assert.doesNotMatch(s,/#accountEmail\{display:none/);
+});
 test("JR social feed and following respect member visibility",()=>{
  const api=fs.readFileSync(path.join(root,"..","supabase","functions","jr-workspace-api","index.ts"),"utf8");
  assert.match(api,/list_social_feed/);assert.match(api,/visibility=eq\.everyone/);
