@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v27";
+const CACHE_NAME="jr-pheef-shell-v28";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
@@ -12,7 +12,7 @@ const APP_SHELL=[
  "/pwa.js?v=jr-pwa-20261118-v1",
  "/living-interface.js?v=20261119-space-living-v1",
  "/public-discovery.js?v=20261118-founder-live-v1",
- "/command-layout.js?v=jr-command-center-order-20261127-v2&brand=jr-dgbo-diamond-brand-20261112-v1",
+ "/command-layout.js?v=jr-command-center-order-20261127-v3&brand=jr-dgbo-diamond-brand-20261112-v1",
  "/worlds.js?v=jr-one-world-space-20261112-v2",
  "/intelligence.js?v=jr-agent-orchestration-20261125-v2",
  "/navigation.js?v=jr-browser-history-20261127-v2",
@@ -31,7 +31,7 @@ const APP_SHELL=[
  "/connected-world-engine.js?v=connected-world-engine-20261118-v1",
  "/agent-universe.css?v=9",
  "/agent-universe.js?v=13",
- "/personal-settings.js?v=jr-personal-settings-20261127-v6"
+ "/personal-settings.js?v=jr-personal-settings-20261127-v7"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
