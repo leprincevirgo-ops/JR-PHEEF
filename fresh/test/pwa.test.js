@@ -37,7 +37,7 @@ test("install prompt and service worker code parse correctly",()=>{
 });
 
 test("the offline shell caches the exact current navigation and connected workspace assets",()=>{
- assert.match(worker,/CACHE_NAME="jr-pheef-shell-v27"/);
+ assert.match(worker,/CACHE_NAME="jr-pheef-shell-v28"/);
  assert.match(worker,/styles\.css\?v=jr-fullscreen-pages-20261127-v1/);
  assert.match(worker,/living-interface\.css\?v=jr-top-navigation-20261125-v1/);
  assert.match(worker,/founder-partner\.js\?v=founder-jr-20261124-v1/);
@@ -46,6 +46,6 @@ test("the offline shell caches the exact current navigation and connected worksp
  assert.match(worker,/navigation\.js\?v=jr-browser-history-20261127-v2/);
  assert.match(worker,/agent-universe\.css\?v=9/);
  assert.match(worker,/agent-universe\.js\?v=13/);
- assert.match(worker,/personal-settings\.js\?v=jr-personal-settings-20261127-v6/);
- assert.match(worker,/command-layout\.js\?v=jr-command-center-order-20261127-v2/);
+ assert.match(worker,/personal-settings\.js\?v=jr-personal-settings-20261127-v7/);
+ assert.match(worker,/command-layout\.js\?v=jr-command-center-order-20261127-v3/);
 });
