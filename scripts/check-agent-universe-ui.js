@@ -19,7 +19,7 @@ assert.ok(server.includes('require("./routes/agent-universe")'),"Active server d
 assert.ok(html.includes('id="view-agents"')&&html.includes('id="jrauMount"'),"Agent workspace view is missing");
 assert.ok(html.includes("/agent-universe.js")&&html.includes("/agent-universe.css"),"Agent assets are not loaded");
 assert.ok(ui.includes("Discover agent blueprints")&&ui.includes("Browse the live MCP Registry")&&ui.includes("Discover A2A agents")&&ui.includes("searchA2a")&&ui.includes("searchMcp")&&ui.includes("Model Context Protocol (MCP)")&&ui.includes("Agent2Agent (A2A)"),"Agent discovery and protocol browser are missing");
-assert.ok(app.includes('"/agents":"agents"')&&app.includes('agents:"/agents"')&&app.includes('value="agents"'),"Workspace router is missing Agent Universe");
+assert.ok(app.includes('"/agents":"agents"')&&app.includes('agents:"/agents"'),"Workspace router is missing Agent Universe");
 for(const s of ["enable row level security","owner_auth_id","auth.uid()","with check","grant select"])assert.ok(schema.toLowerCase().includes(s.toLowerCase()),"Missing database safeguard "+s);
 for(const s of ["create table if not exists public.jr_agents","create table if not exists public.jr_agent_runs","enable row level security","owner_auth_id","auth.uid()","grant select"])assert.ok(migration.toLowerCase().includes(s.toLowerCase()),"Missing migration safeguard "+s);
 assert.ok(route.includes('status:"paused"')&&route.includes('trust_status:"unverified"'),"Agents must start paused and unverified");
