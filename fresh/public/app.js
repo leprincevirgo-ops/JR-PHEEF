@@ -10,64 +10,24 @@
  const requestedWorld=worldRoutes[window.location.pathname]||"home";
  const requestedLink=window.location.pathname==="/worlds/jr-link";
  const setMessage=message=>{$("authMessage").textContent=message||"";};
- let multiWindowMode=false;
- let openWindows=["home"];
- const workspaceWindowGrid=document.createElement("div");
- workspaceWindowGrid.id="jrWorkspaceWindowGrid";
- workspaceWindowGrid.className="jr-workspace-window-grid";
- const workspaceWindowToolbar=document.createElement("div");
- workspaceWindowToolbar.id="jrWorkspaceWindowToolbar";
- workspaceWindowToolbar.className="jr-workspace-window-toolbar";
- workspaceWindowToolbar.innerHTML='<div class="jr-window-toolbar-copy"><strong>Workspace windows</strong><span>Open several parts of your world side by side.</span></div><div class="jr-window-toolbar-actions"><select id="jrAddWindowSelect" aria-label="Choose a workspace to open"><option value="home">Home</option><option value="worlds">Worlds</option><option value="jr">JR</option><option value="command">Command Center</option><option value="dgbo">DGBO</option><option value="family">FAMILY</option><option value="turbex">Transport & Logistics</option><option value="agents">Agent Universe</option></select><button type="button" id="jrAddWindow">Open panel</button><select id="jrWindowColumns" aria-label="Number of workspace columns"><option value="1">1 column</option><option value="2" selected>2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select><button type="button" id="jrWindowReset">Reset layout</button></div>';
- const originalWorkspaceViews=[...document.querySelectorAll("#workspace .workspace-view")];
- originalWorkspaceViews.forEach(section=>{
-  const key=section.id.replace("view-","");
-  const frame=document.createElement("section");frame.className="jr-workspace-window";frame.dataset.window=key;frame.hidden=true;
-  const head=document.createElement("div");head.className="jr-workspace-window-head";
-  const label=document.createElement("strong");label.textContent=({home:"HOME",worlds:"WORLDS",jr:"JR",command:"COMMAND CENTER"})[key]||key.toUpperCase();
-  const actions=document.createElement("div");actions.className="jr-workspace-window-actions";
-  const focus=document.createElement("button");focus.type="button";focus.textContent="Focus";focus.addEventListener("click",()=>{showWorkspace(key);});
-  const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Close "+key+" panel");close.addEventListener("click",()=>closeWorkspaceWindow(key));
-  actions.append(focus,close);head.append(label,actions);frame.append(head,section);workspaceWindowGrid.append(frame);
- });
- const workspaceNav=document.querySelector("#workspace .workspace-nav");
- if(workspaceNav){workspaceNav.after(workspaceWindowToolbar,workspaceWindowGrid);}
- function renderWorkspaceWindows(){
-  document.body.dataset.jrWindowMode=multiWindowMode?"multiple":"single";
-  const columns=Number($("jrWindowColumns")?.value||2);
-  workspaceWindowGrid.style.setProperty("--jr-window-columns",String(columns));
-  workspaceWindowToolbar.hidden=false;
-  workspaceWindowGrid.classList.toggle("is-multiple",multiWindowMode);
-  workspaceWindowGrid.querySelectorAll(".jr-workspace-window").forEach(frame=>{
-   const visible=multiWindowMode?openWindows.includes(frame.dataset.window):openWindows[0]===frame.dataset.window;
-   frame.hidden=!visible;
-   const section=frame.querySelector(".workspace-view");if(section)section.hidden=!visible;
-  });
- }
- function closeWorkspaceWindow(key){
-  openWindows=openWindows.filter(x=>x!==key);
-  if(!openWindows.length)openWindows=["home"];
-  if(multiWindowMode)showWorkspace(openWindows[0]);else renderWorkspaceWindows();
- }
- $("jrAddWindow")?.addEventListener("click",()=>{
-  const key=$("jrAddWindowSelect").value;
-  if(!openWindows.includes(key)){if(openWindows.length>=4){$("jrAddWindow").textContent="Maximum 4 panels";setTimeout(()=>{$("jrAddWindow").textContent="Open panel";},1800);return;}openWindows.push(key);}
-  multiWindowMode=true;showWorkspace(key);
- });
- $("jrWindowColumns")?.addEventListener("change",renderWorkspaceWindows);
- $("jrWindowReset")?.addEventListener("click",()=>{multiWindowMode=false;showWorkspace("home");});
+ const workspaceViews=[...document.querySelectorAll("#workspace > .workspace-view")];
+ const workspaceWelcome=document.querySelector("#workspace .workspace-welcome");
+ const dailyWelcome=$("jrDailyWelcome");
  function showWorkspace(view="home",options={}){
-   const nextPath=routeForView[view]||"/";
-   if(!options.fromRoute&&window.location.pathname!==nextPath)window.history.pushState({jrWorld:view},"",nextPath);
+  const nextPath=routeForView[view]||"/";
+  if(!options.fromRoute&&window.location.pathname!==nextPath){
+   window.history.replaceState({...window.history.state,jrScrollY:window.scrollY||0},"",window.location.href);
+   window.history.pushState({jrWorld:view,jrScrollY:0},"",nextPath);
+  }
   document.body.dataset.jrWorld=view==="worlds"?"global":view;
   if(hero)hero.hidden=true;workspace.hidden=false;panel.hidden=true;conversation.hidden=true;
   const primaryView=["dgbo","family","turbex"].includes(view)?"worlds":view;
   document.querySelectorAll(".workspace-tab").forEach(button=>{const active=button.dataset.view===primaryView;button.classList.toggle("selected",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");});
   const titles={home:"Welcome. Where shall we begin?",worlds:"Explore connected worlds",jr:"Talk to JR",command:"Your Command Center",dgbo:"Diamond Global Business Operators",family:"FAMILY",turbex:"Transport & Logistics",agents:"JR Agent Universe"};
   $("workspaceTitle").textContent=titles[view]||titles.home;
-  if(multiWindowMode){if(!openWindows.includes(view)){if(openWindows.length>=4)openWindows[openWindows.length-1]=view;else openWindows.push(view);}}
-  else openWindows=[view];
-  renderWorkspaceWindows();
+  if(workspaceWelcome)workspaceWelcome.hidden=view!=="home";if(dailyWelcome)dailyWelcome.hidden=view!=="home";
+  workspaceViews.forEach(section=>{section.hidden=section.id!=="view-"+view;});
+  if(!options.preserveScroll)window.scrollTo({top:0,left:0,behavior:"instant"});
  }
  window.jrNavigateWorkspace=showWorkspace;
  document.querySelectorAll("[data-company-open]").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();if(workspace.hidden){showAuth("login");setMessage("Log in to enter your company workspaces.");return;}showWorkspace(button.dataset.companyOpen);}));
@@ -278,7 +238,14 @@
   finally{button.disabled=false;}
  });
  document.querySelectorAll(".workspace-tab").forEach(button=>button.addEventListener("click",()=>showWorkspace(button.dataset.view)));
- window.addEventListener("popstate",()=>{const view=worldRoutes[window.location.pathname]||"home";showWorkspace(view,{fromRoute:true});if(window.location.pathname==="/worlds/jr-link")requestAnimationFrame(()=>document.querySelector('#jrConnectWorkspace [data-connect-tab="feed"]')?.click());});
+ window.history.scrollRestoration="manual";
+ window.addEventListener("popstate",event=>{
+  const view=worldRoutes[window.location.pathname]||"home";
+  showWorkspace(view,{fromRoute:true,preserveScroll:true});
+  const saved=Number(event.state?.jrScrollY||0);
+  requestAnimationFrame(()=>window.scrollTo({top:saved,left:0,behavior:"instant"}));
+  if(window.location.pathname==="/worlds/jr-link")requestAnimationFrame(()=>document.querySelector("#jrConnectWorkspace [data-connect-tab=feed]")?.click());
+ });
   api("/api/auth/session").then(session=>{if(session.authenticated)setSignedIn(session.user);}).catch(()=>{});
  const fragment=new URLSearchParams(window.location.hash.startsWith("#")?window.location.hash.slice(1):"");
  if(window.location.pathname==="/app"&&["login","signup"].includes(fragment.get("mode")))showAuth(fragment.get("mode"));

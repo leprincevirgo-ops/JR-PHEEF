@@ -704,3 +704,13 @@ body.jr-scrolling-down .workspace-nav .workspace-tab{padding-top:7px!important;p
 body.jr-scrolling-down .jr-page-navigation,body.jr-scrolling-down .jr-global-voice{opacity:.10;transform:translateY(10px);pointer-events:none}
 body.jr-scrolling-down .jr-page-navigation:focus-within,body.jr-scrolling-down .jr-global-voice:focus-within{opacity:1;transform:none;pointer-events:auto}
 @media(prefers-reduced-motion:reduce){.workspace-nav,.workspace-nav .workspace-tab,.jr-page-navigation,.jr-global-voice{transition:none!important}}
+
+
+/* Full-screen destination workspace: one page at a time, always from the top. */
+#workspace{min-height:calc(100svh - env(safe-area-inset-top,0px));}
+#workspace>.workspace-view{box-sizing:border-box;width:100%;min-height:calc(100svh - 150px);margin:0;padding:clamp(18px,3vw,38px) clamp(14px,3vw,34px) 48px;animation:jr-page-enter .22s ease both;}
+#workspace>.workspace-view[hidden],#workspace>.workspace-welcome[hidden],#workspace>.jr-daily-welcome[hidden]{display:none!important;}
+#workspace>.workspace-view.company-workspace{min-height:calc(100svh - 112px);padding-top:clamp(20px,4vh,44px);}
+#workspace>.workspace-view#view-home{padding-top:24px;}
+@keyframes jr-page-enter{from{opacity:.72;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#workspace>.workspace-view{animation:none!important}}
