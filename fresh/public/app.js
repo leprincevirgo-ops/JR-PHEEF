@@ -36,7 +36,7 @@
  async function loadFounderOverview(){
   const panel=$("founderCommand");if(panel.hidden)return;
   $("founderLoadState").textContent="Checking your protected founder permissions…";
-  try{const data=await api("/api/founder/overview");if(!data.ok)throw new Error(data.error||"Founder overview unavailable.");
+  try{const data=await api("/api/founder/overview");if(!data.ok)throw new Error(data.error||"Founder overview unavailable.");window.dispatchEvent(new CustomEvent("jr:founder-overview",{detail:data}));
    $("founderName").textContent=data.founder.fullName||"Founder";$("founderJp").textContent=data.founder.jpNumber;
    $("founderMembers").textContent=data.metrics.memberAccounts===null?"—":String(data.metrics.memberAccounts);
    $("founderVentures").textContent=data.metrics.registeredVentures===null?"—":String(data.metrics.registeredVentures);
