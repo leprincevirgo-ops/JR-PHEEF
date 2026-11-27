@@ -334,11 +334,11 @@ Deno.serve(async (req: Request) => {
       const signed=await signedMedia([{path,kind:"image"}]);return response({url:signed[0]?.url||null,hidden:!!p?.[0]?.profile_photo_hidden});
     }
     if(action==="list_connections"){
-      const data=await rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status,created_at&order=created_at.desc&limit=100");
+      const data=await rows("connections","or=(requester_id.eq."+mid+",receiver_id.eq."+mid+")&select=id,requester_id,receiver_id,status,request_message,created_at&order=created_at.desc&limit=100");
       const ids=[...new Set((data||[]).flatMap((x:any)=>[x.requester_id,x.receiver_id]).filter((id:any)=>String(id)!==String(mid)))];
-      const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,full_name,verified,profile_visibility,country_code,role,account_type,status"):[];
+      const people=ids.length?await rows("members","id=in.("+ids.map((id:any)=>encodeURIComponent(String(id))).join(",")+")&select=id,full_name,verified,profile_visibility,country_code,role,account_type,status,profile_photo,profile_photo_hidden"):[];
       const byId=new Map<string,any>((people||[]).map((person:any)=>[String(person.id),person] as [string,any]));
-      return response((data||[]).map((connection:any)=>{
+      return response(await Promise.all((data||[]).map(async(connection:any)=>{
         const other=byId.get(String(connection.requester_id)===String(mid)?connection.receiver_id:connection.requester_id);
         if(!other){const {requester_id,receiver_id,...safeConnection}=connection;return {...safeConnection,direction:String(receiver_id)===String(mid)?"incoming":"outgoing",other_member:null};}
         const privateProfile=String(other.profile_visibility||"public").toLowerCase()==="private";
@@ -351,9 +351,10 @@ Deno.serve(async (req: Request) => {
           verified:!!other.verified,
           profile_visibility:privateProfile?"private":"public",
           country_code:countryCode,
-          connected:connection.status==="accepted"
+          connected:connection.status==="accepted",
+          profile_photo_url:!privateProfile&&!other.profile_photo_hidden&&other.profile_photo?((await signedMedia([{path:other.profile_photo,kind:"image"}]))[0]?.url||null):null
         }};
-      }));
+      })));
     }
     if(action==="create_contact_invite"){
       const since=new Date(Date.now()-24*60*60*1000).toISOString();
@@ -387,9 +388,10 @@ Deno.serve(async (req: Request) => {
       const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status&limit=1");
       if(existing?.length&&["pending","accepted"].includes(String(existing[0].status))){const {requester_id,receiver_id,...safeExisting}=existing[0];return response({already_exists:true,connection:safeExisting,message:"A connection request or connection already exists."});}
       let created;
-      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",updated_at:new Date().toISOString()});
-      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
-      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
+      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",request_message:clean(input.message,240)||null,updated_at:new Date().toISOString()});
+      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending",request_message:clean(input.message,240)||null});
+      const intro=clean(input.message,240);
+      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF."+(intro?" Message: "+intro:""),type:"connection",read:false});
       const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
       return response({already_exists:false,connection:safeSaved,message:"Connection request sent. Both JP numbers remain private."});
     }
