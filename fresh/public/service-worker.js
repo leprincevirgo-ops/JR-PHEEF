@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v22";
+const CACHE_NAME="jr-pheef-shell-v23";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
@@ -22,6 +22,8 @@ const APP_SHELL=[
  "/cosmic.js?v=jr-cosmic-universe-20261115-v1",
  "/business.js?v=jr-business-ops-v1",
  "/diamond-company-worlds.css?v=diamond-company-worlds-20261118-v1",
+ "/company-offices.css?v=company-offices-20261127-v1",
+ "/company-offices.js?v=company-offices-20261127-v1",
  "/transport-world.css?v=jr-move-connected-world-20261118-v1",
  "/connected-world-engine.css?v=connected-world-engine-20261118-v1",
  "/diamond-company-worlds.js?v=diamond-company-worlds-20261118-v1",
