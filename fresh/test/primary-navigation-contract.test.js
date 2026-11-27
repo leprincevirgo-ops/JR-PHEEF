@@ -31,7 +31,7 @@ test("member sign-in opens the selected workspace and tab clicks change destinat
  assert.match(app,/workspace\.hidden=true/);
 });
 test("installed JR PHEEF shell caches every local stylesheet and script at its exact current URL",()=>{
- assert.match(worker,/const CACHE_NAME="jr-pheef-shell-v20"/);
+ assert.match(worker,/const CACHE_NAME="jr-pheef-shell-v21"/);
  const refs=[...html.matchAll(/(?:src|href)="(\/[^"]+)"/g)].map(match=>match[1]).filter(ref=>/\.(?:css|js|webmanifest|svg)(?:\?|$)/.test(ref));
  for(const ref of new Set(refs))assert.ok(worker.includes('"'+ref+'"'),"Missing from app shell cache: "+ref);
  assert.match(worker,/url\.pathname\.startsWith\("\/api\/"\)/);
@@ -52,4 +52,16 @@ test("navigation history distinguishes company-world URLs and restores deep link
  assert.match(navigation,/last\?\.url===state\.url/);
  assert.match(navigation,/history\.replaceState\(\{jrWorld:state\.view\}/);
  assert.match(navigation,/window\.dispatchEvent\(new Event\("popstate"\)\)/);
+});
+
+test("scrolling keeps the four primary destinations available while floating controls fade out of reading content",()=>{
+ const navigation=fs.readFileSync("fresh/public/navigation.js","utf8");
+ assert.match(navigation,/body\.classList\.add\("jr-scrolling-down"\)/);
+ assert.match(navigation,/body\.classList\.remove\("jr-scrolling-down"\)/);
+ assert.match(navigation,/window\.addEventListener\("scroll",onScroll,\{passive:true\}\)/);
+ assert.match(css,/body\.jr-scrolling-down \.workspace-nav\{opacity:\.88/);
+ assert.match(css,/body\.jr-scrolling-down \.jr-page-navigation,body\.jr-scrolling-down \.jr-global-voice\{opacity:\.10/);
+ assert.match(css,/\.jr-page-navigation:focus-within/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/\.workspace-nav\{scroll-margin-top:calc\(10px \+ env\(safe-area-inset-top,0px\)\)/);
 });

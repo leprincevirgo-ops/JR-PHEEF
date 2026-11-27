@@ -32,7 +32,9 @@
  forward.addEventListener("click",()=>{if(index<trail.length-1){index++;activate(trail[index]);sync();}});
  top.addEventListener("click",()=>window.scrollTo({top:0,behavior:reduced()?"auto":"smooth"}));
  bottom.addEventListener("click",()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:reduced()?"auto":"smooth"}));
- window.addEventListener("scroll",sync,{passive:true});window.addEventListener("pageshow",()=>{if(index<0)record();sync();});
+ let lastScrollY=window.scrollY||0;
+ const onScroll=()=>{const y=window.scrollY||0;if(y<48||y<lastScrollY-3)document.body.classList.remove("jr-scrolling-down");else if(y>lastScrollY+3)document.body.classList.add("jr-scrolling-down");lastScrollY=y;sync();};
+ window.addEventListener("scroll",onScroll,{passive:true});window.addEventListener("pageshow",()=>{if(index<0)record();sync();});
  window.addEventListener("popstate",()=>{record();window.scrollTo({top:0,behavior:reduced()?"auto":"smooth"});});
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",record,{once:true});else record();
  sync();

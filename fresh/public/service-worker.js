@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v20";
+const CACHE_NAME="jr-pheef-shell-v21";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
@@ -15,7 +15,7 @@ const APP_SHELL=[
  "/command-layout.js?v=jr-link-workspace-20261113-v1&brand=jr-dgbo-diamond-brand-20261112-v1",
  "/worlds.js?v=jr-one-world-space-20261112-v2",
  "/intelligence.js?v=jr-agent-orchestration-20261125-v2",
- "/navigation.js?v=jr-arrow-navigation-20261112-v6",
+ "/navigation.js?v=jr-arrow-navigation-20261127-v1",
  "/scroll-companion.css?v=jr-scroll-companion-20261124-v1",
  "/scroll-companion.js?v=jr-scroll-companion-20261124-v1",
  "/voice.js?v=jr-connect-voice-20261112-v3",
