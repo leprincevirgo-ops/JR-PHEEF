@@ -88,7 +88,7 @@
   }catch(error){$("founderLoadState").textContent=error.message||"Could not load founder overview.";}
  }
  function setSignedIn(user){
-  signedInUser=user||null;
+  signedInUser=user||null;window.jrCurrentMember=user||null;
   if(user){try{sessionStorage.removeItem("jr_referral_code");}catch{}}
   const publicInfo=$("publicInfo");if(publicInfo)publicInfo.hidden=!!user;
   const publicLive=$("publicLive");if(publicLive)publicLive.hidden=!!user;
