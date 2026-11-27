@@ -142,12 +142,14 @@ test("global voice dock provides speaker, microphone and shared stop controls",(
  assert.match(v,/aria-live="polite"/);assert.match(c,/\.jr-global-voice/);assert.match(l,/Shared voice interaction is initialized/);
 });
 
-test("member social features are consolidated into the JR LINK workspace",()=>{
+test("Command Center sections follow the agreed five-part order",()=>{
  const c=read("public/command-layout.js"),h=read("public/index.html"),css=read("public/styles.css");
  assert.match(c,/jrConnectWorkspace/);
- assert.match(c,/<h3>JR LINK<\/h3>/);assert.match(c,/aria-label="JR LINK workspace"/);assert.match(h,/jr-link-workspace-20261113-v1/);
- for(const tab of ["feed","status","chats","channels","ads","profile"])assert.match(c,new RegExp('data-connect-tab="'+tab+'"'));
+ assert.match(c,/<h3>JR LINK<\/h3>/);assert.match(c,/aria-label="Command Center"/);
+ const tabs=[...c.matchAll(/data-connect-tab="(profile|chats|channels|ads|feed)"/g)].map(m=>m[1]);
+ assert.deepEqual(tabs,["profile","chats","channels","ads","feed"]);
  for(const id of ["memberStatusPanel","memberUpdatesPanel","memberChatsPanel","memberContactsPanel","memberProfilePanel","memberAccessibilityPanel"])assert.match(c,new RegExp(id));
+ assert.match(c,/move\(statusPanel,connectPanel\("channels"\)\)/);
  assert.match(c,/move\(channels,connectPanel\("channels"\)\)/);
  assert.match(css,/\.jr-connect-workspace/);assert.match(css,/\.jr-connect-tabs/);
  assert.match(h,/Your profile\. Your people\. Your conversations\./);
@@ -192,7 +194,7 @@ test("Founder can review ads but approval never marks a campaign paid",()=>{
 test("Connect sections return to the top of the same workspace",()=>{
  const c=read("public/command-layout.js"),css=read("public/styles.css");
  assert.match(c,/activateConnectTab/);assert.match(c,/connect\.scrollTo/);assert.doesNotMatch(c,/window\.scrollTo/);
- assert.match(c,/connectPanel\("status"\)/);assert.match(c,/jrConnectPanel/);
+ assert.match(c,/connectPanel\("channels"\)/);assert.match(c,/jrConnectPanel/);
  assert.match(css,/#jrConnectWorkspace \.jr-connect-tabs\{position:sticky/);
 });
 test("Worlds is one environment with Create or Enter modes",()=>{
