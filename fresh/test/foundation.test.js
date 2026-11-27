@@ -163,7 +163,7 @@ test("friend requests show sender photos and optional introductions",()=>{
 test("personal settings provide global themes without replacing company branding",()=>{
  const s=read("public/personal-settings.js");
  assert.match(s,/Themes & wallpapers/);assert.match(s,/jr_personal_theme/);
- assert.match(s,/official JR PHEEF, DGBO, JR MOVE and FAMILY logos and brand colours remain protected/);
+ assert.match(s,/Official JR PHEEF, DGBO, JR MOVE and FAMILY logos and brand colours remain protected/);
  assert.match(s,/jrMenuLogout/);assert.match(s,/Log out/);
  assert.doesNotMatch(s,/#accountEmail\{display:none/);
 });
