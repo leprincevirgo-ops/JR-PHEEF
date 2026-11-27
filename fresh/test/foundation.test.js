@@ -79,11 +79,12 @@ test("worlds switch the living environment according to world type",()=>{
  for(const world of ["business","education","creative","community","family_personal","family_finance","personal","commerce"])assert.match(c,new RegExp("data-jr-world=."+world));
 });
 
-test("members can open multiple live workspace panels",()=>{
+test("members open one full-screen workspace destination at a time",()=>{
  const a=read("public/app.js"),c=read("public/styles.css");
- for(const key of ["jrWorkspaceWindowGrid","jrWorkspaceWindowToolbar","jrAddWindow","jrWindowColumns","jrWindowReset","openWindows","multiWindowMode"])assert.match(a,new RegExp(key));
- assert.match(c,/jr-workspace-window-grid\.is-multiple/);
- assert.match(c,/jr-workspace-window-head/);
+ assert.match(a,/workspaceViews\.forEach\(section=>\{section\.hidden=section\.id!==\"view-\"\+view;\}\)/);
+ assert.match(a,/window\.history\.pushState\(\{jrWorld:view,jrScrollY:0\}/);
+ assert.doesNotMatch(a,/jrWorkspaceWindowGrid|jrWorkspaceWindowToolbar|multiWindowMode|openWindows/);
+ assert.match(c,/#workspace>\.workspace-view\{[^}]*min-height/);
 });
 test("members can edit their own worlds and save activities",()=>{
  const w=read("public/worlds.js");
@@ -126,11 +127,11 @@ test("Founder Build Studio manages a private capability lifecycle registry",()=>
 });
 
 
-test("persistent page navigation provides back, top and bottom controls",()=>{
+test("persistent page navigation uses browser history and accessible page controls",()=>{
  const h=read("public/index.html"),n=read("public/navigation.js"),c=read("public/styles.css");
  assert.match(h,/navigation\.js/);
  for(const key of ["jrPageBack","jrPageForward","jrPageTop","jrPageBottom"])assert.match(n,new RegExp(key));
- assert.match(n,/trail/);assert.match(n,/index/);assert.match(n,/jrConnectWorkspace/);assert.match(n,/panel:/);assert.doesNotMatch(n,/history\.back/);assert.match(n,/scrollTo/);
+ assert.match(n,/history\.back\(\)/);assert.match(n,/history\.forward\(\)/);assert.match(n,/scrollTo/);
  assert.match(c,/\.jr-page-navigation/);
 });
 

@@ -7,10 +7,11 @@
  document.body.append(dock);
  const $=id=>document.getElementById(id),back=$("jrPageBack"),forward=$("jrPageForward"),top=$("jrPageTop"),bottom=$("jrPageBottom");
  const reduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
- const sync=()=>{back.disabled=history.length<=1;forward.disabled=true;top.disabled=window.scrollY<60;bottom.disabled=document.documentElement.scrollHeight-window.innerHeight-window.scrollY<60;};
+ const sync=()=>{back.disabled=history.length<=1;forward.disabled=history.length<=1;top.disabled=window.scrollY<60;bottom.disabled=document.documentElement.scrollHeight-window.innerHeight-window.scrollY<60;};
  back.addEventListener("click",()=>history.back());forward.addEventListener("click",()=>history.forward());
  top.addEventListener("click",()=>window.scrollTo({top:0,behavior:reduced()?"auto":"smooth"}));bottom.addEventListener("click",()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:reduced()?"auto":"smooth"}));
  let lastScrollY=window.scrollY||0;
- window.addEventListener("scroll",()=>{const y=window.scrollY||0;if(y<48||y<lastScrollY-3)document.body.classList.remove("jr-scrolling-down");else if(y>lastScrollY+3)document.body.classList.add("jr-scrolling-down");lastScrollY=y;sync();},{passive:true});
+ const onScroll=()=>{const y=window.scrollY||0;if(y<48||y<lastScrollY-3)document.body.classList.remove("jr-scrolling-down");else if(y>lastScrollY+3)document.body.classList.add("jr-scrolling-down");lastScrollY=y;sync();};
+ window.addEventListener("scroll",onScroll,{passive:true});
  window.addEventListener("popstate",sync);window.addEventListener("pageshow",sync);sync();
 })();
