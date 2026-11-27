@@ -1,13 +1,13 @@
 "use strict";
-const CACHE_NAME="jr-pheef-shell-v21";
+const CACHE_NAME="jr-pheef-shell-v22";
 const APP_SHELL=[
  "/",
  "/manifest.webmanifest",
  "/jr-pheef-icon.svg",
- "/styles.css?v=jr-primary-top-navigation-20261125-v2",
+ "/styles.css?v=jr-fullscreen-pages-20261127-v1",
  "/cosmic.css?v=jr-cosmic-universe-20261115-v1",
  "/living-interface.css?v=jr-top-navigation-20261125-v1",
- "/app.js?v=jr-primary-navigation-20261125-v2",
+ "/app.js?v=jr-fullscreen-pages-20261127-v1",
  "/founder-partner.js?v=founder-jr-20261124-v1",
  "/pwa.js?v=jr-pwa-20261118-v1",
  "/living-interface.js?v=20261119-space-living-v1",
@@ -15,7 +15,7 @@ const APP_SHELL=[
  "/command-layout.js?v=jr-link-workspace-20261113-v1&brand=jr-dgbo-diamond-brand-20261112-v1",
  "/worlds.js?v=jr-one-world-space-20261112-v2",
  "/intelligence.js?v=jr-agent-orchestration-20261125-v2",
- "/navigation.js?v=jr-arrow-navigation-20261127-v1",
+ "/navigation.js?v=jr-browser-history-20261127-v2",
  "/scroll-companion.css?v=jr-scroll-companion-20261124-v1",
  "/scroll-companion.js?v=jr-scroll-companion-20261124-v1",
  "/voice.js?v=jr-connect-voice-20261112-v3",

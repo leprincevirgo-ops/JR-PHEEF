@@ -27,7 +27,7 @@ test("the four tabs are at the top of the signed-in screen and remain sticky whi
 test("member sign-in opens the selected workspace and tab clicks change destinations",()=>{
  assert.match(app,/function showWorkspace\(view="home",options=\{\}\)/);
  assert.match(app,/document\.querySelectorAll\("\.workspace-tab"\)\.forEach\(button=>button\.addEventListener\("click",\(\)=>showWorkspace\(button\.dataset\.view\)\)\)/);
- assert.match(app,/showWorkspace\(requestedWorld\)/);
+ assert.match(app,/showWorkspace\(requestedWorld/);
  assert.match(app,/workspace\.hidden=true/);
 });
 test("installed JR PHEEF shell caches every local stylesheet and script at its exact current URL",()=>{
@@ -47,11 +47,16 @@ test("WORLDS and JR have reloadable deep routes, and company worlds stay under W
  assert.match(app,/button\.setAttribute\("aria-current","page"\)/);
  assert.match(html,/data-view="home" aria-current="page"/);
 });
-test("navigation history distinguishes company-world URLs and restores deep links",()=>{
+test("full-screen destinations replace the visible page and preserve browser back/forward history",()=>{
  const navigation=fs.readFileSync("fresh/public/navigation.js","utf8");
- assert.match(navigation,/last\?\.url===state\.url/);
- assert.match(navigation,/history\.replaceState\(\{jrWorld:state\.view\}/);
- assert.match(navigation,/window\.dispatchEvent\(new Event\("popstate"\)\)/);
+ assert.match(app,/workspaceViews\.forEach\(section=>\{section\.hidden=section\.id!==\"view-\"\+view;\}\)/);
+ assert.match(app,/jrScrollY:window\.scrollY\|\|0/);
+ assert.match(app,/jrScrollY:0/);
+ assert.match(app,/window\.history\.scrollRestoration=\"manual\"/);
+ assert.match(app,/const saved=Number\(event\.state\?\.jrScrollY\|\|0\)/);
+ assert.match(navigation,/back\.addEventListener\("click",\(\)=>history\.back\(\)\)/);
+ assert.match(navigation,/forward\.addEventListener\("click",\(\)=>history\.forward\(\)\)/);
+ assert.doesNotMatch(app,/jrWorkspaceWindowGrid|jrAddWindowSelect|multiWindowMode/);
 });
 
 test("scrolling keeps the four primary destinations available while floating controls fade out of reading content",()=>{
