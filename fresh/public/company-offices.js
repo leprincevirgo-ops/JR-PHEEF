@@ -38,14 +38,13 @@
   const panel=$("section","company-office-panel");panel.setAttribute("role","tabpanel");
   const statsGrid=$("div","company-office-metrics");
   office.metrics.forEach(([label,key])=>{const card=$("article","company-office-metric");card.append($("strong","",n(metricsData,key)),$("span","",label));statsGrid.append(card);});
-  function statsData(){return stats;}
-  panel.append(stats);
+  panel.append(statsGrid);
   const body=$("div","company-office-body");
   const people=$("article","company-office-block");people.append($("h4","","People, registration & teams"));
-  people.append($("p","",n(stats,"approvedMembers")+" approved company members · "+n(stats,"pendingApplications")+" applications awaiting review · "+n(stats,"teamMembers")+" approved team-role memberships."));
+  people.append($("p","",n(metricsData,"approvedMembers")+" approved company members · "+n(metricsData,"pendingApplications")+" applications awaiting review · "+n(metricsData,"teamMembers")+" approved team-role memberships."));
   people.append($("p","company-office-muted","Team role blueprint: "+office.roles.join(" · ")+". These are role definitions, not claims that posts are filled."));
   const agents=$("article","company-office-block");agents.append($("h4","","Agents & controlled assistance"));
-  if(office.key==="jrPheef")agents.append($("p","","Your account has "+n(stats,"agents")+" registered agents, "+n(stats,"activeAgents")+" active, and "+n(stats,"agentRunsPending")+" tasks awaiting approval."));
+  if(office.key==="jrPheef")agents.append($("p","","Your account has "+n(metricsData,"agents")+" registered agents, "+n(metricsData,"activeAgents")+" active, and "+n(metricsData,"agentRunsPending")+" tasks awaiting approval."));
   else agents.append($("p","","Company-specific agent roles are mapped to this office. Agent access must be granted explicitly and limited to the company and task."));
   const progress=$("article","company-office-block");progress.append($("h4","","Daily operating review"));
   const list=$("ul","company-office-checklist");office.daily.forEach(item=>list.append($("li","",item)));progress.append(list);
