@@ -464,9 +464,10 @@ Deno.serve(async (req: Request) => {
       const existing=await rows("connections","or=(and(requester_id.eq."+mid+",receiver_id.eq."+targetId+"),and(requester_id.eq."+targetId+",receiver_id.eq."+mid+"))&select=id,status,requester_id,receiver_id&limit=1");
       if(existing?.length&&["pending","accepted"].includes(String(existing[0].status))){const {requester_id,receiver_id,...safeExisting}=existing[0];return response({already_exists:true,connection:safeExisting,message:existing[0].status==="accepted"?"You are already connected.":"A connection request is already pending."});}
       let created;
-      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",updated_at:new Date().toISOString()});
-      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending"});
-      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF.",type:"connection",read:false});
+      if(existing?.length)created=await rest("connections?id=eq."+encodeURIComponent(existing[0].id),"PATCH",{requester_id:String(mid),receiver_id:targetId,status:"pending",request_message:clean(input.message,240)||null,updated_at:new Date().toISOString()});
+      else created=await insert("connections",{requester_id:String(mid),receiver_id:targetId,status:"pending",request_message:clean(input.message,240)||null});
+      const intro=clean(input.message,240);
+      await insert("jr_notifications",{member_id:targetId,title:"New connection request",message:member.full_name+" wants to connect with you on JR PHEEF."+(intro?" Message: "+intro:""),type:"connection",read:false});
       const saved=created?.[0]||created;const {requester_id,receiver_id,...safeSaved}=saved||{};
       return response({already_exists:false,connection:safeSaved,member:{full_name:String(target.profile_visibility||"public").toLowerCase()==="private"?"JR PHEEF Member":target.full_name||"JR PHEEF Member",verified:!!target.verified},message:"Connection request sent. JP numbers remain private."});
     }
