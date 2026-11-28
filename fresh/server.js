@@ -396,6 +396,16 @@ app.post("/api/ai/chat",rateLimit,sameOrigin,async(req,res)=>{
   }
 });
 
+app.post("/api/ecosystem-operations",rateLimit,sameOrigin,async(req,res)=>{
+  try{
+    const user=await currentUser(req,res);
+    if(!user||!user.email_confirmed_at||!req.jrAccessToken)return res.status(401).json({ok:false,error:"Sign in with a verified JR PHEEF account first."});
+    const response=await fetch(SUPABASE_URL+"/functions/v1/jr-ecosystem-operations",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+req.jrAccessToken,"Content-Type":"application/json"},body:JSON.stringify(req.body||{}),signal:AbortSignal.timeout(15000)});
+    let data={};try{data=await response.json();}catch{}
+    return res.status(response.status).json(data);
+  }catch(err){console.error("JR ecosystem operations proxy:",String(err?.message||err).slice(0,160));return res.status(503).json({ok:false,error:"JR ecosystem operations are temporarily unavailable."});}
+});
+
 app.post("/api/workspace",rateLimit,sameOrigin,async(req,res)=>{
   try{
     const user=await currentUser(req,res);
